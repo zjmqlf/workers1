@@ -62,6 +62,7 @@ import { TelegramClient, Api, sessions, utils } from "./gramjs";
 // }
 
 export class WebSocketServer extends DurableObject {
+  ws;
   client;
   stop;
   currentStep;
@@ -88,85 +89,113 @@ export class WebSocketServer extends DurableObject {
     this.sql = ctx.storage.sql;
     this.env = env;
 
-    // ctx.blockConcurrencyWhile(async () => {
+    // this.ctx.blockConcurrencyWhile(async () => {
+    //   if(this.ws) {
+    //     this.ws.send(JSON.stringify({
+    //       "operate": "blockConcurrencyWhile",
+    //       "message": "blockConcurrencyWhile",
+    //       "date": new Date().getTime(),
+    //     }));  //测试
+    //   }
     //   this.init();
     //   if (!this.client) {
     //     await this.open();
     //   }
     // });
 
-    ctx.setWebSocketAutoResponse(
-      new WebSocketRequestResponsePair("ping", "pong"),
-    );
+    // this.ctx.setWebSocketAutoResponse(
+    //   new WebSocketRequestResponsePair("ping", "pong"),
+    // );
   }
 
-  // init() {
-  //   if (!this.client || !this.stop || this.stop === 0) {
-  //     // this.client = null;
-  //     // this.stop = 0;
-  //     this.currentStep = 0;
-  //     this.chatId = 0;
-  //     this.lastChat = 0;
-  //     this.filterType = 0;
-  //     this.reverse = true;
-  //     this.limit = 10;
-  //     this.offsetId = 0;
-  //     this.error = false;
-  //     this.fromPeer = null;
-  //     this.messageArray = [];
-  //     this.messageLength = 0;
-  //     this.messageIndex = 0;
-  //     this.hashResult = {
-  //       "hash": [],
-  //       "offset": 0,
-  //       "index": 0,
-  //       "limit": 0,
-  //     };
-  //     //this.cacheHashResult = null;
-  //     //filter = Api.InputMessagesFilterPhotoVideo;
-  //     filter = Api.InputMessagesFilterVideo;  //测试
-  //     //filter = Api.InputMessagesFilterPhotos;  //测试
-  //     //filterTitle = "媒体";
-  //   }
-  // }
+  async init() {
+    if(this.ws) {
+      this.ws.send(JSON.stringify({
+        "operate": "init",
+        "message": "init",
+        "date": new Date().getTime(),
+      }));  //测试
+    }
+    if (!this.client || !this.stop || this.stop === 0) {
+      // this.client = null;
+      // this.stop = 0;
+      this.currentStep = 0;
+      this.chatId = 0;
+      this.lastChat = 0;
+      this.filterType = 0;
+      this.reverse = true;
+      this.limit = 10;
+      this.offsetId = 0;
+      this.error = false;
+      this.fromPeer = null;
+      this.messageArray = [];
+      this.messageLength = 0;
+      this.messageIndex = 0;
+      this.hashResult = {
+        "hash": [],
+        "offset": 0,
+        "index": 0,
+        "limit": 0,
+      };
+      //this.cacheHashResult = null;
+      //filter = Api.InputMessagesFilterPhotoVideo;
+      filter = Api.InputMessagesFilterVideo;  //测试
+      //filter = Api.InputMessagesFilterPhotos;  //测试
+      //filterTitle = "媒体";
+    }
+  }
 
-  // async open() {
-  //   const apiId = 1334621;
-  //   const apiHash = "2bc36173f487ece3052a00068be59e7b";
-  //   const sessionString = "1BQAWZmxvcmEud2ViLnRlbGVncmFtLm9yZwG7VxdGmdW/SYRusjfTnUHfhQfqLFA+A30Jios20XKnGGsRB58mFR33Lnpz966333yugE0ysMX/XMP8Urbbm3ADQ/mCq/fdQqA/qUoeG9L2Wy0Y8WcOlikGkNJ2e/nO9pT9nl1YePq5DD/hJ8+eKNL4BvUY70GAth/N/fv7dA4joQzwWhHdA8wdOUaxDQhnSAk9H62zG4fX5zipV+g2qp2WCT6CWCwUtsgZs8FZ9g9/TMmyfLagFmnMe7MhlZdkMfgCtKCXI8MVrGaHq5SpPRqMMCR4SkFrwV+9Eo6NyehH7bzWl1zyyAr6wP8j0jtduckdvkUcmyoDOP2M3AkNgd+ZcQ==";
-  //   try {
-  //     this.client = await new TelegramClient(new sessions.StringSession(sessionString), apiId, apiHash, {
-  //       connectionRetries: Number.MAX_VALUE,
-  //       autoReconnect: true,
-  //       //downloadRetries: 1,
-  //       //retryDelay: 0,
-  //       //useWSS: false,
-  //       //langCode: "en",
-  //       //systemLangCode: "en",
-  //     })
-  //     await this.client.session.setDC(5, "91.108.56.128", 80);
-  //     await this.client.setLogLevel("error");
-  //     await this.client.connect();
-  //   } catch (e) {
-  //     //console.log("login出错 : " + e);
-  //     ws.send(JSON.stringify({
-  //       "operate": "open",
-  //       "message": "login出错 : " + e,
-  //       "date": Date.now(),
-  //     }));
-  //     await scheduler.wait(30000);
-  //     await this.open();
-  //   }
-  //   this.stop = 1;
-  //   //console.log("连接服务器成功");
-  //     ws.send(JSON.stringify({
-  //       "operate": "open",
-  //       "message": "连接服务器成功",
-  //       "date": Date.now(),
-  //     }));  //测试
-  //   //console.log(this.client);  //测试
-  //   //await scheduler.wait(5000);
-  // }
+  async open() {
+    if(this.ws) {
+      this.ws.send(JSON.stringify({
+        "operate": "open",
+        "message": "open",
+        "date": new Date().getTime(),
+      }));  //测试
+    }
+    // const apiId = 1334621;
+    // const apiHash = "2bc36173f487ece3052a00068be59e7b";
+    // const sessionString = "1BQAWZmxvcmEud2ViLnRlbGVncmFtLm9yZwG7VxdGmdW/SYRusjfTnUHfhQfqLFA+A30Jios20XKnGGsRB58mFR33Lnpz966333yugE0ysMX/XMP8Urbbm3ADQ/mCq/fdQqA/qUoeG9L2Wy0Y8WcOlikGkNJ2e/nO9pT9nl1YePq5DD/hJ8+eKNL4BvUY70GAth/N/fv7dA4joQzwWhHdA8wdOUaxDQhnSAk9H62zG4fX5zipV+g2qp2WCT6CWCwUtsgZs8FZ9g9/TMmyfLagFmnMe7MhlZdkMfgCtKCXI8MVrGaHq5SpPRqMMCR4SkFrwV+9Eo6NyehH7bzWl1zyyAr6wP8j0jtduckdvkUcmyoDOP2M3AkNgd+ZcQ==";
+    const apiId = 8851987;
+    const apiHash = "8c353f36d876aa5b71b671dd221d763c";
+    const sessionString = "1BQAWZmxvcmEud2ViLnRlbGVncmFtLm9yZwG7T4XOMd9S70qaT1RsAFjZNt7R7HVArcpGvSs5k4W9Zwv6ifsWA7UjljXCRPelXOooM/t3FIVZZ1pKg4mZ2NyXYZrl6GFR1On7/RjIJ+BDPZDArthDvQoIil7ZEAFDeuGm6zUkZZ8NeMPUS2rEpI8wmjIDH4m8qD3aj56DK0WuMpsJGoK+liLseKOI3EtmyTAkK/1u8jRkRPuV7egGYU4zH3FSkUSZJPxt67Pb87MJx75sZu2lJkicbUn8tcnwcN1eW6HgRnyjnc5b+7S1tfT+9Lxs+xMhO2J77Q2wwQ6rAgas2qC3g/dWIcdzCw295ar08PHSOxCi2UUCIj0+QojJ1g==";
+    try {
+      this.client = await new TelegramClient(new sessions.StringSession(sessionString), apiId, apiHash, {
+        connectionRetries: Number.MAX_VALUE,
+        autoReconnect: true,
+        //downloadRetries: 1,
+        //retryDelay: 0,
+        //useWSS: false,
+        //langCode: "en",
+        //systemLangCode: "en",
+      })
+      await this.client.session.setDC(5, "91.108.56.128", 80);
+      await this.client.setLogLevel("error");
+      await this.client.connect();
+    } catch (e) {
+      //console.log("login出错 : " + e);
+      if(this.ws) {
+        this.ws.send(JSON.stringify({
+          "operate": "open",
+          "message": "login出错 : " + e,
+          "date": new Date().getTime(),
+        }));
+      }
+      await scheduler.wait(30000);
+      await this.open();
+    }
+    this.stop = 1;
+    //console.log("连接服务器成功");
+    if(this.ws) {
+      this.ws.send(JSON.stringify({
+        "operate": "open",
+        "message": "连接服务器成功",
+        "date": new Date().getTime(),
+      }));  //测试
+    }
+    //console.log(this.client);  //测试
+    //await scheduler.wait(5000);
+  }
 
   // async getConfig() {
   //   try {
@@ -191,7 +220,7 @@ export class WebSocketServer extends DurableObject {
   //       ws.send(JSON.stringify({
   //         "operate": "getConfig",
   //         "message": "没有预设config",
-  //         "date": Date.now(),
+  //         "date": new Date().getTime(),
   //       }));
   //     }
   //   } catch (e) {
@@ -200,7 +229,7 @@ export class WebSocketServer extends DurableObject {
   //       "operate": "getConfig",
   //       "message": "出错 : " + e,
   //       "error": true,
-  //       "date": Date.now(),
+  //       "date": new Date().getTime(),
   //     }));
   //     await scheduler.wait(10000);
   //     await this.getConfig();
@@ -256,7 +285,7 @@ export class WebSocketServer extends DurableObject {
   //     ws.send(JSON.stringify({
   //       "operate": "close",
   //       "message": "断开服务器成功",
-  //       "date": Date.now(),
+  //       "date": new Date().getTime(),
   //     }));
   //     ws.close();
   //     //await scheduler.wait(1000);
@@ -267,7 +296,7 @@ export class WebSocketServer extends DurableObject {
   //   // ws.send(JSON.stringify({
   //   //   "operate": "getChat",
   //   //   "message": "getChat",
-  //   //   "date": Date.now(),
+  //   //   "date": new Date().getTime(),
   //   // }));  //测试
   //   if (this.chatId === 0) {
   //     this.fromPeer = "me";
@@ -377,7 +406,7 @@ export class WebSocketServer extends DurableObject {
   //       ws.send(JSON.stringify({
   //         "operate": "updateConfig",
   //         "message": "更新config数据成功",
-  //         "date": Date.now(),
+  //         "date": new Date().getTime(),
   //       }));
   //     } else {
   //       //console.log("更新config数据失败");
@@ -385,7 +414,7 @@ export class WebSocketServer extends DurableObject {
   //         "operate": "updateConfig",
   //         "message": "更新config数据失败",
   //         "error": true,
-  //         "date": Date.now(),
+  //         "date": new Date().getTime(),
   //       }));
   //     }
   //   } catch (e) {
@@ -394,7 +423,7 @@ export class WebSocketServer extends DurableObject {
   //       "operate": "updateConfig",
   //       "message": "出错 : " + e,
   //       "error": true,
-  //       "date": Date.now(),
+  //       "date": new Date().getTime(),
   //     }));
   //     await scheduler.wait(10000);
   //     await this.updateConfig();
@@ -437,7 +466,7 @@ export class WebSocketServer extends DurableObject {
   //       "step": this.currentStep,
   //       "message": "查询消息出错 : " + e,
   //       "error": true,
-  //       "date": Date.now(),
+  //       "date": new Date().getTime(),
   //     }));
   //     await scheduler.wait(10000);
   //     await this.getMessage();
@@ -457,7 +486,7 @@ export class WebSocketServer extends DurableObject {
   //       "message": JSON.stringify(e),
   //       "error": true,
   //       "status": "try",
-  //       "date": Date.now(),
+  //       "date": new Date().getTime(),
   //     }));
   //     await scheduler.wait(10000);
   //     await this.selectMediaIndex();
@@ -477,7 +506,7 @@ export class WebSocketServer extends DurableObject {
   //       "message": JSON.stringify(e),
   //       "error": true,
   //       "status": "try",
-  //       "date": Date.now(),
+  //       "date": new Date().getTime(),
   //     }));
   //     await scheduler.wait(10000);
   //     await this.selectMedia();
@@ -503,7 +532,7 @@ export class WebSocketServer extends DurableObject {
   //         "message": JSON.stringify(e),
   //         "error": true,
   //         "status": "try",
-  //         "date": Date.now(),
+  //         "date": new Date().getTime(),
   //       }));
   //       if (this.hashResult.index === 1) {
   //         this.error = true;
@@ -527,15 +556,15 @@ export class WebSocketServer extends DurableObject {
   //   try {
   //     let chatInfo = {};
   //     if (this.filterType === 0) {
-  //       chatInfo = await env.MAINDB.prepare("UPDATE `CHAT` SET `current` = ?, `updated` = ? WHERE `Cindex` = ?;").bind(this.offsetId, Date.now(), this.chatId).run();
+  //       chatInfo = await env.MAINDB.prepare("UPDATE `CHAT` SET `current` = ?, `updated` = ? WHERE `Cindex` = ?;").bind(this.offsetId, new Date().getTime(), this.chatId).run();
   //     } else if (this.filterType === 1) {
-  //       chatInfo = await env.MAINDB.prepare("UPDATE `CHAT` SET `photo` = ?, `updated` = ? WHERE `Cindex` = ?;").bind(this.offsetId, Date.now(), this.chatId).run();
+  //       chatInfo = await env.MAINDB.prepare("UPDATE `CHAT` SET `photo` = ?, `updated` = ? WHERE `Cindex` = ?;").bind(this.offsetId, new Date().getTime(), this.chatId).run();
   //     } else if (this.filterType === 2) {
-  //       chatInfo = await env.MAINDB.prepare("UPDATE `CHAT` SET `video` = ?, `updated` = ? WHERE `Cindex` = ?;").bind(this.offsetId, Date.now(), this.chatId).run();
+  //       chatInfo = await env.MAINDB.prepare("UPDATE `CHAT` SET `video` = ?, `updated` = ? WHERE `Cindex` = ?;").bind(this.offsetId, new Date().getTime(), this.chatId).run();
   //     } else if (this.filterType === 3) {
-  //       chatInfo = await env.MAINDB.prepare("UPDATE `CHAT` SET `document` = ?, `updated` = ? WHERE `Cindex` = ?;").bind(this.offsetId, Date.now(), this.chatId).run();
+  //       chatInfo = await env.MAINDB.prepare("UPDATE `CHAT` SET `document` = ?, `updated` = ? WHERE `Cindex` = ?;").bind(this.offsetId, new Date().getTime(), this.chatId).run();
   //     } else if (this.filterType === 4) {
-  //       chatInfo = await env.MAINDB.prepare("UPDATE `CHAT` SET `gif` = ?, `updated` = ? WHERE `Cindex` = ?;").bind(this.offsetId, Date.now(), this.chatId).run();
+  //       chatInfo = await env.MAINDB.prepare("UPDATE `CHAT` SET `gif` = ?, `updated` = ? WHERE `Cindex` = ?;").bind(this.offsetId, new Date().getTime(), this.chatId).run();
   //     }
   //     //console.log(chatInfo);  //测试
   //     if (chatInfo.success === true) {
@@ -544,7 +573,7 @@ export class WebSocketServer extends DurableObject {
   //         "operate": "updateChat",
   //         "step": this.currentStep,
   //         "message": "更新chat数据成功",
-  //         "date": Date.now(),
+  //         "date": new Date().getTime(),
   //       }));
   //     } else {
   //       //console.log("(" + this.currentStep + ")更新chat数据失败");
@@ -553,7 +582,7 @@ export class WebSocketServer extends DurableObject {
   //         "step": this.currentStep,
   //         "message": "更新chat数据失败",
   //         "error": true,
-  //         "date": Date.now(),
+  //         "date": new Date().getTime(),
   //       }));
   //     }
   //   } catch (e) {
@@ -563,7 +592,7 @@ export class WebSocketServer extends DurableObject {
   //       "step": this.currentStep,
   //       "message": "出错 : " + e,
   //       "error": true,
-  //       "date": Date.now(),
+  //       "date": new Date().getTime(),
   //     }));
   //     await scheduler.wait(10000);
   //     await this.updateChat();
@@ -589,7 +618,7 @@ export class WebSocketServer extends DurableObject {
   //           "operate": "insertCache",
   //           "step": this.currentStep,
   //           "message": "插入cache("+ this.hashResult.length + " | " + this.hashResult.index + ")数据成功",
-  //           "date": Date.now(),
+  //           "date": new Date().getTime(),
   //         }));
   //       // } else {
   //       //   //console.log("(" + this.currentStep + ")插入cache("+ this.hashResult.length + " | " + this.hashResult.index + ")数据失败");
@@ -598,7 +627,7 @@ export class WebSocketServer extends DurableObject {
   //       //     "step": this.currentStep,
   //       //     "message": "插入cache("+ this.hashResult.length + " | " + this.hashResult.index + ")数据失败",
   //       //     "error": true,
-  //       //     "date": Date.now(),
+  //       //     "date": new Date().getTime(),
   //       //   }));
   //       // }
   //     } catch (e) {
@@ -614,7 +643,7 @@ export class WebSocketServer extends DurableObject {
   //         "step": this.currentStep,
   //         "message": "("+ this.hashResult.length + " | " + this.hashResult.index + ")出错 : " + e,
   //         "error": true,
-  //         "date": Date.now(),
+  //         "date": new Date().getTime(),
   //       }));
   //       await scheduler.wait(10000);
   //       await this.insertCache();
@@ -626,7 +655,7 @@ export class WebSocketServer extends DurableObject {
   //       "step": this.currentStep,
   //       "message": "cache("+ this.hashResult.length + " | " + this.hashResult.index + ")数据错误",
   //       "error": true,
-  //       "date": Date.now(),
+  //       "date": new Date().getTime(),
   //     }));
   //   }
   // }
@@ -643,7 +672,7 @@ export class WebSocketServer extends DurableObject {
   // //         "operate": "updateCache",
   // //         "step": this.currentStep,
   // //         "message": "更新cache数据成功",
-  // //         "date": Date.now(),
+  // //         "date": new Date().getTime(),
   // //       }));
   // //     } else {
   // //       //console.log("(" + this.currentStep + ")更新cache数据失败");
@@ -652,7 +681,7 @@ export class WebSocketServer extends DurableObject {
   // //         "step": this.currentStep,
   // //         "message": "更新cache数据失败",
   // //         "error": true,
-  // //         "date": Date.now(),
+  // //         "date": new Date().getTime(),
   // //       }));
   // //     }
   // //   } catch (e) {
@@ -662,7 +691,7 @@ export class WebSocketServer extends DurableObject {
   // //       "step": this.currentStep,
   // //       "message": "出错 : " + e,
   // //       "error": true,
-  // //       "date": Date.now(),
+  // //       "date": new Date().getTime(),
   // //     }));
   // //     await scheduler.wait(10000);
   // //     await this.updateCache();
@@ -683,7 +712,7 @@ export class WebSocketServer extends DurableObject {
   // //       "step": this.currentStep,
   // //       "message": "出错 : " + e,
   // //       "error": true,
-  // //       "date": Date.now(),
+  // //       "date": new Date().getTime(),
   // //     }));
   // //     await scheduler.wait(10000);
   // //     await selectCache();
@@ -709,7 +738,7 @@ export class WebSocketServer extends DurableObject {
   //         "operate": "nextHash",
   //         "index": this.hashResult.index,
   //         "status": "update",
-  //         "date": Date.now(),
+  //         "date": new Date().getTime(),
   //       }));
   //       const hashes = await this.getHash();
   //       if (this.error === false) {
@@ -735,7 +764,7 @@ export class WebSocketServer extends DurableObject {
   //             "message": "hashes出错",
   //             "error": true,
   //             "status": "error",
-  //             "date": Date.now(),
+  //             "date": new Date().getTime(),
   //           }));
   //         }
   //         await scheduler.wait(1000);
@@ -768,7 +797,7 @@ export class WebSocketServer extends DurableObject {
   //         "offsetId": this.offsetId,
   //         "operate": "insertMedia",
   //         "status": "success",
-  //         "date": Date.now(),
+  //         "date": new Date().getTime(),
   //       }));
   //       return mediaInfo.meta.last_row_id;
   //     } else {
@@ -779,7 +808,7 @@ export class WebSocketServer extends DurableObject {
   //         "message": "插入media数据失败",
   //         "error": true,
   //         "status": "error",
-  //         "date": Date.now(),
+  //         "date": new Date().getTime(),
   //       }));
   //       return 0;
   //     }
@@ -791,7 +820,7 @@ export class WebSocketServer extends DurableObject {
   //       "message": JSON.stringify(e),
   //       "error": true,
   //       "status": "try",
-  //       "date": Date.now(),
+  //       "date": new Date().getTime(),
   //     }));
   //     await scheduler.wait(10000);
   //     await this.insertMedia();
@@ -808,7 +837,7 @@ export class WebSocketServer extends DurableObject {
   //         "offsetId": this.offsetId,
   //         "operate": "insertMediaIndex",
   //         "status": "success",
-  //         "date": Date.now(),
+  //         "date": new Date().getTime(),
   //       }));
   //     } else {
   //       //console.log("(" + this.currentStep + ")[" + this.messageLength +"/" + this.hashResult.messageIndex + "] " + this.offsetId + " : 插入mediaIndex数据失败");
@@ -818,7 +847,7 @@ export class WebSocketServer extends DurableObject {
   //         "message": "插入mediaIndex数据失败",
   //         "error": true,
   //         "status": "error",
-  //         "date": Date.now(),
+  //         "date": new Date().getTime(),
   //       }));
   //     }
   //   } catch (e) {
@@ -829,7 +858,7 @@ export class WebSocketServer extends DurableObject {
   //       "message": JSON.stringify(e),
   //       "error": true,
   //       "status": "try",
-  //       "date": Date.now(),
+  //       "date": new Date().getTime(),
   //     }));
   //     await scheduler.wait(10000);
   //     await this.insertMediaIndex();
@@ -849,7 +878,7 @@ export class WebSocketServer extends DurableObject {
   // //       "message": JSON.stringify(e),
   // //       "error": true,
   // //       "status": "try",
-  // //       "date": Date.now(),
+  // //       "date": new Date().getTime(),
   // //     }));
   // //     await scheduler.wait(10000);
   // //     await this.selectPhotoIndex();
@@ -869,7 +898,7 @@ export class WebSocketServer extends DurableObject {
   //       "message": JSON.stringify(e),
   //       "error": true,
   //       "status": "try",
-  //       "date": Date.now(),
+  //       "date": new Date().getTime(),
   //     }));
   //     await scheduler.wait(10000);
   //     await this.selectPhoto();
@@ -887,7 +916,7 @@ export class WebSocketServer extends DurableObject {
   //         "operate": "insertPhoto",
   //         "photoIndex": ++this.hashResult.photoIndex,
   //         "status": "success",
-  //         "date": Date.now(),
+  //         "date": new Date().getTime(),
   //       }));
   //       return photoInfo.meta.last_row_id;
   //     } else {
@@ -899,7 +928,7 @@ export class WebSocketServer extends DurableObject {
   //         "message": "插入photo数据失败",
   //         "error": true,
   //         "status": "error",
-  //         "date": Date.now(),
+  //         "date": new Date().getTime(),
   //       }));
   //       return 0;
   //     }
@@ -912,7 +941,7 @@ export class WebSocketServer extends DurableObject {
   //       "message": JSON.stringify(e),
   //       "error": true,
   //       "status": "try",
-  //       "date": Date.now(),
+  //       "date": new Date().getTime(),
   //     }));
   //     await scheduler.wait(10000);
   //     await this.insertPhoto();
@@ -929,7 +958,7 @@ export class WebSocketServer extends DurableObject {
   //         "offsetId": this.offsetId,
   //         "operate": "insertPhotoIndex",
   //         "status": "success",
-  //         "date": Date.now(),
+  //         "date": new Date().getTime(),
   //       }));
   //     } else {
   //       //console.log("(" + this.currentStep + ")[" + this.messageLength +"/" + this.hashResult.messageIndex + "] " + this.offsetId + " : 插入photoIndex数据失败");
@@ -939,7 +968,7 @@ export class WebSocketServer extends DurableObject {
   //         "message": "插入photoIndex数据失败",
   //         "error": true,
   //         "status": "error",
-  //         "date": Date.now(),
+  //         "date": new Date().getTime(),
   //       }));
   //     }
   //   } catch (e) {
@@ -950,7 +979,7 @@ export class WebSocketServer extends DurableObject {
   //       "message": JSON.stringify(e),
   //       "error": true,
   //       "status": "try",
-  //       "date": Date.now(),
+  //       "date": new Date().getTime(),
   //     }));
   //     await scheduler.wait(10000);
   //     await this.insertPhotoIndex();
@@ -982,7 +1011,7 @@ export class WebSocketServer extends DurableObject {
   //         "message": "count不一至 : " + this.hashResult.count + " - " + this.hashResult.hash.length,
   //         "error": true,
   //         "status": "error",
-  //         "date": Date.now(),
+  //         "date": new Date().getTime(),
   //       }));
   //       return 0;
   //     }
@@ -1017,7 +1046,7 @@ export class WebSocketServer extends DurableObject {
   //       "message": JSON.stringify(e),
   //       "error": true,
   //       "status": "try",
-  //       "date": Date.now(),
+  //       "date": new Date().getTime(),
   //     }));
   //     await scheduler.wait(10000);
   //     await this.selectMessage();
@@ -1034,7 +1063,7 @@ export class WebSocketServer extends DurableObject {
   //         "offsetId": this.offsetId,
   //         "operate": "insertMessage",
   //         "status": "success",
-  //         "date": Date.now(),
+  //         "date": new Date().getTime(),
   //       }));
   //     } else {
   //       //console.log("(" + this.currentStep + ")[" + this.messageLength +"/" + this.hashResult.messageIndex + "] " + this.offsetId + " : 插入message数据失败");
@@ -1044,7 +1073,7 @@ export class WebSocketServer extends DurableObject {
   //         "message": "插入message数据失败",
   //         "error": true,
   //         "status": "error",
-  //         "date": Date.now()
+  //         "date": new Date().getTime()
   //       }));
   //     }
   //   } catch (e) {
@@ -1055,7 +1084,7 @@ export class WebSocketServer extends DurableObject {
   //       "message": JSON.stringify(e),
   //       "error": true,
   //       "status": "try",
-  //       "date": Date.now(),
+  //       "date": new Date().getTime(),
   //     }));
   //     await scheduler.wait(10000);
   //     await this.insertMessage();
@@ -1072,7 +1101,7 @@ export class WebSocketServer extends DurableObject {
   //       "offsetId": this.offsetId,
   //       "operate": "endInsert",
   //       "status": "exist",
-  //       "date": Date.now(),
+  //       "date": new Date().getTime(),
   //     }));
   //   }
   // }
@@ -1139,7 +1168,7 @@ export class WebSocketServer extends DurableObject {
   //     if (this.messageIndex >= 0 && this.messageIndex < this.limit) {
   //       this.hashResult.messageId = this.messageArray[this.messageIndex].id;
   //       if (this.messageArray[this.messageIndex]) {
-  //         const time = Date.now();
+  //         const time = new Date().getTime();
   //         ws.send(JSON.stringify({
   //           "offsetId": this.offsetId,
   //           "operate": "nextMessage",
@@ -1220,7 +1249,7 @@ export class WebSocketServer extends DurableObject {
   //                         "height": this.hashResult.height,
   //                         "length": this.hashResult.length,
   //                         "status": "update",
-  //                         "date": Date.now(),
+  //                         "date": new Date().getTime(),
   //                       }));
   //                       if (this.hashResult.length > 0) {
   //                         await this.nextHash();
@@ -1250,7 +1279,7 @@ export class WebSocketServer extends DurableObject {
   //                         "offsetId": this.offsetId,
   //                         "operate": "nextMessage",
   //                         "status": "fileExist",
-  //                         "date": Date.now(),
+  //                         "date": new Date().getTime(),
   //                       }));
   //                       const index = mediaResult.Vindex;
   //                       if (index && index > 0) {
@@ -1271,7 +1300,7 @@ export class WebSocketServer extends DurableObject {
   //                       "message": "视频的mediaResult错误",
   //                       "error": true,
   //                       "status": "error",
-  //                       "date": Date.now(),
+  //                       "date": new Date().getTime(),
   //                     }));
   //                     await this.end();
   //                   }
@@ -1281,7 +1310,7 @@ export class WebSocketServer extends DurableObject {
   //                     "offsetId": this.offsetId,
   //                     "operate": "nextMessage",
   //                     "status": "indexExist",
-  //                     "date": Date.now(),
+  //                     "date": new Date().getTime(),
   //                   }));
   //                   const index = mediaIndexResult.Vindex;
   //                   if (index && index > 0) {
@@ -1299,7 +1328,7 @@ export class WebSocketServer extends DurableObject {
   //                   "message": "视频的mediaIndexResult错误",
   //                   "error": true,
   //                   "status": "error",
-  //                   "date": Date.now(),
+  //                   "date": new Date().getTime(),
   //                 }));
   //                 await this.end();
   //               }
@@ -1311,7 +1340,7 @@ export class WebSocketServer extends DurableObject {
   //                 "message": "视频的id或accessHash错误",
   //                 "error": true,
   //                 "status": "error",
-  //                 "date": Date.now(),
+  //                 "date": new Date().getTime(),
   //               }));
   //               await this.end();
   //             }
@@ -1334,7 +1363,7 @@ export class WebSocketServer extends DurableObject {
   //                   "category": this.hashResult.category,
   //                   "photoLength": this.hashResult.photoLength,
   //                   "status": "update",
-  //                   "date": Date.now(),
+  //                   "date": new Date().getTime(),
   //                 }));
   //                 for (this.hashResult.photoIndex; this.hashResult.photoIndex < this.hashResult.photoLength; this.hashResult.photoIndex++) {
   //                   this.hashResult.type = photoInfo[this.hashResult.photoIndex].type;
@@ -1358,7 +1387,7 @@ export class WebSocketServer extends DurableObject {
   //                         "type": this.hashResult.type,
   //                         "size": this.hashResult.size,
   //                         "status": "update",
-  //                         "date": Date.now(),
+  //                         "date": new Date().getTime(),
   //                       }));
   //                       this.hashResult.sender = await this.client.getSender(this.hashResult.dcId);
   //                       this.hashResult.count = Math.ceil(this.hashResult.size / 131072);
@@ -1389,7 +1418,7 @@ export class WebSocketServer extends DurableObject {
   //                         "operate": "nextMessage",
   //                         "photoIndex": ++this.hashResult.photoIndex,
   //                         "status": "fileExist",
-  //                         "date": Date.now(),
+  //                         "date": new Date().getTime(),
   //                       }));
   //                       const index = photoResult.Pindex;
   //                       if (index && index > 0) {
@@ -1406,7 +1435,7 @@ export class WebSocketServer extends DurableObject {
   //                       "message": "图片的photoResult错误",
   //                       "error": true,
   //                       "status": "error",
-  //                       "date": Date.now(),
+  //                       "date": new Date().getTime(),
   //                     }));
   //                   }
   //                   await scheduler.wait(2000);
@@ -1422,7 +1451,7 @@ export class WebSocketServer extends DurableObject {
   //                   "message": "图片的info错误",
   //                   "error": true,
   //                   "status": "error",
-  //                   "date": Date.now(),
+  //                   "date": new Date().getTime(),
   //                 }));
   //                 await this.end();
   //               }
@@ -1435,7 +1464,7 @@ export class WebSocketServer extends DurableObject {
   //                 "message": "图片的id或accessHash错误",
   //                 "error": true,
   //                 "status": "error",
-  //                 "date": Date.now(),
+  //                 "date": new Date().getTime(),
   //               }));
   //               await this.end();
   //             }
@@ -1447,7 +1476,7 @@ export class WebSocketServer extends DurableObject {
   //           //     "message": "未知的媒体",
   //           //     "error": true,
   //           //     "status": "error",
-  //           //     "date": Date.now(),
+  //           //     "date": new Date().getTime(),
   //           //   }));
   //           }
   //         } else {
@@ -1458,7 +1487,7 @@ export class WebSocketServer extends DurableObject {
   //             "message": "消息不包含媒体",
   //             "error": true,
   //             "status": "error",
-  //             "date": Date.now(),
+  //             "date": new Date().getTime(),
   //           }));
   //           await this.end();
   //         }
@@ -1470,7 +1499,7 @@ export class WebSocketServer extends DurableObject {
   //           "message": "错误的消息",
   //           "error": true,
   //           "status": "error",
-  //           "date": Date.now(),
+  //           "date": new Date().getTime(),
   //         }));
   //         await this.end();
   //       }
@@ -1482,7 +1511,7 @@ export class WebSocketServer extends DurableObject {
   //         "message": "messageIndex错误",
   //         "error": true,
   //         "status": "error",
-  //         "date": Date.now(),
+  //         "date": new Date().getTime(),
   //       }));
   //       this.messageIndex = 0;
   //       this.messageLength = 0;
@@ -1509,7 +1538,7 @@ export class WebSocketServer extends DurableObject {
   //         "operate": "nextStep",
   //         "step": this.currentStep,
   //         "message": "messageLength : " + this.messageLength,
-  //         "date": Date.now(),
+  //         "date": new Date().getTime(),
   //       }));
   //       if (this.stop === 1) {
   //         await this.checkCache();
@@ -1526,7 +1555,7 @@ export class WebSocketServer extends DurableObject {
   //         "operate": "nextStep",
   //         "step": this.currentStep,
   //         "message": "messageCount : " + messageCount,
-  //         "date": Date.now(),
+  //         "date": new Date().getTime(),
   //       }));
   //       this.offsetId += this.limit;
   //       //this.messageIndex = 0;
@@ -1559,7 +1588,7 @@ export class WebSocketServer extends DurableObject {
   //           "operate": "nextStep",
   //           "step": this.currentStep,
   //           "message": "全部chat采集完毕",
-  //           "date": Date.now(),
+  //           "date": new Date().getTime(),
   //         }));
   //         await this.close();
   //       }
@@ -1576,7 +1605,7 @@ export class WebSocketServer extends DurableObject {
   // //   // ws.send(JSON.stringify({
   // //   //   "operate": "getCache",
   // //   //   "message": "getCache",
-  // //   //   "date": Date.now(),
+  // //   //   "date": new Date().getTime(),
   // //   // }));  //测试
   // //   try {
   // //     const cacheResult = await env.MAINDB.prepare("SELECT * FROM `CACHE` ORDER BY `Cindex` DESC LIMIT 1;").first();
@@ -1595,7 +1624,7 @@ export class WebSocketServer extends DurableObject {
   // //       "operate": "getCache",
   // //       "message": "出错 : " + JSON.parse(e),
   // //       "error": true,
-  // //       "date": Date.now(),
+  // //       "date": new Date().getTime(),
   // //     }));
   // //     await scheduler.wait(10000);
   // //     await this.getCache();
@@ -1615,7 +1644,7 @@ export class WebSocketServer extends DurableObject {
   //             ws.send(JSON.stringify({
   //               "operate": "checkCache",
   //               "message": "从(" + this.hashResult.length + " | " + this.hashResult.index + ")处继续",
-  //               "date": Date.now(),
+  //               "date": new Date().getTime(),
   //             }));
   //           }
   //         }
@@ -1628,7 +1657,22 @@ export class WebSocketServer extends DurableObject {
     const webSocketPair = new WebSocketPair();
     const [wsClient, wsServer] = Object.values(webSocketPair);
     this.ctx.acceptWebSocket(wsServer);
+    this.ws = wsServer;
     // wsServer.send("chat success");  //测试
+    wsServer.send(JSON.stringify({
+      "operate": "wsServer",
+      "message": "wsServer",
+      "date": new Date().getTime(),
+    }));  //测试
+    this.ws.send(JSON.stringify({
+      "operate": "ws",
+      "message": "ws",
+      "date": new Date().getTime(),
+    }));  //测试
+    // this.init();
+    if (!this.client) {
+      await this.open();
+    }
     return new Response(null, {
       status: 101,
       webSocket: wsClient,
@@ -1642,7 +1686,7 @@ export class WebSocketServer extends DurableObject {
     //     ws.send(JSON.stringify({
     //       "operate": "open",
     //       "message": "服务已经运行过了",
-    //       "date": Date.now(),
+    //       "date": new Date().getTime(),
     //     }));
     //     return;
     //   }
@@ -1653,14 +1697,14 @@ export class WebSocketServer extends DurableObject {
     //   // ws.send(JSON.stringify({
     //   //   "operate": "start",
     //   //   "message": this.fromPeer,
-    //   //   "date": Date.now(),
+    //   //   "date": new Date().getTime(),
     //   // }));  //测试
     //   // if (this.fromPeer) {
     //   //   if (this.hashResult.length && this.hashResult.length > 0) {
     //   //     ws.send(JSON.stringify({
     //   //       "operate": "start",
     //   //       "message": "继续获取下一个hash",
-    //   //       "date": Date.now(),
+    //   //       "date": new Date().getTime(),
     //   //     }));
     //   //     if (this.stop === 0) {
     //   //       await this.nextHash();
@@ -1684,7 +1728,7 @@ export class WebSocketServer extends DurableObject {
     //   //     ws.send(JSON.stringify({
     //   //       "operate": "start",
     //   //       "message": "准备获取下一轮message",
-    //   //       "date": Date.now(),
+    //   //       "date": new Date().getTime(),
     //   //     }));
     //   //     if (this.stop === 0) {
     //   //       await this.checkCache();
@@ -1699,7 +1743,7 @@ export class WebSocketServer extends DurableObject {
     //   //     ws.send(JSON.stringify({
     //   //       "operate": "start",
     //   //       "message": "继续获取下一条message",
-    //   //       "date": Date.now(),
+    //   //       "date": new Date().getTime(),
     //   //     }));
     //   //     await this.next();
     //   //   }
@@ -1719,7 +1763,7 @@ export class WebSocketServer extends DurableObject {
     //   //       "result": "over",
     //   //       "operate": "start",
     //   //       "message": "全部chat采集完毕",
-    //   //       "date": Date.now(),
+    //   //       "date": new Date().getTime(),
     //   //     }));
     //   //     await this.close();
     //   //   }
@@ -1743,7 +1787,7 @@ export class WebSocketServer extends DurableObject {
     //         ws.send(JSON.stringify({
     //           "operate": "start",
     //           "message": "messageLength : " + this.messageLength,
-    //           "date": Date.now(),
+    //           "date": new Date().getTime(),
     //         }));
     //         if (this.stop === 0) {
     //           await this.checkCache();
@@ -1761,7 +1805,7 @@ export class WebSocketServer extends DurableObject {
     //           "step": this.currentStep,
     //           "message": "messageCount : " + messageCount,
     //           "error": true,
-    //           "date": Date.now(),
+    //           "date": new Date().getTime(),
     //         }));
     //         this.offsetId += this.limit;
     //         //this.messageIndex = 0;
@@ -1786,7 +1830,7 @@ export class WebSocketServer extends DurableObject {
     //       "result": "over",
     //       "operate": "start",
     //       "message": "全部chat采集完毕",
-    //       "date": Date.now(),
+    //       "date": new Date().getTime(),
     //     }));
     //     await this.close();
     //   }
@@ -1801,7 +1845,7 @@ export class WebSocketServer extends DurableObject {
     //       "operate": "clearCache",
     //       "message": "删除cache成功",
     //       "error": true,
-    //       "date": Date.now(),
+    //       "date": new Date().getTime(),
     //     }));
     //   // } else {
     //   //   //console.log("删除cache失败");
@@ -1809,7 +1853,7 @@ export class WebSocketServer extends DurableObject {
     //   //     "operate": "clearCache",
     //   //     "message": "删除cache失败",
     //   //     "error": true,
-    //   //     "date": Date.now(),
+    //   //     "date": new Date().getTime(),
     //   //   }));
     //   // }
     // // } else if (message === "count") {
@@ -1819,7 +1863,7 @@ export class WebSocketServer extends DurableObject {
     // //     ws.send(JSON.stringify({
     // //       "operate": "count",
     // //       "message": mediaResult,
-    // //       "date": Date.now(),
+    // //       "date": new Date().getTime(),
     // //     }));
     // //   } else {
     // //     //console.log("获取media失败");
@@ -1827,7 +1871,7 @@ export class WebSocketServer extends DurableObject {
     // //       "operate": "count",
     // //       "message": "获取media失败",
     // //       "error": true,
-    // //       "date": Date.now(),
+    // //       "date": new Date().getTime(),
     // //     }));
     // //   }
     // } else if (message === "chat") {
@@ -1835,7 +1879,7 @@ export class WebSocketServer extends DurableObject {
     //     ws.send(JSON.stringify({
     //       "operate": "open",
     //       "message": "服务已经运行过了",
-    //       "date": Date.now(),
+    //       "date": new Date().getTime(),
     //     }));
     //     return;
     //   }
@@ -1859,7 +1903,7 @@ export class WebSocketServer extends DurableObject {
     //           ws.send(JSON.stringify({
     //             "operate": "chat",
     //             "message": "插入chat数据成功",
-    //             "date": Date.now(),
+    //             "date": new Date().getTime(),
     //           }));
     //         } else {
     //           //console.log("插入chat数据失败");
@@ -1867,7 +1911,7 @@ export class WebSocketServer extends DurableObject {
     //             "operate": "chat",
     //             "message": "插入chat数据失败",
     //             "error": true,
-    //             "date": Date.now(),
+    //             "date": new Date().getTime(),
     //           }));
     //         }
     //       // } else {
@@ -1875,7 +1919,7 @@ export class WebSocketServer extends DurableObject {
     //       //   ws.send(JSON.stringify({
     //       //     "operate": "chat",
     //       //     "message": "chat已在数据库中",
-    //       //     "date": Date.now(),
+    //       //     "date": new Date().getTime(),
     //       //   }));
     //       }
     //     } else {
@@ -1884,7 +1928,7 @@ export class WebSocketServer extends DurableObject {
     //         "operate": "chat",
     //         "message": "chat的channelId或accessHash错误",
     //         "error": true,
-    //         "date": Date.now(),
+    //         "date": new Date().getTime(),
     //       }));
     //     }
     //   }
@@ -1892,7 +1936,7 @@ export class WebSocketServer extends DurableObject {
     //   ws.send(JSON.stringify({
     //     "operate": "chat",
     //     "message": "新插入了" + count + "条数据",
-    //     "date": Date.now(),
+    //     "date": new Date().getTime(),
     //   }));
     //   await this.close();
     // } else if (message === "backup") {
@@ -1907,7 +1951,7 @@ export class WebSocketServer extends DurableObject {
     //     "operate": "chat",
     //     "message": "未知消息",
     //     "error": true,
-    //     "date": Date.now(),
+    //     "date": new Date().getTime(),
     //   }));
     // }
   }
