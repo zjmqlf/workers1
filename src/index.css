@@ -1,0 +1,24 @@
+body {
+  margin: 1px;
+  font-family: monospace;
+}
+
+.missionSpan {
+  display: flex;
+  justify-content: center;
+  height: 100%;
+  align-items: center;
+}
+
+.missionIcon {
+  width: auto;
+  height: auto;
+}
+
+.rag-red {
+  background-color: #cc222244;
+}
+
+.rag-green {
+  background-color: #33cc3344;
+}
