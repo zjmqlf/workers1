@@ -38,11 +38,16 @@
       "database_name": "media4",
       "database_id": "c84b9365-6811-437f-87ee-15a09bf3be56"
     },
-    */
     {
       "binding": "MEDIADB",
       "database_name": "media5",
       "database_id": "1893770b-972c-4ad2-972d-888e305fd0b8"
+    },
+    */
+    {
+      "binding": "MEDIADB",
+      "database_name": "media6",
+      "database_id": "532d0baf-ba9c-42c2-80a3-940cbfccf8d3"
     }
   ],
 	"durable_objects": {

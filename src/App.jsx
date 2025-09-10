@@ -535,8 +535,8 @@ const App = () => {
           rowNodes: [lastRow],
         });
       }
-      if (ws.readyState === WebSocket.OPEN) {
-        setTimeout(function() {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        // setTimeout(function() {
           try {
             ws.send(command);
           } catch (e) {
@@ -546,12 +546,12 @@ const App = () => {
               "error": true,
               "message": renderTime(Date.now()) + "  >>> send失败",
             });
-            if (ws.readyState === WebSocket.OPEN) {
+            if (ws && ws.readyState === WebSocket.OPEN) {
               ws.close();
             }
             //waitReconnect("start", 20000);
           }
-        }, 5000);
+        // }, 5000);
         // setInterval(()=>{
         //   ws.send("ping");
         // }, 25000);
@@ -795,7 +795,7 @@ const App = () => {
           "error": true,
           "message": renderTime(Date.now()) + "  >>> 过了2分钟都没有收到任何消息",
         });
-        if (ws.readyState === WebSocket.OPEN) {
+        if (ws && ws.readyState === WebSocket.OPEN) {
           ws.close();
         }
       }, 120000);
@@ -858,7 +858,7 @@ const App = () => {
     //console.log(pauseBtnText);  //测试
     if (pauseBtnText === "终止") {
       setPauseBtnText("开始");
-      if (ws.readyState === WebSocket.OPEN) {
+      if (ws && ws.readyState === WebSocket.OPEN) {
         try {
           ws.send("pause");
         } catch (e) {
@@ -878,14 +878,14 @@ const App = () => {
       }
     } else if (pauseBtnText === "开始") {
       setPauseBtnText("终止");
-      if (ws.readyState !== WebSocket.OPEN) {
+      if (!ws || ws.readyState !== WebSocket.OPEN) {
         waitReconnect("start", 1000);
       }
     }
   }, [addNewEvent, key, renderTime, pauseBtnText, renderTime, waitReconnect, ws]);
 
   const clearCacheBtnClickHandler = useCallback(() => {
-    if (ws.readyState === WebSocket.OPEN) {
+    if (ws && ws.readyState === WebSocket.OPEN) {
       try {
         ws.send("clear");
       } catch (e) {
