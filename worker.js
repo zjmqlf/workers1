@@ -1707,6 +1707,7 @@ export class WebSocketServer extends DurableObject {
         ws.send(JSON.stringify({
           "operate": "open",
           "message": "服务已经运行过了",
+          "error": true,
           "date": new Date().getTime(),
         }));
         return;
@@ -1917,6 +1918,7 @@ export class WebSocketServer extends DurableObject {
         ws.send(JSON.stringify({
           "operate": "open",
           "message": "服务已经运行过了",
+          "error": true,
           "date": new Date().getTime(),
         }));
         return;

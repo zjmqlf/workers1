@@ -578,7 +578,7 @@ const App = () => {
             "message": renderTime(Date.now()) + "  >>> 解析JSON失败",
           });
         } finally {
-          if (message.result === "stop") {
+          if (message.result === "pause") {
             //console.log("远程websocket已停止完毕");  //测试
             addNewEvent({
               "key": ++key,
@@ -587,12 +587,6 @@ const App = () => {
             });
             ws.close();
             ws = null;
-          } else if (message.result === "pause") {
-            //console.log("远程websocket已暂停完毕");  //测试
-            addNewEvent({
-              "key": ++key,
-              "message": renderTime(Date.now()) + "  >>> 远程websocket已暂停完毕",
-            });
           } else if (message.result === "over") {
             over = true;
             //console.log("全部chat采集完毕");  //测试
@@ -836,7 +830,6 @@ const App = () => {
         "key": ++key,
         "message": renderTime(Date.now()) + "  >>> 重新连接远程websocket",
       });
-      ws = null;
       if (pauseBtnText === "开始") {
         setPauseBtnText("终止");
       }
@@ -852,7 +845,7 @@ const App = () => {
         waitReconnect(command, time);
       }
     }, time);
-  }, []);
+  }, [addNewEvent, collectWS, key, pauseBtnText, renderTime]);
 
   const pauseBtnClickHandler = useCallback(() => {
     //console.log(pauseBtnText);  //测试
@@ -904,7 +897,7 @@ const App = () => {
         "message": renderTime(Date.now()) + "  >>> 没有连接ws",
       });
     }
-  }, []);
+  }, [addNewEvent, key, renderTime, ws]);
 
   const clearGridBtnClickHandler = useCallback(() => {
     lastId = 0;
