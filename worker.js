@@ -92,13 +92,11 @@ export class WebSocketServer extends DurableObject {
     this.env = env;
 
     // this.ctx.blockConcurrencyWhile(async () => {
-    //   if(this.ws) {
-    //     this.ws.send(JSON.stringify({
-    //       "operate": "blockConcurrencyWhile",
-    //       "message": "blockConcurrencyWhile",
-    //       "date": new Date().getTime(),
-    //     }));  //测试
-    //   }
+      // this.ws.send(JSON.stringify({
+      //   "operate": "blockConcurrencyWhile",
+      //   "message": "blockConcurrencyWhile",
+      //   "date": new Date().getTime(),
+      // }));  //测试
     //   this.init();
     //   if (!this.client) {
     //     await this.open();
@@ -116,8 +114,8 @@ export class WebSocketServer extends DurableObject {
       "message": "init",
       "date": new Date().getTime(),
     }));  //测试
-    // if (!this.client || !this.stop || this.stop === 0) {
-    if (this.stop === 0) {
+    if (!this.client || !this.stop || this.stop === 0) {
+    // if (!this.stop || this.stop === 0) {
       // this.client = null;
       // this.stop = 0;
       this.currentStep = 0;
@@ -181,7 +179,7 @@ export class WebSocketServer extends DurableObject {
       await scheduler.wait(30000);
       await this.open();
     }
-    // this.stop = 1;
+    this.stop = 1;
     //console.log("连接服务器成功");
     this.ws.send(JSON.stringify({
       "operate": "open",
@@ -1682,9 +1680,9 @@ export class WebSocketServer extends DurableObject {
     //   "date": new Date().getTime(),
     // }));  //测试
     // this.init();
-    if (!this.client) {
-      await this.open();
-    }
+    // if (!this.client) {
+    //   await this.open();
+    // }
     return new Response(null, {
       status: 101,
       webSocket: wsClient,
@@ -1704,8 +1702,8 @@ export class WebSocketServer extends DurableObject {
       //   "message": "start1",
       //   "date": new Date().getTime(),
       // }));
-      // if (this.client || this.stop === 1) {
-      if (this.stop === 1) {
+      if (this.client || this.stop === 1) {
+      // if (this.stop === 1) {
         ws.send(JSON.stringify({
           "operate": "open",
           "message": "服务已经运行过了",
@@ -1719,8 +1717,8 @@ export class WebSocketServer extends DurableObject {
       //   "date": new Date().getTime(),
       // }));
       this.init();
-      this.stop = 1;
-      // await this.open();
+      // this.stop = 1;
+      await this.open();
       await this.getConfig();
       // await this.switchType();
       // ws.send(JSON.stringify({
@@ -1735,7 +1733,7 @@ export class WebSocketServer extends DurableObject {
       //       "message": "继续获取下一个hash",
       //       "date": new Date().getTime(),
       //     }));
-      //     if (this.stop === 0) {
+      //     if (this.stop === 1) {
       //       await this.nextHash();
       //     } else if (this.stop === 2) {
       //       ws.send(JSON.stringify({
@@ -1743,7 +1741,7 @@ export class WebSocketServer extends DurableObject {
       //       }));
       //       await this.close();
       //     }
-      //     if (this.stop === 0) {
+      //     if (this.stop === 1) {
       //       await this.endMessage();
       //       //await this.endInsert();
       //       await this.end();
@@ -1759,7 +1757,7 @@ export class WebSocketServer extends DurableObject {
       //       "message": "准备获取下一轮message",
       //       "date": new Date().getTime(),
       //     }));
-      //     if (this.stop === 0) {
+      //     if (this.stop === 1) {
       //       await this.checkCache();
       //       await this.nextMessage();
       //     } else if (this.stop === 2) {
@@ -1801,6 +1799,11 @@ export class WebSocketServer extends DurableObject {
       //   await this.getCache();
       // }
       await this.getChat();
+      // ws.send(JSON.stringify({
+      //   "operate": this.chatId,
+      //   "message": this.fromPeer,
+      //   "date": new Date().getTime(),
+      // }));  //测试
       if (this.fromPeer) {
         if (this.chatId != this.lastChat) {
           if (this.lastChat != 0) {
@@ -1808,24 +1811,24 @@ export class WebSocketServer extends DurableObject {
           }
           this.lastChat = this.chatId;
         }
-        if (this.stop === 0) {
+        if (this.stop === 1) {
           this.currentStep += 1;
           const messageCount = await this.getMessage();
           this.messageLength = this.messageArray.length;
+          ws.send(JSON.stringify({
+            "operate": this.messageLength,
+            "message": JSON.stringify(this.messageArray),
+            "date": new Date().getTime(),
+          }));  //测试
           if (this.messageLength > 0) {
             ws.send(JSON.stringify({
               "operate": "start",
               "message": "messageLength : " + this.messageLength,
               "date": new Date().getTime(),
             }));
-            if (this.stop === 0) {
-              // await this.checkCache();
-              // await this.nextMessage();
-            ws.send(JSON.stringify({
-              "operate": this.fromPeer,
-              "message": JSON.stringify(this.messageArray),
-              "date": new Date().getTime(),
-            }));
+            if (this.stop === 1) {
+              await this.checkCache();
+              await this.nextMessage();
             } else if (this.stop === 2) {
               ws.send(JSON.stringify({
                 "result": "pause",
@@ -1909,8 +1912,8 @@ export class WebSocketServer extends DurableObject {
     //     }));
     //   }
     } else if (message === "chat") {
-      // if (this.client || this.stop === 1) {
-      if (this.stop === 1) {
+      if (this.client || this.stop === 1) {
+      // if (this.stop === 1) {
         ws.send(JSON.stringify({
           "operate": "open",
           "message": "服务已经运行过了",
@@ -1918,7 +1921,7 @@ export class WebSocketServer extends DurableObject {
         }));
         return;
       }
-      this.stop = 1;
+      // this.stop = 1;
       // await this.open();
       let count = 0;
       for await (const dialog of this.client.iterDialogs({})) {

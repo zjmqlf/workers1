@@ -858,6 +858,7 @@ const App = () => {
     //console.log(pauseBtnText);  //测试
     if (pauseBtnText === "终止") {
       setPauseBtnText("开始");
+      console.log(ws);  //测试
       if (ws && ws.readyState === WebSocket.OPEN) {
         try {
           ws.send("pause");
