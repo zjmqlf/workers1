@@ -308,20 +308,20 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
-  async updateChat() {
+  async noExistChat() {
     const chatInfo = await this.env.MAINDB.prepare("UPDATE `CHAT` SET `exist` = 0 WHERE `Cindex` = ?;").bind(chatResult.Cindex).run();
     //console.log(chatInfo);  //测试
     if (chatInfo.success === true) {
       //console.log("更新chat数据成功");
       this.ws.send(JSON.stringify({
-        "operate": "updateChat",
+        "operate": "noExistChat",
         "message": "更新chat数据成功",
         "date": new Date().getTime(),
       }));
     } else {
       //console.log("更新chat数据失败");
       this.ws.send(JSON.stringify({
-        "operate": "updateChat",
+        "operate": "noExistChat",
         "message": "更新chat数据失败",
         "error": true,
         "date": new Date().getTime(),
@@ -348,7 +348,7 @@ export class WebSocketServer extends DurableObject {
     //     "date": new Date().getTime(),
     //   }));
     // } else {
-    //   await this.updateChat();
+    //   await this.noExistChat();
     //   this.chatId = chatResult.Cindex + 1;
     //   if (next) {
     //     await this.nextChat();
@@ -373,7 +373,7 @@ export class WebSocketServer extends DurableObject {
           "date": new Date().getTime(),
         }));
       } else {
-        await this.updateChat();
+        await this.noExistChat();
         this.chatId = chatResult.Cindex + 1;
       }
     } else {

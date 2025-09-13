@@ -878,6 +878,23 @@ const App = () => {
     }
   }, [addNewEvent, key, renderTime, pauseBtnText, renderTime, waitReconnect, ws]);
 
+  const chatBtnClickHandler = useCallback(() => {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      try {
+        ws.send("chat");
+      } catch (e) {
+        console.log(e);  //测试
+        addNewEvent({
+          "key": ++key,
+          "error": true,
+          "message": renderTime(Date.now()) + "  >>> chat失败",
+        });
+      }
+    } else {
+      waitReconnect("chat", 1000);
+    }
+  }, [addNewEvent, key, renderTime, ws]);
+
   const clearCacheBtnClickHandler = useCallback(() => {
     if (ws && ws.readyState === WebSocket.OPEN) {
       try {
@@ -971,6 +988,7 @@ const App = () => {
         </div>
         <div style={{ margin: "1px" }}>
           <button onClick={pauseBtnClickHandler}>{pauseBtnText}</button>
+          <button onClick={chatBtnClickHandler}>chat</button>
           <button onClick={clearCacheBtnClickHandler}>清空cache</button>
           <button onClick={clearGridBtnClickHandler} disabled={isClearGridBtnDisabled}>清空grid</button>
           <button onClick={clearLogBtnClickHandler} disabled={isClearLogBtnDisabled}>清空log</button>

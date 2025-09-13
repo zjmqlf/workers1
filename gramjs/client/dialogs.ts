@@ -214,3 +214,10 @@ export function iterDialogs(
         }
     );
 }
+
+export async function getDialogs(
+    client: TelegramClient,
+    params: IterDialogsParams
+): Promise<TotalList<Dialog>> {
+    return (await client.iterDialogs(params).collect()) as TotalList<Dialog>;
+}

@@ -66,6 +66,10 @@ export class TelegramClient extends TelegramBaseClient {
         return dialogMethods.iterDialogs(this, iterDialogsParams);
     }
 
+    getDialogs(params: dialogMethods.IterDialogsParams = {}) {
+        return dialogMethods.getDialogs(this, params);
+    }
+
     invoke<R extends Api.AnyRequest>(
         request: R,
         dcId?: number
