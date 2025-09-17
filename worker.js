@@ -419,7 +419,7 @@ export class WebSocketServer extends DurableObject {
           //limit: 20,  //测试
           reverse: this.reverse,
           //reverse: false,  //测试
-          addOffset: this.offsetId,
+          addOffset: -this.offsetId,
           //addOffset: 0,  //测试
           waitTime: 60,
         })
@@ -434,11 +434,22 @@ export class WebSocketServer extends DurableObject {
         }));  //测试
         this.messageArray.push(message);
       }
-      this.ws.send(JSON.stringify({
-        "operate": "getMessage",
-        "status": JSON.stringify(this.messageArray),
-        "date": new Date().getTime(),
-      }));  //测试
+      // this.messageArray = await this.client.invoke(new Api.messages.GetHistory({
+      //   peer: this.fromPeer,
+      //   limit: this.limit,
+      //   reverse: this.reverse,
+      //   addOffset: -this.offsetId,
+      //   // offsetDate: offsetDate,
+      //   // offsetId: offsetId,
+      //   // minId: 0,
+      //   // maxId: 0,
+      //   // hash: bigInt.zero,
+      // }));
+      // this.ws.send(JSON.stringify({
+      //   "operate": "getMessage",
+      //   "status": JSON.stringify(this.messageArray),
+      //   "date": new Date().getTime(),
+      // }));  //测试
     } catch (e) {
       this.messageArray = [];
       //console.log("(" + this.currentStep + ")查询消息出错 : " + e);
