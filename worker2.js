@@ -599,11 +599,11 @@ export class WebSocketServer extends DurableObject {
 
   async nextMessage() {
     if (this.stop === 1) {
-      // this.ws.send(JSON.stringify({
-      //   "operate": "messageIndex",
-      //   "status": this.messageIndex,
-      //   "date": new Date().getTime(),
-      // }));  //测试
+      this.ws.send(JSON.stringify({
+        "operate": "messageIndex",
+        "status": this.messageIndex,
+        "date": new Date().getTime(),
+      }));  //测试
       const messageIndex = this.messageIndex + 1;
       if (this.messageIndex >= 0 && this.messageIndex < this.limit) {
         const messageId = this.messageArray[this.messageIndex].id;
@@ -827,15 +827,7 @@ export class WebSocketServer extends DurableObject {
             //   "status": JSON.stringify(this.messageArray[this.messageIndex]),
             //   "date": new Date().getTime(),
             // }));  //测试
-            // await this.nextMessage();
-            for await (const message of this.messageArray) {
-              this.ws.send(JSON.stringify({
-                "operate": "message",
-                "message": JSON.stringify(message),
-                "date": new Date().getTime(),
-              }));  //测试
-              this.nextMessage(message);
-            }
+            await this.nextMessage();
           } else if (this.stop === 2) {
             this.ws.send(JSON.stringify({
               "result": "pause",
