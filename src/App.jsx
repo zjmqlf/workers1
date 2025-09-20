@@ -103,16 +103,12 @@ const App = () => {
           {
             field: "offsetId",
             headerName:"offsetId",
-          },
-          {
-            field: "dcId",
-            headerName: "dcId",
             columnGroupShow: "open",
           },
           {
             field: "step",
             headerName: "step",
-            columnGroupShow: "closed",
+            columnGroupShow: "open",
           },
           {
             field: "messageLength",
@@ -127,7 +123,7 @@ const App = () => {
           {
             field: "messageId",
             headerName:"messageId",
-            columnGroupShow: "closed",
+            columnGroupShow: "open",
           },
         ],
       },
@@ -136,14 +132,6 @@ const App = () => {
         groupId: "status",
         openByDefault: true,
         children: [
-          {
-            field: "length",
-            headerName: "length",
-          },
-          {
-            field: "index",
-            headerName: "index",
-          },
           {
             field: "selectMessage",
             headerName: "selectMessage",

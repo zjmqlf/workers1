@@ -21,20 +21,23 @@ CREATE TABLE IF NOT EXISTS PANCHAT (
   updated DATE
 );
 
-CREATE INDEX IF NOT EXISTS idx_chat_id_accessHash ON PANCHAT(channelId, accessHash);
-CREATE INDEX IF NOT EXISTS idx_chat_index_exist ON PANCHAT(Cindex, exist);
-CREATE INDEX IF NOT EXISTS idx_chat_current_exist ON PANCHAT(current, exist);
+CREATE INDEX IF NOT EXISTS idx_panChat_id_accessHash ON PANCHAT(channelId, accessHash);
+CREATE INDEX IF NOT EXISTS idx_panChat_index_exist ON PANCHAT(Cindex, exist);
+CREATE INDEX IF NOT EXISTS idx_panChat_current_exist ON PANCHAT(current, exist);
 
 
 DROP TABLE IF EXISTS PANMESSAGE;
 CREATE TABLE IF NOT EXISTS PANMESSAGE (
   Mindex INTEGER PRIMARY KEY,
+  chatId INTEGER NOT NULL,
   id TEXT NOT NULL,
-  txt TEXT,
+  txt TEXT NOT NULL,
+  webpage TEXT,
+  url TEXT,
   status INTEGER
 );
 
-CREATE INDEX IF NOT EXISTS idx_message_id ON PANMESSAGE(id);
+CREATE INDEX IF NOT EXISTS idx_panMessage_chatId_id ON PANMESSAGE(chatId, id);
 
 
 

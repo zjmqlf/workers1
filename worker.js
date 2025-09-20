@@ -54,9 +54,6 @@ export class WebSocketServer extends DurableObject {
   limit = 10;
   offsetId = 0;
   fromPeer = null;
-  messageArray = [];
-  messageLength = 0;
-  messageIndex = 0;
 
   constructor(ctx, env) {
     super(ctx, env);
@@ -99,9 +96,6 @@ export class WebSocketServer extends DurableObject {
       this.limit = 10;
       this.offsetId = 0;
       this.fromPeer = null;
-      this.messageArray = [];
-      this.messageLength = 0;
-      this.messageIndex = 0;
       this.ws.send(JSON.stringify({
         "operate": "init",
         "message": "init",
@@ -411,6 +405,7 @@ export class WebSocketServer extends DurableObject {
 
   async getMessage() {
     try {
+      const messageArray = [];
       for await (const message of this.client.iterMessages(
         this.fromPeer,
         //"me",  //测试
@@ -425,16 +420,17 @@ export class WebSocketServer extends DurableObject {
         })
       ) {
         // if (message.message) {
-        //   this.messageArray.push(message);
+        //   messageArray.push(message);
         // }
-        this.messageArray.push(message);
+        messageArray.push(message);
         // this.ws.send(JSON.stringify({
         //   "operate": "getMessage",
         //   "status": JSON.stringify(message),
         //   "date": new Date().getTime(),
         // }));  //测试
       }
-      // this.messageArray = await this.client.invoke(new Api.messages.GetHistory({
+      return messageArray;
+      // const messageArray = await this.client.invoke(new Api.messages.GetHistory({
       //   peer: this.fromPeer,
       //   limit: this.limit,
       //   reverse: this.reverse,
@@ -447,11 +443,10 @@ export class WebSocketServer extends DurableObject {
       // }));
       // this.ws.send(JSON.stringify({
       //   "operate": "getMessage",
-      //   "status": JSON.stringify(this.messageArray),
+      //   "status": JSON.stringify(messageArray),
       //   "date": new Date().getTime(),
       // }));  //测试
     } catch (e) {
-      this.messageArray = [];
       //console.log("(" + this.currentStep + ")查询消息出错 : " + e);
       this.ws.send(JSON.stringify({
         "operate": "getMessage",
@@ -501,15 +496,15 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
-  async selectMessage(messageIndex, messageId) {
+  async selectMessage(messageId) {
     try {
-      const messageResult = await this.env.MAINDB.prepare("SELECT COUNT(id) FROM `PANMESSAGE` WHERE `id` = ? LIMIT 1;").bind(messageId).first();
+      const messageResult = await this.env.MAINDB.prepare("SELECT COUNT(id) FROM `PANMESSAGE` WHERE `chatId` = ? AND  `id` = ? LIMIT 1;").bind(chatId, messageId).first();
       //console.log("messageResult : " + messageResult["COUNT(id)"]);  //测试
       if (messageResult) {
         return messageResult["COUNT(id)"];
       }
     } catch (e) {
-      //console.log("(" + this.currentStep + ")[" + this.messageLength +"/" + messageIndex + "] " + this.offsetId + " : selectMessage出错 : " + e);
+      //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : selectMessage出错 : " + e);
       this.ws.send(JSON.stringify({
         "offsetId": this.offsetId,
         "operate": "selectMessage",
@@ -523,12 +518,12 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
-  async insertMessage(messageIndex, messageId, txt) {
+  async insertMessage(messageId, txt, id, url) {
     try {
-      const messageInfo = await this.env.MAINDB.prepare("INSERT INTO `PANMESSAGE` (id, txt) VALUES (?, ?);").bind(messageId, txt).run();
+      const messageInfo = await this.env.MAINDB.prepare("INSERT INTO `PANMESSAGE` (chatId, id, txt, webpage, url) VALUES (?, ?, ?, ?, ?);").bind(this.chatId, messageId, txt, id, url).run();
       //console.log(messageInfo);  //测试
       if (messageInfo.success === true) {
-        //console.log("(" + this.currentStep + ")[" + this.messageLength +"/" + messageIndex + "] " + this.offsetId + " : 插入message数据成功");
+        //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : 插入message数据成功");
         this.ws.send(JSON.stringify({
           "offsetId": this.offsetId,
           "operate": "insertMessage",
@@ -536,7 +531,7 @@ export class WebSocketServer extends DurableObject {
           "date": new Date().getTime(),
         }));
       } else {
-        //console.log("(" + this.currentStep + ")[" + this.messageLength +"/" + messageIndex + "] " + this.offsetId + " : 插入message数据失败");
+        //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : 插入message数据失败");
         this.ws.send(JSON.stringify({
           "offsetId": this.offsetId,
           "operate": "insertMessage",
@@ -547,7 +542,7 @@ export class WebSocketServer extends DurableObject {
         }));
       }
     } catch (e) {
-      //console.log("(" + this.currentStep + ")[" + this.messageLength +"/" + messageIndex + "] " + this.offsetId + " : insertMessage出错 : " + e);;
+      //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : insertMessage出错 : " + e);;
       this.ws.send(JSON.stringify({
         "offsetId": this.offsetId,
         "operate": "insertMessage",
@@ -557,88 +552,73 @@ export class WebSocketServer extends DurableObject {
         "date": new Date().getTime(),
       }));
       await scheduler.wait(10000);
-      await this.insertMessage(messageId, txt);
+      await this.insertMessage(messageId, txt, id, url);
     }
   }
 
-  async endStep() {
-    if (this.messageIndex === this.messageLength) {
-      this.messageIndex = 0;
-      this.messageLength = 0;
-      this.messageArray = [];
-      if (this.stop === 1) {
-        await this.nextStep();
-      } else if (this.stop === 2) {
-        this.ws.send(JSON.stringify({
-          "result": "pause",
-        }));
-        await this.close();
-      }
-    } else {
-      if (this.stop === 1) {
-        await this.nextMessage();
-      } else if (this.stop === 2) {
-        this.ws.send(JSON.stringify({
-          "result": "pause",
-        }));
-        await this.close();
-      }
-    }
-  }
-
-  async next() {
+  async nextMessage(messageLength, messageIndex, message) {
     if (this.stop === 1) {
-      await this.nextStep();
-    } else if (this.stop === 2) {
-      this.ws.send(JSON.stringify({
-        "result": "pause",
-      }));
-      await this.close();
-    }
-  }
-
-  async nextMessage() {
-    if (this.stop === 1) {
-      // this.ws.send(JSON.stringify({
-      //   "operate": "messageIndex",
-      //   "status": this.messageIndex,
-      //   "date": new Date().getTime(),
-      // }));  //测试
-      const messageIndex = this.messageIndex + 1;
-      if (this.messageIndex >= 0 && this.messageIndex < this.limit) {
-        const messageId = this.messageArray[this.messageIndex].id;
-        if (this.messageArray[this.messageIndex]) {
+      if (message) {
+        const messageId = message.id;
+        const txt = message.message;
+        this.ws.send(JSON.stringify({
+          "offsetId": this.offsetId,
+          "operate": "nextMessage",
+          "step": this.currentStep,
+          "messageLength": messageLength,
+          "messageIndex": messageIndex,
+          "messageId": messageId,
+          "status": "add",
+          "date": new Date().getTime(),
+        }));
+        // this.ws.send(JSON.stringify({
+        //   "operate": "txt",
+        //   "status": txt,
+        //   "date": new Date().getTime(),
+        // }));  //测试
+        if (txt) {
+          const messageCount = await this.selectMessage(messageId);
           // this.ws.send(JSON.stringify({
-          //   "operate": "message",
-          //   "status": JSON.stringify(this.messageArray[this.messageIndex]),
+          //   "operate": "messageCount",
+          //   "status": messageCount,
           //   "date": new Date().getTime(),
           // }));  //测试
-          this.ws.send(JSON.stringify({
-            "offsetId": this.offsetId,
-            "operate": "nextMessage",
-            "step": this.currentStep,
-            "messageLength": this.messageLength,
-            "messageIndex": messageIndex,
-            "messageId": messageId,
-            "status": "add",
-            "date": new Date().getTime(),
-          }));
-          const txt = this.messageArray[this.messageIndex].message;
-          this.ws.send(JSON.stringify({
-            "operate": "txt",
-            "status": txt,
-            "date": new Date().getTime(),
-          }));  //测试
-          const messageCount = await this.selectMessage(messageIndex, messageId);
-          this.ws.send(JSON.stringify({
-            "operate": "messageCount",
-            "status": messageCount,
-            "date": new Date().getTime(),
-          }));  //测试
           if (parseInt(messageCount) === 0) {
-            await this.insertMessage(messageIndex, messageId, txt);
+            let webpage = "";
+            let url = "";
+            if (message.media) {
+              if (message.media.webpage) {
+                if (message.media.webpage.id) {
+                  webpage = message.media.webpag.id;
+                }
+                if (message.media.webpage.url) {
+                  url = message.media.webpag.url;
+                }
+              } else {
+                //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : 消息不包含webpage");
+                this.ws.send(JSON.stringify({
+                  "offsetId": this.offsetId,
+                  "operate": "nextMessage",
+                  "message": "消息不包含webpage",
+                  "error": true,
+                  "status": "error",
+                  "date": new Date().getTime(),
+                }));
+              }
+            } else {
+              //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : 消息不包含媒体");
+              this.ws.send(JSON.stringify({
+                "offsetId": this.offsetId,
+                "operate": "nextMessage",
+                "message": "消息不包含媒体",
+                "error": true,
+                "status": "error",
+                "date": new Date().getTime(),
+              }));
+            }
+            await this.insertMessage(messageId, txt, webpage, url);
           } else {
-            //console.log("(" + this.currentStep + ")[" + this.messageLength +"/" + messageIndex + "] " + this.offsetId + " : message已在数据库中");
+            //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : message已在数据库中");
             this.ws.send(JSON.stringify({
               "offsetId": this.offsetId,
               "operate": "nextMessage",
@@ -646,45 +626,30 @@ export class WebSocketServer extends DurableObject {
               "date": new Date().getTime(),
             }));
           }
-          //console.log("(" + this.currentStep + ")[" + this.messageLength +"/" + messageIndex + "] " + this.offsetId + " : 准备查询视频的hash");
-          if (this.stop === 1) {
-            this.offsetId += 1;
-            this.messageIndex += 1;
-            await this.endStep();
-          } else if (this.stop === 2) {
-            this.ws.send(JSON.pause({
-              "result": "stop",
-            }));
-            await this.close();
-          }
+          this.offsetId += 1;
         } else {
-          //console.log("(" + this.currentStep + ")[" + this.messageLength +"/" + messageIndex + "] " + this.offsetId + " : 错误的消息");
+          //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : 错误的消息");
           this.ws.send(JSON.stringify({
             "offsetId": this.offsetId,
             "operate": "nextMessage",
-            "message": "错误的消息",
+            "message": "txt为空",
             "error": true,
             "status": "error",
             "date": new Date().getTime(),
           }));
           this.offsetId += 1;
-          this.messageIndex += 1;
-          await this.endStep();
         }
       } else {
-        //console.log("(" + this.currentStep + ")[" + this.messageLength +"/" + messageIndex + "] " + this.offsetId + " : messageIndex错误");
+        //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : 错误的消息");
         this.ws.send(JSON.stringify({
           "offsetId": this.offsetId,
           "operate": "nextMessage",
-          "message": "messageIndex错误",
+          "message": "错误的消息",
           "error": true,
           "status": "error",
           "date": new Date().getTime(),
         }));
-        this.messageIndex = 0;
-        this.messageLength = 0;
-        this.messageArray = [];
-        await this.next();
+        this.offsetId += 1;
       }
     } else if (this.stop === 2) {
       this.ws.send(JSON.stringify({
@@ -698,18 +663,37 @@ export class WebSocketServer extends DurableObject {
     if (this.stop === 1) {
       await this.updateChat();
       this.currentStep += 1;
-      await this.getMessage();
-      this.messageLength = this.messageArray.length;
-      if (this.messageLength > 0) {
-        //console.log("(" + this.currentStep + ")messageLength : " + this.messageLength);
+      const messageArray = await this.getMessage();
+      const messageLength = messageArray.length;
+      if (messageLength > 0) {
+        //console.log("(" + this.currentStep + ")messageLength : " + messageLength);
         this.ws.send(JSON.stringify({
           "operate": "nextStep",
           "step": this.currentStep,
-          "message": "messageLength : " + this.messageLength,
+          "message": "messageLength : " + messageLength,
           "date": new Date().getTime(),
         }));
         if (this.stop === 1) {
-          await this.nextMessage();
+          await this.nextMessage(messageLength, messageIndex, message);
+          // for await (const message of messageArray) {
+          //   this.ws.send(JSON.stringify({
+          //     "operate": "message",
+          //     "message": JSON.stringify(message),
+          //     "date": new Date().getTime(),
+          //   }));  //测试
+          //   this.nextMessage(messageLength, messageIndex, message);
+          // }
+          for (let messageIndex = 0; messageIndex < messageLength; messageIndex++) {
+            this.nextMessage(messageLength, messageIndex, messageArray[messageIndex]);
+          }
+          if (this.stop === 1) {
+            await this.nextStep();
+          } else if (this.stop === 2) {
+            this.ws.send(JSON.stringify({
+              "result": "pause",
+            }));
+            await this.close();
+          }
         } else if (this.stop === 2) {
           this.ws.send(JSON.stringify({
             "result": "pause",
@@ -729,7 +713,14 @@ export class WebSocketServer extends DurableObject {
             }
             this.lastChat = this.chatId;
           }
-          await this.next();
+          if (this.stop === 1) {
+            await this.nextStep();
+          } else if (this.stop === 2) {
+            this.ws.send(JSON.stringify({
+              "result": "pause",
+            }));
+            await this.close();
+          }
         } else {
           //console.log("(" + this.currentStep + ")全部chat采集完毕");
           this.ws.send(JSON.stringify({
@@ -813,28 +804,39 @@ export class WebSocketServer extends DurableObject {
       }
       if (this.stop === 1) {
         this.currentStep += 1;
-        await this.getMessage();
-        this.messageLength = this.messageArray.length;
+        const messageArray = await this.getMessage();
+        const messageLength = messageArray.length;
         // this.ws.send(JSON.stringify({
-        //   "operate": this.messageLength,
-        //   "message": JSON.stringify(this.messageArray),
+        //   "operate": messageLength,
+        //   "message": JSON.stringify(messageArray),
         //   "date": new Date().getTime(),
         // }));  //测试
-        if (this.messageLength > 0) {
+        this.ws.send(JSON.stringify({
+          "operate": "messageLength",
+          "status": messageLength,
+          "date": new Date().getTime(),
+        }));  //测试
+        if (messageLength > 0) {
           if (this.stop === 1) {
-            // this.ws.send(JSON.stringify({
-            //   "operate": this.messageIndex,
-            //   "status": JSON.stringify(this.messageArray[this.messageIndex]),
-            //   "date": new Date().getTime(),
-            // }));  //测试
             // await this.nextMessage();
-            for await (const message of this.messageArray) {
+            // for await (const message of messageArray) {
+            //   this.ws.send(JSON.stringify({
+            //     "operate": "message",
+            //     "message": JSON.stringify(message),
+            //     "date": new Date().getTime(),
+            //   }));  //测试
+            //   this.nextMessage(messageLength, messageIndex, message);
+            // }
+            for (let messageIndex = 0; messageIndex < messageLength; messageIndex++) {
+              this.nextMessage(messageLength, messageIndex, messageArray[messageIndex]);
+            }
+            if (this.stop === 1) {
+              await this.nextStep();
+            } else if (this.stop === 2) {
               this.ws.send(JSON.stringify({
-                "operate": "message",
-                "message": JSON.stringify(message),
-                "date": new Date().getTime(),
-              }));  //测试
-              this.nextMessage(message);
+                "result": "pause",
+              }));
+              await this.close();
             }
           } else if (this.stop === 2) {
             this.ws.send(JSON.stringify({
@@ -869,74 +871,6 @@ export class WebSocketServer extends DurableObject {
     //   "date": new Date().getTime(),
     // }));
     if (message === "start") {
-      // if (this.client || this.stop === 1) {
-      // // if (this.stop === 1) {
-      //   ws.send(JSON.stringify({
-      //     "operate": "start",
-      //     "message": "服务已经运行过了",
-      //     "error": true,
-      //     "date": new Date().getTime(),
-      //   }));
-      //   return;
-      // }
-      // this.init();
-      // // this.stop = 1;
-      // await this.open();
-      // await this.getConfig();
-      // await this.getChat();
-      // // ws.send(JSON.stringify({
-      // //   "operate": this.chatId,
-      // //   "message": JSON.stringify(this.fromPeer),
-      // //   "date": new Date().getTime(),
-      // // }));  //测试
-      // if (this.fromPeer) {
-      //   if (this.chatId != this.lastChat) {
-      //     if (this.lastChat != 0) {
-      //       await this.updateConfig();
-      //     }
-      //     this.lastChat = this.chatId;
-      //   }
-      //   if (this.stop === 1) {
-      //     this.currentStep += 1;
-      //     await this.getMessage();
-      //     this.messageLength = this.messageArray.length;
-      //     ws.send(JSON.stringify({
-      //       "operate": this.messageLength,
-      //       "message": JSON.stringify(this.messageArray),
-      //       "date": new Date().getTime(),
-      //     }));  //测试
-      //     if (this.messageLength > 0) {
-      //       if (this.stop === 1) {
-      //       this.messageIndex = 0;
-      //       ws.send(JSON.stringify({
-      //         "operate": this.messageIndex,
-      //         "status": JSON.stringify(this.messageArray[this.messageIndex]),
-      //         "date": new Date().getTime(),
-      //       }));  //测试
-      //         await this.nextMessage();
-      //       } else if (this.stop === 2) {
-      //         ws.send(JSON.stringify({
-      //           "result": "pause",
-      //         }));
-      //         await this.close();
-      //       }
-      //     }
-      //   } else if (this.stop === 2) {
-      //     ws.send(JSON.stringify({
-      //       "result": "pause",
-      //     }));
-      //     await this.close();
-      //   }
-      // } else {
-      //   //console.log("全部chat采集完毕");
-      //   ws.send(JSON.stringify({
-      //     "result": "over",
-      //     "operate": "start",
-      //     "message": "全部chat采集完毕",
-      //     "date": new Date().getTime(),
-      //   }));
-      //   await this.close();
-      // }
       await this.start();
     } else if (message === "close") {
       this.stop = 2;
@@ -967,7 +901,7 @@ export class WebSocketServer extends DurableObject {
       //     // {limit: 10}
       //   );  //测试
       // } catch (e) {
-      //   //console.log("(" + this.currentStep + ")[" + this.messageLength +"/" + this.hashResult.messageIndex + "] " + this.offsetId + " : selectMessage出错 : " + e);
+      //   //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : selectMessage出错 : " + e);
       //   this.ws.send(JSON.stringify({
       //     "operate": "chat",
       //     "message": JSON.stringify(e),
