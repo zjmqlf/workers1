@@ -54,6 +54,7 @@ export class WebSocketServer extends DurableObject {
   limit = 10;
   offsetId = 0;
   fromPeer = null;
+  messageArray = [];
 
   constructor(ctx, env) {
     super(ctx, env);
@@ -96,11 +97,12 @@ export class WebSocketServer extends DurableObject {
       this.limit = 10;
       this.offsetId = 0;
       this.fromPeer = null;
-      this.ws.send(JSON.stringify({
-        "operate": "init",
-        "message": "init",
-        "date": new Date().getTime(),
-      }));  //测试
+      this.messageArray = [];
+      // this.ws.send(JSON.stringify({
+      //   "operate": "init",
+      //   "message": "init",
+      //   "date": new Date().getTime(),
+      // }));  //测试
     }
   }
 
@@ -405,7 +407,7 @@ export class WebSocketServer extends DurableObject {
 
   async getMessage() {
     try {
-      const messageArray = [];
+      // const messageArray = [];
       for await (const message of this.client.iterMessages(
         this.fromPeer,
         //"me",  //测试
@@ -422,14 +424,15 @@ export class WebSocketServer extends DurableObject {
         // if (message.message) {
         //   messageArray.push(message);
         // }
-        messageArray.push(message);
+        // messageArray.push(message);
+        this.messageArray.push(message);
         // this.ws.send(JSON.stringify({
         //   "operate": "getMessage",
         //   "status": JSON.stringify(message),
         //   "date": new Date().getTime(),
         // }));  //测试
       }
-      return messageArray;
+      // return messageArray;
       // const messageArray = await this.client.invoke(new Api.messages.GetHistory({
       //   peer: this.fromPeer,
       //   limit: this.limit,
@@ -447,6 +450,7 @@ export class WebSocketServer extends DurableObject {
       //   "date": new Date().getTime(),
       // }));  //测试
     } catch (e) {
+      this.messageArray = [];
       //console.log("(" + this.currentStep + ")查询消息出错 : " + e);
       this.ws.send(JSON.stringify({
         "operate": "getMessage",
@@ -497,11 +501,23 @@ export class WebSocketServer extends DurableObject {
   }
 
   async selectMessage(messageId) {
+    // this.ws.send(JSON.stringify({
+    //   "operate": this.chatId,
+    //   "message": messageId,
+    //   "date": new Date().getTime(),
+    // }));  //测试
     try {
-      const messageResult = await this.env.MAINDB.prepare("SELECT COUNT(id) FROM `PANMESSAGE` WHERE `chatId` = ? AND  `id` = ? LIMIT 1;").bind(chatId, messageId).first();
+      const messageResult = await this.env.MAINDB.prepare("SELECT COUNT(id) FROM `PANMESSAGE` WHERE `chatId` = ? AND  `id` = ? LIMIT 1;").bind(this.chatId, messageId).first();
       //console.log("messageResult : " + messageResult["COUNT(id)"]);  //测试
+      // this.ws.send(JSON.stringify({
+      //   "operate": JSON.stringify(messageResult),
+      //   "message": JSON.stringify(messageResult["COUNT(id)"]),
+      //   "date": new Date().getTime(),
+      // }));  //测试
       if (messageResult) {
         return messageResult["COUNT(id)"];
+      } else {
+        return 0;
       }
     } catch (e) {
       //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : selectMessage出错 : " + e);
@@ -586,13 +602,23 @@ export class WebSocketServer extends DurableObject {
           if (parseInt(messageCount) === 0) {
             let webpage = "";
             let url = "";
+            // this.ws.send(JSON.stringify({
+            //   "operate": messageCount,
+            //   "message": JSON.stringify(message.media),
+            //   "date": new Date().getTime(),
+            // }));  //测试
             if (message.media) {
+              // this.ws.send(JSON.stringify({
+              //   "operate": message.media.webpage.id,
+              //   "message": message.media.webpage.url,
+              //   "date": new Date().getTime(),
+              // }));  //测试
               if (message.media.webpage) {
                 if (message.media.webpage.id) {
-                  webpage = message.media.webpag.id;
+                  webpage = message.media.webpage.id;
                 }
                 if (message.media.webpage.url) {
-                  url = message.media.webpag.url;
+                  url = message.media.webpage.url;
                 }
               } else {
                 //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : 消息不包含webpage");
@@ -616,6 +642,11 @@ export class WebSocketServer extends DurableObject {
                 "date": new Date().getTime(),
               }));
             }
+            // this.ws.send(JSON.stringify({
+            //   "operate": webpage,
+            //   "status": url,
+            //   "date": new Date().getTime(),
+            // }));  //测试
             await this.insertMessage(messageId, txt, webpage, url);
           } else {
             //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : message已在数据库中");
@@ -663,7 +694,10 @@ export class WebSocketServer extends DurableObject {
     if (this.stop === 1) {
       await this.updateChat();
       this.currentStep += 1;
-      const messageArray = await this.getMessage();
+      // const messageArray = await this.getMessage();
+      await this.getMessage();
+      const messageArray = this.messageArray;
+      this.messageArray = [];
       const messageLength = messageArray.length;
       if (messageLength > 0) {
         //console.log("(" + this.currentStep + ")messageLength : " + messageLength);
@@ -674,7 +708,7 @@ export class WebSocketServer extends DurableObject {
           "date": new Date().getTime(),
         }));
         if (this.stop === 1) {
-          await this.nextMessage(messageLength, messageIndex, message);
+          // await this.nextMessage();
           // for await (const message of messageArray) {
           //   this.ws.send(JSON.stringify({
           //     "operate": "message",
@@ -684,7 +718,7 @@ export class WebSocketServer extends DurableObject {
           //   this.nextMessage(messageLength, messageIndex, message);
           // }
           for (let messageIndex = 0; messageIndex < messageLength; messageIndex++) {
-            this.nextMessage(messageLength, messageIndex, messageArray[messageIndex]);
+            await this.nextMessage(messageLength, messageIndex, messageArray[messageIndex]);
           }
           if (this.stop === 1) {
             await this.nextStep();
@@ -804,7 +838,10 @@ export class WebSocketServer extends DurableObject {
       }
       if (this.stop === 1) {
         this.currentStep += 1;
-        const messageArray = await this.getMessage();
+        // const messageArray = await this.getMessage();
+        await this.getMessage();
+        const messageArray = this.messageArray;
+        this.messageArray = [];
         const messageLength = messageArray.length;
         // this.ws.send(JSON.stringify({
         //   "operate": messageLength,
@@ -828,7 +865,7 @@ export class WebSocketServer extends DurableObject {
             //   this.nextMessage(messageLength, messageIndex, message);
             // }
             for (let messageIndex = 0; messageIndex < messageLength; messageIndex++) {
-              this.nextMessage(messageLength, messageIndex, messageArray[messageIndex]);
+              await this.nextMessage(messageLength, messageIndex, messageArray[messageIndex]);
             }
             if (this.stop === 1) {
               await this.nextStep();
