@@ -110,16 +110,16 @@ const App = () => {
             headerName: "step",
             columnGroupShow: "open",
           },
-          {
-            field: "messageLength",
-            headerName: "messageLength",
-            columnGroupShow: "closed",
-          },
-          {
-            field: "messageIndex",
-            headerName: "messageIndex",
-            columnGroupShow: "closed",
-          },
+          // {
+          //   field: "messageLength",
+          //   headerName: "messageLength",
+          //   columnGroupShow: "closed",
+          // },
+          // {
+          //   field: "messageIndex",
+          //   headerName: "messageIndex",
+          //   columnGroupShow: "closed",
+          // },
           {
             field: "messageId",
             headerName:"messageId",
@@ -135,6 +135,12 @@ const App = () => {
           {
             field: "selectMessage",
             headerName: "selectMessage",
+            columnGroupShow: "open",
+            cellRenderer: resultRenderer,
+          },
+          {
+            field: "webpage",
+            headerName: "webpage",
             columnGroupShow: "open",
             cellRenderer: resultRenderer,
           },
@@ -479,7 +485,13 @@ const App = () => {
                     } else if (message.status === "exist") {
                       updateItems({
                         "offsetId": message.offsetId,
-                        "selectIndex": true,
+                        "selectMessage": true,
+                        "date": message.date,
+                      });
+                    } else if (message.status === "webpage") {
+                      updateItems({
+                        "offsetId": message.offsetId,
+                        "webpage": true,
                         "date": message.date,
                       });
                     } else {
