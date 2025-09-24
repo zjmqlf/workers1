@@ -216,23 +216,35 @@ export class WebSocketServer extends DurableObject {
   }
 
   async noExistChat() {
-    const chatInfo = await this.env.MAINDB.prepare("UPDATE `PANCHAT` SET `exist` = 0 WHERE `Cindex` = ?;").bind(chatResult.Cindex).run();
-    //console.log(chatInfo);  //测试
-    if (chatInfo.success === true) {
-      //console.log("更新chat数据成功");
+    try {
+      const chatInfo = await this.env.MAINDB.prepare("UPDATE `PANCHAT` SET `exist` = 0 WHERE `Cindex` = ?;").bind(chatResult.Cindex).run();
+      //console.log(chatInfo);  //测试
+      if (chatInfo.success === true) {
+        //console.log("更新chat数据成功");
+        this.ws.send(JSON.stringify({
+          "operate": "noExistChat",
+          "message": "更新chat数据成功",
+          "date": new Date().getTime(),
+        }));
+      } else {
+        //console.log("更新chat数据失败");
+        this.ws.send(JSON.stringify({
+          "operate": "noExistChat",
+          "message": "更新chat数据失败",
+          "error": true,
+          "date": new Date().getTime(),
+        }));
+      }
+    } catch (e) {
+      //console.log("noExistChat出错 : " + e);
       this.ws.send(JSON.stringify({
         "operate": "noExistChat",
-        "message": "更新chat数据成功",
-        "date": new Date().getTime(),
-      }));
-    } else {
-      //console.log("更新chat数据失败");
-      this.ws.send(JSON.stringify({
-        "operate": "noExistChat",
-        "message": "更新chat数据失败",
+        "message": "出错 : " + e,
         "error": true,
         "date": new Date().getTime(),
       }));
+      await scheduler.wait(10000);
+      await this.noExistChat();
     }
   }
 
@@ -284,12 +296,12 @@ export class WebSocketServer extends DurableObject {
       this.fromPeer = result.chats[0];
       if (this.fromPeer) {
         this.offsetId = chatResult.current;
-        //console.log("获取fromPeer成功");
-        this.ws.send(JSON.stringify({
-          "operate": "checkChat",
-          "message": "获取fromPeer成功",
-          "date": new Date().getTime(),
-        }));
+        //console.log("获取fromPeer成功");  //测试
+        // this.ws.send(JSON.stringify({
+        //   "operate": "checkChat",
+        //   "message": "获取fromPeer成功",
+        //   "date": new Date().getTime(),
+        // }));  //测试
       } else {
         await this.noExistChat();
         this.chatId = chatResult.Cindex + 1;

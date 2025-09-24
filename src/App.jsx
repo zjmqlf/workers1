@@ -113,12 +113,12 @@ const App = () => {
           // {
           //   field: "messageLength",
           //   headerName: "messageLength",
-          //   columnGroupShow: "closed",
+          //   columnGroupShow: "open",
           // },
           // {
           //   field: "messageIndex",
           //   headerName: "messageIndex",
-          //   columnGroupShow: "closed",
+          //   columnGroupShow: "open",
           // },
           {
             field: "messageId",
@@ -494,6 +494,12 @@ const App = () => {
                         "webpage": true,
                         "date": message.date,
                       });
+                    } else if (message.status === "limit") {
+                      addNewEvent({
+                        "key": ++key,
+                        "error": true,
+                        "message": renderTime(message.date) + "  " + message.offsetId + " : " + message.operate + " - " + message.message,
+                      });
                     } else {
                       console.log("未知消息");
                     }
@@ -528,12 +534,12 @@ const App = () => {
         addNewEvent({
           "key": ++key,
           "error": true,
-          "message": renderTime(Date.now()) + "  >>> 过了2分钟都没有收到任何消息",
+          "message": renderTime(Date.now()) + "  >>> 过了5分钟都没有收到任何消息",
         });
         if (ws && ws.readyState === WebSocket.OPEN) {
           ws.close();
         }
-      }, 120000);
+      }, 300000);
     })
 
     ws.addEventListener("close", () => {
@@ -558,7 +564,7 @@ const App = () => {
       //   return [];
       // });
       if (over === false) {
-        waitReconnect("start", 20000);
+        waitReconnect("start", 180000);
       }
     })
 
@@ -592,7 +598,7 @@ const App = () => {
     //console.log(pauseBtnText);  //测试
     if (pauseBtnText === "终止") {
       setPauseBtnText("开始");
-      console.log(ws);  //测试
+      //console.log(ws);  //测试
       if (ws && ws.readyState === WebSocket.OPEN) {
         try {
           ws.send("pause");
