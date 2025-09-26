@@ -52,7 +52,7 @@ export class WebSocketServer extends DurableObject {
   chatId = 0;
   lastChat = 0;
   reverse = true;
-  limit = 10;
+  limit = 20;
   offsetId = 0;
   fromPeer = null;
   messageArray = [];
@@ -97,7 +97,7 @@ export class WebSocketServer extends DurableObject {
       this.chatId = 0;
       this.lastChat = 0;
       this.reverse = true;
-      this.limit = 10;
+      this.limit = 20;
       this.offsetId = 0;
       this.fromPeer = null;
       this.messageArray = [];
@@ -597,6 +597,18 @@ export class WebSocketServer extends DurableObject {
 
   async nextMessage(messageLength, messageIndex, message) {
     if (this.stop === 1) {
+      // if (this.apiCount > 900) {
+      //   //console.log("(" + this.currentStep + ")nextMessage超出apiCount限制");
+      //   this.ws.send(JSON.stringify({
+      //     "offsetId": this.offsetId,
+      //     "operate": "nextMessage",
+      //     "message": "超出apiCount限制",
+      //     "error": true,
+      //     "status": "limit",
+      //     "date": new Date().getTime(),
+      //   }));
+      //   this.ctx.abort("reset");
+      // }
       if (this.apiCount < 900) {
         if (message) {
           const messageId = message.id;
@@ -723,6 +735,7 @@ export class WebSocketServer extends DurableObject {
         }));
         await this.updateChat();
         await this.close();
+        this.ctx.abort("reset");
       }
     } else if (this.stop === 2) {
       this.ws.send(JSON.stringify({
@@ -734,10 +747,22 @@ export class WebSocketServer extends DurableObject {
 
   async nextStep() {
     if (this.stop === 1) {
+      // if (this.apiCount > 900) {
+      //   //console.log("(" + this.currentStep + ")nextStep超出apiCount限制");
+      //   this.ws.send(JSON.stringify({
+      //     "operate": "nextStep",
+      //     "message": "超出apiCount限制",
+      //     "error": true,
+      //     "status": "limit",
+      //     "date": new Date().getTime(),
+      //   }));
+      //   this.ctx.abort("reset");
+      // }
       if (this.apiCount < 900) {
         await this.updateChat();
         this.currentStep += 1;
         // const messageArray = await this.getMessage();
+        await scheduler.wait(3000);
         await this.getMessage();
         const messageArray = this.messageArray;
         const messageLength = messageArray.length;
@@ -822,6 +847,7 @@ export class WebSocketServer extends DurableObject {
         }));
         await this.updateChat();
         await this.close();
+        this.ctx.abort("reset");
       }
     } else if (this.stop === 2) {
       this.ws.send(JSON.stringify({
@@ -924,6 +950,17 @@ export class WebSocketServer extends DurableObject {
               await this.nextMessage(messageLength, messageIndex, messageArray[messageIndex]);
             }
             if (this.stop === 1) {
+              // if (this.apiCount > 900) {
+              //   //console.log("(" + this.currentStep + ")start超出apiCount限制");
+              //   this.ws.send(JSON.stringify({
+              //     "operate": "start",
+              //     "message": "超出apiCount限制",
+              //     "error": true,
+              //     "status": "limit",
+              //     "date": new Date().getTime(),
+              //   }));
+              //   this.ctx.abort("reset");
+              // }
               if (this.apiCount < 900) {
                 await this.nextStep();
               } else {
@@ -938,6 +975,7 @@ export class WebSocketServer extends DurableObject {
                 }));
                 await this.updateChat();
                 await this.close();
+                this.ctx.abort("reset");
               }
             } else if (this.stop === 2) {
               this.ws.send(JSON.stringify({

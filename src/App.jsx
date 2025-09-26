@@ -4,7 +4,7 @@ import React, {
   useMemo,
   useRef,
   useState,
-  // useEffect,
+  useEffect,
 } from "react";
 import { AgGridReact } from "ag-grid-react";
 //import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
@@ -41,19 +41,16 @@ ModuleRegistry.registerModules([
 
 const App = () => {
   let key = 0;
-  let lastId = 0;
-  let lastRow = null;
-  let ws = null;
-  let stop = false;
-  let over = false;
-  let timeOut = null;
-  //const url = "wss://workers.19425.xyz/ws";  //测试
-  const url = new URL(window.location);
-  url.protocol = "wss";
-  url.pathname = "/ws";
+  let collectWS = null;
   const pagination = true;
   const paginationPageSize = 50;
   const paginationPageSizeSelector = [50, 150, 200];
+  const lastId = useRef(0);
+  const lastRow = useRef(null);
+  const ws = useRef(null);
+  const stop = useRef(false);
+  const over = useRef(false);
+  const timeOut = useRef(null);
   const gridRef = useRef(null);
   const containerStyle = useMemo(() => ({ width: "100%", height: "100%", margin: "1px" }), []);
   const gridStyle = useMemo(() => ({ width: "100%", height: "100%", margin: "1px" }), []);
@@ -196,9 +193,31 @@ const App = () => {
 
   const rowClassRules = useMemo(() => {
     return {
-      "rag-red": params => stop === true && params.node.data.offsetId === lastRow.data.offsetId,
+      "rag-red": params => stop.current === true && params.node.data.offsetId === lastRow.current.data.offsetId,
     };
-  }, [stop, lastRow]);
+  }, []);
+
+  const addNewEvent = useCallback((newItem) => {
+    // if (logData.length >= 200) {
+    //   setLogData([]);
+    //   console.log("删除log成功");  //测试
+    // }
+    setLogData((prevState) => {
+      // const newList = prevState.slice();
+      // //newList.push(newItem);
+      // newList.unshift(newItem);
+      // //console.log(newList.length);  //测试
+      // //console.log(newList);  //测试
+      // return newList;
+      // return [...prevState, newItem];
+      return [newItem, ...prevState];
+    });
+    // if (logData.length === 0) {
+    //   setClearLogBtnDisabled(true);
+    // } else {
+    //   setClearLogBtnDisabled(false);
+    // }
+  }, []);
 
   const addItems = useCallback((newItems) => {
     if (gridRef.current.api.getDisplayedRowCount() >= 200) {
@@ -212,12 +231,12 @@ const App = () => {
     });
     //console.log(res);  //测试
     if (res.add && res.add.length > 0) {
-      lastRow = res.add[0];
-      //console.log(lastRow);  //测试
-      lastId = lastRow.data.offsetId;
+      lastRow.current = res.add[0];
+      //console.log(lastRow.current);  //测试
+      lastId.current = lastRow.current.data.offsetId;
     } else {
-      lastRow = null;
-      lastId = 0;
+      lastRow.current = null;
+      lastId.current = 0;
       console.log("添加row失败");
       addNewEvent({
         "key": ++key,
@@ -230,35 +249,35 @@ const App = () => {
     } else {
       setClearGridBtnDisabled(false);
     }
-  }, [lastRow, lastId]);
+  }, [addNewEvent, renderTime, key]);
 
   const updateLastRow = useCallback((Items) => {
-    if (Items.date && (Items.date >= lastRow.data.time)) {
-      lastRow.setDataValue("useTime", Items.date - lastRow.data.time);
+    if (Items.date && (Items.date >= lastRow.current.data.time)) {
+      lastRow.current.setDataValue("useTime", Items.date - lastRow.current.data.time);
     }
     for (const name in Items) {
       //console.log(name);  //测试
       //console.log(Items[name]);  //测试
       if (name === "error") {
         if (Items[name] === true) {
-          if (lastRow.data.error > 0) {
-            lastRow.setDataValue("error", lastRow.data.error + 1);
+          if (lastRow.current.data.error > 0) {
+            lastRow.current.setDataValue("error", lastRow.current.data.error + 1);
           } else {
-            lastRow.setDataValue("error", 1);
+            lastRow.current.setDataValue("error", 1);
           }
         }
       } else {
-        lastRow.setDataValue(name, Items[name]);
+        lastRow.current.setDataValue(name, Items[name]);
       }
     }
-  }, [lastRow]);
+  }, []);
 
   const getLastRow = useCallback((offsetId, Items) => {
     let found = false;
     gridRef.current.api.forEachNode((rowNode) => {
       if (rowNode.data.offsetId === offsetId) {
-        lastRow = rowNode;
-        lastId = lastRow.data.offsetId;
+        lastRow.current = rowNode;
+        lastId.current = lastRow.current.data.offsetId;
         updateLastRow(Items);
         found = true;
         return;
@@ -271,15 +290,15 @@ const App = () => {
         "message": renderTime(Date.now()) + "  >>> lastRow错误",
       });
     }
-  }, [lastRow, lastId]);
+  }, [addNewEvent, updateLastRow, renderTime, key]);
 
   const updateItems = useCallback((data) => {
-    //console.log(lastRow);  //测试
+    //console.log(lastRow.current);  //测试
     const {offsetId, ...Items} = data;
-    if (lastRow) {
+    if (lastRow.current) {
       //console.log(offsetId);  //测试
       //console.log(Items);  //测试
-      if (lastId === offsetId) {
+      if (lastId.current === offsetId) {
         updateLastRow(Items);
       } else {
         getLastRow(offsetId, Items);
@@ -287,29 +306,7 @@ const App = () => {
     } else {
       getLastRow(offsetId, Items);
     }
-  }, [lastRow, lastId]);
-
-  const addNewEvent = useCallback((newItem) => {
-    if (logData.length >= 200) {
-      setLogData([]);
-      console.log("删除log成功");  //测试
-    }
-    setLogData((prevState) => {
-      // const newList = prevState.slice();
-      // //newList.push(newItem);
-      // newList.unshift(newItem);
-      // //console.log(newList.length);  //测试
-      // //console.log(newList);  //测试
-      // return newList;
-      // return [...prevState, newItem];
-      return [newItem, ...prevState];
-    });
-    if (logData.length === 0) {
-      setClearLogBtnDisabled(true);
-    } else {
-      setClearLogBtnDisabled(false);
-    }
-  }, [logData]);
+  }, [getLastRow, updateLastRow]);
 
   const updateSelect = useCallback((message, name) => {
     if (message.status === "try") {
@@ -327,7 +324,7 @@ const App = () => {
     } else {
       console.log("未知消息");
     }
-  }, [addNewEvent, key, renderTime, updateItems]);
+  }, [addNewEvent, renderTime, updateItems, key]);
 
   const updateInsert = useCallback((message, name) => {
     if (message.status === "success") {
@@ -356,21 +353,49 @@ const App = () => {
     } else {
       console.log("未知消息");
     }
-  }, [addNewEvent, key, renderTime, updateItems]);
+  }, [addNewEvent, renderTime, updateItems, key]);
 
   const handleBeforeUnload = useCallback((event) => {
     event.preventDefault();
     event.returnValue = '程序正在运行中，确定要关闭吗？';
   }, []);
 
-  const collectWS = useCallback((command) => {
-    ws = new WebSocket(url);
-    if (!ws) {
+  const waitReconnect = useCallback((command, time) => {
+    setTimeout(function() {
+      //console.log("重新连接远程websocket");  //测试
+      addNewEvent({
+        "key": ++key,
+        "message": renderTime(Date.now()) + "  >>> 重新连接远程websocket",
+      });
+      if (pauseBtnText === "开始") {
+        setPauseBtnText("暂停");
+      }
+      try {
+        collectWS(command);
+      } catch (e) {
+        //console.log("连接远程websocket失败");  //测试
+        addNewEvent({
+          "key": ++key,
+          "error": true,
+          "message": renderTime(Date.now()) + "  >>> 连接远程websocket失败",
+        });
+        waitReconnect(command, time);
+      }
+    }, time);
+  }, [addNewEvent, renderTime, collectWS, pauseBtnText, key]);
+
+  collectWS = useCallback((command) => {
+    //const url = "wss://workers.19425.xyz/ws";  //测试
+    const url = new URL(window.location);
+    url.protocol = "wss";
+    url.pathname = "/ws";
+    ws.current = new WebSocket(url);
+    if (!ws.current) {
       throw new Error("  >>> 连接远程websocket失败");
     }
 
-    ws.addEventListener("open", () => {
-      stop = false;
+    ws.current.addEventListener("open", () => {
+      stop.current = false;
       //console.log("连接远程websocket成功，准备send");  //测试
       addNewEvent({
         "key": ++key,
@@ -378,31 +403,26 @@ const App = () => {
       });
       window.addEventListener('beforeunload', handleBeforeUnload);
       window.addEventListener('popstate', handleBeforeUnload);
-      if (lastRow) {
+      if (lastRow.current) {
         gridRef.current.api.redrawRows({
-          rowNodes: [lastRow],
+          rowNodes: [lastRow.current],
         });
       }
-      if (ws && ws.readyState === WebSocket.OPEN) {
-        // setTimeout(function() {
-          try {
-            ws.send(command);
-          } catch (e) {
-            console.log(e);  //测试
-            addNewEvent({
-              "key": ++key,
-              "error": true,
-              "message": renderTime(Date.now()) + "  >>> send失败",
-            });
-            if (ws && ws.readyState === WebSocket.OPEN) {
-              ws.close();
-            }
-            //waitReconnect("start", 20000);
+      if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+        try {
+          ws.current.send(command);
+        } catch (e) {
+          console.log(e);  //测试
+          addNewEvent({
+            "key": ++key,
+            "error": true,
+            "message": renderTime(Date.now()) + "  >>> send失败",
+          });
+          if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+            ws.current.close();
           }
-        // }, 5000);
-        // setInterval(()=>{
-        //   ws.send("ping");
-        // }, 25000);
+          //waitReconnect("start", 20000);
+        }
       } else {
         //console.log(command + "失败");  //测试
         addNewEvent({
@@ -413,7 +433,7 @@ const App = () => {
       }
     })
 
-    ws.addEventListener("message", ({ data }) => {
+    ws.current.addEventListener("message", ({ data }) => {
       if (data) {
         let message = null;
         try {
@@ -433,10 +453,10 @@ const App = () => {
               "error": true,
               "message": renderTime(Date.now()) + "  >>> 远程websocket已停止完毕",
             });
-            ws.close();
-            ws = null;
+            ws.current.close();
+            ws.current = null;
           } else if (message.result === "over") {
-            over = true;
+            over.current = true;
             //console.log("全部chat采集完毕");  //测试
             addNewEvent({
               "key": ++key,
@@ -444,7 +464,7 @@ const App = () => {
             });
           } else {
             if (message.offsetId && message.offsetId >= 0) {
-              if (message.offsetId < lastId) {
+              if (message.offsetId < lastId.current) {
                 console.log("消息offsetId小了");
                 addNewEvent({
                   "key": ++key,
@@ -455,7 +475,7 @@ const App = () => {
                 switch (message.operate) {
                   case "nextMessage":
                     if (message.status === "add") {
-                      if (!lastRow || lastRow.data.offsetId !== message.offsetId) {
+                      if (!lastRow.current || lastRow.current.data.offsetId !== message.offsetId) {
                         //delete message.operate;
                         //delete message.status;
                         const {
@@ -510,6 +530,8 @@ const App = () => {
                   case "insertMessage":
                     updateInsert(message, "insertMessage");
                     break;
+                  default:
+                    console.log("未知消息");
                 }
               }
             } else {
@@ -529,21 +551,21 @@ const App = () => {
           "message": renderTime(Date.now()) + "  >>> 消息为空",
         });
       }
-      clearTimeout(timeOut);
-      timeOut = setTimeout(function() {
+      clearTimeout(timeOut.current);
+      timeOut.current = setTimeout(function() {
         addNewEvent({
           "key": ++key,
           "error": true,
-          "message": renderTime(Date.now()) + "  >>> 过了5分钟都没有收到任何消息",
+          "message": renderTime(Date.now()) + "  >>> 过了2分钟都没有收到任何消息",
         });
-        if (ws && ws.readyState === WebSocket.OPEN) {
-          ws.close();
+        if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+          ws.current.close();
         }
-      }, 300000);
+      }, 120000);
     })
 
-    ws.addEventListener("close", () => {
-      stop = true;
+    ws.current.addEventListener("close", () => {
+      stop.current = true;
       //console.log("远程websocket断开了连接");  //测试
       addNewEvent({
         "key": ++key,
@@ -552,56 +574,32 @@ const App = () => {
       });
       window.removeEventListener('beforeunload', handleBeforeUnload);
       window.removeEventListener('popstate', handleBeforeUnload);
-      if (lastRow) {
+      if (lastRow.current) {
         gridRef.current.api.redrawRows({
-          rowNodes: [lastRow],
+          rowNodes: [lastRow.current],
         });
       }
-      if (pauseBtnText === "终止") {
+      if (pauseBtnText === "暂停") {
         setPauseBtnText("开始");
       }
       // setLogData((prevState) => {
       //   return [];
       // });
-      if (over === false) {
-        waitReconnect("start", 180000);
+      if (over.current === false) {
+        waitReconnect("start", 30000);
       }
     })
 
-  }, [lastRow]);
-
-  const waitReconnect = useCallback((command, time) => {
-    setTimeout(function() {
-      //console.log("重新连接远程websocket");  //测试
-      addNewEvent({
-        "key": ++key,
-        "message": renderTime(Date.now()) + "  >>> 重新连接远程websocket",
-      });
-      if (pauseBtnText === "开始") {
-        setPauseBtnText("终止");
-      }
-      try {
-        collectWS(command);
-      } catch (e) {
-        //console.log("连接远程websocket失败");  //测试
-        addNewEvent({
-          "key": ++key,
-          "error": true,
-          "message": renderTime(Date.now()) + "  >>> 连接远程websocket失败",
-        });
-        waitReconnect(command, time);
-      }
-    }, time);
-  }, [addNewEvent, collectWS, key, pauseBtnText, renderTime]);
+  }, [addNewEvent, addItems, renderTime, updateInsert, updateItems, updateSelect, handleBeforeUnload, waitReconnect, pauseBtnText, key]);
 
   const pauseBtnClickHandler = useCallback(() => {
     //console.log(pauseBtnText);  //测试
-    if (pauseBtnText === "终止") {
+    if (pauseBtnText === "暂停") {
       setPauseBtnText("开始");
-      //console.log(ws);  //测试
-      if (ws && ws.readyState === WebSocket.OPEN) {
+      //console.log(ws.current);  //测试
+      if (ws.current && ws.current.readyState === WebSocket.OPEN) {
         try {
-          ws.send("pause");
+          ws.current.send("pause");
         } catch (e) {
           console.log(e);  //测试
           addNewEvent({
@@ -618,17 +616,17 @@ const App = () => {
         });
       }
     } else if (pauseBtnText === "开始") {
-      setPauseBtnText("终止");
-      if (!ws || ws.readyState !== WebSocket.OPEN) {
+      setPauseBtnText("暂停");
+      if (!ws.current || ws.current.readyState !== WebSocket.OPEN) {
         waitReconnect("start", 1000);
       }
     }
-  }, [addNewEvent, key, renderTime, pauseBtnText, renderTime, waitReconnect, ws]);
+  }, [addNewEvent, renderTime, waitReconnect, pauseBtnText, key]);
 
   const chatBtnClickHandler = useCallback(() => {
-    if (ws && ws.readyState === WebSocket.OPEN) {
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       try {
-        ws.send("chat");
+        ws.current.send("chat");
       } catch (e) {
         console.log(e);  //测试
         addNewEvent({
@@ -640,12 +638,12 @@ const App = () => {
     } else {
       waitReconnect("chat", 1000);
     }
-  }, [addNewEvent, key, renderTime, ws]);
+  }, [addNewEvent, renderTime, waitReconnect, key]);
 
   const clearCacheBtnClickHandler = useCallback(() => {
-    if (ws && ws.readyState === WebSocket.OPEN) {
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       try {
-        ws.send("clear");
+        ws.current.send("clear");
       } catch (e) {
         console.log(e);  //测试
         addNewEvent({
@@ -661,14 +659,14 @@ const App = () => {
         "message": renderTime(Date.now()) + "  >>> 没有连接ws",
       });
     }
-  }, [addNewEvent, key, renderTime, ws]);
+  }, [addNewEvent, renderTime, key]);
 
   const clearGridBtnClickHandler = useCallback(() => {
-    lastId = 0;
-    lastRow = null;
+    lastId.current = 0;
+    lastRow.current = null;
     setRowData([]);
     setClearGridBtnDisabled(true);
-  }, [lastRow, lastId]);
+  }, []);
 
   const clearLogBtnClickHandler = useCallback(() => {
     setLogData(() => {
@@ -691,19 +689,19 @@ const App = () => {
   // //    }
   // },[rowData]);
 
-//   useEffect(() => {
-//     if (logData.length === 0) {
-//       setClearLogBtnDisabled(true);
-//     } else if (logData.length >= 200) {
-//       setLogData([]);
-//       setClearLogBtnDisabled(false);
-//       console.log("删除log成功");  //测试
-//     } else {
-//       setClearLogBtnDisabled(false);
-//     }
-// //    return () => {
-// //    }
-//   },[logData]);
+  useEffect(() => {
+    if (logData.length === 0) {
+      setClearLogBtnDisabled(true);
+    } else if (logData.length >= 200) {
+      setLogData([]);
+      setClearLogBtnDisabled(false);
+      console.log("删除log成功");  //测试
+    } else {
+      setClearLogBtnDisabled(false);
+    }
+//    return () => {
+//    }
+  },[logData]);
 
   // useEffect(() => {
   //   const handleBeforeUnload = (event) => {
@@ -714,7 +712,7 @@ const App = () => {
   //   return () => {
   //     window.removeEventListener('beforeunload', handleBeforeUnload);
   //   };
-  // }, [stop]);
+  // }, [stop.current]);
 
   return (
     <div style={containerStyle}>
