@@ -66,11 +66,6 @@ export class WebSocketServer extends DurableObject {
     this.env = env;
 
     // this.ctx.blockConcurrencyWhile(async () => {
-      // this.ws.send(JSON.stringify({
-      //   "operate": "blockConcurrencyWhile",
-      //   "message": "blockConcurrencyWhile",
-      //   "date": new Date().getTime(),
-      // }));  //测试
     //   this.init();
     //   if (!this.client) {
     //     await this.open();
@@ -82,12 +77,7 @@ export class WebSocketServer extends DurableObject {
     );
   }
 
-  async init() {
-    // this.ws.send(JSON.stringify({
-    //   "operate": "init",
-    //   "message": "init",
-    //   "date": new Date().getTime(),
-    // }));  //测试
+  init() {
     if (!this.client || !this.stop || this.stop === 0) {
     // if (!this.stop || this.stop === 0) {
       // this.client = null;
@@ -102,20 +92,10 @@ export class WebSocketServer extends DurableObject {
       this.fromPeer = null;
       this.messageArray = [];
       this.dialogArray = [];
-      // this.ws.send(JSON.stringify({
-      //   "operate": "init",
-      //   "message": "init",
-      //   "date": new Date().getTime(),
-      // }));  //测试
     }
   }
 
   async open() {
-    // this.ws.send(JSON.stringify({
-    //   "operate": "open",
-    //   "message": "open",
-    //   "date": new Date().getTime(),
-    // }));  //测试
     // const apiId = 1334621;
     // const apiHash = "2bc36173f487ece3052a00068be59e7b";
     // const sessionString = "1BQAWZmxvcmEud2ViLnRlbGVncmFtLm9yZwG7VxdGmdW/SYRusjfTnUHfhQfqLFA+A30Jios20XKnGGsRB58mFR33Lnpz966333yugE0ysMX/XMP8Urbbm3ADQ/mCq/fdQqA/qUoeG9L2Wy0Y8WcOlikGkNJ2e/nO9pT9nl1YePq5DD/hJ8+eKNL4BvUY70GAth/N/fv7dA4joQzwWhHdA8wdOUaxDQhnSAk9H62zG4fX5zipV+g2qp2WCT6CWCwUtsgZs8FZ9g9/TMmyfLagFmnMe7MhlZdkMfgCtKCXI8MVrGaHq5SpPRqMMCR4SkFrwV+9Eo6NyehH7bzWl1zyyAr6wP8j0jtduckdvkUcmyoDOP2M3AkNgd+ZcQ==";
@@ -160,11 +140,6 @@ export class WebSocketServer extends DurableObject {
   }
 
   async getConfig() {
-    // this.ws.send(JSON.stringify({
-    //   "operate": "getConfig",
-    //   "message": "getConfig",
-    //   "date": new Date().getTime(),
-    // }));  //测试
     this.apiCount += 1;
     try {
       const configResult = await this.env.MAINDB.prepare("SELECT * FROM `CONFIG` WHERE `name` = 'pansou' LIMIT 1;").first();
@@ -287,11 +262,6 @@ export class WebSocketServer extends DurableObject {
         accessHash: bigInt(chatResult.accessHash),
       })],
     }));
-    // this.ws.send(JSON.stringify({
-    //   "operate": "checkChat",
-    //   "message": JSON.stringify(result),
-    //   "date": new Date().getTime(),
-    // }));  //测试
     // console.log(this.fromPeer);  //测试
     if (result && result.chats && result.chats.length > 0) {
       this.chatId = chatResult.Cindex;
@@ -334,11 +304,6 @@ export class WebSocketServer extends DurableObject {
       const chatResult = await this.env.MAINDB.prepare("SELECT * FROM `PANCHAT` WHERE `Cindex` >= ? AND `exist` = 1 LIMIT 1;").bind(this.chatId).first();
       //console.log("chatResult : " + chatResult"]);  //测试
       if (chatResult) {
-        // this.ws.send(JSON.stringify({
-        //   "operate": "nextChat",
-        //   "message": JSON.stringify(chatResult),
-        //   "date": new Date().getTime(),
-        // }));  //测试
         await this.checkChat(chatResult, false);
         if (this.fromPeer) {
           break;
@@ -448,11 +413,6 @@ export class WebSocketServer extends DurableObject {
         // }
         // messageArray.push(message);
         this.messageArray.push(message);
-        // this.ws.send(JSON.stringify({
-        //   "operate": "getMessage",
-        //   "status": JSON.stringify(message),
-        //   "date": new Date().getTime(),
-        // }));  //测试
       }
       // return messageArray;
       // const messageArray = await this.client.invoke(new Api.messages.GetHistory({
@@ -466,11 +426,6 @@ export class WebSocketServer extends DurableObject {
       //   // maxId: 0,
       //   // hash: bigInt.zero,
       // }));
-      // this.ws.send(JSON.stringify({
-      //   "operate": "getMessage",
-      //   "status": JSON.stringify(messageArray),
-      //   "date": new Date().getTime(),
-      // }));  //测试
     } catch (e) {
       this.messageArray = [];
       //console.log("(" + this.currentStep + ")查询消息出错 : " + e);
@@ -863,11 +818,6 @@ export class WebSocketServer extends DurableObject {
     this.ctx.acceptWebSocket(wsServer);
     // wsServer.send("chat success");  //测试
     this.ws = wsServer;
-    // wsServer.send(JSON.stringify({
-    //   "operate": "wsServer",
-    //   "message": "wsServer",
-    //   "date": new Date().getTime(),
-    // }));  //测试
     // const configResult = await this.env.MAINDB.prepare("SELECT * FROM `CONFIG` WHERE `name` = 'pansou' LIMIT 1;").first();  //测试
     // const chatResult = await this.env.MAINDB.prepare("SELECT * FROM `PANCHAT` WHERE `Cindex` = 0 LIMIT 1;").first();  //测试
     // this.init();  //测试
