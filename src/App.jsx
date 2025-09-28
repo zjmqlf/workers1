@@ -54,6 +54,7 @@ const App = () => {
   const gridRef = useRef(null);
   const containerStyle = useMemo(() => ({ width: "100%", height: "100%", margin: "1px" }), []);
   const gridStyle = useMemo(() => ({ width: "100%", height: "100%", margin: "1px" }), []);
+  const [isCloseBtnDisabled, setCloseBtnDisabled] = useState(true);
   const [isClearGridBtnDisabled, setClearGridBtnDisabled] = useState(true);
   const [isClearLogBtnDisabled, setClearLogBtnDisabled] = useState(true);
   const [pauseBtnText, setPauseBtnText] = useState("开始");
@@ -595,7 +596,9 @@ const App = () => {
   const pauseBtnClickHandler = useCallback(() => {
     //console.log(pauseBtnText);  //测试
     if (pauseBtnText === "暂停") {
+      const isClose = isCloseBtnDisabled;
       setPauseBtnText("开始");
+      setCloseBtnDisabled(true);
       //console.log(ws.current);  //测试
       if (ws.current && ws.current.readyState === WebSocket.OPEN) {
         try {
@@ -607,6 +610,7 @@ const App = () => {
             "error": true,
             "message": renderTime(Date.now()) + "  >>> pause失败",
           });
+          setCloseBtnDisabled(isClose);
         }
       } else {
         addNewEvent({
@@ -614,14 +618,41 @@ const App = () => {
           "error": true,
           "message": renderTime(Date.now()) + "  >>> 没有连接ws",
         });
+        setCloseBtnDisabled(isClose);
       }
     } else if (pauseBtnText === "开始") {
       setPauseBtnText("暂停");
+      setCloseBtnDisabled(false);
       if (!ws.current || ws.current.readyState !== WebSocket.OPEN) {
         waitReconnect("start", 1000);
       }
     }
-  }, [addNewEvent, renderTime, waitReconnect, pauseBtnText, key]);
+  }, [addNewEvent, renderTime, setCloseBtnDisabled, waitReconnect, isCloseBtnDisabled, pauseBtnText, key]);
+
+  const closeBtnClickHandler = useCallback(() => {
+    const isClose = isCloseBtnDisabled;
+    setCloseBtnDisabled(true);
+    if (ws.current.readyState === WebSocket.OPEN) {
+      try {
+        ws.current.close();
+      } catch (e) {
+        console.log(e);  //测试
+        addNewEvent({
+          "key": ++key,
+          "error": true,
+          "message": renderTime(Date.now()) + "  >>> close失败",
+        });
+        setCloseBtnDisabled(isClose);
+      }
+    } else {
+      addNewEvent({
+        "key": ++key,
+        "error": true,
+        "message": renderTime(Date.now()) + "  >>> 没有连接ws",
+      });
+      setCloseBtnDisabled(isClose);
+    }
+  }, [addNewEvent, renderTime, setCloseBtnDisabled, isCloseBtnDisabled, key]);
 
   const chatBtnClickHandler = useCallback(() => {
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
@@ -733,6 +764,7 @@ const App = () => {
         </div>
         <div style={{ margin: "1px" }}>
           <button onClick={pauseBtnClickHandler}>{pauseBtnText}</button>
+          <button onClick={closeBtnClickHandler} disabled={isCloseBtnDisabled}>断开</button>
           <button onClick={chatBtnClickHandler}>chat</button>
           <button onClick={clearCacheBtnClickHandler}>清空cache</button>
           <button onClick={clearGridBtnClickHandler} disabled={isClearGridBtnDisabled}>清空grid</button>

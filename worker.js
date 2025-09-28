@@ -2,9 +2,36 @@ import { DurableObject } from "cloudflare:workers";
 import { TelegramClient, Api, sessions, utils } from "./gramjs";
 import bigInt from "big-integer";
 
-async function exportDB() {
+async function countMessage(env) {
+  const messageResult = await env.MAINDB.prepare("SELECT COUNT(Mindex) FROM `PANMESSAGE` WHERE 1 = 1;").first();
+  //console.log("messageResult : " + messageResult["COUNT(Mindex)"]);  //测试
+  if (messageResult && messageResult["COUNT(Mindex)"]) {
+    return messageResult["COUNT(Mindex)"];
+  }
+  return -1;
+}
+
+function getDB(id) {
+  const database = [
+    "97d41e14-a9b6-45a9-b5cc-f60eb29acc02",  //0 : main
+    "619bf710-136f-4b05-b7a7-ce7ffef02990",  //1 : media1
+    "aab5c1c2-2533-4be0-9993-bd62f306ebcc",  //2 : media2
+    "72893c57-6b53-4f79-a730-217f80da6492",  //3 : media3
+    "c84b9365-6811-437f-87ee-15a09bf3be56",  //4 : media4
+    "1893770b-972c-4ad2-972d-888e305fd0b8",  //5 : media5
+    "532d0baf-ba9c-42c2-80a3-940cbfccf8d3",  //6 : media6
+    "e629851c-d683-4b3b-a10e-3ca9d67b9142",  //7 : media7
+  ];
+  const length = database.length;
+  if (id < length) {
+    return database[id];
+  } else {
+    return undefined;
+  }
+}
+
+async function exportDB(databaseId) {
   const accountId = "ac4c475ca3875ec3dea2d2306fde9c69";
-  const databaseId = "97d41e14-a9b6-45a9-b5cc-f60eb29acc02";   //main
   const d1ApiKey = "Vk_7LsZt_ZEwDMMU4tqHHaYghAApWQ8I5M5TV7x9";
   const d1Url = `https://api.cloudflare.com/client/v4/accounts/${accountId}/d1/database/${databaseId}/export`;
   const method = "POST";
@@ -44,6 +71,7 @@ async function exportDB() {
 }
 
 export class WebSocketServer extends DurableObject {
+  // webSocket = [];
   ws = null;
   client = null;
   stop = 0;
@@ -65,6 +93,20 @@ export class WebSocketServer extends DurableObject {
     this.sql = ctx.storage.sql;
     this.env = env;
 
+    // this.ctx.getWebSockets().forEach((ws) => {
+    //   const found = this.webSocket.find(element => element === ws);
+    //   if (!found) {
+    //     this.webSocket.push(ws);
+    //     //console.log("(" + this.currentStep + ")添加ws成功");
+    //     // this.broadcast({
+    //     //   "operate": "constructor",
+    //     //   "step": this.currentStep,
+    //     //   "message": "添加ws成功",
+    //     //   "date": new Date().getTime(),
+    //     // });
+    //   }
+    // });
+
     // this.ctx.blockConcurrencyWhile(async () => {
     //   this.init();
     //   if (!this.client) {
@@ -82,6 +124,7 @@ export class WebSocketServer extends DurableObject {
     // if (!this.stop || this.stop === 0) {
       // this.client = null;
       // this.stop = 0;
+      // this.webSocket = [];
       this.apiCount = 0;
       this.currentStep = 0;
       this.chatId = 0;
@@ -93,6 +136,40 @@ export class WebSocketServer extends DurableObject {
       this.messageArray = [];
       this.dialogArray = [];
     }
+  }
+
+  broadcast(message) {
+    // if (typeof message !== "string") {
+    //   message = JSON.stringify(message);
+    // }
+    this.ctx.getWebSockets().forEach((ws) => {
+    // this.webSocket.forEach((ws) => {
+      try {
+        ws.send(JSON.stringify(message));
+      } catch (e) {
+        // console.log(e);
+        // const index = this.webSocket.findIndex(element => element === ws);
+        // if (index > -1) {
+        //   this.webSocket.splice(index, 1);
+        //   //console.log("(" + this.currentStep + ")删除ws成功");
+        //   // this.broadcast({
+        //   //   "operate": "broadcast",
+        //   //   "step": this.currentStep,
+        //   //   "message": "删除ws成功",
+        //   //   "date": new Date().getTime(),
+        //   // });
+        // } else {
+        //   //console.log("(" + this.currentStep + ")没找到该ws");
+        //   this.broadcast({
+        //     "operate": "broadcast",
+        //     "step": this.currentStep,
+        //     "message": "没找到该ws",
+        //     "error": true,
+        //     "date": new Date().getTime(),
+        //   });
+        // }
+      }
+    });
   }
 
   async open() {
@@ -120,21 +197,21 @@ export class WebSocketServer extends DurableObject {
       await this.client.connect();
     } catch (e) {
       //console.log("login出错 : " + e);
-      this.ws.send(JSON.stringify({
+      this.broadcast({
         "operate": "open",
         "message": "login出错 : " + e,
         "date": new Date().getTime(),
-      }));
+      });
       await scheduler.wait(30000);
       await this.open();
     }
     this.stop = 1;
     //console.log("连接服务器成功");
-    this.ws.send(JSON.stringify({
+    this.broadcast({
       "operate": "open",
       "message": "连接服务器成功",
       "date": new Date().getTime(),
-    }));  //测试
+    });  //测试
     //console.log(this.client);  //测试
     //await scheduler.wait(5000);
   }
@@ -157,20 +234,20 @@ export class WebSocketServer extends DurableObject {
         }
       } else {
         //console.log("没有预设config");
-        this.ws.send(JSON.stringify({
+        this.broadcast({
           "operate": "getConfig",
           "message": "没有预设config",
           "date": new Date().getTime(),
-        }));
+        });
       }
     } catch (e) {
       //console.log("getConfig出错 : " + e);
-      this.ws.send(JSON.stringify({
+      this.broadcast({
         "operate": "getConfig",
         "message": "出错 : " + e,
         "error": true,
         "date": new Date().getTime(),
-      }));
+      });
       await scheduler.wait(10000);
       await this.getConfig();
     }
@@ -181,11 +258,11 @@ export class WebSocketServer extends DurableObject {
       await this.client.destroy();
       this.stop = 0;
       //console.log("断开服务器成功");
-      this.ws.send(JSON.stringify({
+      this.broadcast({
         "operate": "close",
         "message": "断开服务器成功",
         "date": new Date().getTime(),
-      }));
+      });
       this.ws.close();
       //await scheduler.wait(1000);
     }
@@ -198,64 +275,34 @@ export class WebSocketServer extends DurableObject {
       //console.log(chatInfo);  //测试
       if (chatInfo.success === true) {
         //console.log("更新chat数据成功");
-        this.ws.send(JSON.stringify({
+        this.broadcast({
           "operate": "noExistChat",
           "message": "更新chat数据成功",
           "date": new Date().getTime(),
-        }));
+        });
       } else {
         //console.log("更新chat数据失败");
-        this.ws.send(JSON.stringify({
+        this.broadcast({
           "operate": "noExistChat",
           "message": "更新chat数据失败",
           "error": true,
           "date": new Date().getTime(),
-        }));
+        });
       }
     } catch (e) {
       //console.log("noExistChat出错 : " + e);
-      this.ws.send(JSON.stringify({
+      this.broadcast({
         "operate": "noExistChat",
         "message": "出错 : " + e,
         "error": true,
         "date": new Date().getTime(),
-      }));
+      });
       await scheduler.wait(10000);
       await this.noExistChat();
     }
   }
 
   async checkChat(chatResult, next) {
-    // for await (const dialog of this.client.iterDialogs({})) {
-    //   //console.log(dialog);  //测试
-    //   if (dialog.id.toString() === chatResult.channelId) {
-    //     this.chatId = chatResult.Cindex;
-    //     this.fromPeer = dialog;
-    //     //console.log(this.fromPeer);  //测试
-    //     break;
-    //   }
-    // }
-    // if (this.fromPeer) {
-    //   this.offsetId = chatResult.current;
-    //   //console.log("获取fromPeer成功");
-    //   this.ws.send(JSON.stringify({
-    //     "operate": "checkChat",
-    //     "message": "获取fromPeer成功",
-    //     "date": new Date().getTime(),
-    //   }));
-    // } else {
-    //   await this.noExistChat();
-    //   this.chatId = chatResult.Cindex + 1;
-    //   this.ws.send(JSON.stringify({
-    //     "operate": "checkChat",
-    //     "message": chatResult.title + " - chat已不存在了",
-    //     "error": true,
-    //     "date": new Date().getTime(),
-    //   }));
-    //   if (next) {
-    //     await this.nextChat();
-    //   }
-    // }
     const result = await this.client.invoke(new Api.channels.GetChannels({
       id: [new Api.InputChannel({
         channelId: bigInt(chatResult.channelId),
@@ -269,29 +316,29 @@ export class WebSocketServer extends DurableObject {
       if (this.fromPeer) {
         this.offsetId = chatResult.current;
         //console.log("获取fromPeer成功");  //测试
-        // this.ws.send(JSON.stringify({
+        // this.broadcast({
         //   "operate": "checkChat",
         //   "message": "获取fromPeer成功",
         //   "date": new Date().getTime(),
-        // }));  //测试
+        // });  //测试
       } else {
         await this.noExistChat();
         this.chatId = chatResult.Cindex + 1;
-        this.ws.send(JSON.stringify({
+        this.broadcast({
           "operate": "checkChat",
           "message": chatResult.title + " - chat已不存在了",
           "error": true,
           "date": new Date().getTime(),
-        }));
+        });
       }
     } else {
       this.chatId = chatResult.Cindex + 1;
-      this.ws.send(JSON.stringify({
+      this.broadcast({
         "operate": "checkChat",
         "message": chatResult.title + " - chat已不存在了",
         "error": true,
         "date": new Date().getTime(),
-      }));
+      });
       if (next) {
         await this.nextChat();
       }
@@ -310,27 +357,17 @@ export class WebSocketServer extends DurableObject {
         }
       } else {
         //console.log("没有更多chat了");
-        this.ws.send(JSON.stringify({
+        this.broadcast({
           "operate": "nextChat",
           "message": "没有更多chat了",
           "date": new Date().getTime(),
-        }));
+        });
         break;
       }
     }
   }
 
   async getChat() {
-    // this.ws.send(JSON.stringify({
-    //   "operate": "getChat",
-    //   "message": "getChat",
-    //   "date": new Date().getTime(),
-    // }));  //测试
-    // this.ws.send(JSON.stringify({
-    //   "operate": "getChat",
-    //   "message": "getChat",
-    //   "date": new Date().getTime(),
-    // }));  //测试
     if (this.chatId === 0) {
       this.fromPeer = "me";
       this.apiCount += 1;
@@ -349,11 +386,11 @@ export class WebSocketServer extends DurableObject {
         await this.checkChat(chatResult, true);
       } else {
         //console.log("没有更多chat了");
-        this.ws.send(JSON.stringify({
+        this.broadcast({
           "operate": "getChat",
           "message": "没有更多chat了",
           "date": new Date().getTime(),
-        }));
+        });
       }
     }
   }
@@ -365,28 +402,28 @@ export class WebSocketServer extends DurableObject {
       //console.log(chatInfo);  //测试
       if (chatInfo.success === true) {
         //console.log("更新config数据成功");
-        this.ws.send(JSON.stringify({
+        this.broadcast({
           "operate": "updateConfig",
           "message": "更新config数据成功",
           "date": new Date().getTime(),
-        }));
+        });
       } else {
         //console.log("更新config数据失败");
-        this.ws.send(JSON.stringify({
+        this.broadcast({
           "operate": "updateConfig",
           "message": "更新config数据失败",
           "error": true,
           "date": new Date().getTime(),
-        }));
+        });
       }
     } catch (e) {
       //console.log("updateConfig出错 : " + e);
-      this.ws.send(JSON.stringify({
+      this.broadcast({
         "operate": "updateConfig",
         "message": "出错 : " + e,
         "error": true,
         "date": new Date().getTime(),
-      }));
+      });
       await scheduler.wait(10000);
       await this.updateConfig();
     }
@@ -394,7 +431,6 @@ export class WebSocketServer extends DurableObject {
 
   async getMessage() {
     try {
-      // const messageArray = [];
       for await (const message of this.client.iterMessages(
         this.fromPeer,
         //"me",  //测试
@@ -409,33 +445,20 @@ export class WebSocketServer extends DurableObject {
         })
       ) {
         // if (message.message) {
-        //   messageArray.push(message);
+        //   this.messageArray.push(message);
         // }
-        // messageArray.push(message);
         this.messageArray.push(message);
       }
-      // return messageArray;
-      // const messageArray = await this.client.invoke(new Api.messages.GetHistory({
-      //   peer: this.fromPeer,
-      //   limit: this.limit,
-      //   reverse: this.reverse,
-      //   addOffset: -this.offsetId,
-      //   // offsetDate: offsetDate,
-      //   // offsetId: offsetId,
-      //   // minId: 0,
-      //   // maxId: 0,
-      //   // hash: bigInt.zero,
-      // }));
     } catch (e) {
       this.messageArray = [];
       //console.log("(" + this.currentStep + ")查询消息出错 : " + e);
-      this.ws.send(JSON.stringify({
+      this.broadcast({
         "operate": "getMessage",
         "step": this.currentStep,
         "message": "查询消息出错 : " + e,
         "error": true,
         "date": new Date().getTime(),
-      }));
+      });
       await scheduler.wait(10000);
       await this.getMessage();
     }
@@ -448,64 +471,54 @@ export class WebSocketServer extends DurableObject {
       //console.log(chatInfo);  //测试
       if (chatInfo.success === true) {
         //console.log("(" + this.currentStep + ")更新chat数据成功");
-        this.ws.send(JSON.stringify({
+        this.broadcast({
           "operate": "updateChat",
           "step": this.currentStep,
           "message": "更新chat数据成功",
           "date": new Date().getTime(),
-        }));
+        });
       } else {
         //console.log("(" + this.currentStep + ")更新chat数据失败");
-        this.ws.send(JSON.stringify({
+        this.broadcast({
           "operate": "updateChat",
           "step": this.currentStep,
           "message": "更新chat数据失败",
           "error": true,
           "date": new Date().getTime(),
-        }));
+        });
       }
     } catch (e) {
       //console.log("(" + this.currentStep + ")updateChat出错 : " + e);
-      this.ws.send(JSON.stringify({
+      this.broadcast({
         "operate": "updateChat",
         "step": this.currentStep,
         "message": "出错 : " + e,
         "error": true,
         "date": new Date().getTime(),
-      }));
+      });
       await scheduler.wait(10000);
       await this.updateChat();
     }
   }
 
   async selectMessage(messageId) {
-    // this.ws.send(JSON.stringify({
-    //   "operate": this.chatId,
-    //   "message": messageId,
-    //   "date": new Date().getTime(),
-    // }));  //测试
     this.apiCount += 1;
     try {
       const messageResult = await this.env.MAINDB.prepare("SELECT COUNT(id) FROM `PANMESSAGE` WHERE `chatId` = ? AND  `id` = ? LIMIT 1;").bind(this.chatId, messageId).first();
       //console.log("messageResult : " + messageResult["COUNT(id)"]);  //测试
-      // this.ws.send(JSON.stringify({
-      //   "operate": JSON.stringify(messageResult),
-      //   "message": JSON.stringify(messageResult["COUNT(id)"]),
-      //   "date": new Date().getTime(),
-      // }));  //测试
       if (messageResult) {
         return messageResult["COUNT(id)"];
       }
     } catch (e) {
       //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : selectMessage出错 : " + e);
-      this.ws.send(JSON.stringify({
+      this.broadcast({
         "offsetId": this.offsetId,
         "operate": "selectMessage",
         "message": JSON.stringify(e),
         "error": true,
         "status": "try",
         "date": new Date().getTime(),
-      }));
+      });
       await scheduler.wait(10000);
       await this.selectMessage(messageId);
     }
@@ -518,33 +531,33 @@ export class WebSocketServer extends DurableObject {
       //console.log(messageInfo);  //测试
       if (messageInfo.success === true) {
         //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : 插入message数据成功");
-        this.ws.send(JSON.stringify({
+        this.broadcast({
           "offsetId": this.offsetId,
           "operate": "insertMessage",
           "status": "success",
           "date": new Date().getTime(),
-        }));
+        });
       } else {
         //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : 插入message数据失败");
-        this.ws.send(JSON.stringify({
+        this.broadcast({
           "offsetId": this.offsetId,
           "operate": "insertMessage",
           "message": "插入message数据失败",
           "error": true,
           "status": "error",
           "date": new Date().getTime()
-        }));
+        });
       }
     } catch (e) {
       //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : insertMessage出错 : " + e);;
-      this.ws.send(JSON.stringify({
+      this.broadcast({
         "offsetId": this.offsetId,
         "operate": "insertMessage",
         "message": JSON.stringify(e),
         "error": true,
         "status": "try",
         "date": new Date().getTime(),
-      }));
+      });
       await scheduler.wait(10000);
       await this.insertMessage(messageId, txt, id, url);
     }
@@ -552,23 +565,11 @@ export class WebSocketServer extends DurableObject {
 
   async nextMessage(messageLength, messageIndex, message) {
     if (this.stop === 1) {
-      // if (this.apiCount > 900) {
-      //   //console.log("(" + this.currentStep + ")nextMessage超出apiCount限制");
-      //   this.ws.send(JSON.stringify({
-      //     "offsetId": this.offsetId,
-      //     "operate": "nextMessage",
-      //     "message": "超出apiCount限制",
-      //     "error": true,
-      //     "status": "limit",
-      //     "date": new Date().getTime(),
-      //   }));
-      //   this.ctx.abort("reset");
-      // }
       if (this.apiCount < 900) {
         if (message) {
           const messageId = message.id;
           const txt = message.message;
-          this.ws.send(JSON.stringify({
+          this.broadcast({
             "offsetId": this.offsetId,
             "operate": "nextMessage",
             "step": this.currentStep,
@@ -577,184 +578,136 @@ export class WebSocketServer extends DurableObject {
             "messageId": messageId,
             "status": "add",
             "date": new Date().getTime(),
-          }));
-          // this.ws.send(JSON.stringify({
-          //   "operate": "txt",
-          //   "status": txt,
-          //   "date": new Date().getTime(),
-          // }));  //测试
+          });
           if (txt) {
             const messageCount = await this.selectMessage(messageId);
-            // this.ws.send(JSON.stringify({
-            //   "operate": "messageCount",
-            //   "status": messageCount,
-            //   "date": new Date().getTime(),
-            // }));  //测试
             if (parseInt(messageCount) === 0) {
               let webpage = "";
               let url = "";
-              // this.ws.send(JSON.stringify({
-              //   "operate": messageCount,
-              //   "message": JSON.stringify(message.media),
-              //   "date": new Date().getTime(),
-              // }));  //测试
               if (message.media) {
-                // this.ws.send(JSON.stringify({
-                //   "operate": message.media.webpage.id,
-                //   "message": message.media.webpage.url,
-                //   "date": new Date().getTime(),
-                // }));  //测试
                 if (message.media.webpage) {
-                  this.ws.send(JSON.stringify({
+                  this.broadcast({
                     "offsetId": this.offsetId,
                     "operate": "nextMessage",
                     "status": "webpage",
                     "date": new Date().getTime(),
-                  }));
+                  });
                   if (message.media.webpage.id) {
                     webpage = message.media.webpage.id.toString();
                   }
                   if (message.media.webpage.url) {
                     url = message.media.webpage.url;
                   }
-                // } else {
-                //   //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : 消息不包含webpage");
-                //   this.ws.send(JSON.stringify({
-                //     "offsetId": this.offsetId,
-                //     "operate": "nextMessage",
-                //     "message": "消息不包含webpage",
-                //     "status": "nowebpage",
-                //     "date": new Date().getTime(),
-                //   }));
                 }
-              // } else {
-              //   //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : 消息不包含媒体");
-              //   this.ws.send(JSON.stringify({
-              //     "offsetId": this.offsetId,
-              //     "operate": "nextMessage",
-              //     "message": "消息不包含媒体",
-              //     "status": "nowebpage",
-              //     "date": new Date().getTime(),
-              //   }));
               }
-              // this.ws.send(JSON.stringify({
-              //   "operate": webpage,
-              //   "status": url,
-              //   "date": new Date().getTime(),
-              // }));  //测试
               await this.insertMessage(messageId, txt, webpage, url);
             } else {
               //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : message已在数据库中");
-              this.ws.send(JSON.stringify({
+              this.broadcast({
                 "offsetId": this.offsetId,
                 "operate": "nextMessage",
                 "status": "exist",
                 "date": new Date().getTime(),
-              }));
+              });
             }
             this.offsetId += 1;
           } else {
             //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : 错误的消息");
-            this.ws.send(JSON.stringify({
+            this.broadcast({
               "offsetId": this.offsetId,
               "operate": "nextMessage",
               "message": "txt为空",
               "error": true,
               "status": "error",
               "date": new Date().getTime(),
-            }));
+            });
             this.offsetId += 1;
           }
         } else {
           //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : 错误的消息");
-          this.ws.send(JSON.stringify({
+          this.broadcast({
             "offsetId": this.offsetId,
             "operate": "nextMessage",
             "message": "错误的消息",
             "error": true,
             "status": "error",
             "date": new Date().getTime(),
-          }));
+          });
           this.offsetId += 1;
         }
       } else {
         this.stop = 2;
         //console.log("(" + this.currentStep + ")nextMessage超出apiCount限制");
-        this.ws.send(JSON.stringify({
+        this.broadcast({
           "offsetId": this.offsetId,
           "operate": "nextMessage",
           "message": "超出apiCount限制",
           "error": true,
           "status": "limit",
           "date": new Date().getTime(),
-        }));
+        });
         await this.updateChat();
         await this.close();
         this.ctx.abort("reset");
       }
     } else if (this.stop === 2) {
-      this.ws.send(JSON.stringify({
+      this.broadcast({
         "result": "pause",
-      }));
+      });
       await this.close();
     }
   }
 
   async nextStep() {
     if (this.stop === 1) {
-      // if (this.apiCount > 900) {
-      //   //console.log("(" + this.currentStep + ")nextStep超出apiCount限制");
-      //   this.ws.send(JSON.stringify({
-      //     "operate": "nextStep",
-      //     "message": "超出apiCount限制",
-      //     "error": true,
-      //     "status": "limit",
-      //     "date": new Date().getTime(),
-      //   }));
-      //   this.ctx.abort("reset");
-      // }
       if (this.apiCount < 900) {
         await this.updateChat();
         this.currentStep += 1;
-        // const messageArray = await this.getMessage();
         await scheduler.wait(3000);
         await this.getMessage();
         const messageArray = this.messageArray;
         const messageLength = messageArray.length;
         this.messageArray = [];
-        if (messageLength > 0) {
+        if (messageLength && messageLength > 0) {
           //console.log("(" + this.currentStep + ")messageLength : " + messageLength);
-          this.ws.send(JSON.stringify({
+          this.broadcast({
             "operate": "nextStep",
             "step": this.currentStep,
             "message": "messageLength : " + messageLength,
             "date": new Date().getTime(),
-          }));
+          });
           if (this.stop === 1) {
-            // await this.nextMessage();
-            // for await (const message of messageArray) {
-            //   this.ws.send(JSON.stringify({
-            //     "operate": "message",
-            //     "message": JSON.stringify(message),
-            //     "date": new Date().getTime(),
-            //   }));  //测试
-            //   this.nextMessage(messageLength, messageIndex, message);
-            // }
             for (let messageIndex = 0; messageIndex < messageLength; messageIndex++) {
               await this.nextMessage(messageLength, messageIndex, messageArray[messageIndex]);
+              // this.offsetId += 1;
             }
             if (this.stop === 1) {
-              await this.nextStep();
+              if (this.apiCount < 900) {
+                await this.nextStep();
+            } else {
+              this.stop = 2;
+              //console.log("(" + this.currentStep + ")nextStep超出apiCount限制");
+              this.broadcast({
+                "operate": "nextStep",
+                "step": this.currentStep,
+                "message": "超出apiCount限制",
+                "error": true,
+                "date": new Date().getTime(),
+              });
+              await this.updateChat();
+              await this.close();
+              this.ctx.abort("reset");
+            }
             } else if (this.stop === 2) {
-              this.ws.send(JSON.stringify({
+              this.broadcast({
                 "result": "pause",
-              }));
+              });
               await this.close();
             }
           } else if (this.stop === 2) {
-            this.ws.send(JSON.stringify({
+            this.broadcast({
               "result": "pause",
-            }));
+            });
             await this.close();
           }
         } else {
@@ -773,41 +726,41 @@ export class WebSocketServer extends DurableObject {
             if (this.stop === 1) {
               await this.nextStep();
             } else if (this.stop === 2) {
-              this.ws.send(JSON.stringify({
+              this.broadcast({
                 "result": "pause",
-              }));
+              });
               await this.close();
             }
           } else {
             //console.log("(" + this.currentStep + ")全部chat采集完毕");
-            this.ws.send(JSON.stringify({
+            this.broadcast({
               "result": "over",
               "operate": "nextStep",
               "step": this.currentStep,
               "message": "全部chat采集完毕",
               "date": new Date().getTime(),
-            }));
+            });
             await this.close();
           }
         }
       } else {
         this.stop = 2;
         //console.log("(" + this.currentStep + ")nextStep超出apiCount限制");
-        this.ws.send(JSON.stringify({
+        this.broadcast({
           "operate": "nextStep",
           "step": this.currentStep,
           "message": "超出apiCount限制",
           "error": true,
           "date": new Date().getTime(),
-        }));
+        });
         await this.updateChat();
         await this.close();
         this.ctx.abort("reset");
       }
     } else if (this.stop === 2) {
-      this.ws.send(JSON.stringify({
+      this.broadcast({
         "result": "pause",
-      }));
+      });
       await this.close();
     }
   }
@@ -818,22 +771,6 @@ export class WebSocketServer extends DurableObject {
     this.ctx.acceptWebSocket(wsServer);
     // wsServer.send("chat success");  //测试
     this.ws = wsServer;
-    // const configResult = await this.env.MAINDB.prepare("SELECT * FROM `CONFIG` WHERE `name` = 'pansou' LIMIT 1;").first();  //测试
-    // const chatResult = await this.env.MAINDB.prepare("SELECT * FROM `PANCHAT` WHERE `Cindex` = 0 LIMIT 1;").first();  //测试
-    // this.init();  //测试
-    // await this.getConfig();
-    // await this.getChat();  //测试
-    // this.ws.send(JSON.stringify({
-    //   "operate": this.chatId + " - " + this.reverse + " - " + this.limit,
-    //   // "message": JSON.stringify(configResult),
-    //   // "message": JSON.stringify(chatResult),
-    //   "message": this.fromPeer + " - " + this.offsetId,
-    //   "date": new Date().getTime(),
-    // }));  //测试
-    // this.init();
-    // if (!this.client) {
-    //   await this.open();
-    // }
     return new Response(null, {
       status: 101,
       webSocket: wsClient,
@@ -843,12 +780,12 @@ export class WebSocketServer extends DurableObject {
   async start() {
     if (this.client || this.stop === 1) {
     // if (this.stop === 1) {
-      this.ws.send(JSON.stringify({
+      this.broadcast({
         "operate": "start",
         "message": "服务已经运行过了",
         "error": true,
         "date": new Date().getTime(),
-      }));
+      });
       return;
     }
     this.init();
@@ -856,11 +793,6 @@ export class WebSocketServer extends DurableObject {
     await this.open();
     await this.getConfig();
     await this.getChat();
-    // this.ws.send(JSON.stringify({
-    //   "operate": this.chatId,
-    //   "message": JSON.stringify(this.fromPeer),
-    //   "date": new Date().getTime(),
-    // }));  //测试
     if (this.fromPeer) {
       if (this.chatId != this.lastChat) {
         if (this.lastChat != 0) {
@@ -870,90 +802,58 @@ export class WebSocketServer extends DurableObject {
       }
       if (this.stop === 1) {
         this.currentStep += 1;
-        // const messageArray = await this.getMessage();
         await this.getMessage();
         const messageArray = this.messageArray;
         const messageLength = messageArray.length;
         this.messageArray = [];
-        // this.ws.send(JSON.stringify({
-        //   "operate": messageLength,
-        //   "message": JSON.stringify(messageArray),
-        //   "date": new Date().getTime(),
-        // }));  //测试
-        this.ws.send(JSON.stringify({
-          "operate": "messageLength",
-          "status": messageLength,
+        this.broadcast({
+          "operate": "start",
+          "message": "messageLength : " + messageLength,
           "date": new Date().getTime(),
-        }));  //测试
-        if (messageLength > 0) {
+        });  //测试
+        if (messageLength && messageLength > 0) {
+          for (let messageIndex = 0; messageIndex < messageLength; messageIndex++) {
+            await this.nextMessage(messageLength, messageIndex, messageArray[messageIndex]);
+            // this.offsetId += 1;
+          }
           if (this.stop === 1) {
-            // await this.nextMessage();
-            // for await (const message of messageArray) {
-            //   this.ws.send(JSON.stringify({
-            //     "operate": "message",
-            //     "message": JSON.stringify(message),
-            //     "date": new Date().getTime(),
-            //   }));  //测试
-            //   this.nextMessage(messageLength, messageIndex, message);
-            // }
-            for (let messageIndex = 0; messageIndex < messageLength; messageIndex++) {
-              await this.nextMessage(messageLength, messageIndex, messageArray[messageIndex]);
-            }
-            if (this.stop === 1) {
-              // if (this.apiCount > 900) {
-              //   //console.log("(" + this.currentStep + ")start超出apiCount限制");
-              //   this.ws.send(JSON.stringify({
-              //     "operate": "start",
-              //     "message": "超出apiCount限制",
-              //     "error": true,
-              //     "status": "limit",
-              //     "date": new Date().getTime(),
-              //   }));
-              //   this.ctx.abort("reset");
-              // }
-              if (this.apiCount < 900) {
-                await this.nextStep();
-              } else {
-                this.stop = 2;
-                //console.log("(" + this.currentStep + ")start超出apiCount限制");
-                this.ws.send(JSON.stringify({
-                  "operate": "start",
-                  "step": this.currentStep,
-                  "message": "超出apiCount限制",
-                  "error": true,
-                  "date": new Date().getTime(),
-                }));
-                await this.updateChat();
-                await this.close();
-                this.ctx.abort("reset");
-              }
-            } else if (this.stop === 2) {
-              this.ws.send(JSON.stringify({
-                "result": "pause",
-              }));
+            if (this.apiCount < 900) {
+              await this.nextStep();
+            } else {
+              this.stop = 2;
+              //console.log("(" + this.currentStep + ")start超出apiCount限制");
+              this.broadcast({
+                "operate": "start",
+                "step": this.currentStep,
+                "message": "超出apiCount限制",
+                "error": true,
+                "date": new Date().getTime(),
+              });
+              await this.updateChat();
               await this.close();
+              this.ctx.abort("reset");
             }
           } else if (this.stop === 2) {
-            this.ws.send(JSON.stringify({
+            this.broadcast({
               "result": "pause",
-            }));
+            });
             await this.close();
           }
         }
       } else if (this.stop === 2) {
-        this.ws.send(JSON.stringify({
+        this.broadcast({
           "result": "pause",
-        }));
+        });
         await this.close();
       }
     } else {
       //console.log("全部chat采集完毕");
-      this.ws.send(JSON.stringify({
+      this.broadcast({
         "result": "over",
         "operate": "start",
         "message": "全部chat采集完毕",
         "date": new Date().getTime(),
-      }));
+      });
       await this.close();
     }
   }
@@ -966,154 +866,122 @@ export class WebSocketServer extends DurableObject {
     } catch (e) {
       this.dialogArray = [];
       //console.log("(" + this.currentStep + ")查询dialog出错 : " + e);
-      this.ws.send(JSON.stringify({
+      this.broadcast({
         "operate": "getDialog",
         "message": "查询dialog出错 : " + e,
         "error": true,
         "date": new Date().getTime(),
-      }));
+      });
       await scheduler.wait(10000);
       await this.getDialog();
     }
   }
 
+  async chat() {
+    // if (this.client || this.stop === 1) {
+    // // if (this.stop === 1) {
+    //   this.broadcast({
+    //     "operate": "chat",
+    //     "message": "服务已经运行过了",
+    //     "error": true,
+    //     "date": new Date().getTime(),
+    //   });
+    //   return;
+    // }
+    // this.stop = 1;
+    if (!this.client) {
+      await this.open();
+    }
+    let count = 0;
+    await this.getDialog();
+    const dialogArray = this.dialogArray;
+    // const dialogLength = dialogArray.length;
+    this.dialogArray = [];
+    // for (let dialogIndex = 0; dialogIndex < dialogLength; dialogIndex++) {
+    for await (const dialog of dialogArray) {
+      // this.broadcast({
+      //   "operate": JSON.stringify(dialog),
+      //   "message": JSON.stringify(dialog.inputEntity),
+      //   "date": new Date().getTime(),
+      // });  //测试
+      // break;  //测试
+      let channelId = "";
+      let accessHash = "";
+      const isChannel = dialog.isChannel;
+      // console.log("isChannel : " + isChannel);  //测试
+      if (isChannel === true) {
+        channelId = dialog.inputEntity.channelId.toString();
+        accessHash = dialog.inputEntity.accessHash.toString();
+      } else {
+        channelId = dialog.id.toString();
+      }
+      //console.log("channelId : " + channelId);  //测试
+      //console.log("accessHash : " + accessHash);  //测试
+      //console.log(channelId + " : " + accessHash);  //测试
+      //console.log(dialog);  //测试
+      // this.broadcast({
+      //   "operate": channelId + " - " + accessHash,
+      //   "message": JSON.stringify(dialog),
+      //   "date": new Date().getTime(),
+      // });  //测试
+      if (channelId) {
+        const chatResult = await this.env.MAINDB.prepare("SELECT COUNT(Cindex) FROM `PANCHAT` WHERE `channelId` = ? AND `accessHash` = ? LIMIT 1;").bind(channelId, accessHash).first();
+        //console.log("chatResult : " + chatResult["COUNT(id)"]);  //测试
+        if (chatResult && chatResult["COUNT(Cindex)"] === 0) {
+          const chatInfo = await this.env.MAINDB.prepare("INSERT INTO `PANCHAT` (channelId, accessHash, title, current, exist) VALUES (?, ?, ?, ?, ?);").bind(channelId, accessHash, dialog.title, 0, 1).run();
+          //console.log(chatInfo);  //测试
+          if (chatInfo.success === true) {
+            count += 1;
+            //console.log("插入chat数据成功");
+            this.broadcast({
+              "operate": "chat",
+              "message": "插入chat数据成功",
+              "date": new Date().getTime(),
+            });
+          } else {
+            //console.log("插入chat数据失败");
+            this.broadcast({
+              "operate": "chat",
+              "message": "插入chat数据失败",
+              "error": true,
+              "date": new Date().getTime(),
+            });
+          }
+        // } else {
+        //   //console.log("chat已在数据库中");
+        //   this.broadcast({
+        //     "operate": "chat",
+        //     "message": "chat已在数据库中",
+        //     "date": new Date().getTime(),
+        //   });
+        }
+      } else {
+        //console.log("chat的channelId错误");
+        this.broadcast({
+          "operate": "chat",
+          "message": "chat的channelId错误",
+          "error": true,
+          "date": new Date().getTime(),
+        });
+      }
+    }
+    //console.log("新插入了" + count + "条数据");
+    this.broadcast({
+      "operate": "chat",
+      "message": "新插入了" + count + "条数据",
+      "date": new Date().getTime(),
+    });
+    await this.close();
+  }
+
   async webSocketMessage(ws, message) {
     //console.log(message);  //测试
-    // ws.send(JSON.stringify({
-    //   "operate": "webSocketMessage",
-    //   "message": message,
-    //   "date": new Date().getTime(),
-    // }));
     if (message === "start") {
       await this.start();
-    } else if (message === "close") {
+    } else if (message === "pause") {
       this.stop = 2;
     } else if (message === "chat") {
-      // if (this.client || this.stop === 1) {
-      // // if (this.stop === 1) {
-      //   ws.send(JSON.stringify({
-      //     "operate": "chat",
-      //     "message": "服务已经运行过了",
-      //     "error": true,
-      //     "date": new Date().getTime(),
-      //   }));
-      //   return;
-      // }
-      // this.stop = 1;
-      if (!this.client) {
-        await this.open();
-      }
-      let count = 0;
-      // const me = await this.client.getMe();  //测试
-      // ws.send(JSON.stringify({
-      //   "operate": "chat",
-      //   "message": JSON.stringify(me),
-      //   "date": new Date().getTime(),
-      // }));  //测试
-      // try {
-      //   const dialogs = await this.client.getDialogs(
-      //     // {limit: 10}
-      //   );  //测试
-      // } catch (e) {
-      //   //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : selectMessage出错 : " + e);
-      //   this.ws.send(JSON.stringify({
-      //     "operate": "chat",
-      //     "message": JSON.stringify(e),
-      //     "error": true,
-      //     "date": new Date().getTime(),
-      //   }));  //测试
-      // }
-      // const dialogs = await client.invoke(
-      //   new Api.messages.GetDialogs({
-      //     // offsetDate: 0,
-      //     // offsetId: 0,
-      //     // limit: 1000,
-      //   })
-      // );
-      // ws.send(JSON.stringify({
-      //   "operate": "chat",
-      //   "message": JSON.stringify(dialogs),
-      //   "date": new Date().getTime(),
-      // }));  //测试
-      await this.getDialog();
-      const dialogArray = this.dialogArray;
-      // const dialogLength = dialogArray.length;
-      this.dialogArray = [];
-      // for (let dialogIndex = 0; dialogIndex < dialogLength; dialogIndex++) {
-      for await (const dialog of dialogArray) {
-        // ws.send(JSON.stringify({
-        //   "operate": JSON.stringify(dialog),
-        //   "message": JSON.stringify(dialog.inputEntity),
-        //   "date": new Date().getTime(),
-        // }));  //测试
-        // break;  //测试
-        let channelId = "";
-        let accessHash = "";
-        const isChannel = dialog.isChannel;
-        // console.log("isChannel : " + isChannel);  //测试
-        if (isChannel === true) {
-          channelId = dialog.inputEntity.channelId.toString();
-          accessHash = dialog.inputEntity.accessHash.toString();
-        } else {
-          channelId = dialog.id.toString();
-        }
-        //console.log("channelId : " + channelId);  //测试
-        //console.log("accessHash : " + accessHash);  //测试
-        //console.log(channelId + " : " + accessHash);  //测试
-        //console.log(dialog);  //测试
-        // ws.send(JSON.stringify({
-        //   "operate": channelId + " - " + accessHash,
-        //   "message": JSON.stringify(dialog),
-        //   "date": new Date().getTime(),
-        // }));  //测试
-        if (channelId) {
-          const chatResult = await this.env.MAINDB.prepare("SELECT COUNT(Cindex) FROM `PANCHAT` WHERE `channelId` = ? AND `accessHash` = ? LIMIT 1;").bind(channelId, accessHash).first();
-          //console.log("chatResult : " + chatResult["COUNT(id)"]);  //测试
-          if (chatResult && chatResult["COUNT(Cindex)"] === 0) {
-            const chatInfo = await this.env.MAINDB.prepare("INSERT INTO `PANCHAT` (channelId, accessHash, title, current, exist) VALUES (?, ?, ?, ?, ?);").bind(channelId, accessHash, dialog.title, 0, 1).run();
-            //console.log(chatInfo);  //测试
-            if (chatInfo.success === true) {
-              count += 1;
-              //console.log("插入chat数据成功");
-              ws.send(JSON.stringify({
-                "operate": "chat",
-                "message": "插入chat数据成功",
-                "date": new Date().getTime(),
-              }));
-            } else {
-              //console.log("插入chat数据失败");
-              ws.send(JSON.stringify({
-                "operate": "chat",
-                "message": "插入chat数据失败",
-                "error": true,
-                "date": new Date().getTime(),
-              }));
-            }
-          // } else {
-          //   //console.log("chat已在数据库中");
-          //   ws.send(JSON.stringify({
-          //     "operate": "chat",
-          //     "message": "chat已在数据库中",
-          //     "date": new Date().getTime(),
-          //   }));
-          }
-        } else {
-          //console.log("chat的channelId错误");
-          ws.send(JSON.stringify({
-            "operate": "chat",
-            "message": "chat的channelId错误",
-            "error": true,
-            "date": new Date().getTime(),
-          }));
-        }
-      }
-      //console.log("新插入了" + count + "条数据");
-      ws.send(JSON.stringify({
-        "operate": "chat",
-        "message": "新插入了" + count + "条数据",
-        "date": new Date().getTime(),
-      }));
-      await this.close();
+      await this.chat();
     } else if (message === "backup") {
       const signed_url = await exportDB();
       if (signed_url) {
@@ -1122,27 +990,29 @@ export class WebSocketServer extends DurableObject {
         ws.send("获取signed_url失败");
       }
     } else {
-      ws.send(JSON.stringify({
+      this.broadcast({
         "operate": "chat",
         "message": "未知消息",
         "error": true,
         "date": new Date().getTime(),
-      }));
+      });
     }
   }
 
   async webSocketClose(ws, code, reason, wasClean) {
-    if (this.stop === 1) {
-      await this.updateChat();
-    }
-    this.stop = 0;
+    // if (this.stop === 1) {
+    //   await this.updateChat();
+    // }
+    // this.stop = 0;
     ws.close(code, "Durable Object is closing WebSocket");
   }
 }
 
 export default {
   async fetch(request, env, ctx) {
-    const { pathname } = new URL(request.url);
+    // const { pathname } = new URL(request.url);
+    const url = new URL(request.url);
+    const pathname = url.pathname;
 
     if (pathname === "/ws") {
       const upgradeHeader = request.headers.get("Upgrade");
@@ -1154,12 +1024,29 @@ export default {
       const id = env.WEBSOCKET_SERVER.idFromName("tg");
       const stub = env.WEBSOCKET_SERVER.get(id);
       return stub.fetch(request);
-    } else if (pathname === "/backup") {
-      const signed_url = await exportDB();
-      if (signed_url) {
-        return new Response(signed_url);
+    } else if (pathname === "/count") {
+      const messageResult = await countMessage(env);
+      if (messageResult >= 0) {
+        return new Response(messageResult);
       } else {
-        return new Response("获取signed_url失败");
+        return new Response("获取message总数失败");
+      }
+    } else if (pathname === "/backup") {
+      const id = url.searchParams.get('id');
+      if (id && id >= 0) {
+        const name = getDB(id);
+        if (name) {
+          const signed_url = await exportDB(name);
+          if (signed_url) {
+            return new Response(signed_url);
+          } else {
+            return new Response("获取signed_url失败");
+          }
+        } else {
+          return new Response("获取db失败");
+        }
+      } else {
+        return new Response("要备份的数据库id不能为空");
       }
     }
 
