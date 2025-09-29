@@ -55,6 +55,8 @@ const App = () => {
   const containerStyle = useMemo(() => ({ width: "100%", height: "100%", margin: "1px" }), []);
   const gridStyle = useMemo(() => ({ width: "100%", height: "100%", margin: "1px" }), []);
   const [isCloseBtnDisabled, setCloseBtnDisabled] = useState(true);
+  const [isCollectBtnDisabled, setCollectBtnDisabled] = useState(true);
+  const [isNextBtnDisabled, setNextBtnDisabled] = useState(true);
   const [isClearGridBtnDisabled, setClearGridBtnDisabled] = useState(true);
   const [isClearLogBtnDisabled, setClearLogBtnDisabled] = useState(true);
   const [pauseBtnText, setPauseBtnText] = useState("开始");
@@ -99,13 +101,18 @@ const App = () => {
         openByDefault: true,
         children: [
           {
-            field: "offsetId",
-            headerName:"offsetId",
+            field: "step",
+            headerName: "step",
             columnGroupShow: "open",
           },
           {
-            field: "step",
-            headerName: "step",
+            field: "chatId",
+            headerName:"chatId",
+            columnGroupShow: "open",
+          },
+          {
+            field: "offsetId",
+            headerName:"offsetId",
             columnGroupShow: "open",
           },
           // {
@@ -288,6 +295,7 @@ const App = () => {
       console.log("lastRow错误");
       addNewEvent({
         "key": ++key,
+        "error": true,
         "message": renderTime(Date.now()) + "  >>> lastRow错误",
       });
     }
@@ -363,10 +371,10 @@ const App = () => {
 
   const waitReconnect = useCallback((command, time) => {
     setTimeout(function() {
-      //console.log("重新连接远程websocket");  //测试
+      //console.log("连接远程websocket");  //测试
       addNewEvent({
         "key": ++key,
-        "message": renderTime(Date.now()) + "  >>> 重新连接远程websocket",
+        "message": renderTime(Date.now()) + "  >>> 连接远程websocket",
       });
       if (pauseBtnText === "开始") {
         setPauseBtnText("暂停");
@@ -611,20 +619,26 @@ const App = () => {
     //console.log(pauseBtnText);  //测试
     if (pauseBtnText === "暂停") {
       const isClose = isCloseBtnDisabled;
+      const isCollect = isCollectBtnDisabled;
+      const isNext = isNextBtnDisabled;
       setPauseBtnText("开始");
       setCloseBtnDisabled(true);
+      setCollectBtnDisabled(true);
+      setNextBtnDisabled(true);
       //console.log(ws.current);  //测试
       if (ws.current && ws.current.readyState === WebSocket.OPEN) {
         try {
           ws.current.send("pause");
         } catch (e) {
-          console.log(e);  //测试
+          // console.log(e);  //测试
           addNewEvent({
             "key": ++key,
             "error": true,
             "message": renderTime(Date.now()) + "  >>> pause失败",
           });
           setCloseBtnDisabled(isClose);
+          setCollectBtnDisabled(isCollect);
+          setNextBtnDisabled(isNext);
         }
       } else {
         addNewEvent({
@@ -637,20 +651,47 @@ const App = () => {
     } else if (pauseBtnText === "开始") {
       setPauseBtnText("暂停");
       setCloseBtnDisabled(false);
+      setCollectBtnDisabled(false);
+      setNextBtnDisabled(false);
       if (!ws.current || ws.current.readyState !== WebSocket.OPEN) {
         waitReconnect("start", 1000);
       }
     }
-  }, [addNewEvent, renderTime, setCloseBtnDisabled, waitReconnect, isCloseBtnDisabled, pauseBtnText, key]);
+  }, [addNewEvent, renderTime, waitReconnect, setCloseBtnDisabled, setCollectBtnDisabled, setNextBtnDisabled, isCloseBtnDisabled, isCollectBtnDisabled, isNextBtnDisabled, pauseBtnText, key]);
+
+  const collectBtnClickHandler = useCallback(() => {
+    const isCollect = isCollectBtnDisabled;
+    setCollectBtnDisabled(true);
+    if (ws.current.readyState === WebSocket.OPEN) {
+      try {
+        ws.current.close();
+      } catch (e) {
+        // console.log(e);  //测试
+        addNewEvent({
+          "key": ++key,
+          "error": true,
+          "message": renderTime(Date.now()) + "  >>> collect失败",
+        });
+        setCollectBtnDisabled(isCollect);
+      }
+    } else {
+      addNewEvent({
+        "key": ++key,
+        "error": true,
+        "message": renderTime(Date.now()) + "  >>> 没有连接ws",
+      });
+      setCollectBtnDisabled(isCollect);
+    }
+  }, [addNewEvent, renderTime, setCollectBtnDisabled, isCollectBtnDisabled, key]);
 
   const closeBtnClickHandler = useCallback(() => {
     const isClose = isCloseBtnDisabled;
     setCloseBtnDisabled(true);
     if (ws.current.readyState === WebSocket.OPEN) {
       try {
-        ws.current.close();
+        ws.current.send("close");
       } catch (e) {
-        console.log(e);  //测试
+        // console.log(e);  //测试
         addNewEvent({
           "key": ++key,
           "error": true,
@@ -668,12 +709,37 @@ const App = () => {
     }
   }, [addNewEvent, renderTime, setCloseBtnDisabled, isCloseBtnDisabled, key]);
 
+  const nextBtnClickHandler = useCallback(() => {
+    const isNext = isNextBtnDisabled;
+    setNextBtnDisabled(true);
+    if (ws.current.readyState === WebSocket.OPEN) {
+      try {
+        ws.current.send("over");
+      } catch (e) {
+        // console.log(e);  //测试
+        addNewEvent({
+          "key": ++key,
+          "error": true,
+          "message": renderTime(Date.now()) + "  >>> next失败",
+        });
+        setNextBtnDisabled(isNext);
+      }
+    } else {
+      addNewEvent({
+        "key": ++key,
+        "error": true,
+        "message": renderTime(Date.now()) + "  >>> 没有连接ws",
+      });
+      setNextBtnDisabled(isNext);
+    }
+  }, [addNewEvent, renderTime, setNextBtnDisabled, isNextBtnDisabled, key]);
+
   const chatBtnClickHandler = useCallback(() => {
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       try {
         ws.current.send("chat");
       } catch (e) {
-        console.log(e);  //测试
+        // console.log(e);  //测试
         addNewEvent({
           "key": ++key,
           "error": true,
@@ -690,7 +756,7 @@ const App = () => {
       try {
         ws.current.send("clear");
       } catch (e) {
-        console.log(e);  //测试
+        // console.log(e);  //测试
         addNewEvent({
           "key": ++key,
           "error": true,
@@ -778,7 +844,9 @@ const App = () => {
         </div>
         <div style={{ margin: "1px" }}>
           <button onClick={pauseBtnClickHandler}>{pauseBtnText}</button>
-          <button onClick={closeBtnClickHandler} disabled={isCloseBtnDisabled}>断开</button>
+          <button onClick={collectBtnClickHandler} disabled={isCollectBtnDisabled}>断开</button>
+          <button onClick={closeBtnClickHandler} disabled={isCloseBtnDisabled}>强制关闭</button>
+          <button onClick={nextBtnClickHandler} disabled={isNextBtnDisabled}>不再继续</button>
           <button onClick={chatBtnClickHandler}>chat</button>
           <button onClick={clearCacheBtnClickHandler}>清空cache</button>
           <button onClick={clearGridBtnClickHandler} disabled={isClearGridBtnDisabled}>清空grid</button>

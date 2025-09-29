@@ -140,12 +140,13 @@ export class WebSocketServer extends DurableObject {
 
   broadcast(message) {
     // if (typeof message !== "string") {
-    //   message = JSON.stringify(message);
+      message = JSON.stringify(message);
     // }
     this.ctx.getWebSockets().forEach((ws) => {
     // this.webSocket.forEach((ws) => {
       try {
-        ws.send(JSON.stringify(message));
+        // ws.send(JSON.stringify(message));
+        ws.send(message);
       } catch (e) {
         // console.log(e);
         // const index = this.webSocket.findIndex(element => element === ws);
@@ -713,6 +714,7 @@ export class WebSocketServer extends DurableObject {
             "step": this.currentStep,
             // "messageLength": messageLength,
             // "messageIndex": messageIndex,
+            "chatId": this.chatId,
             "messageId": messageId,
             "status": "add",
             "date": new Date().getTime(),
@@ -1139,6 +1141,15 @@ export class WebSocketServer extends DurableObject {
       await this.start();
     } else if (message === "pause") {
       this.stop = 2;
+    } else if (message === "close") {
+      this.stop = 2;
+      await this.close();
+    } else if (message === "over") {
+      this.stop = 2;
+      this.broadcast({
+        "result": "over",
+      });
+      await this.close();
     } else if (message === "chat") {
       await this.chat();
     } else if (message === "backup") {
