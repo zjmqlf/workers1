@@ -409,27 +409,61 @@ export class WebSocketServer extends DurableObject {
   async getChat() {
     if (this.chatId === 0) {
       this.fromPeer = "me";
-      this.apiCount += 1;
-      const chatResult = await this.env.MAINDB.prepare("SELECT * FROM `PANCHAT` WHERE `Cindex` = 0 LIMIT 1;").first();
-      //console.log("chatResult : " + chatResult"]);  //测试
-      if (chatResult) {
-        this.offsetId = chatResult.current;
+      let tryCount = 0;
+      while (tryCount < 30) {
+        try {
+          this.apiCount += 1;
+          const chatResult = await this.env.MAINDB.prepare("SELECT * FROM `PANCHAT` WHERE `Cindex` = 0 LIMIT 1;").first();
+          //console.log("chatResult : " + chatResult"]);  //测试
+          if (chatResult) {
+            this.offsetId = chatResult.current;
+            break;
+          }
+        } catch (e) {
+          tryCount += 1;
+          //console.log("(" + this.currentStep + ")getChat出错 : " + e);
+          this.broadcast({
+            "operate": "getChat",
+            "step": this.currentStep,
+            "message": "出错 : " + e,
+            "error": true,
+            "date": new Date().getTime(),
+          });
+          await scheduler.wait(10000);
+        }
       }
     } else if (this.chatId && this.chatId > 0) {
       await this.nextChat();
     } else {
-      this.apiCount += 1;
-      const chatResult = await this.env.MAINDB.prepare("SELECT * FROM `PANCHAT` WHERE `current` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").first();
-      //console.log("chatResult : " + chatResult"]);  //测试
-      if (chatResult) {
-        await this.checkChat(chatResult, true);
-      } else {
-        //console.log("没有更多chat了");
-        this.broadcast({
-          "operate": "getChat",
-          "message": "没有更多chat了",
-          "date": new Date().getTime(),
-        });
+      let tryCount = 0;
+      while (tryCount < 30) {
+        try {
+          this.apiCount += 1;
+          const chatResult = await this.env.MAINDB.prepare("SELECT * FROM `PANCHAT` WHERE `current` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").first();
+          //console.log("chatResult : " + chatResult"]);  //测试
+          if (chatResult) {
+            await this.checkChat(chatResult, true);
+          } else {
+            //console.log("没有更多chat了");
+            this.broadcast({
+              "operate": "getChat",
+              "message": "没有更多chat了",
+              "date": new Date().getTime(),
+            });
+          }
+          break;
+        } catch (e) {
+          tryCount += 1;
+          //console.log("(" + this.currentStep + ")getChat出错 : " + e);
+          this.broadcast({
+            "operate": "getChat",
+            "step": this.currentStep,
+            "message": "出错 : " + e,
+            "error": true,
+            "date": new Date().getTime(),
+          });
+          await scheduler.wait(10000);
+        }
       }
     }
   }
@@ -818,6 +852,14 @@ export class WebSocketServer extends DurableObject {
           await this.updateChat(1);
           this.fromPeer = null;
           this.chatId += 1;
+          //console.log("(" + this.currentStep + ")当前chat采集完毕");
+          this.broadcast({
+            "result": "end",
+            "operate": "nextStep",
+            "step": this.currentStep,
+            "message": "当前chat采集完毕",
+            "date": new Date().getTime(),
+          });
           await this.getChat();
           if (this.fromPeer) {
             this.offsetId = 0;
@@ -884,12 +926,12 @@ export class WebSocketServer extends DurableObject {
   async start() {
     if (this.client || this.stop === 1) {
     // if (this.stop === 1) {
-      this.broadcast({
+      this.ws.send(JSON.stringify({
         "operate": "start",
         "message": "服务已经运行过了",
         "error": true,
         "date": new Date().getTime(),
-      });
+      }));
       return;
     }
     this.init();
@@ -997,12 +1039,12 @@ export class WebSocketServer extends DurableObject {
   async chat() {
     // if (this.client || this.stop === 1) {
     // // if (this.stop === 1) {
-    //   this.broadcast({
+    //   this.ws.send(JSON.stringify({
     //     "operate": "chat",
     //     "message": "服务已经运行过了",
     //     "error": true,
     //     "date": new Date().getTime(),
-    //   });
+    //   }));
     //   return;
     // }
     // this.stop = 1;

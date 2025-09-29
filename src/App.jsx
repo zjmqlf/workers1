@@ -456,6 +456,20 @@ const App = () => {
             });
             ws.current.close();
             ws.current = null;
+          } else if (message.result === "end") {
+            lastId.current = 0;
+            lastRow.current = null;
+            setRowData([]);
+            setClearGridBtnDisabled(true);
+            setLogData(() => {
+              return [];
+            });
+            setClearLogBtnDisabled(true);
+            //console.log("当前chat采集完毕");  //测试
+            addNewEvent({
+              "key": ++key,
+              "message": renderTime(Date.now()) + "  >>>当前chat采集完毕",
+            });
           } else if (message.result === "over") {
             over.current = true;
             //console.log("全部chat采集完毕");  //测试
