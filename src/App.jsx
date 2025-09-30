@@ -582,6 +582,7 @@ const App = () => {
           "message": renderTime(Date.now()) + "  >>> 过了2分钟都没有收到任何消息",
         });
         if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+          ws.current.send("close");
           ws.current.close();
         }
       }, 120000);
