@@ -60,6 +60,8 @@ const App = () => {
   const [isClearGridBtnDisabled, setClearGridBtnDisabled] = useState(true);
   const [isClearLogBtnDisabled, setClearLogBtnDisabled] = useState(true);
   const [pauseBtnText, setPauseBtnText] = useState("开始");
+  const [isCompressChecked, setCompressChecked] = useState(false);
+  const [isBatchChecked, setBatchChecked] = useState(false);
   const [rowData, setRowData] = useState([]);
   const [logData, setLogData] = useState([]);
   const getRowId = useCallback((params) => String(params.data.offsetId), []);
@@ -420,6 +422,9 @@ const App = () => {
       if (ws.current && ws.current.readyState === WebSocket.OPEN) {
         try {
           ws.current.send(command);
+          if (isCompressChecked === true) {
+            ws.current.send("compress");
+          }
         } catch (e) {
           console.log(e);  //测试
           addNewEvent({
@@ -614,7 +619,7 @@ const App = () => {
       }
     })
 
-  }, [addNewEvent, addItems, renderTime, updateInsert, updateItems, updateSelect, handleBeforeUnload, waitReconnect, pauseBtnText, key]);
+  }, [addNewEvent, addItems, renderTime, updateInsert, updateItems, updateSelect, handleBeforeUnload, waitReconnect, pauseBtnText, isCompressChecked, key]);
 
   const pauseBtnClickHandler = useCallback(() => {
     //console.log(pauseBtnText);  //测试
@@ -663,7 +668,7 @@ const App = () => {
   const collectBtnClickHandler = useCallback(() => {
     const isCollect = isCollectBtnDisabled;
     setCollectBtnDisabled(true);
-    if (ws.current.readyState === WebSocket.OPEN) {
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       try {
         ws.current.close();
       } catch (e) {
@@ -688,7 +693,7 @@ const App = () => {
   const closeBtnClickHandler = useCallback(() => {
     const isClose = isCloseBtnDisabled;
     setCloseBtnDisabled(true);
-    if (ws.current.readyState === WebSocket.OPEN) {
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       try {
         ws.current.send("close");
       } catch (e) {
@@ -713,7 +718,7 @@ const App = () => {
   const nextBtnClickHandler = useCallback(() => {
     const isNext = isNextBtnDisabled;
     setNextBtnDisabled(true);
-    if (ws.current.readyState === WebSocket.OPEN) {
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       try {
         ws.current.send("over");
       } catch (e) {
@@ -787,6 +792,50 @@ const App = () => {
     setClearLogBtnDisabled(true);
   }, []);
 
+  const compressChangeHandler = useCallback(() => {
+    const isCompress = isCompressChecked;
+    setCompressChecked(!isCompress);
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+      try {
+        if (isCompress === true) {
+          ws.current.send("noCompress");
+        } else if (isCompress === false) {
+          ws.current.send("compress");
+        }
+      } catch (e) {
+        // console.log(e);  //测试
+        addNewEvent({
+          "key": ++key,
+          "error": true,
+          "message": renderTime(Date.now()) + "  >>> compress失败",
+        });
+        setCompressChecked(isCompress);
+      }
+    }
+  }, [addNewEvent, renderTime, setCompressChecked, isCompressChecked, key]);
+
+  const batchChangeHandler = useCallback(() => {
+    const isBatch = isBatchChecked;
+    setBatchChecked(!isBatch);
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+      try {
+        if (isBatch === true) {
+          ws.current.send("noBatch");
+        } else if (isBatch === false) {
+          ws.current.send("batch");
+        }
+      } catch (e) {
+        // console.log(e);  //测试
+        addNewEvent({
+          "key": ++key,
+          "error": true,
+          "message": renderTime(Date.now()) + "  >>> batch失败",
+        });
+        setBatchChecked(isBatch);
+      }
+    }
+  }, [addNewEvent, renderTime, setBatchChecked, isBatchChecked, key]);
+
   // useEffect(() => {
   //   if (rowData.length === 0) {
   //     setClearGridBtnDisabled(true);
@@ -852,6 +901,14 @@ const App = () => {
           <button onClick={clearCacheBtnClickHandler}>清空cache</button>
           <button onClick={clearGridBtnClickHandler} disabled={isClearGridBtnDisabled}>清空grid</button>
           <button onClick={clearLogBtnClickHandler} disabled={isClearLogBtnDisabled}>清空log</button>
+          <label>
+            <input type="checkbox" checked={isCompressChecked} onChange={compressChangeHandler} />
+            压缩
+          </label>
+          <label>
+            <input type="checkbox" checked={isBatchChecked} onChange={batchChangeHandler} />
+            批量
+          </label>
         </div>
         <div style={{ height: "20%", margin: "1px",  }}>
           <h4>日志</h4>

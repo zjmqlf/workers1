@@ -72,6 +72,8 @@ async function exportDB(databaseId) {
 
 export class WebSocketServer extends DurableObject {
   // webSocket = [];
+  compress = false;
+  batch = false;
   ws = null;
   client = null;
   stop = 0;
@@ -139,6 +141,73 @@ export class WebSocketServer extends DurableObject {
   }
 
   broadcast(message) {
+    if (this.compress === true) {
+      if (message.operate === "nextMessage") {
+        if (message.status === "add") {
+          if (this.cacheMessage) {
+            if (message.offsetId > this.cacheMessage.offsetId) {
+              message = this.cacheMessage;
+              this.cacheMessage = null;
+            } else {
+              this.cacheMessage = null;
+              return;
+            }
+          } else {
+            this.cacheMessage = message;
+            return;
+          }
+        } else if (message.status === "update") {
+          if (this.cacheMessage) {
+            if (message.offsetId === this.cacheMessage.offsetId) {
+              const {
+                offsetId,
+                operate,
+                status,
+                ...Items
+              } = message;
+              for (const name in Items) {
+                this.cacheMessage[name] = Items[name];
+              }
+            }
+          }
+          return;
+        } else if (message.status === "exist") {
+          if (this.cacheMessage) {
+            if (message.offsetId === this.cacheMessage.offsetId) {
+              this.cacheMessage["selectMessage"] = true;
+            }
+          }
+          return;
+        } else if (message.status === "webpage") {
+          if (this.cacheMessage) {
+            if (message.offsetId === this.cacheMessage.offsetId) {
+              this.cacheMessage["webpage"] = true;
+            }
+          }
+          return;
+        } else if (message.status === "error") {
+        // } else if (message.error === undefined) {
+        } else if (!message.error) {
+        } else {
+          return;
+        }
+      } else if (message.operate === "insertMessage") {
+        if (this.cacheMessage) {
+          if (message.offsetId === this.cacheMessage.offsetId) {
+            this.cacheMessage["insertMessage"] = true;
+          }
+        }
+        return;
+      // } else if (message.error === undefined) {
+      //   if (message.result === undefined) {
+      //     return;
+      //   }
+      } else if (!message.error) {
+        if (!message.result) {
+          return;
+        }
+      }
+    }
     // if (typeof message !== "string") {
       message = JSON.stringify(message);
     // }
@@ -216,6 +285,7 @@ export class WebSocketServer extends DurableObject {
       this.broadcast({
         "operate": "open",
         "message": "login出错 : " + e,
+        "error": true,
         "date": new Date().getTime(),
       });
       if (tryCount === 20) {
@@ -1152,6 +1222,14 @@ export class WebSocketServer extends DurableObject {
       await this.close();
     } else if (message === "chat") {
       await this.chat();
+    } else if (message === "compress") {
+      this.compress = true;
+    } else if (message === "noCompress") {
+      this.compress = false;
+    } else if (message === "batch") {
+      this.batch = true;
+    } else if (message === "noBatch") {
+      this.batch = false;
     } else if (message === "backup") {
       const signed_url = await exportDB();
       if (signed_url) {
