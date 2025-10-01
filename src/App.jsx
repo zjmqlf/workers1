@@ -371,6 +371,156 @@ const App = () => {
     event.returnValue = '程序正在运行中，确定要关闭吗？';
   }, []);
 
+  const btnHandler = useCallback((status) => {
+    setCollectBtnDisabled(status);
+    setCloseBtnDisabled(status);
+    setNextBtnDisabled(status);
+  }, [setCollectBtnDisabled, setCloseBtnDisabled, setNextBtnDisabled]);
+
+  const btnTrueHandler = useCallback(() => {
+    btnHandler(true);
+    if (pauseBtnText === "暂停") {
+      setPauseBtnText("开始");
+    }
+  }, [btnHandler, pauseBtnText]);
+
+  const closeHandle = useCallback((event) => {
+    ws.current = null;
+    stop.current = true;
+    //console.log("远程websocket断开了连接");  //测试
+    addNewEvent({
+      "key": ++key,
+      "error": true,
+      "message": renderTime(Date.now()) + "  >>> 远程websocket断开了连接",
+    });
+    window.removeEventListener('beforeunload', handleBeforeUnload);
+    window.removeEventListener('popstate', handleBeforeUnload);
+    if (lastRow.current) {
+      gridRef.current.api.redrawRows({
+        rowNodes: [lastRow.current],
+      });
+    }
+    btnTrueHandler();
+    // setLogData((prevState) => {
+    //   return [];
+    // });
+  }, [addNewEvent, renderTime, handleBeforeUnload, btnTrueHandler, key]);
+
+  const parseMessage = useCallback((message) => {
+    if (message.result === "pause") {
+      //console.log("远程websocket已停止完毕");  //测试
+      addNewEvent({
+        "key": ++key,
+        "error": true,
+        "message": renderTime(Date.now()) + "  >>> 远程websocket已停止完毕",
+      });
+      ws.current.close();
+      closeHandle();
+    } else if (message.result === "end") {
+      lastId.current = 0;
+      lastRow.current = null;
+      setRowData([]);
+      setClearGridBtnDisabled(true);
+      setLogData(() => {
+        return [];
+      });
+      setClearLogBtnDisabled(true);
+      //console.log("当前chat采集完毕");  //测试
+      addNewEvent({
+        "key": ++key,
+        "message": renderTime(Date.now()) + "  >>>当前chat采集完毕",
+      });
+    } else if (message.result === "over") {
+      over.current = true;
+      //console.log("全部chat采集完毕");  //测试
+      addNewEvent({
+        "key": ++key,
+        "message": renderTime(Date.now()) + "  >>>全部chat采集完毕",
+      });
+    } else {
+      if (message.offsetId && message.offsetId >= 0) {
+        if (message.offsetId < lastId.current) {
+          console.log("消息offsetId小了");
+          addNewEvent({
+            "key": ++key,
+            "error": true,
+            "message": renderTime(message.date) + " " + message.offsetId + " : " + message.operate + " 消息offsetId小了" + (message.message ? " - " + message.message  : " "),
+          });
+        } else {
+          switch (message.operate) {
+            case "nextMessage":
+              if (message.status === "add") {
+                if (!lastRow.current || lastRow.current.data.offsetId !== message.offsetId) {
+                  //delete message.operate;
+                  //delete message.status;
+                  const {
+                    operate,
+                    status,
+                    ...temp
+                  } = message;
+                  addItems([temp]);
+                }
+              } else if (message.status === "update") {
+                const {
+                  operate,
+                  status,
+                  ...temp
+                } = message;
+                updateItems(temp);
+              } else if (message.status === "error") {
+                if (isCompressChecked === false) {
+                  updateItems({
+                    "offsetId": message.offsetId,
+                    "date": message.date,
+                  });
+                }
+                addNewEvent({
+                  "key": ++key,
+                  "error": true,
+                  "message": renderTime(message.date) + "  " + message.offsetId + " : " + message.operate + " - " + message.message,
+                });
+              } else if (message.status === "exist") {
+                updateItems({
+                  "offsetId": message.offsetId,
+                  "selectMessage": true,
+                  "date": message.date,
+                });
+              } else if (message.status === "webpage") {
+                updateItems({
+                  "offsetId": message.offsetId,
+                  "webpage": true,
+                  "date": message.date,
+                });
+              } else if (message.status === "limit") {
+                addNewEvent({
+                  "key": ++key,
+                  "error": true,
+                  "message": renderTime(message.date) + "  " + message.offsetId + " : " + message.operate + " - " + message.message,
+                });
+              } else {
+                console.log("未知消息");
+              }
+              break;
+            case "selectMessage":
+              updateSelect(message, "selectMessage");
+              break;
+            case "insertMessage":
+              updateInsert(message, "insertMessage");
+              break;
+            default:
+              console.log("未知消息");
+          }
+        }
+      } else {
+        addNewEvent({
+          "key": ++key,
+          "error": message.error,
+          "message": renderTime(message.date) + (message.step ? "  (" + message.step + ")" : " ") + message.operate + " - " + message.message,
+        });
+      }
+    }
+  }, [addNewEvent, addItems, renderTime, updateInsert, updateItems, updateSelect, closeHandle, isCompressChecked, key]);
+
   const waitReconnect = useCallback((command, time) => {
     setTimeout(function() {
       //console.log("连接远程websocket");  //测试
@@ -431,6 +581,7 @@ const App = () => {
           });
           if (ws.current && ws.current.readyState === WebSocket.OPEN) {
             ws.current.close();
+            closeHandle();
           }
           //waitReconnect("start", 20000);
         }
@@ -456,118 +607,23 @@ const App = () => {
             "error": true,
             "message": renderTime(Date.now()) + "  >>> 解析JSON失败",
           });
-        } finally {
-          if (message.result === "pause") {
-            //console.log("远程websocket已停止完毕");  //测试
-            addNewEvent({
-              "key": ++key,
-              "error": true,
-              "message": renderTime(Date.now()) + "  >>> 远程websocket已停止完毕",
-            });
-            ws.current.close();
-            ws.current = null;
-          } else if (message.result === "end") {
-            lastId.current = 0;
-            lastRow.current = null;
-            setRowData([]);
-            setClearGridBtnDisabled(true);
-            setLogData(() => {
-              return [];
-            });
-            setClearLogBtnDisabled(true);
-            //console.log("当前chat采集完毕");  //测试
-            addNewEvent({
-              "key": ++key,
-              "message": renderTime(Date.now()) + "  >>>当前chat采集完毕",
-            });
-          } else if (message.result === "over") {
-            over.current = true;
-            //console.log("全部chat采集完毕");  //测试
-            addNewEvent({
-              "key": ++key,
-              "message": renderTime(Date.now()) + "  >>>全部chat采集完毕",
-            });
-          } else {
-            if (message.offsetId && message.offsetId >= 0) {
-              if (message.offsetId < lastId.current) {
-                console.log("消息offsetId小了");
-                addNewEvent({
-                  "key": ++key,
-                  "error": true,
-                  "message": renderTime(message.date) + " " + message.offsetId + " : " + message.operate + " 消息offsetId小了" + (message.message ? " - " + message.message  : " "),
-                });
-              } else {
-                switch (message.operate) {
-                  case "nextMessage":
-                    if (message.status === "add") {
-                      if (!lastRow.current || lastRow.current.data.offsetId !== message.offsetId) {
-                        //delete message.operate;
-                        //delete message.status;
-                        const {
-                          operate,
-                          status,
-                          ...temp
-                        } = message;
-                        addItems([temp]);
-                      }
-                    } else if (message.status === "update") {
-                      const {
-                        operate,
-                        status,
-                        ...temp
-                      } = message;
-                      updateItems(temp);
-                    // } else if (message.status === "error") {
-                    //   // updateItems({
-                    //   //   "offsetId": message.offsetId,
-                    //   //   "date": message.date,
-                    //   // });
-                    //   addNewEvent({
-                    //     "key": ++key,
-                    //     "error": true,
-                    //     "message": renderTime(message.date) + "  " + message.offsetId + " : " + message.operate + " - " + message.message,
-                    //   });
-                    } else if (message.status === "exist") {
-                      updateItems({
-                        "offsetId": message.offsetId,
-                        "selectMessage": true,
-                        "date": message.date,
-                      });
-                    } else if (message.status === "webpage") {
-                      updateItems({
-                        "offsetId": message.offsetId,
-                        "webpage": true,
-                        "date": message.date,
-                      });
-                    // } else if (message.status === "limit") {
-                    } else if (message.status === "error" || message.status === "limit") {
-                      addNewEvent({
-                        "key": ++key,
-                        "error": true,
-                        "message": renderTime(message.date) + "  " + message.offsetId + " : " + message.operate + " - " + message.message,
-                      });
-                    } else {
-                      console.log("未知消息");
-                    }
-                    break;
-                  case "selectMessage":
-                    updateSelect(message, "selectMessage");
-                    break;
-                  case "insertMessage":
-                    updateInsert(message, "insertMessage");
-                    break;
-                  default:
-                    console.log("未知消息");
-                }
-              }
-            } else {
-              addNewEvent({
-                "key": ++key,
-                "error": message.error,
-                "message": renderTime(message.date) + (message.step ? "  (" + message.step + ")" : " ") + message.operate + " - " + message.message,
-              });
+        }
+        if (message) {
+          const length = message.length;
+          if (length && length > 0) {
+            for (let index = 0; index < length; index++) {
+              parseMessage(message[index]);
             }
+          } else {
+            parseMessage(message);
           }
+        } else {
+          //console.log("message错误");  //测试
+          addNewEvent({
+            "key": ++key,
+            "error": true,
+            "message": renderTime(Date.now()) + "  >>> message错误",
+          });
         }
       } else {
         console.log("消息为空");
@@ -587,156 +643,110 @@ const App = () => {
         if (ws.current && ws.current.readyState === WebSocket.OPEN) {
           ws.current.send("close");
           ws.current.close();
+          closeHandle();
         }
       }, 120000);
     })
 
     ws.current.addEventListener("close", () => {
-      stop.current = true;
-      //console.log("远程websocket断开了连接");  //测试
-      addNewEvent({
-        "key": ++key,
-        "error": true,
-        "message": renderTime(Date.now()) + "  >>> 远程websocket断开了连接",
-      });
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      window.removeEventListener('popstate', handleBeforeUnload);
-      if (lastRow.current) {
-        gridRef.current.api.redrawRows({
-          rowNodes: [lastRow.current],
-        });
-      }
-      if (pauseBtnText === "暂停") {
-        setPauseBtnText("开始");
-      }
-      // setLogData((prevState) => {
-      //   return [];
-      // });
+      closeHandle();
       if (over.current === false) {
         waitReconnect("start", 30000);
       }
     })
 
-  }, [addNewEvent, addItems, renderTime, updateInsert, updateItems, updateSelect, handleBeforeUnload, waitReconnect, pauseBtnText, key]);
+  }, [addNewEvent, renderTime, handleBeforeUnload, waitReconnect, parseMessage, closeHandle, key]);
+
+  const btnErrorHandler = useCallback(() => {
+    btnHandler(false);
+    if (pauseBtnText === "开始") {
+      setPauseBtnText("暂停");
+    }
+  }, [btnHandler, pauseBtnText]);
+
+  const messageErrorHandler = useCallback((message) => {
+    addNewEvent({
+      "key": ++key,
+      "error": true,
+      "message": renderTime(Date.now()) + message,
+    });
+  }, [addNewEvent, renderTime, key]);
 
   const pauseBtnClickHandler = useCallback(() => {
     //console.log(pauseBtnText);  //测试
     if (pauseBtnText === "暂停") {
-      const isClose = isCloseBtnDisabled;
-      const isCollect = isCollectBtnDisabled;
-      const isNext = isNextBtnDisabled;
       setPauseBtnText("开始");
-      setCloseBtnDisabled(true);
-      setCollectBtnDisabled(true);
-      setNextBtnDisabled(true);
+      btnHandler(true);
       //console.log(ws.current);  //测试
       if (ws.current && ws.current.readyState === WebSocket.OPEN) {
         try {
           ws.current.send("pause");
         } catch (e) {
           // console.log(e);  //测试
-          addNewEvent({
-            "key": ++key,
-            "error": true,
-            "message": renderTime(Date.now()) + "  >>> pause失败",
-          });
-          setCloseBtnDisabled(isClose);
-          setCollectBtnDisabled(isCollect);
-          setNextBtnDisabled(isNext);
+          messageErrorHandler("  >>> pause失败");
+          btnErrorHandler();
         }
       } else {
-        addNewEvent({
-          "key": ++key,
-          "error": true,
-          "message": renderTime(Date.now()) + "  >>> 没有连接ws",
-        });
-        setCloseBtnDisabled(isClose);
+        messageErrorHandler("  >>> 没有连接ws");
+        btnErrorHandler();
       }
     } else if (pauseBtnText === "开始") {
       setPauseBtnText("暂停");
-      setCloseBtnDisabled(false);
-      setCollectBtnDisabled(false);
-      setNextBtnDisabled(false);
+      btnHandler(false);
       if (!ws.current || ws.current.readyState !== WebSocket.OPEN) {
         waitReconnect("start", 1000);
       }
     }
-  }, [addNewEvent, renderTime, waitReconnect, setCloseBtnDisabled, setCollectBtnDisabled, setNextBtnDisabled, isCloseBtnDisabled, isCollectBtnDisabled, isNextBtnDisabled, pauseBtnText, key]);
+  }, [btnHandler, messageErrorHandler, btnErrorHandler, waitReconnect, pauseBtnText]);
 
   const collectBtnClickHandler = useCallback(() => {
-    const isCollect = isCollectBtnDisabled;
-    setCollectBtnDisabled(true);
+    btnTrueHandler();
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       try {
         ws.current.close();
+        closeHandle();
       } catch (e) {
         // console.log(e);  //测试
-        addNewEvent({
-          "key": ++key,
-          "error": true,
-          "message": renderTime(Date.now()) + "  >>> collect失败",
-        });
-        setCollectBtnDisabled(isCollect);
+        messageErrorHandler("  >>> collect失败");
+        btnErrorHandler();
       }
     } else {
-      addNewEvent({
-        "key": ++key,
-        "error": true,
-        "message": renderTime(Date.now()) + "  >>> 没有连接ws",
-      });
-      setCollectBtnDisabled(isCollect);
+      messageErrorHandler("  >>> 没有连接ws")
+      btnErrorHandler();
     }
-  }, [addNewEvent, renderTime, setCollectBtnDisabled, isCollectBtnDisabled, key]);
+  }, [btnTrueHandler, closeHandle, messageErrorHandler, btnErrorHandler]);
 
   const closeBtnClickHandler = useCallback(() => {
-    const isClose = isCloseBtnDisabled;
-    setCloseBtnDisabled(true);
+    btnTrueHandler();
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       try {
         ws.current.send("close");
       } catch (e) {
         // console.log(e);  //测试
-        addNewEvent({
-          "key": ++key,
-          "error": true,
-          "message": renderTime(Date.now()) + "  >>> close失败",
-        });
-        setCloseBtnDisabled(isClose);
+        messageErrorHandler("  >>> close失败");
+        btnErrorHandler();
       }
     } else {
-      addNewEvent({
-        "key": ++key,
-        "error": true,
-        "message": renderTime(Date.now()) + "  >>> 没有连接ws",
-      });
-      setCloseBtnDisabled(isClose);
+      messageErrorHandler("  >>> 没有连接ws");
+      btnErrorHandler();
     }
-  }, [addNewEvent, renderTime, setCloseBtnDisabled, isCloseBtnDisabled, key]);
+  }, [btnTrueHandler, messageErrorHandler, btnErrorHandler]);
 
   const nextBtnClickHandler = useCallback(() => {
-    const isNext = isNextBtnDisabled;
     setNextBtnDisabled(true);
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       try {
         ws.current.send("over");
       } catch (e) {
         // console.log(e);  //测试
-        addNewEvent({
-          "key": ++key,
-          "error": true,
-          "message": renderTime(Date.now()) + "  >>> next失败",
-        });
-        setNextBtnDisabled(isNext);
+        messageErrorHandler("  >>> next失败");
+        setNextBtnDisabled(false);
       }
     } else {
-      addNewEvent({
-        "key": ++key,
-        "error": true,
-        "message": renderTime(Date.now()) + "  >>> 没有连接ws",
-      });
-      setNextBtnDisabled(isNext);
+      messageErrorHandler("  >>> 没有连接ws");
+      setNextBtnDisabled(false);
     }
-  }, [addNewEvent, renderTime, setNextBtnDisabled, isNextBtnDisabled, key]);
+  }, [messageErrorHandler, setNextBtnDisabled]);
 
   const chatBtnClickHandler = useCallback(() => {
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
@@ -744,16 +754,12 @@ const App = () => {
         ws.current.send("chat");
       } catch (e) {
         // console.log(e);  //测试
-        addNewEvent({
-          "key": ++key,
-          "error": true,
-          "message": renderTime(Date.now()) + "  >>> chat失败",
-        });
+        messageErrorHandler("  >>> chat失败");
       }
     } else {
       waitReconnect("chat", 1000);
     }
-  }, [addNewEvent, renderTime, waitReconnect, key]);
+  }, [messageErrorHandler, waitReconnect]);
 
   const clearCacheBtnClickHandler = useCallback(() => {
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
@@ -761,20 +767,12 @@ const App = () => {
         ws.current.send("clear");
       } catch (e) {
         // console.log(e);  //测试
-        addNewEvent({
-          "key": ++key,
-          "error": true,
-          "message": renderTime(Date.now()) + "  >>> clear失败",
-        });
+        messageErrorHandler("  >>> clear失败");
       }
     } else {
-      addNewEvent({
-        "key": ++key,
-        "error": true,
-        "message": renderTime(Date.now()) + "  >>> 没有连接ws",
-      });
+      messageErrorHandler("  >>> 没有连接ws");
     }
-  }, [addNewEvent, renderTime, key]);
+  }, [messageErrorHandler]);
 
   const clearGridBtnClickHandler = useCallback(() => {
     lastId.current = 0;
@@ -802,15 +800,11 @@ const App = () => {
         }
       } catch (e) {
         // console.log(e);  //测试
-        addNewEvent({
-          "key": ++key,
-          "error": true,
-          "message": renderTime(Date.now()) + "  >>> compress失败",
-        });
+        messageErrorHandler("  >>> compress失败");
         setCompressChecked(isCompress);
       }
     }
-  }, [addNewEvent, renderTime, setCompressChecked, isCompressChecked, key]);
+  }, [messageErrorHandler, setCompressChecked, isCompressChecked]);
 
   const batchChangeHandler = useCallback(() => {
     const isBatch = isBatchChecked;
@@ -824,15 +818,11 @@ const App = () => {
         }
       } catch (e) {
         // console.log(e);  //测试
-        addNewEvent({
-          "key": ++key,
-          "error": true,
-          "message": renderTime(Date.now()) + "  >>> batch失败",
-        });
+        messageErrorHandler("  >>> batch失败");
         setBatchChecked(isBatch);
       }
     }
-  }, [addNewEvent, renderTime, setBatchChecked, isBatchChecked, key]);
+  }, [messageErrorHandler, setBatchChecked, isBatchChecked]);
 
   // useEffect(() => {
   //   if (rowData.length === 0) {
