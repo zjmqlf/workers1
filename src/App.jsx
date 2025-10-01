@@ -60,7 +60,7 @@ const App = () => {
   const [isClearGridBtnDisabled, setClearGridBtnDisabled] = useState(true);
   const [isClearLogBtnDisabled, setClearLogBtnDisabled] = useState(true);
   const [pauseBtnText, setPauseBtnText] = useState("开始");
-  const [isCompressChecked, setCompressChecked] = useState(false);
+  const [isCompressChecked, setCompressChecked] = useState(true);
   const [isBatchChecked, setBatchChecked] = useState(false);
   const [rowData, setRowData] = useState([]);
   const [logData, setLogData] = useState([]);
@@ -422,9 +422,6 @@ const App = () => {
       if (ws.current && ws.current.readyState === WebSocket.OPEN) {
         try {
           ws.current.send(command);
-          if (isCompressChecked === true) {
-            ws.current.send("compress");
-          }
         } catch (e) {
           console.log(e);  //测试
           addNewEvent({
@@ -520,16 +517,16 @@ const App = () => {
                         ...temp
                       } = message;
                       updateItems(temp);
-                    } else if (message.status === "error") {
-                      updateItems({
-                        "offsetId": message.offsetId,
-                        "date": message.date,
-                      });
-                      addNewEvent({
-                        "key": ++key,
-                        "error": true,
-                        "message": renderTime(message.date) + "  " + message.offsetId + " : " + message.operate + " - " + message.message,
-                      });
+                    // } else if (message.status === "error") {
+                    //   // updateItems({
+                    //   //   "offsetId": message.offsetId,
+                    //   //   "date": message.date,
+                    //   // });
+                    //   addNewEvent({
+                    //     "key": ++key,
+                    //     "error": true,
+                    //     "message": renderTime(message.date) + "  " + message.offsetId + " : " + message.operate + " - " + message.message,
+                    //   });
                     } else if (message.status === "exist") {
                       updateItems({
                         "offsetId": message.offsetId,
@@ -542,7 +539,8 @@ const App = () => {
                         "webpage": true,
                         "date": message.date,
                       });
-                    } else if (message.status === "limit") {
+                    // } else if (message.status === "limit") {
+                    } else if (message.status === "error" || message.status === "limit") {
                       addNewEvent({
                         "key": ++key,
                         "error": true,
@@ -619,7 +617,7 @@ const App = () => {
       }
     })
 
-  }, [addNewEvent, addItems, renderTime, updateInsert, updateItems, updateSelect, handleBeforeUnload, waitReconnect, pauseBtnText, isCompressChecked, key]);
+  }, [addNewEvent, addItems, renderTime, updateInsert, updateItems, updateSelect, handleBeforeUnload, waitReconnect, pauseBtnText, key]);
 
   const pauseBtnClickHandler = useCallback(() => {
     //console.log(pauseBtnText);  //测试

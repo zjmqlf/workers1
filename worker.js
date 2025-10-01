@@ -72,7 +72,7 @@ async function exportDB(databaseId) {
 
 export class WebSocketServer extends DurableObject {
   // webSocket = [];
-  compress = false;
+  compress = true;
   batch = false;
   ws = null;
   client = null;
@@ -86,6 +86,8 @@ export class WebSocketServer extends DurableObject {
   offsetId = 0;
   fromPeer = null;
   messageArray = [];
+  cacheMessage = null;
+  batchMessage = [];
   dialogArray = [];
 
   constructor(ctx, env) {
@@ -127,6 +129,8 @@ export class WebSocketServer extends DurableObject {
       // this.client = null;
       // this.stop = 0;
       // this.webSocket = [];
+      this.compress = true;
+      this.batch = false;
       this.apiCount = 0;
       this.currentStep = 0;
       this.chatId = 0;
@@ -136,6 +140,8 @@ export class WebSocketServer extends DurableObject {
       this.offsetId = 0;
       this.fromPeer = null;
       this.messageArray = [];
+      this.cacheMessage = null;
+      this.batchMessage = [];
       this.dialogArray = [];
     }
   }
@@ -146,8 +152,9 @@ export class WebSocketServer extends DurableObject {
         if (message.status === "add") {
           if (this.cacheMessage) {
             if (message.offsetId > this.cacheMessage.offsetId) {
+              const temp = message;
               message = this.cacheMessage;
-              this.cacheMessage = null;
+              this.cacheMessage = temp;
             } else {
               this.cacheMessage = null;
               return;
@@ -186,7 +193,7 @@ export class WebSocketServer extends DurableObject {
           }
           return;
         } else if (message.status === "error") {
-        // } else if (message.error === undefined) {
+        } else if (message.status === "limit") {
         } else if (!message.error) {
         } else {
           return;
@@ -198,14 +205,34 @@ export class WebSocketServer extends DurableObject {
           }
         }
         return;
-      // } else if (message.error === undefined) {
-      //   if (message.result === undefined) {
-      //     return;
-      //   }
+      } else if (message.status === "limit") {
       } else if (!message.error) {
         if (!message.result) {
           return;
         }
+      }
+      if (this.batch === true) {
+        if (this.batchMessage.length < this.limit) {
+          this.batchMessage.push(message);
+          return;
+        } else {
+          const temp = message;
+          message = this.batchMessage;
+          // this.batchMessage = [];
+          // this.batchMessage.push(temp);
+          this.batchMessage = [temp];
+        }
+      }
+    } else if (this.batch === true) {
+      if (this.batchMessage.length < this.limit) {
+        this.batchMessage.push(message);
+        return;
+      } else {
+        const temp = message;
+        message = this.batchMessage;
+        // this.batchMessage = [];
+        // this.batchMessage.push(temp);
+        this.batchMessage = [temp];
       }
     }
     // if (typeof message !== "string") {
@@ -902,6 +929,7 @@ export class WebSocketServer extends DurableObject {
                 "step": this.currentStep,
                 "message": "超出apiCount限制",
                 "error": true,
+                "status": "limit",
                 "date": new Date().getTime(),
               });
               await this.updateChat(1);
@@ -969,6 +997,7 @@ export class WebSocketServer extends DurableObject {
           "step": this.currentStep,
           "message": "超出apiCount限制",
           "error": true,
+          "status": "limit",
           "date": new Date().getTime(),
         });
         await this.updateChat(1);
@@ -1045,6 +1074,7 @@ export class WebSocketServer extends DurableObject {
                 "step": this.currentStep,
                 "message": "超出apiCount限制",
                 "error": true,
+                "status": "limit",
                 "date": new Date().getTime(),
               });
               await this.updateChat(1);
