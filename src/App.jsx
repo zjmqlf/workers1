@@ -377,22 +377,27 @@ const App = () => {
     setNextBtnDisabled(status);
   }, [setCollectBtnDisabled, setCloseBtnDisabled, setNextBtnDisabled]);
 
-  const btnTrueHandler = useCallback(() => {
+  const btnUnableHandler = useCallback(() => {
     btnHandler(true);
-    if (pauseBtnText === "暂停") {
+    // // if (pauseBtnText === "暂停") {
+    // if (pauseBtnText !== "开始") {
       setPauseBtnText("开始");
-    }
-  }, [btnHandler, pauseBtnText]);
+    // }
+  // }, [btnHandler, pauseBtnText]);
+  }, [btnHandler]);
 
-  const closeHandle = useCallback((event) => {
+  const btnEnableHandler = useCallback(() => {
+    btnHandler(false);
+    // // if (pauseBtnText === "开始") {
+    // if (pauseBtnText !== "暂停") {
+      setPauseBtnText("暂停");
+    // }
+  // }, [btnHandler, pauseBtnText]);
+  }, [btnHandler]);
+
+  const closeHandler = useCallback(() => {
     ws.current = null;
     stop.current = true;
-    //console.log("远程websocket断开了连接");  //测试
-    addNewEvent({
-      "key": ++key,
-      "error": true,
-      "message": renderTime(Date.now()) + "  >>> 远程websocket断开了连接",
-    });
     window.removeEventListener('beforeunload', handleBeforeUnload);
     window.removeEventListener('popstate', handleBeforeUnload);
     if (lastRow.current) {
@@ -400,11 +405,17 @@ const App = () => {
         rowNodes: [lastRow.current],
       });
     }
-    btnTrueHandler();
+    btnUnableHandler();
     // setLogData((prevState) => {
     //   return [];
     // });
-  }, [addNewEvent, renderTime, handleBeforeUnload, btnTrueHandler, key]);
+    //console.log("远程websocket断开了连接");  //测试
+    addNewEvent({
+      "key": ++key,
+      "error": true,
+      "message": renderTime(Date.now()) + "  >>> 远程websocket断开了连接",
+    });
+  }, [addNewEvent, renderTime, handleBeforeUnload, btnUnableHandler, key]);
 
   const parseMessage = useCallback((message) => {
     if (message.result === "pause") {
@@ -415,7 +426,7 @@ const App = () => {
         "message": renderTime(Date.now()) + "  >>> 远程websocket已停止完毕",
       });
       ws.current.close();
-      closeHandle();
+      closeHandler();
     } else if (message.result === "end") {
       lastId.current = 0;
       lastRow.current = null;
@@ -519,21 +530,20 @@ const App = () => {
         });
       }
     }
-  }, [addNewEvent, addItems, renderTime, updateInsert, updateItems, updateSelect, closeHandle, isCompressChecked, key]);
+  }, [addNewEvent, addItems, renderTime, updateInsert, updateItems, updateSelect, closeHandler, isCompressChecked, key]);
 
   const waitReconnect = useCallback((command, time) => {
     setTimeout(function() {
+      btnEnableHandler();
       //console.log("连接远程websocket");  //测试
       addNewEvent({
         "key": ++key,
         "message": renderTime(Date.now()) + "  >>> 连接远程websocket",
       });
-      if (pauseBtnText === "开始") {
-        setPauseBtnText("暂停");
-      }
       try {
         collectWS(command);
       } catch (e) {
+        btnUnableHandler();
         //console.log("连接远程websocket失败");  //测试
         addNewEvent({
           "key": ++key,
@@ -543,7 +553,7 @@ const App = () => {
         waitReconnect(command, time);
       }
     }, time);
-  }, [addNewEvent, renderTime, collectWS, pauseBtnText, key]);
+  }, [addNewEvent, renderTime, btnEnableHandler, btnUnableHandler, collectWS, key]);
 
   collectWS = useCallback((command) => {
     //const url = "wss://workers.19425.xyz/ws";  //测试
@@ -581,7 +591,7 @@ const App = () => {
           });
           if (ws.current && ws.current.readyState === WebSocket.OPEN) {
             ws.current.close();
-            closeHandle();
+            closeHandler();
           }
           //waitReconnect("start", 20000);
         }
@@ -643,26 +653,19 @@ const App = () => {
         if (ws.current && ws.current.readyState === WebSocket.OPEN) {
           ws.current.send("close");
           ws.current.close();
-          closeHandle();
+          closeHandler();
         }
       }, 120000);
     })
 
     ws.current.addEventListener("close", () => {
-      closeHandle();
+      closeHandler();
       if (over.current === false) {
         waitReconnect("start", 30000);
       }
     })
 
-  }, [addNewEvent, renderTime, handleBeforeUnload, waitReconnect, parseMessage, closeHandle, key]);
-
-  const btnErrorHandler = useCallback(() => {
-    btnHandler(false);
-    if (pauseBtnText === "开始") {
-      setPauseBtnText("暂停");
-    }
-  }, [btnHandler, pauseBtnText]);
+  }, [addNewEvent, renderTime, handleBeforeUnload, waitReconnect, parseMessage, closeHandler, key]);
 
   const messageErrorHandler = useCallback((message) => {
     addNewEvent({
@@ -683,12 +686,12 @@ const App = () => {
           ws.current.send("pause");
         } catch (e) {
           // console.log(e);  //测试
+          btnEnableHandler();
           messageErrorHandler("  >>> pause失败");
-          btnErrorHandler();
         }
       } else {
+        btnEnableHandler();
         messageErrorHandler("  >>> 没有连接ws");
-        btnErrorHandler();
       }
     } else if (pauseBtnText === "开始") {
       setPauseBtnText("暂停");
@@ -697,40 +700,40 @@ const App = () => {
         waitReconnect("start", 1000);
       }
     }
-  }, [btnHandler, messageErrorHandler, btnErrorHandler, waitReconnect, pauseBtnText]);
+  }, [btnHandler, btnEnableHandler, messageErrorHandler, waitReconnect, pauseBtnText]);
 
   const collectBtnClickHandler = useCallback(() => {
-    btnTrueHandler();
+    btnUnableHandler();
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       try {
         ws.current.close();
-        closeHandle();
+        closeHandler();
       } catch (e) {
         // console.log(e);  //测试
+        btnEnableHandler();
         messageErrorHandler("  >>> collect失败");
-        btnErrorHandler();
       }
     } else {
-      messageErrorHandler("  >>> 没有连接ws")
-      btnErrorHandler();
+      btnEnableHandler();
+      messageErrorHandler("  >>> 没有连接ws");
     }
-  }, [btnTrueHandler, closeHandle, messageErrorHandler, btnErrorHandler]);
+  }, [btnEnableHandler, btnUnableHandler, messageErrorHandler, closeHandler]);
 
   const closeBtnClickHandler = useCallback(() => {
-    btnTrueHandler();
+    btnUnableHandler();
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       try {
         ws.current.send("close");
       } catch (e) {
         // console.log(e);  //测试
+        btnEnableHandler();
         messageErrorHandler("  >>> close失败");
-        btnErrorHandler();
       }
     } else {
+      btnEnableHandler();
       messageErrorHandler("  >>> 没有连接ws");
-      btnErrorHandler();
     }
-  }, [btnTrueHandler, messageErrorHandler, btnErrorHandler]);
+  }, [btnUnableHandler, btnEnableHandler, messageErrorHandler]);
 
   const nextBtnClickHandler = useCallback(() => {
     setNextBtnDisabled(true);
