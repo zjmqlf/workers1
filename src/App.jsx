@@ -400,6 +400,10 @@ const App = () => {
   const closeHandler = useCallback(() => {
     ws.current = null;
     stop.current = true;
+    errorCount.current += 1;
+    if (errorCount.current === 10) {
+      waitTime.current = 300000;
+    }
     window.removeEventListener('beforeunload', handleBeforeUnload);
     window.removeEventListener('popstate', handleBeforeUnload);
     if (lastRow.current) {
@@ -411,11 +415,11 @@ const App = () => {
     // setLogData((prevState) => {
     //   return [];
     // });
-    //console.log("远程websocket断开了连接");  //测试
+    //console.log("远程websocket连续 " + errorCount.current + " 断开了连接");  //测试
     addNewEvent({
       "key": ++key,
       "error": true,
-      "message": renderTime(Date.now()) + "  >>> 远程websocket断开了连接",
+      "message": renderTime(Date.now()) + "  >>> 远程websocket连续 " + errorCount.current + " 次断开了连接",
     });
   }, [addNewEvent, renderTime, handleBeforeUnload, btnUnableHandler, key]);
 
@@ -781,6 +785,19 @@ const App = () => {
     }
   }, [messageErrorHandler, waitReconnect]);
 
+  const indexBtnClickHandler = useCallback(() => {
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+      try {
+        ws.current.send("index");
+      } catch (e) {
+        // console.log(e);  //测试
+        messageErrorHandler("  >>> index失败");
+      }
+    } else {
+      waitReconnect("index", 1000);
+    }
+  }, [messageErrorHandler, waitReconnect]);
+
   const clearCacheBtnClickHandler = useCallback(() => {
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       try {
@@ -906,6 +923,7 @@ const App = () => {
           <button onClick={closeBtnClickHandler} disabled={isCloseBtnDisabled}>强制关闭</button>
           <button onClick={nextBtnClickHandler} disabled={isNextBtnDisabled}>不再继续</button>
           <button onClick={chatBtnClickHandler}>chat</button>
+          <button onClick={indexBtnClickHandler}>index</button>
           <button onClick={clearCacheBtnClickHandler}>清空cache</button>
           <button onClick={clearGridBtnClickHandler} disabled={isClearGridBtnDisabled}>清空grid</button>
           <button onClick={clearLogBtnClickHandler} disabled={isClearLogBtnDisabled}>清空log</button>

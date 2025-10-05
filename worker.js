@@ -1230,6 +1230,40 @@ export class WebSocketServer extends DurableObject {
     await this.close();
   }
 
+  async index(tryCount, id) {
+    this.apiCount += 1;
+    try {
+      const messageResult = await this.env.PANSOUDB.prepare("SELECT `id` FROM `PANMESSAGE` WHERE `chatId` = ? AND  `id` >= ? LIMIT 50;").bind(this.chatId, id).run();
+      //console.log("messageResult : " + messageResult["COUNT(id)"]);  //测试
+      if (messageResult) {
+      }
+    } catch (e) {
+      //console.log("[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : selectMessage出错 : " + e);
+      this.broadcast({
+        "operate": "index",
+        "message": JSON.stringify(e),
+        "error": true,
+        "status": "try",
+        "date": new Date().getTime(),
+      });
+      if (tryCount === 20) {
+        this.stop = 2;
+        //console.log("(" + this.currentStep + ")index超出tryCount限制");
+        this.broadcast({
+          "operate": "index",
+          "step": this.currentStep,
+          "message": "超出tryCount限制",
+          "error": true,
+          "date": new Date().getTime(),
+        });
+        await this.close();
+      } else {
+        await scheduler.wait(10000);
+        await this.index(tryCount + 1, id);
+      }
+    }
+  }
+
   async webSocketMessage(ws, message) {
     //console.log(message);  //测试
     if (message === "start") {
@@ -1247,6 +1281,8 @@ export class WebSocketServer extends DurableObject {
       await this.close();
     } else if (message === "chat") {
       await this.chat();
+    } else if (message === "index") {
+      await this.index(1, 1);
     } else if (message === "compress") {
       this.compress = true;
     } else if (message === "noCompress") {
@@ -1294,7 +1330,7 @@ export default {
           status: 426,
         });
       }
-      const id = env.WEBSOCKET_SERVER.idFromName("tg");
+      const id = env.WEBSOCKET_SERVER.idFromName("pansou");
       const stub = env.WEBSOCKET_SERVER.get(id);
       return stub.fetch(request);
     } else if (pathname === "/count") {
