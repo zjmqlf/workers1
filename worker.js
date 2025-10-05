@@ -3,7 +3,7 @@ import { TelegramClient, Api, sessions, utils } from "./gramjs";
 import bigInt from "big-integer";
 
 async function countMessage(env) {
-  const messageResult = await env.MAINDB.prepare("SELECT COUNT(Mindex) FROM `PANMESSAGE` WHERE 1 = 1;").first();
+  const messageResult = await env.PANSOUDB.prepare("SELECT COUNT(Mindex) FROM `PANMESSAGE` WHERE 1 = 1;").first();
   //console.log("messageResult : " + messageResult["COUNT(Mindex)"]);  //测试
   if (messageResult && messageResult["COUNT(Mindex)"]) {
     return messageResult["COUNT(Mindex)"];
@@ -14,13 +14,8 @@ async function countMessage(env) {
 function getDB(id) {
   const database = [
     "97d41e14-a9b6-45a9-b5cc-f60eb29acc02",  //0 : main
-    "619bf710-136f-4b05-b7a7-ce7ffef02990",  //1 : media1
-    "aab5c1c2-2533-4be0-9993-bd62f306ebcc",  //2 : media2
-    "72893c57-6b53-4f79-a730-217f80da6492",  //3 : media3
-    "c84b9365-6811-437f-87ee-15a09bf3be56",  //4 : media4
-    "1893770b-972c-4ad2-972d-888e305fd0b8",  //5 : media5
-    "532d0baf-ba9c-42c2-80a3-940cbfccf8d3",  //6 : media6
-    "e629851c-d683-4b3b-a10e-3ca9d67b9142",  //7 : media7
+    "97d41e14-a9b6-45a9-b5cc-f60eb29acc02",  //1 : pansou1
+    "57db5b64-03a6-4cc2-8c43-3c9994240d9d",  //2 : pansou2
   ];
   const length = database.length;
   if (id < length) {
@@ -664,7 +659,7 @@ export class WebSocketServer extends DurableObject {
   async selectMessage(tryCount, messageId) {
     this.apiCount += 1;
     try {
-      const messageResult = await this.env.MAINDB.prepare("SELECT COUNT(id) FROM `PANMESSAGE` WHERE `chatId` = ? AND  `id` = ? LIMIT 1;").bind(this.chatId, messageId).first();
+      const messageResult = await this.env.PANSOUDB.prepare("SELECT COUNT(id) FROM `PANMESSAGE` WHERE `chatId` = ? AND  `id` = ? LIMIT 1;").bind(this.chatId, messageId).first();
       //console.log("messageResult : " + messageResult["COUNT(id)"]);  //测试
       if (messageResult) {
         return messageResult["COUNT(id)"];
@@ -700,7 +695,7 @@ export class WebSocketServer extends DurableObject {
   async insertMessage(tryCount, messageId, txt, id, url) {
     this.apiCount += 1;
     try {
-      const messageInfo = await this.env.MAINDB.prepare("INSERT INTO `PANMESSAGE` (chatId, id, txt, webpage, url) VALUES (?, ?, ?, ?, ?);").bind(this.chatId, messageId, txt, id, url).run();
+      const messageInfo = await this.env.PANSOUDB.prepare("INSERT INTO `PANMESSAGE` (chatId, id, txt, webpage, url) VALUES (?, ?, ?, ?, ?);").bind(this.chatId, messageId, txt, id, url).run();
       //console.log(messageInfo);  //测试
       if (messageInfo.success === true) {
         //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : 插入message数据成功");

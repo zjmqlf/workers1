@@ -52,6 +52,8 @@ const App = () => {
   const over = useRef(false);
   const timeOut = useRef(null);
   const gridRef = useRef(null);
+  const errorCount = useRef(0);
+  const waitTime = useRef(30000);
   const containerStyle = useMemo(() => ({ width: "100%", height: "100%", margin: "1px" }), []);
   const gridStyle = useMemo(() => ({ width: "100%", height: "100%", margin: "1px" }), []);
   const [isCloseBtnDisabled, setCloseBtnDisabled] = useState(true);
@@ -532,6 +534,22 @@ const App = () => {
     }
   }, [addNewEvent, addItems, renderTime, updateInsert, updateItems, updateSelect, closeHandler, isCompressChecked, key]);
 
+  const setTime = useCallback(() => {
+    clearTimeout(timeOut.current);
+    timeOut.current = setTimeout(function() {
+      addNewEvent({
+        "key": ++key,
+        "error": true,
+        "message": renderTime(Date.now()) + "  >>> 过了2分钟都没有收到任何消息",
+      });
+      if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+        ws.current.send("close");
+        ws.current.close();
+        closeHandler();
+      }
+    }, 120000);
+ }, [addNewEvent, renderTime, closeHandler, key]);
+
   const waitReconnect = useCallback((command, time) => {
     setTimeout(function() {
       btnEnableHandler();
@@ -556,12 +574,16 @@ const App = () => {
   }, [addNewEvent, renderTime, btnEnableHandler, btnUnableHandler, collectWS, key]);
 
   collectWS = useCallback((command) => {
-    //const url = "wss://workers.19425.xyz/ws";  //测试
+    //const url = "wss://workers1.19425.xyz/ws";  //测试
     const url = new URL(window.location);
     url.protocol = "wss";
     url.pathname = "/ws";
     ws.current = new WebSocket(url);
     if (!ws.current) {
+      errorCount.current += 1;
+      if (errorCount.current === 10) {
+        waitTime.current = 300000;
+      }
       throw new Error("  >>> 连接远程websocket失败");
     }
 
@@ -572,6 +594,12 @@ const App = () => {
         "key": ++key,
         "message": renderTime(Date.now()) + "  >>> 连接远程websocket成功，准备send",
       });
+      if (errorCount.current > 0) {
+        errorCount.current = 0;
+        if (waitTime.current !== 30000) {
+          waitTime.current = 30000;
+        }
+      }
       window.addEventListener('beforeunload', handleBeforeUnload);
       window.addEventListener('popstate', handleBeforeUnload);
       if (lastRow.current) {
@@ -582,6 +610,7 @@ const App = () => {
       if (ws.current && ws.current.readyState === WebSocket.OPEN) {
         try {
           ws.current.send(command);
+          setTime();
         } catch (e) {
           console.log(e);  //测试
           addNewEvent({
@@ -593,7 +622,7 @@ const App = () => {
             ws.current.close();
             closeHandler();
           }
-          //waitReconnect("start", 20000);
+          //waitReconnect("start", waitTime.current);
         }
       } else {
         //console.log(command + "失败");  //测试
@@ -643,29 +672,17 @@ const App = () => {
           "message": renderTime(Date.now()) + "  >>> 消息为空",
         });
       }
-      clearTimeout(timeOut.current);
-      timeOut.current = setTimeout(function() {
-        addNewEvent({
-          "key": ++key,
-          "error": true,
-          "message": renderTime(Date.now()) + "  >>> 过了2分钟都没有收到任何消息",
-        });
-        if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-          ws.current.send("close");
-          ws.current.close();
-          closeHandler();
-        }
-      }, 120000);
+      setTime();
     })
 
     ws.current.addEventListener("close", () => {
       closeHandler();
       if (over.current === false) {
-        waitReconnect("start", 30000);
+        waitReconnect("start", waitTime.current);
       }
     })
 
-  }, [addNewEvent, renderTime, handleBeforeUnload, waitReconnect, parseMessage, closeHandler, key]);
+  }, [addNewEvent, renderTime, handleBeforeUnload, parseMessage, setTime, closeHandler, waitReconnect, key]);
 
   const messageErrorHandler = useCallback((message) => {
     addNewEvent({

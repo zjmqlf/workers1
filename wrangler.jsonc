@@ -16,6 +16,18 @@
       "binding": "MAINDB",
       "database_name": "maindb",
       "database_id": "97d41e14-a9b6-45a9-b5cc-f60eb29acc02"
+    },
+    /**
+    {
+      "binding": "PANSOUDB",
+      "database_name": "pansou1",
+      "database_id": "97d41e14-a9b6-45a9-b5cc-f60eb29acc02"
+    },
+    */
+    {
+      "binding": "PANSOUDB",
+      "database_name": "pansou2",
+      "database_id": "57db5b64-03a6-4cc2-8c43-3c9994240d9d"
     }
   ],
 	"durable_objects": {
