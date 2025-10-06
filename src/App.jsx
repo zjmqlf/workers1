@@ -415,11 +415,11 @@ const App = () => {
     // setLogData((prevState) => {
     //   return [];
     // });
-    //console.log("远程websocket连续 " + errorCount.current + " 断开了连接");  //测试
+    //console.log("远程websocket连续" + errorCount.current + "次断开了连接");  //测试
     addNewEvent({
       "key": ++key,
       "error": true,
-      "message": renderTime(Date.now()) + "  >>> 远程websocket连续 " + errorCount.current + " 次断开了连接",
+      "message": renderTime(Date.now()) + "  >>> 远程websocket连续" + errorCount.current + "次断开了连接",
     });
   }, [addNewEvent, renderTime, handleBeforeUnload, btnUnableHandler, key]);
 
@@ -588,7 +588,7 @@ const App = () => {
       if (errorCount.current === 10) {
         waitTime.current = 300000;
       }
-      throw new Error("  >>> 连接远程websocket失败");
+      throw new Error("  >>> 连续" + errorCount.current + "次连接远程websocket失败");
     }
 
     ws.current.addEventListener("open", () => {

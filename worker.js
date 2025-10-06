@@ -13,9 +13,10 @@ async function countMessage(env) {
 
 function getDB(id) {
   const database = [
-    "97d41e14-a9b6-45a9-b5cc-f60eb29acc02",  //0 : main
+    "52bec4a2-a12a-484d-8f58-4f254b8cffd0",  //0 : main
     "97d41e14-a9b6-45a9-b5cc-f60eb29acc02",  //1 : pansou1
     "57db5b64-03a6-4cc2-8c43-3c9994240d9d",  //2 : pansou2
+    "b6e33f0e-061e-4ff9-8ac6-6f80f86b7d4d",  //3 : pansou3
   ];
   const length = database.length;
   if (id < length) {
@@ -200,6 +201,7 @@ export class WebSocketServer extends DurableObject {
           }
         }
         return;
+      } else if (message.operate === "index") {
       } else if (message.status === "limit") {
       } else if (!message.error) {
         if (!message.result) {
@@ -564,9 +566,9 @@ export class WebSocketServer extends DurableObject {
   async updateConfig(tryCount) {
     this.apiCount += 1;
     try {
-      const chatInfo = await this.env.MAINDB.prepare("UPDATE `CONFIG` SET `chatId` = ? WHERE `name` = 'pansou';").bind(this.chatId).run();
-      //console.log(chatInfo);  //测试
-      if (chatInfo.success === true) {
+      const configInfo = await this.env.MAINDB.prepare("UPDATE `CONFIG` SET `chatId` = ? WHERE `name` = 'pansou';").bind(this.chatId).run();
+      //console.log(configInfo);  //测试
+      if (configInfo.success === true) {
         //console.log("更新config数据成功");
         this.broadcast({
           "operate": "updateConfig",
@@ -654,6 +656,9 @@ export class WebSocketServer extends DurableObject {
         await this.getMessage(tryCount + 1);
       }
     }
+  }
+
+  async selectMessageIndex(messageId) {
   }
 
   async selectMessage(tryCount, messageId) {
@@ -957,7 +962,6 @@ export class WebSocketServer extends DurableObject {
           });
           await this.getChat();
           if (this.fromPeer) {
-            this.offsetId = 0;
             if (this.chatId != this.lastChat) {
               if (this.lastChat != 0) {
                 await this.updateConfig();
@@ -1230,37 +1234,81 @@ export class WebSocketServer extends DurableObject {
     await this.close();
   }
 
-  async index(tryCount, id) {
+  async index(tryCount, Mindex) {
     this.apiCount += 1;
-    try {
-      const messageResult = await this.env.PANSOUDB.prepare("SELECT `id` FROM `PANMESSAGE` WHERE `chatId` = ? AND  `id` >= ? LIMIT 50;").bind(this.chatId, id).run();
-      //console.log("messageResult : " + messageResult["COUNT(id)"]);  //测试
-      if (messageResult) {
+    if (this.apiCount < 900) {
+      if (Mindex === 1) {
+        this.sql.exec(`CREATE TABLE IF NOT EXISTS CHAT${this.chatId}(
+            id    INTEGER PRIMARY KEY,
+          );`
+        );
       }
-    } catch (e) {
-      //console.log("[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : selectMessage出错 : " + e);
-      this.broadcast({
-        "operate": "index",
-        "message": JSON.stringify(e),
-        "error": true,
-        "status": "try",
-        "date": new Date().getTime(),
-      });
-      if (tryCount === 20) {
-        this.stop = 2;
-        //console.log("(" + this.currentStep + ")index超出tryCount限制");
+      try {
+        const messageResult = await this.env.PANSOUDB.prepare("SELECT `id` FROM `PANMESSAGE` WHERE `chatId` = ? AND  `Mindex` >= ? ORDER BY Mindex ASC LIMIT 50;").bind(this.chatId, Mindex).run();
+        //console.log("messageResult : " + messageResult);  //测试
+        const length = messageResult.length;
+        //console.log("messageLength : " + length);  //测试
+        if (length > 0) {
+          this.currentStep += 1;
+          let temp = [];
+          for (let index = 0; index < length; index++) {
+            temp.push("(" + messageResult[index].id + ")");
+          }
+          this.sql.exec(`INSERT INTO CHAT${this.chatId} (id) VALUES 
+            ${temp.join(",")};`
+          );
+          //console.log("(" + this.currentStep + ")index - messageLength : " + length);
+          this.broadcast({
+            "operate": "index",
+            "step": this.currentStep,
+            "message": "messageLength : " + length,
+            "date": new Date().getTime(),
+          });
+          await this.index(1, parseInt(messageResult[length - 1].Mindex) + 1);
+        } else {
+          this.chatId += 1;
+          await this.index(1, 1);
+        }
+      } catch (e) {
+        //console.log("(" + this.currentStep + ")index出错 : " + e);
         this.broadcast({
           "operate": "index",
           "step": this.currentStep,
-          "message": "超出tryCount限制",
+          "message": JSON.stringify(e),
           "error": true,
+          "status": "try",
           "date": new Date().getTime(),
         });
-        await this.close();
-      } else {
-        await scheduler.wait(10000);
-        await this.index(tryCount + 1, id);
+        if (tryCount === 20) {
+          this.stop = 2;
+          //console.log("(" + this.currentStep + ")index超出tryCount限制");
+          this.broadcast({
+            "operate": "index",
+            "step": this.currentStep,
+            "message": "超出tryCount限制",
+            "error": true,
+            "date": new Date().getTime(),
+          });
+          await this.close();
+        } else {
+          await scheduler.wait(10000);
+          await this.index(tryCount + 1, Mindex);
+        }
       }
+    } else {
+      this.stop = 2;
+      //console.log("(" + this.currentStep + ")index超出apiCount限制");
+      this.broadcast({
+        "operate": "index",
+        "step": this.currentStep,
+        "message": "超出apiCount限制",
+        "error": true,
+        "status": "limit",
+        "date": new Date().getTime(),
+      });
+      await this.updateChat(1);
+      await this.close();
+      // this.ctx.abort("reset");
     }
   }
 
@@ -1282,6 +1330,7 @@ export class WebSocketServer extends DurableObject {
     } else if (message === "chat") {
       await this.chat();
     } else if (message === "index") {
+      this.chatId = 1;
       await this.index(1, 1);
     } else if (message === "compress") {
       this.compress = true;
