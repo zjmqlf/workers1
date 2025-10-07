@@ -174,6 +174,13 @@ export class WebSocketServer extends DurableObject {
             }
           }
           return;
+        } else if (message.status === "indexExist") {
+          if (this.cacheMessage) {
+            if (message.offsetId === this.cacheMessage.offsetId) {
+              this.cacheMessage["selectMessageIndex"] = true;
+            }
+          }
+          return;
         } else if (message.status === "exist") {
           if (this.cacheMessage) {
             if (message.offsetId === this.cacheMessage.offsetId) {
@@ -197,7 +204,22 @@ export class WebSocketServer extends DurableObject {
       } else if (message.operate === "insertMessage") {
         if (this.cacheMessage) {
           if (message.offsetId === this.cacheMessage.offsetId) {
-            this.cacheMessage["insertMessage"] = true;
+            if (message.status === "success") {
+              this.cacheMessage["insertMessage"] = true;
+            } else if (message.status === "error") {
+              this.cacheMessage["insertMessage"] = false;
+            }
+          }
+        }
+        return;
+      } else if (message.operate === "insertMessageIndex") {
+        if (this.cacheMessage) {
+          if (message.offsetId === this.cacheMessage.offsetId) {
+            if (message.status === "success") {
+              this.cacheMessage["insertMessageIndex"] = true;
+            } else if (message.status === "error") {
+              this.cacheMessage["insertMessageIndex"] = false;
+            }
           }
         }
         return;
@@ -659,6 +681,11 @@ export class WebSocketServer extends DurableObject {
   }
 
   async selectMessageIndex(messageId) {
+    const messageResult = this.sql.exec(`SELECT COUNT(id) FROM CHAT${this.chatId} WHERE id = ?;`, messageId).one();
+    //console.log("messageResult : " + messageResult["COUNT(id)"]);  //测试
+    if (messageResult) {
+      return messageResult["COUNT(id)"];
+    }
   }
 
   async selectMessage(tryCount, messageId) {
@@ -749,6 +776,17 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
+  async insertMessageIndex(messageId) {
+    this.sql.exec(`INSERT INTO CHAT${this.chatId} (id) VALUES (?);`, messageId);
+    //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : 插入messageIndex数据库成功");
+    this.broadcast({
+      "offsetId": this.offsetId,
+      "operate": "insertMessageIndex",
+      "status": "success",
+      "date": new Date().getTime(),
+    });
+  }
+
   async updateChat(tryCount) {
     this.apiCount += 1;
     try {
@@ -817,33 +855,45 @@ export class WebSocketServer extends DurableObject {
             "date": new Date().getTime(),
           });
           if (txt) {
-            const messageCount = await this.selectMessage(1, messageId);
-            if (parseInt(messageCount) === 0) {
-              let webpage = "";
-              let url = "";
-              if (message.media) {
-                if (message.media.webpage) {
-                  this.broadcast({
-                    "offsetId": this.offsetId,
-                    "operate": "nextMessage",
-                    "status": "webpage",
-                    "date": new Date().getTime(),
-                  });
-                  if (message.media.webpage.id) {
-                    webpage = message.media.webpage.id.toString();
-                  }
-                  if (message.media.webpage.url) {
-                    url = message.media.webpage.url;
+            const indexCount = await this.selectMessageIndex(messageId);
+            if (parseInt(indexCount) === 0) {
+              const messageCount = await this.selectMessage(1, messageId);
+              if (parseInt(messageCount) === 0) {
+                let webpage = "";
+                let url = "";
+                if (message.media) {
+                  if (message.media.webpage) {
+                    this.broadcast({
+                      "offsetId": this.offsetId,
+                      "operate": "nextMessage",
+                      "status": "webpage",
+                      "date": new Date().getTime(),
+                    });
+                    if (message.media.webpage.id) {
+                      webpage = message.media.webpage.id.toString();
+                    }
+                    if (message.media.webpage.url) {
+                      url = message.media.webpage.url;
+                    }
                   }
                 }
+                await this.insertMessage(1, messageId, txt, webpage, url);
+                await this.insertMessageIndex(messageId);
+              } else {
+                //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : message已在数据库中");
+                this.broadcast({
+                  "offsetId": this.offsetId,
+                  "operate": "nextMessage",
+                  "status": "exist",
+                  "date": new Date().getTime(),
+                });
               }
-              await this.insertMessage(1, messageId, txt, webpage, url);
             } else {
-              //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : message已在数据库中");
+              //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : messageIndex已在数据库中");
               this.broadcast({
                 "offsetId": this.offsetId,
                 "operate": "nextMessage",
-                "status": "exist",
+                "status": "indexExist",
                 "date": new Date().getTime(),
               });
             }
@@ -1239,7 +1289,7 @@ export class WebSocketServer extends DurableObject {
     if (this.apiCount < 900) {
       if (Mindex === 1) {
         this.sql.exec(`CREATE TABLE IF NOT EXISTS CHAT${this.chatId}(
-            id    INTEGER PRIMARY KEY,
+            id    INTEGER PRIMARY KEY
           );`
         );
       }
