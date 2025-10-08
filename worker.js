@@ -76,6 +76,7 @@ export class WebSocketServer extends DurableObject {
   apiCount = 0;
   currentStep = 0;
   chatId = 0;
+  endChat = 0;
   lastChat = 0;
   reverse = true;
   limit = 20;
@@ -130,6 +131,7 @@ export class WebSocketServer extends DurableObject {
       this.apiCount = 0;
       this.currentStep = 0;
       this.chatId = 0;
+      this.endChat = 0;
       this.lastChat = 0;
       this.reverse = true;
       this.limit = 20;
@@ -1362,35 +1364,51 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
-  async webSocketMessage(ws, message) {
-    //console.log(message);  //测试
-    if (message === "start") {
+  async webSocketMessage(ws, data) {
+    let command = "";
+    // if (typeof data === "string") {
+      try {
+        data = JSON.parse(data);
+        command = data.command;
+      } catch (e) {
+        command = data;
+        //console.log("parse出错 : " + e);
+        this.broadcast({
+          "operate": "webSocketMessage",
+          "message": "parse出错 : " + e,
+          "error": true,
+          "date": new Date().getTime(),
+        });
+      }
+    // }
+    //console.log(data);  //测试
+    if (command === "start") {
       await this.start();
-    } else if (message === "pause") {
+    } else if (command === "pause") {
       this.stop = 2;
-    } else if (message === "close") {
+    } else if (command === "close") {
       this.stop = 2;
       await this.close();
-    } else if (message === "over") {
+    } else if (command === "over") {
       this.stop = 2;
       this.broadcast({
         "result": "over",
       });
       await this.close();
-    } else if (message === "chat") {
+    } else if (command === "chat") {
       await this.chat();
-    } else if (message === "index") {
+    } else if (command === "index") {
       this.chatId = 1;
       await this.index(1, 1);
-    } else if (message === "compress") {
+    } else if (command === "compress") {
       this.compress = true;
-    } else if (message === "noCompress") {
+    } else if (command === "noCompress") {
       this.compress = false;
-    } else if (message === "batch") {
+    } else if (command === "batch") {
       this.batch = true;
-    } else if (message === "noBatch") {
+    } else if (command === "noBatch") {
       this.batch = false;
-    } else if (message === "backup") {
+    } else if (command === "backup") {
       const signed_url = await exportDB();
       if (signed_url) {
         ws.send(signed_url);

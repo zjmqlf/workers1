@@ -66,6 +66,8 @@ const App = () => {
   const [isBatchChecked, setBatchChecked] = useState(false);
   const [rowData, setRowData] = useState([]);
   const [logData, setLogData] = useState([]);
+  const [inputValue, setInputValue] = useState("");
+  const [isSendBtnDisabled, setSendBtnDisabled] = useState(true);
   const getRowId = useCallback((params) => String(params.data.offsetId), []);
 
   const resultRenderer = useCallback((params) => {
@@ -559,7 +561,9 @@ const App = () => {
         "message": renderTime(Date.now()) + "  >>> 过了2分钟都没有收到任何消息",
       });
       if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-        ws.current.send("close");
+        ws.current.send(JSON.stringify({
+          "command": "close",
+        }));
         ws.current.close();
         closeHandler();
       }
@@ -716,7 +720,9 @@ const App = () => {
       //console.log(ws.current);  //测试
       if (ws.current && ws.current.readyState === WebSocket.OPEN) {
         try {
-          ws.current.send("pause");
+          ws.current.send(JSON.stringify({
+            "command": "pause",
+          }));
         } catch (e) {
           // console.log(e);  //测试
           btnEnableHandler();
@@ -756,7 +762,9 @@ const App = () => {
     btnUnableHandler();
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       try {
-        ws.current.send("close");
+        ws.current.send(JSON.stringify({
+          "command": "close",
+        }));
       } catch (e) {
         // console.log(e);  //测试
         btnEnableHandler();
@@ -772,7 +780,9 @@ const App = () => {
     setNextBtnDisabled(true);
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       try {
-        ws.current.send("over");
+        ws.current.send(JSON.stringify({
+          "command": "over",
+        }));
       } catch (e) {
         // console.log(e);  //测试
         messageErrorHandler("  >>> next失败");
@@ -787,7 +797,9 @@ const App = () => {
   const chatBtnClickHandler = useCallback(() => {
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       try {
-        ws.current.send("chat");
+        ws.current.send(JSON.stringify({
+          "command": "chat",
+        }));
       } catch (e) {
         // console.log(e);  //测试
         messageErrorHandler("  >>> chat失败");
@@ -800,7 +812,9 @@ const App = () => {
   const indexBtnClickHandler = useCallback(() => {
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       try {
-        ws.current.send("index");
+        ws.current.send(JSON.stringify({
+          "command": "index",
+        }));
       } catch (e) {
         // console.log(e);  //测试
         messageErrorHandler("  >>> index失败");
@@ -813,7 +827,9 @@ const App = () => {
   const clearCacheBtnClickHandler = useCallback(() => {
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       try {
-        ws.current.send("clear");
+        ws.current.send(JSON.stringify({
+          "command": "clear",
+        }));
       } catch (e) {
         // console.log(e);  //测试
         messageErrorHandler("  >>> clear失败");
@@ -843,9 +859,13 @@ const App = () => {
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       try {
         if (isCompress === true) {
-          ws.current.send("noCompress");
+          ws.current.send(JSON.stringify({
+            "command": "noCompress",
+          }));
         } else if (isCompress === false) {
-          ws.current.send("compress");
+          ws.current.send(JSON.stringify({
+            "command": "compress",
+          }));
         }
       } catch (e) {
         // console.log(e);  //测试
@@ -861,9 +881,13 @@ const App = () => {
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       try {
         if (isBatch === true) {
-          ws.current.send("noBatch");
+          ws.current.send(JSON.stringify({
+            "command": "noBatch",
+          }));
         } else if (isBatch === false) {
-          ws.current.send("batch");
+          ws.current.send(JSON.stringify({
+            "command": "batch",
+          }));
         }
       } catch (e) {
         // console.log(e);  //测试
@@ -872,6 +896,30 @@ const App = () => {
       }
     }
   }, [messageErrorHandler, setBatchChecked, isBatchChecked]);
+
+  const inputHandleChange = useCallback((e) => {
+    setInputValue(e.target.value);
+  }, []);
+
+  const sendBtnClickHandler = useCallback(() => {
+    setSendBtnDisabled(true);
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+      try {
+        ws.current.send(JSON.stringify({
+          "command": inputValue,
+        }));
+        setInputValue("");
+      } catch (e) {
+        // console.log(e);  //测试
+        messageErrorHandler("  >>> send失败");
+        setSendBtnDisabled(false);
+      }
+    } else {
+      // messageErrorHandler("  >>> 没有连接ws");
+      // setSendBtnDisabled(false);
+      waitReconnect(inputValue, 1000);
+    }
+  }, [messageErrorHandler, setSendBtnDisabled, setInputValue, waitReconnect, inputValue]);
 
   // useEffect(() => {
   //   if (rowData.length === 0) {
@@ -900,6 +948,16 @@ const App = () => {
 //    return () => {
 //    }
   },[logData]);
+
+  useEffect(() => {
+    if (inputValue) {
+      setSendBtnDisabled(false);
+    } else {
+      setSendBtnDisabled(true);
+    }
+//    return () => {
+//    }
+  },[inputValue]);
 
   // useEffect(() => {
   //   const handleBeforeUnload = (event) => {
@@ -947,6 +1005,8 @@ const App = () => {
             <input type="checkbox" checked={isBatchChecked} onChange={batchChangeHandler} />
             批量
           </label>
+          <input type="text" value={inputValue} onChange={inputHandleChange} />
+          <button onClick={sendBtnClickHandler} disabled={isSendBtnDisabled}>发送</button>
         </div>
         <div style={{ height: "20%", margin: "1px",  }}>
           <h4>日志</h4>
