@@ -1,5 +1,5 @@
 import { DurableObject } from "cloudflare:workers";
-import { TelegramClient, Api, sessions, utils } from "./gramjs";
+import { TelegramClient, Api, sessions } from "./gramjs";
 import bigInt from "big-integer";
 
 async function countMessage(env) {
@@ -500,7 +500,7 @@ export class WebSocketServer extends DurableObject {
     // console.log(this.fromPeer);  //测试
     if (result && result.chats && result.chats.length > 0) {
       this.chatId = chatResult.Cindex;
-      if (this.chatId <= this.endChat) {
+      if (this.endChat > 0 && this.chatId <= this.endChat) {
         this.fromPeer = result.chats[0];
         if (this.fromPeer) {
           this.offsetId = chatResult.current;
@@ -514,7 +514,7 @@ export class WebSocketServer extends DurableObject {
           await this.noExistChat(1);
           this.chatId = chatResult.Cindex + 1;
           //console.log(chatResult.title + " - chat已不存在了");  //测试
-          if (this.chatId <= this.endChat) {
+          if (this.endChat > 0 && this.chatId <= this.endChat) {
             this.broadcast({
               "operate": "checkChat",
               "message": chatResult.title + " - chat已不存在了",
@@ -542,7 +542,7 @@ export class WebSocketServer extends DurableObject {
       }
     } else {
       this.chatId = chatResult.Cindex + 1;
-      if (this.chatId <= this.endChat) {
+      if (this.endChat > 0 && this.chatId <= this.endChat) {
         //console.log(chatResult.title + " - chat已不存在了");  //测试
         this.broadcast({
           "operate": "checkChat",
@@ -614,7 +614,7 @@ export class WebSocketServer extends DurableObject {
         }
       }
     } else if (this.chatId && this.chatId > 0) {
-      if (this.chatId <= this.endChat) {
+      if (this.endChat > 0 && this.chatId <= this.endChat) {
         await this.nextChat();
       } else {
         //console.log(this.endChat + " - 超过最大chat了");  //测试
@@ -626,7 +626,7 @@ export class WebSocketServer extends DurableObject {
         });
       }
     } else {
-      if (this.chatId <= this.endChat) {
+      if (this.endChat > 0 && this.chatId <= this.endChat) {
         let tryCount = 0;
         while (tryCount < 30) {
           try {
@@ -1086,7 +1086,7 @@ export class WebSocketServer extends DurableObject {
           await this.updateChat(1);
           this.fromPeer = null;
           this.chatId += 1;
-          if (this.chatId <= this.endChat) {
+          if (this.endChat > 0 && this.chatId <= this.endChat) {
             //console.log("(" + this.currentStep + ")当前chat采集完毕");
             this.broadcast({
               "result": "end",
@@ -1413,7 +1413,7 @@ export class WebSocketServer extends DurableObject {
           await this.index(1, parseInt(messageResult[length - 1].Mindex) + 1);
         } else {
           this.chatId += 1;
-          if (this.chatId <= this.endChat) {
+          if (this.endChat > 0 && this.chatId <= this.endChat) {
             await this.index(1, 1);
           } else {
             //console.log(this.endChat + " - 超过最大chat了");  //测试
