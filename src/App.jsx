@@ -642,7 +642,9 @@ const App = () => {
             ws.current.close();
             closeHandler();
           }
-          //waitReconnect("start", waitTime.current);
+          // waitReconnect(JSON.stringify({
+          //   "command": "start",
+          // }), waitTime.current);
         }
       } else {
         //console.log(command + "失败");  //测试
@@ -698,7 +700,9 @@ const App = () => {
     ws.current.addEventListener("close", () => {
       closeHandler();
       if (over.current === false) {
-        waitReconnect("start", waitTime.current);
+        waitReconnect(JSON.stringify({
+          "command": "start",
+        }), waitTime.current);
       }
     })
 
@@ -736,7 +740,9 @@ const App = () => {
       setPauseBtnText("暂停");
       btnHandler(false);
       if (!ws.current || ws.current.readyState !== WebSocket.OPEN) {
-        waitReconnect("start", 1000);
+        waitReconnect(JSON.stringify({
+          "command": "start",
+        }), 1000);
       }
     }
   }, [btnHandler, btnEnableHandler, messageErrorHandler, waitReconnect, pauseBtnText]);
@@ -805,7 +811,9 @@ const App = () => {
         messageErrorHandler("  >>> chat失败");
       }
     } else {
-      waitReconnect("chat", 1000);
+      waitReconnect(JSON.stringify({
+        "command": "chat",
+      }), 1000);
     }
   }, [messageErrorHandler, waitReconnect]);
 
@@ -820,7 +828,9 @@ const App = () => {
         messageErrorHandler("  >>> index失败");
       }
     } else {
-      waitReconnect("index", 1000);
+      waitReconnect(JSON.stringify({
+        "command": "index",
+      }), 1000);
     }
   }, [messageErrorHandler, waitReconnect]);
 

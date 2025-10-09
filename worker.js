@@ -393,18 +393,18 @@ export class WebSocketServer extends DurableObject {
       const configResult = await this.env.MAINDB.prepare("SELECT * FROM `CONFIG` WHERE `name` = 'pansou' LIMIT 1;").first();
       //console.log("configResult : " + configResult);  //测试
       if (configResult) {
-        if (!option.chatId) {
+        if (!option || !option.chatId) {
           if (configResult.chatId && configResult.chatId > 0) {
             this.chatId = configResult.chatId;
             this.lastChat = this.chatId;
           }
         }
-        if (!option.reverse) {
+        if (!option || !option.reverse) {
           if (configResult.reverse) {
             this.reverse = Boolean(configResult.reverse);
           }
         }
-        if (!option.limited) {
+        if (!option || !option.limited) {
           if (configResult.limited && configResult.limited > 0) {
             this.limit = configResult.limited;
           }
@@ -1181,7 +1181,7 @@ export class WebSocketServer extends DurableObject {
     this.init(option);
     // this.stop = 1;
     await this.open(1);
-    if (!option.chatId || !option.reverse || !option.limited) {
+    if (!option || !option.chatId || !option.reverse || !option.limited) {
       await this.getConfig(1, option);
     }
     await this.getChat();
@@ -1537,7 +1537,7 @@ export class WebSocketServer extends DurableObject {
       }
     } else {
       this.broadcast({
-        "operate": "chat",
+        "operate": "webSocketMessage",
         "message": "未知消息",
         "error": true,
         "date": new Date().getTime(),
