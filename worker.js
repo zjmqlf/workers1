@@ -90,8 +90,8 @@ export class WebSocketServer extends DurableObject {
   constructor(ctx, env) {
     super(ctx, env);
     this.ctx = ctx;
-    this.storage = ctx.storage;
-    this.sql = ctx.storage.sql;
+    // this.storage = ctx.storage;
+    // this.sql = ctx.storage.sql;
     this.env = env;
 
     // this.ctx.getWebSockets().forEach((ws) => {
@@ -765,11 +765,11 @@ export class WebSocketServer extends DurableObject {
   }
 
   async selectMessageIndex(messageId) {
-    const messageResult = this.sql.exec(`SELECT COUNT(id) FROM CHAT${this.chatId} WHERE id = ?;`, messageId).one();
-    //console.log("messageResult : " + messageResult["COUNT(id)"]);  //测试
-    if (messageResult) {
-      return messageResult["COUNT(id)"];
-    }
+    // const messageResult = this.sql.exec(`SELECT COUNT(id) FROM CHAT${this.chatId} WHERE id = ?;`, messageId).one();
+    // //console.log("messageResult : " + messageResult["COUNT(id)"]);  //测试
+    // if (messageResult) {
+    //   return messageResult["COUNT(id)"];
+    // }
   }
 
   async selectMessage(tryCount, messageId) {
@@ -861,14 +861,14 @@ export class WebSocketServer extends DurableObject {
   }
 
   async insertMessageIndex(messageId) {
-    this.sql.exec(`INSERT INTO CHAT${this.chatId} (id) VALUES (?);`, messageId);
-    //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : 插入messageIndex数据库成功");
-    this.broadcast({
-      "offsetId": this.offsetId,
-      "operate": "insertMessageIndex",
-      "status": "success",
-      "date": new Date().getTime(),
-    });
+    // this.sql.exec(`INSERT INTO CHAT${this.chatId} (id) VALUES (?);`, messageId);
+    // //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : 插入messageIndex数据库成功");
+    // this.broadcast({
+    //   "offsetId": this.offsetId,
+    //   "operate": "insertMessageIndex",
+    //   "status": "success",
+    //   "date": new Date().getTime(),
+    // });
   }
 
   async updateChat(tryCount) {
@@ -1380,29 +1380,31 @@ export class WebSocketServer extends DurableObject {
     await this.close();
   }
 
-  async index(tryCount, Mindex) {
+  async index(tryCount) {
     this.apiCount += 1;
     if (this.apiCount < 900) {
-      if (Mindex === 1) {
-        this.sql.exec(`CREATE TABLE IF NOT EXISTS CHAT${this.chatId}(
-            id    INTEGER PRIMARY KEY
-          );`
-        );
-      }
+      // if (this.offsetId === 1) {
+      //   this.sql.exec(`CREATE TABLE IF NOT EXISTS CHAT${this.chatId}(
+      //       id    INTEGER PRIMARY KEY
+      //     );`
+      //   );
+      // }
       try {
-        const messageResult = await this.env.PANSOUDB.prepare("SELECT `id` FROM `PANMESSAGE` WHERE `chatId` = ? AND  `Mindex` >= ? ORDER BY Mindex ASC LIMIT 50;").bind(this.chatId, Mindex).run();
+        const messageResult = await this.env.PANSOUDB.prepare("SELECT `id` FROM `PANMESSAGE` WHERE `chatId` = ? AND  `Mindex` >= ? ORDER BY Mindex ASC LIMIT 0,50;").bind(this.chatId, this.offsetId).run();
         //console.log("messageResult : " + messageResult);  //测试
         const length = messageResult.length;
         //console.log("messageLength : " + length);  //测试
         if (length > 0) {
           this.currentStep += 1;
-          let temp = [];
+          // let temp = [];
           for (let index = 0; index < length; index++) {
-            temp.push("(" + messageResult[index].id + ")");
+            // temp.push("(" + messageResult[index].id + ")");
+            await fetch(`https://index.zjmqlf2022.workers.dev/putDB?chatId=${this.chatId}&id=${messageResult[index].id}&dbId=2`);
           }
-          this.sql.exec(`INSERT INTO CHAT${this.chatId} (id) VALUES 
-            ${temp.join(",")};`
-          );
+          this.offsetId = parseInt(messageResult[length - 1].Mindex) + 1;
+          // this.sql.exec(`INSERT INTO CHAT${this.chatId} (id) VALUES 
+          //   ${temp.join(",")};`
+          // );
           //console.log("(" + this.currentStep + ")index - messageLength : " + length);
           this.broadcast({
             "operate": "index",
@@ -1410,11 +1412,11 @@ export class WebSocketServer extends DurableObject {
             "message": "messageLength : " + length,
             "date": new Date().getTime(),
           });
-          await this.index(1, parseInt(messageResult[length - 1].Mindex) + 1);
+          await this.index(1);
         } else {
           this.chatId += 1;
           if (this.endChat > 0 && this.chatId <= this.endChat) {
-            await this.index(1, 1);
+            await this.index(1);
           } else {
             //console.log(this.endChat + " - 超过最大chat了");  //测试
             this.broadcast({
@@ -1448,7 +1450,7 @@ export class WebSocketServer extends DurableObject {
           await this.close();
         } else {
           await scheduler.wait(10000);
-          await this.index(tryCount + 1, Mindex);
+          await this.index(tryCount + 1);
         }
       }
     } else {
@@ -1507,7 +1509,7 @@ export class WebSocketServer extends DurableObject {
       await this.chat();
     } else if (command === "index") {
       this.init(option);
-      await this.index(1, 1);
+      await this.index(1);
     } else if (command === "compress") {
       this.compress = true;
     } else if (command === "noCompress") {

@@ -38,6 +38,7 @@ CREATE TABLE IF NOT EXISTS PANMESSAGE (
 );
 
 CREATE INDEX IF NOT EXISTS idx_panMessage_chatId_id ON PANMESSAGE(chatId, id);
+CREATE INDEX IF NOT EXISTS idx_panMessage_chatId_mindex ON PANMESSAGE(chatId, Mindex);
 
 
 
