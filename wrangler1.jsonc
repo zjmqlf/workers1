@@ -30,25 +30,25 @@
       "database_id": "57db5b64-03a6-4cc2-8c43-3c9994240d9d"
     }
   ],
-	"durable_objects": {
-		"bindings": [
-			{
-				"name": "WEBSOCKET_SERVER",
-				"class_name": "WebSocketServer"
-			}
-		]
-	},
-	"migrations": [
-		{
-			"tag": "v1",
-			"new_sqlite_classes": [
-				"WebSocketServer"
-			]
-		}
-	],
-	"observability": {
-		"enabled": true
-	},
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "WEBSOCKET_SERVER",
+        "class_name": "WebSocketServer"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": [
+        "WebSocketServer"
+      ]
+    }
+  ],
+  "observability": {
+    "enabled": true
+  },
   "placement": {
     "mode": "smart"
   }
