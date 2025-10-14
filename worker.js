@@ -1380,6 +1380,28 @@ export class WebSocketServer extends DurableObject {
     await this.close();
   }
 
+  async getResult(tryCount) {
+    while (true) {
+      this.apiCount += 1;
+      const chatResult = await this.env.MAINDB.prepare("SELECT `channelId`,`accessHash` FROM `PANCHAT` WHERE `Cindex` = ? LIMIT 1;").bind(this.chatId).first();
+      //console.log("chatResult : " + chatResult"]);  //测试
+      if (chatResult) {
+        return chatResult;
+      } else {
+        //console.log("没有找到该chat");
+        this.broadcast({
+          "operate": "getResult",
+          "message": "没有找到该chat",
+          "error": true,
+          "date": new Date().getTime(),
+        });
+        this.chatId += 1;
+        await this.getResult(1);
+        break;
+      }
+    }
+  }
+
   async index(tryCount) {
     this.apiCount += 1;
     if (this.apiCount < 900) {
@@ -1389,44 +1411,9 @@ export class WebSocketServer extends DurableObject {
       //     );`
       //   );
       // }
+      let messageResult = null;
       try {
-        const messageResult = await this.env.PANSOUDB.prepare("SELECT `id` FROM `PANMESSAGE` WHERE `chatId` = ? AND  `Mindex` >= ? ORDER BY Mindex ASC LIMIT 0,50;").bind(this.chatId, this.offsetId).run();
-        //console.log("messageResult : " + messageResult);  //测试
-        const length = messageResult.length;
-        //console.log("messageLength : " + length);  //测试
-        if (length > 0) {
-          this.currentStep += 1;
-          // let temp = [];
-          for (let index = 0; index < length; index++) {
-            // temp.push("(" + messageResult[index].id + ")");
-            await fetch(`https://index.zjmqlf2022.workers.dev/putDB?chatId=${this.chatId}&id=${messageResult[index].id}&dbId=2`);
-          }
-          this.offsetId = parseInt(messageResult[length - 1].Mindex) + 1;
-          // this.sql.exec(`INSERT INTO CHAT${this.chatId} (id) VALUES 
-          //   ${temp.join(",")};`
-          // );
-          //console.log("(" + this.currentStep + ")index - messageLength : " + length);
-          this.broadcast({
-            "operate": "index",
-            "step": this.currentStep,
-            "message": "messageLength : " + length,
-            "date": new Date().getTime(),
-          });
-          await this.index(1);
-        } else {
-          this.chatId += 1;
-          if (this.endChat > 0 && this.chatId <= this.endChat) {
-            await this.index(1);
-          } else {
-            //console.log(this.endChat + " - 超过最大chat了");  //测试
-            this.broadcast({
-              "operate": "index",
-              "message": this.endChat + " - 超过最大chat了",
-              "error": true,
-              "date": new Date().getTime(),
-            });
-          }
-        }
+        messageResult = await this.env.PANSOUDB.prepare("SELECT `id` FROM `PANMESSAGE` WHERE `chatId` = ? AND  `Mindex` >= ? ORDER BY Mindex ASC LIMIT 0,50;").bind(this.chatId, this.offsetId).run();
       } catch (e) {
         //console.log("(" + this.currentStep + ")index出错 : " + e);
         this.broadcast({
@@ -1451,6 +1438,50 @@ export class WebSocketServer extends DurableObject {
         } else {
           await scheduler.wait(10000);
           await this.index(tryCount + 1);
+        }
+      }
+      //console.log("messageResult : " + messageResult);  //测试
+      const length = messageResult.length;
+      //console.log("messageLength : " + length);  //测试
+      if (length > 0) {
+        this.currentStep += 1;
+        // let temp = [];
+        for (let index = 0; index < length; index++) {
+          // temp.push("(" + messageResult[index].id + ")");
+          //console.log("(" + this.currentStep + ")index - " + this.offsetId + " : " + messageResult[index].id);
+          // this.broadcast({
+          //   "operate": "index",
+          //   "step": this.currentStep,
+          //   "message": this.offsetId + " - " + messageResult[index].id,
+          //   "date": new Date().getTime(),
+          // });
+          await fetch(`https://index.zjmqlf2022.workers.dev/putDB?chatId=${this.chatId}&id=${messageResult[index].id}&dbId=2`);
+        }
+        this.offsetId = parseInt(messageResult[length - 1].Mindex) + 1;
+        // this.sql.exec(`INSERT INTO CHAT${this.chatId} (id) VALUES 
+        //   ${temp.join(",")};`
+        // );
+        //console.log("(" + this.currentStep + ")index - messageLength : " + length);
+        this.broadcast({
+          "operate": "index",
+          "step": this.currentStep,
+          "message": "messageLength : " + length,
+          "date": new Date().getTime(),
+        });
+        await this.index(1);
+      } else {
+        this.chatId += 1;
+        await this.getResult(1);
+        if (this.endChat > 0 && this.chatId <= this.endChat) {
+          await this.index(1);
+        } else {
+          //console.log(this.endChat + " - 超过最大chat了");  //测试
+          this.broadcast({
+            "operate": "index",
+            "message": this.endChat + " - 超过最大chat了",
+            "error": true,
+            "date": new Date().getTime(),
+          });
         }
       }
     } else {
@@ -1509,6 +1540,7 @@ export class WebSocketServer extends DurableObject {
       await this.chat();
     } else if (command === "index") {
       this.init(option);
+      await this.getResult(1);
       await this.index(1);
     } else if (command === "compress") {
       this.compress = true;
