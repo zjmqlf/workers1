@@ -111,7 +111,7 @@ export class WebSocketServer extends DurableObject {
     // this.ctx.blockConcurrencyWhile(async () => {
     //   this.init();
     //   if (!this.client) {
-    //     await this.open();
+    //     await this.open(1);
     //   }
     // });
 
@@ -495,74 +495,123 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
-  async checkChat(chatResult, next) {
-    const result = await this.client.invoke(new Api.channels.GetChannels({
-      id: [new Api.InputChannel({
-        channelId: bigInt(chatResult.channelId),
-        accessHash: bigInt(chatResult.accessHash),
-      })],
-    }));
-    // console.log(this.fromPeer);  //测试
-    if (result && result.chats && result.chats.length > 0) {
-      this.chatId = chatResult.Cindex;
-      if (this.endChat > 0 && this.chatId <= this.endChat) {
-        this.fromPeer = result.chats[0];
-        if (this.fromPeer) {
-          this.offsetId = chatResult.current;
-          //console.log("获取fromPeer成功");  //测试
-          // this.broadcast({
-          //   "operate": "checkChat",
-          //   "message": "获取fromPeer成功",
-          //   "date": new Date().getTime(),
-          // });  //测试
-        } else {
-          await this.noExistChat(1);
-          this.chatId = chatResult.Cindex + 1;
-          //console.log(chatResult.title + " - chat已不存在了");  //测试
-          if (this.endChat > 0 && this.chatId <= this.endChat) {
-            this.broadcast({
-              "operate": "checkChat",
-              "message": chatResult.title + " - chat已不存在了",
-              "error": true,
-              "date": new Date().getTime(),
-            });
-          } else {
-            //console.log(this.endChat + " - 超过最大chat了");  //测试
-            this.broadcast({
-              "operate": "checkChat",
-              "message": this.endChat + " - 超过最大chat了",
-              "error": true,
-              "date": new Date().getTime(),
-            });
-          }
-        }
-      } else {
-        //console.log(this.endChat + " - 超过最大chat了");  //测试
+  async checkChat(tryCount, chatResult) {
+    if (chatResult.channelId && chatResult.accessHash) {
+      let result = null;
+      try {
+        result = await this.client.invoke(new Api.channels.GetChannels({
+          id: [new Api.InputChannel({
+            channelId: bigInt(chatResult.channelId),
+            accessHash: bigInt(chatResult.accessHash),
+          })],
+        }));
+      } catch (e) {
+        //console.log("(" + this.currentStep + ")出错 : " + e);
         this.broadcast({
           "operate": "checkChat",
-          "message": this.endChat + " - 超过最大chat了",
+          "step": this.currentStep,
+          "message": "出错 : " + e,
           "error": true,
           "date": new Date().getTime(),
         });
+        if (tryCount === 20) {
+          this.stop = 2;
+          //console.log("(" + this.currentStep + ")checkChat超出tryCount限制");
+          this.broadcast({
+            "operate": "checkChat",
+            "step": this.currentStep,
+            "message": "超出tryCount限制",
+            "error": true,
+            "date": new Date().getTime(),
+          });
+          await this.close();
+        } else {
+          await scheduler.wait(10000);
+          await this.checkChat(tryCount + 1, chatResult);
+        }
+        return;
+      }
+      // console.log(this.fromPeer);  //测试
+      if (result && result.chats && result.chats.length > 0) {
+        this.chatId = chatResult.Cindex;
+        if (this.endChat > 0 && this.chatId <= this.endChat) {
+          this.fromPeer = result.chats[0];
+          if (this.fromPeer) {
+            this.offsetId = chatResult.current;
+            //console.log("获取fromPeer成功");  //测试
+            // this.broadcast({
+            //   "operate": "checkChat",
+            //   "message": "获取fromPeer成功",
+            //   "date": new Date().getTime(),
+            // });  //测试
+          } else {
+            await this.noExistChat(1);
+            this.chatId = chatResult.Cindex + 1;
+            if (this.endChat > 0 && this.chatId <= this.endChat) {
+              //console.log(chatResult.title + " - chat已不存在了");  //测试
+              this.broadcast({
+                "operate": "checkChat",
+                "message": chatResult.title + " - chat已不存在了",
+                "error": true,
+                "date": new Date().getTime(),
+              });
+              await this.nextChat(1, true);
+            } else {
+              //console.log(this.endChat + " - 超过最大chat了");  //测试
+              this.broadcast({
+                "operate": "checkChat",
+                "message": this.endChat + " - 超过最大chat了",
+                "error": true,
+                "date": new Date().getTime(),
+              });
+            }
+          }
+        } else {
+          //console.log(this.endChat + " - 超过最大chat了");  //测试
+          this.broadcast({
+            "operate": "checkChat",
+            "message": this.endChat + " - 超过最大chat了",
+            "error": true,
+            "date": new Date().getTime(),
+          });
+        }
+      } else {
+        this.chatId = chatResult.Cindex + 1;
+        if (this.endChat > 0 && this.chatId <= this.endChat) {
+          //console.log(chatResult.title + " - chat已不存在了");  //测试
+          this.broadcast({
+            "operate": "checkChat",
+            "message": chatResult.title + " - chat已不存在了",
+            "error": true,
+            "date": new Date().getTime(),
+          });
+          await this.nextChat(1, true);
+        } else {
+          //console.log(this.endChat + " - 超过最大chat了");  //测试
+          this.broadcast({
+            "operate": "checkChat",
+            "message": this.endChat + " - 超过最大chat了",
+            "error": true,
+            "date": new Date().getTime(),
+          });
+        }
       }
     } else {
       this.chatId = chatResult.Cindex + 1;
       if (this.endChat > 0 && this.chatId <= this.endChat) {
-        //console.log(chatResult.title + " - chat已不存在了");  //测试
+        //console.log(chatResult.title + " - channelId或accessHash出错");  //测试
         this.broadcast({
           "operate": "checkChat",
-          "message": chatResult.title + " - chat已不存在了",
+          "message": chatResult.title + " - channelId或accessHash出错",
           "error": true,
           "date": new Date().getTime(),
         });
-        if (next) {
-          await this.nextChat();
-        }
+        await this.nextChat(1, true);
       } else {
         //console.log(this.endChat + " - 超过最大chat了");  //测试
         this.broadcast({
           "operate": "checkChat",
-          "message": this.endChat + " - 超过最大chat了",
+          "message": this.endChat + "channelId或accessHash出错",
           "error": true,
           "date": new Date().getTime(),
         });
@@ -570,26 +619,53 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
-  async nextChat() {
-    while (!this.fromPeer) {
-      this.apiCount += 1;
-      const chatResult = await this.env.MAINDB.prepare("SELECT * FROM `PANCHAT` WHERE `Cindex` >= ? AND `exist` = 1 LIMIT 1;").bind(this.chatId).first();
-      //console.log("chatResult : " + chatResult"]);  //测试
-      if (chatResult) {
-        await this.checkChat(chatResult, false);
-        if (this.fromPeer) {
-          break;
-        }
-      } else {
-        this.chatId = -1;
-        //console.log("没有更多chat了");
+  async nextChat(tryCount, check) {
+    this.apiCount += 1;
+    let chatResult = null;
+    try {
+      chatResult = await this.env.MAINDB.prepare("SELECT * FROM `PANCHAT` WHERE `Cindex` >= ? AND `exist` = 1 LIMIT 1;").bind(this.chatId).first();
+    } catch (e) {
+      //console.log("(" + this.currentStep + ")出错 : " + e);
+      this.broadcast({
+        "operate": "nextChat",
+        "step": this.currentStep,
+        "message": "出错 : " + e,
+        "error": true,
+        "date": new Date().getTime(),
+      });
+      if (tryCount === 20) {
+        this.stop = 2;
+        //console.log("(" + this.currentStep + ")nextChat超出tryCount限制");
         this.broadcast({
           "operate": "nextChat",
-          "message": "没有更多chat了",
+          "step": this.currentStep,
+          "message": "超出tryCount限制",
+          "error": true,
           "date": new Date().getTime(),
         });
-        break;
+        await this.close();
+      } else {
+        await scheduler.wait(10000);
+        await this.nextChat(tryCount + 1, check);
       }
+      return;
+    }
+    //console.log("chatResult : " + chatResult"]);  //测试
+    if (chatResult) {
+      if (check) {
+        await checkChat(chatResult, false);
+      } else {
+        this.chatId = chatResult.Cindex;
+      }
+    } else {
+      this.chatId = -1;
+      //console.log("没有更多chat了");
+      this.broadcast({
+        "operate": "nextChat",
+        "message": "没有更多chat了",
+        "error": true,
+        "date": new Date().getTime(),
+      });
     }
   }
 
@@ -598,8 +674,8 @@ export class WebSocketServer extends DurableObject {
       this.fromPeer = "me";
       let tryCount = 0;
       while (tryCount < 30) {
+        this.apiCount += 1;
         try {
-          this.apiCount += 1;
           const chatResult = await this.env.MAINDB.prepare("SELECT * FROM `PANCHAT` WHERE `Cindex` = 0 LIMIT 1;").first();
           //console.log("chatResult : " + chatResult"]);  //测试
           if (chatResult) {
@@ -621,7 +697,7 @@ export class WebSocketServer extends DurableObject {
       }
     } else if (this.chatId && this.chatId > 0) {
       if (this.endChat > 0 && this.chatId <= this.endChat) {
-        await this.nextChat();
+        await this.nextChat(1, true);
       } else {
         //console.log(this.endChat + " - 超过最大chat了");  //测试
         this.broadcast({
@@ -654,7 +730,7 @@ export class WebSocketServer extends DurableObject {
           }
           //console.log("chatResult : " + chatResult"]);  //测试
           if (chatResult) {
-            await this.checkChat(chatResult, true);
+            await this.checkChat(1, chatResult);
           } else {
             this.chatId = -1;
             //console.log("没有更多chat了");
@@ -1399,53 +1475,6 @@ export class WebSocketServer extends DurableObject {
     await this.close();
   }
 
-  async getResult(tryCount) {
-    this.apiCount += 1;
-    let chatResult = null;
-    try {
-      chatResult = await this.env.MAINDB.prepare("SELECT `Cindex`,`channelId`,`accessHash` FROM `PANCHAT` WHERE `Cindex` >= ? LIMIT 1;").bind(this.chatId).first();
-    } catch (e) {
-      //console.log("(" + this.currentStep + ")出错 : " + e);
-      this.broadcast({
-        "operate": "getResult",
-        "step": this.currentStep,
-        "message": "出错 : " + e,
-        "error": true,
-        "date": new Date().getTime(),
-      });
-      if (tryCount === 20) {
-        this.stop = 2;
-        //console.log("(" + this.currentStep + ")getResult超出tryCount限制");
-        this.broadcast({
-          "operate": "getResult",
-          "step": this.currentStep,
-          "message": "超出tryCount限制",
-          "error": true,
-          "date": new Date().getTime(),
-        });
-        await this.close();
-      } else {
-        await scheduler.wait(10000);
-        await this.getResult(tryCount + 1);
-      }
-      return;
-    }
-    //console.log("chatResult : " + chatResult"]);  //测试
-    if (chatResult) {
-      this.chatId = chatResult.Cindex;
-      return chatResult;
-    } else {
-      this.chatId = -1;
-      //console.log("没有更多chat了");
-      this.broadcast({
-        "operate": "getResult",
-        "message": "没有更多chat了",
-        "error": true,
-        "date": new Date().getTime(),
-      });
-    }
-  }
-
   async index(tryCount) {
     if (this.apiCount < 900) {
       // if (this.offsetId === 1) {
@@ -1516,7 +1545,7 @@ export class WebSocketServer extends DurableObject {
         await this.index(1);
       } else {
         this.chatId += 1;
-        await this.getResult(1);
+        await this.nextChat(1, false);
         if (this.endChat && this.endChat >= 0 && this.chatId <= this.endChat) {
           await this.index(1);
         } else {
@@ -1585,7 +1614,7 @@ export class WebSocketServer extends DurableObject {
       await this.chat();
     } else if (command === "index") {
       this.init(option);
-      await this.getResult(1);
+      await this.nextChat(1, false);
       if (this.chatId && this.chatId >= 0 && this.endChat && this.endChat >= 0 && this.chatId <= this.endChat) {
         await this.index(1);
       }
