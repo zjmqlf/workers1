@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "workers1",
+  "name": "pansou",
   "main": "worker.js",
   "compatibility_date": "2025-05-05",
   "compatibility_flags": [

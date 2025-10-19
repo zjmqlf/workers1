@@ -817,19 +817,19 @@ const App = () => {
     }
   }, [messageErrorHandler, waitReconnect]);
 
-  const indexBtnClickHandler = useCallback(() => {
+  const cacheBtnClickHandler = useCallback(() => {
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       try {
         ws.current.send(JSON.stringify({
-          "command": "index",
+          "command": "cache",
         }));
       } catch (e) {
         // console.log(e);  //测试
-        messageErrorHandler("  >>> index失败");
+        messageErrorHandler("  >>> cache失败");
       }
     } else {
       waitReconnect(JSON.stringify({
-        "command": "index",
+        "command": "cache",
       }), 1000);
     }
   }, [messageErrorHandler, waitReconnect]);
@@ -1003,7 +1003,7 @@ const App = () => {
           <button onClick={closeBtnClickHandler} disabled={isCloseBtnDisabled}>强制关闭</button>
           <button onClick={nextBtnClickHandler} disabled={isNextBtnDisabled}>不再继续</button>
           <button onClick={chatBtnClickHandler}>chat</button>
-          <button onClick={indexBtnClickHandler}>index</button>
+          <button onClick={cacheBtnClickHandler}>cache</button>
           <button onClick={clearCacheBtnClickHandler}>清空cache</button>
           <button onClick={clearGridBtnClickHandler} disabled={isClearGridBtnDisabled}>清空grid</button>
           <button onClick={clearLogBtnClickHandler} disabled={isClearLogBtnDisabled}>清空log</button>
