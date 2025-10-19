@@ -240,17 +240,17 @@ export class WebSocketServer extends DurableObject {
           }
         }
         return;
-      // } else if (message.operate === "insertMessageIndex") {
-      //   if (this.cacheMessage) {
-      //     if (message.offsetId === this.cacheMessage.offsetId) {
-      //       if (message.status === "success") {
-      //         this.cacheMessage["insertMessageIndex"] = true;
-      //       } else if (message.status === "error") {
-      //         this.cacheMessage["insertMessageIndex"] = false;
-      //       }
-      //     }
-      //   }
-      //   return;
+      } else if (message.operate === "insertMessageIndex") {
+        if (this.cacheMessage) {
+          if (message.offsetId === this.cacheMessage.offsetId) {
+            if (message.status === "success") {
+              this.cacheMessage["insertMessageIndex"] = true;
+            } else if (message.status === "error") {
+              this.cacheMessage["insertMessageIndex"] = false;
+            }
+          }
+        }
+        return;
       } else if (message.operate === "cache") {
       } else if (message.status === "limit") {
       } else if (!message.error) {
@@ -898,13 +898,37 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
-  // async selectMessageIndex(messageId) {
-  //   // const messageResult = this.sql.exec(`SELECT COUNT(id) FROM CHAT${this.chatId} WHERE id = ?;`, messageId).one();
-  //   // //console.log("messageResult : " + messageResult["COUNT(id)"]);  //测试
-  //   // if (messageResult) {
-  //   //   return messageResult["COUNT(id)"];
-  //   // }
-  // }
+  async selectMessageIndex(messageId) {
+    // const messageResult = this.sql.exec(`SELECT COUNT(id) FROM CHAT${this.chatId} WHERE id = ?;`, messageId).one();
+    // //console.log("messageResult : " + messageResult["COUNT(id)"]);  //测试
+    // if (messageResult) {
+    //   return messageResult["COUNT(id)"];
+    // }
+    const cacheResult = await fetch(`https://index.zjmqlf2021.workers.dev/getDB?chatId=${this.chatId}&id=${messageId}`);
+    if (cacheResult) {
+      if (cacheResult.error) {
+        //console.log("(" + this.currentStep + ")selectMessageIndex - " + cacheResult.error);
+        this.broadcast({
+          "operate": "selectMessageIndex",
+          "step": this.currentStep,
+          "message": cacheResult.error,
+          "error": true,
+          "date": new Date().getTime(),
+        });
+      } else {
+        return cacheResult.result;
+      }
+    } else {
+      //console.log("(" + this.currentStep + ")selectMessageIndex - " + messageId + " : 插入cache数据出错);
+      this.broadcast({
+        "operate": "selectMessageIndex",
+        "step": this.currentStep,
+        "message": messageId + " : 插入cache数据出错",
+        "error": true,
+        "date": new Date().getTime(),
+      });
+    }
+  }
 
   async selectMessage(tryCount, messageId) {
     this.apiCount += 1;
@@ -1000,16 +1024,36 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
-  // async insertMessageIndex(messageId) {
-  //   // this.sql.exec(`INSERT INTO CHAT${this.chatId} (id) VALUES (?);`, messageId);
-  //   // //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : 插入messageIndex数据库成功");
-  //   // this.broadcast({
-  //   //   "offsetId": this.offsetId,
-  //   //   "operate": "insertMessageIndex",
-  //   //   "status": "success",
-  //   //   "date": new Date().getTime(),
-  //   // });
-  // }
+  async insertMessageIndex(messageId) {
+    // this.sql.exec(`INSERT INTO CHAT${this.chatId} (id) VALUES (?);`, messageId);
+    // //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : 插入messageIndex数据库成功");
+    // this.broadcast({
+    //   "offsetId": this.offsetId,
+    //   "operate": "insertMessageIndex",
+    //   "status": "success",
+    //   "date": new Date().getTime(),
+    // });
+    const cacheResult = await fetch(`https://index.zjmqlf2021.workers.dev/putDB?chatId=${this.chatId}&id=${messageId}&dbId=2`);
+    if (cacheResult && cacheResult.error) {
+      // console.log("(" + this.currentStep + ")insertMessageIndex - 插入cache数据 ; " + cacheResult.error);
+      this.broadcast({
+        "operate": "cache",
+        "step": this.currentStep,
+        "message": "插入cache数据 ; " + cacheResult.error,
+        "error": true,
+        "date": new Date().getTime(),
+      });
+    } else {
+      //console.log("(" + this.currentStep + ")insertMessageIndex - " + messageId + " : 插入cache数据出错);
+      this.broadcast({
+        "operate": "insertMessageIndex",
+        "step": this.currentStep,
+        "message": messageId + " : 插入cache数据出错",
+        "error": true,
+        "date": new Date().getTime(),
+      });
+    }
+  }
 
   async updateChat(tryCount) {
     this.apiCount += 1;
@@ -1600,12 +1644,12 @@ export class WebSocketServer extends DurableObject {
       // }
       this.currentStep += 1;
       //console.log("(" + this.currentStep + ")cache - offsetId : " + this.offsetId);  //测试
-      this.broadcast({
-        "operate": "cache",
-        "step": this.currentStep,
-        "message": "("+ this.chatId + ") - offsetId : " + this.offsetId,
-        "date": new Date().getTime(),
-      });  //测试
+      // this.broadcast({
+      //   "operate": "cache",
+      //   "step": this.currentStep,
+      //   "message": "("+ this.chatId + ") - offsetId : " + this.offsetId,
+      //   "date": new Date().getTime(),
+      // });  //测试
       this.apiCount += 1;
       let messageResult = {};
       try {
@@ -1650,25 +1694,17 @@ export class WebSocketServer extends DurableObject {
         // let temp = [];
         for (let messageIndex = 0; messageIndex < messageLength; messageIndex++) {
           // temp.push("(" + messageResult.results[messageIndex].id + ")");
+          // this.offsetId = messageResult.results[messageLength - 1].Mindex;
           //console.log("(" + this.currentStep + ")cache - " + this.offsetId + " : " + messageResult.results[messageIndex].id);
-          // this.broadcast({
-          //   "operate": "cache",
-          //   "step": this.currentStep,
-          //   "message": "("+ this.chatId + ") - " + this.offsetId + " : " + messageResult.results[messageIndex].id,
-          //   "date": new Date().getTime(),
-          // });
-          const result = await fetch(`https://index.zjmqlf2021.workers.dev/putDB?chatId=${this.chatId}&id=${messageResult.results[messageIndex].id}&dbId=2`);
-          if (result && result.error) {
-            this.broadcast({
-              "result": "end",
-              "operate": "cache",
-              "step": this.currentStep,
-              "message": result.error,
-              "error": true,
-              "date": new Date().getTime(),
-            });
-          }
+          this.broadcast({
+            "operate": "cache",
+            "step": this.currentStep,
+            "message": "("+ this.chatId + ") - " + this.offsetId + " : " + messageResult.results[messageIndex].id,
+            "date": new Date().getTime(),
+          });
+          await this.insertMessageIndex(messageResult.results[messageIndex].id);
         }
+        // this.offsetId += 1;
         this.offsetId = parseInt(messageResult.results[messageLength - 1].Mindex) + 1;
         // this.sql.exec(`INSERT INTO CHAT${this.chatId} (id) VALUES 
         //   ${temp.join(",")};`
@@ -1709,7 +1745,6 @@ export class WebSocketServer extends DurableObject {
         "status": "limit",
         "date": new Date().getTime(),
       });
-      await this.updateChat(1);
       await this.close();
       // this.ctx.abort("reset");
     }
