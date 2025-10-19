@@ -3,10 +3,12 @@ import { TelegramClient, Api, sessions } from "./gramjs";
 import bigInt from "big-integer";
 
 async function countMessage(env) {
-  const messageResult = await env.PANSOUDB.prepare("SELECT COUNT(Mindex) FROM `PANMESSAGE` WHERE 1 = 1;").first();
+  const messageResult = await env.PANSOUDB.prepare("SELECT COUNT(Mindex) FROM `PANMESSAGE` WHERE 1 = 1;").run();
   //console.log("messageResult : " + messageResult["COUNT(Mindex)"]);  //测试
-  if (messageResult && messageResult["COUNT(Mindex)"]) {
-    return messageResult["COUNT(Mindex)"];
+  if (messageResult.success === true) {
+    if (messageResult.results && messageResult.results.length > 0) {
+      return messageResult.results[0]["COUNT(Mindex)"];
+    }
   }
   return -1;
 }
@@ -1225,16 +1227,16 @@ export class WebSocketServer extends DurableObject {
         } else {
           await this.updateChat(1);
           this.fromPeer = null;
+          //console.log("(" + this.currentStep + ")" + this.chatId + " - 当前chat采集完毕");
+          this.broadcast({
+            "result": "end",
+            "operate": "nextStep",
+            "step": this.currentStep,
+            "message": this.chatId + " - 当前chat采集完毕",
+            "date": new Date().getTime(),
+          });
           this.chatId += 1;
           if (!this.endChat || this.endChat === 0 || (this.endChat > 0 && this.chatId <= this.endChat)) {
-            //console.log("(" + this.currentStep + ")当前chat采集完毕");
-            this.broadcast({
-              "result": "end",
-              "operate": "nextStep",
-              "step": this.currentStep,
-              "message": "当前chat采集完毕",
-              "date": new Date().getTime(),
-            });
             await this.getChat();
             if (this.fromPeer) {
               if (this.chatId != this.lastChat) {
@@ -1424,6 +1426,96 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
+  async selectChat(tryCount, channelId, accessHash) {
+    this.apiCount += 1;
+    let chatResult = {};
+    try {
+      chatResult = await this.env.MAINDB.prepare("SELECT COUNT(Cindex) FROM `PANCHAT` WHERE `channelId` = ? AND `accessHash` = ? LIMIT 1;").bind(channelId, accessHash).run();
+    } catch (e) {
+      //console.log("selectChat出错 : " + e);
+      this.broadcast({
+        "offsetId": this.offsetId,
+        "operate": "selectChat",
+        "message": "出错 : " + JSON.stringify(e),
+        "error": true,
+        "status": "try",
+        "date": new Date().getTime(),
+      });
+      if (tryCount === 20) {
+        this.stop = 2;
+        //console.log("selectChat超出tryCount限制");
+        this.broadcast({
+          "operate": "selectChat",
+          "message": "超出tryCount限制",
+          "error": true,
+          "date": new Date().getTime(),
+        });
+        await this.close();
+      } else {
+        await scheduler.wait(10000);
+        await this.selectChat(tryCount + 1, channelId, accessHash);
+      }
+      return;
+    }
+    //console.log("chatResult : " + chatResult["COUNT(Cindex)"]);  //测试
+    if (chatResult.success === true) {
+      if (chatResult.results && chatResult.results.length > 0) {
+        return chatResult.results[0]["COUNT(Cindex)"];
+      }
+    }
+  }
+
+  async insertChat(tryCount, channelId, accessHash, title) {
+    this.apiCount += 1;
+    let chatResult = {};
+    try {
+      chatResult = await this.env.MAINDB.prepare("INSERT INTO `PANCHAT` (channelId, accessHash, title, current, exist) VALUES (?, ?, ?, ?, ?);").bind(channelId, accessHash, title, 0, 1).run();
+    } catch (e) {
+      //console.log("insertChat出错 : " + e);;
+      this.broadcast({
+        "offsetId": this.offsetId,
+        "operate": "insertChat",
+        "message": "出错 : " + JSON.stringify(e),
+        "error": true,
+        "status": "try",
+        "date": new Date().getTime(),
+      });
+      if (tryCount === 20) {
+        this.stop = 2;
+        //console.log("insertChat超出tryCount限制");
+        this.broadcast({
+          "operate": "insertChat",
+          "message": "超出tryCount限制",
+          "error": true,
+          "date": new Date().getTime(),
+        });
+        await this.close();
+      } else {
+        await scheduler.wait(10000);
+        await this.insertChat(tryCount + 1, channelId, accessHash, title);
+      }
+      return;
+    }
+    //console.log(chatResult);  //测试
+    if (chatResult.success === true) {
+      //console.log("插入chat数据成功");
+      this.broadcast({
+        "operate": "insertChat",
+        "status": "success",
+        "date": new Date().getTime(),
+      });
+    } else {
+      //console.log("插入chat数据失败");
+      this.broadcast({
+        "operate": "insertChat",
+        "message": "插入chat数据失败",
+        "error": true,
+        "status": "error",
+        "date": new Date().getTime()
+      });
+    }
+  }
+
   async chat() {
     // if (this.client || this.stop === 1) {
     // // if (this.stop === 1) {
@@ -1457,53 +1549,44 @@ export class WebSocketServer extends DurableObject {
         channelId = dialog.id.toString();
       }
       //console.log(channelId + " : " + accessHash);  //测试
-      if (channelId) {
-        const chatResult = await this.env.MAINDB.prepare("SELECT COUNT(Cindex) FROM `PANCHAT` WHERE `channelId` = ? AND `accessHash` = ? LIMIT 1;").bind(channelId, accessHash).first();
-        //console.log("chatResult : " + chatResult["COUNT(id)"]);  //测试
-        if (chatResult && chatResult["COUNT(Cindex)"] === 0) {
-          const chatResult = await this.env.MAINDB.prepare("INSERT INTO `PANCHAT` (channelId, accessHash, title, current, exist) VALUES (?, ?, ?, ?, ?);").bind(channelId, accessHash, dialog.title, 0, 1).run();
-          //console.log(chatResult);  //测试
-          if (chatResult.success === true) {
-            count += 1;
-            //console.log("插入chat数据成功");
-            this.broadcast({
-              "operate": "chat",
-              "message": "插入chat数据成功",
-              "date": new Date().getTime(),
-            });
-          } else {
-            //console.log("插入chat数据失败");
-            this.broadcast({
-              "operate": "chat",
-              "message": "插入chat数据失败",
-              "error": true,
-              "date": new Date().getTime(),
-            });
-          }
-        // } else {
-        //   //console.log("chat已在数据库中");
-        //   this.broadcast({
-        //     "operate": "chat",
-        //     "message": "chat已在数据库中",
-        //     "date": new Date().getTime(),
-        //   });
+      if (channelId && accessHash) {
+        const chatCount = await this.selectChat(1, channelId, accessHash);
+        //console.log("chatCount : " + chatCount);  //测试
+        if (parseInt(chatCount) === 0) {
+          count += 1;
+          await this.insertChat(1, channelId, accessHash, dialog.title);
+          //console.log("插入chat了 - " + dialog.title);
+          // this.broadcast({
+          //   "operate": "chat",
+          //   "message": "插入chat了 - " + dialog.title,
+          //   "date": new Date().getTime(),
+          // });
+        } else {
+          // //console.log("chat已在数据库中");
+          // this.broadcast({
+          //   "operate": "chat",
+          //   "message": "chat已在数据库中",
+          //   "date": new Date().getTime(),
+          // });
         }
       } else {
-        //console.log("chat的channelId错误");
+        //console.log("chat的channelId或accessHash错误");
         this.broadcast({
           "operate": "chat",
-          "message": "chat的channelId错误",
+          "message": "chat的channelId或accessHash错误",
           "error": true,
           "date": new Date().getTime(),
         });
       }
     }
-    //console.log("新插入了" + count + "条数据");
-    this.broadcast({
-      "operate": "chat",
-      "message": "新插入了" + count + "条数据",
-      "date": new Date().getTime(),
-    });
+    if (count > 0) {
+      //console.log("新插入了" + count + "条chat数据");
+      this.broadcast({
+        "operate": "chat",
+        "message": "新插入了" + count + "条chat数据",
+        "date": new Date().getTime(),
+      });
+    }
     await this.close();
   }
 
@@ -1515,6 +1598,14 @@ export class WebSocketServer extends DurableObject {
       //     );`
       //   );
       // }
+      this.currentStep += 1;
+      //console.log("(" + this.currentStep + ")cache - offsetId : " + this.offsetId);  //测试
+      this.broadcast({
+        "operate": "cache",
+        "step": this.currentStep,
+        "message": "("+ this.chatId + ") - offsetId : " + this.offsetId,
+        "date": new Date().getTime(),
+      });  //测试
       this.apiCount += 1;
       let messageResult = {};
       try {
@@ -1547,35 +1638,51 @@ export class WebSocketServer extends DurableObject {
         return;
       }
       //console.log("messageResult : " + messageResult.results);  //测试
-      const length = messageResult.results.length;
-      //console.log("messageLength : " + length);  //测试
-      //console.log("(" + this.currentStep + ")cache - messageLength : " + length);
+      const messageLength = messageResult.results.length;
+      //console.log("(" + this.currentStep + ")cache - messageLength : " + messageLength);
       this.broadcast({
         "operate": "cache",
         "step": this.currentStep,
-        "message": "("+ this.chatId + ") - messageLength : " + length,
+        "message": "("+ this.chatId + ") - messageLength : " + messageLength,
         "date": new Date().getTime(),
       });
-      if (length > 0) {
-        this.currentStep += 1;
+      if (messageLength > 0) {
         // let temp = [];
-        for (let index = 0; index < length; index++) {
-          // temp.push("(" + messageResult.results[index].id + ")");
-          //console.log("(" + this.currentStep + ")cache - " + this.offsetId + " : " + messageResult.results[index].id);
+        for (let messageIndex = 0; messageIndex < messageLength; messageIndex++) {
+          // temp.push("(" + messageResult.results[messageIndex].id + ")");
+          //console.log("(" + this.currentStep + ")cache - " + this.offsetId + " : " + messageResult.results[messageIndex].id);
           // this.broadcast({
           //   "operate": "cache",
           //   "step": this.currentStep,
-          //   "message": "("+ this.chatId + ") - " + this.offsetId + " : " + messageResult.results[index].id,
+          //   "message": "("+ this.chatId + ") - " + this.offsetId + " : " + messageResult.results[messageIndex].id,
           //   "date": new Date().getTime(),
           // });
-          await fetch(`https://index.zjmqlf2021.workers.dev/putDB?chatId=${this.chatId}&id=${messageResult.results[index].id}&dbId=2`);
+          const result = await fetch(`https://index.zjmqlf2021.workers.dev/putDB?chatId=${this.chatId}&id=${messageResult.results[messageIndex].id}&dbId=2`);
+          if (result && result.error) {
+            this.broadcast({
+              "result": "end",
+              "operate": "cache",
+              "step": this.currentStep,
+              "message": result.error,
+              "error": true,
+              "date": new Date().getTime(),
+            });
+          }
         }
-        this.offsetId = parseInt(messageResult.results[length - 1].Mindex) + 1;
+        this.offsetId = parseInt(messageResult.results[messageLength - 1].Mindex) + 1;
         // this.sql.exec(`INSERT INTO CHAT${this.chatId} (id) VALUES 
         //   ${temp.join(",")};`
         // );
         await this.cache(1);
       } else {
+        //console.log("(" + this.currentStep + ")" + this.chatId + " - 当前chat缓存完毕");
+        this.broadcast({
+          "result": "end",
+          "operate": "cache",
+          "step": this.currentStep,
+          "message": this.chatId + " - 当前chat缓存完毕",
+          "date": new Date().getTime(),
+        });
         this.chatId += 1;
         this.offsetId = 0;
         await this.nextChat(1, false);
