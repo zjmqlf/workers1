@@ -19,6 +19,7 @@ function getDB(id) {
     "97d41e14-a9b6-45a9-b5cc-f60eb29acc02",  //1 : pansou1
     "57db5b64-03a6-4cc2-8c43-3c9994240d9d",  //2 : pansou2
     "b6e33f0e-061e-4ff9-8ac6-6f80f86b7d4d",  //3 : pansou3
+    "0bce0745-a204-4382-b16f-c03e827a33f2",  //4 : pansou4
   ];
   const length = database.length;
   if (id < length) {
@@ -701,8 +702,9 @@ export class WebSocketServer extends DurableObject {
       let tryCount = 0;
       while (tryCount < 30) {
         this.apiCount += 1;
+        let chatResult = {};
         try {
-          const chatResult = await this.env.MAINDB.prepare("SELECT * FROM `PANCHAT` WHERE `Cindex` = 0 LIMIT 1;").run();
+        chatResult = await this.env.MAINDB.prepare("SELECT * FROM `PANCHAT` WHERE `Cindex` = 0 LIMIT 1;").run();
         } catch (e) {
           tryCount += 1;
           //console.log("(" + this.currentStep + ")getChat出错 : " + e);

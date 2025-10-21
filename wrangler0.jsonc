@@ -17,10 +17,17 @@
       "database_name": "maindb",
       "database_id": "52bec4a2-a12a-484d-8f58-4f254b8cffd0"
     },
+    /**
     {
       "binding": "PANSOUDB",
       "database_name": "pansou3",
       "database_id": "b6e33f0e-061e-4ff9-8ac6-6f80f86b7d4d"
+    },
+    */
+    {
+      "binding": "PANSOUDB",
+      "database_name": "pansou4",
+      "database_id": "0bce0745-a204-4382-b16f-c03e827a33f2"
     }
   ],
   "durable_objects": {
