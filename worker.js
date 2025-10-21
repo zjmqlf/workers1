@@ -394,6 +394,24 @@ export class WebSocketServer extends DurableObject {
     //await scheduler.wait(5000);
   }
 
+  async getConfigError(tryCount, option) {
+    if (tryCount === 20) {
+      this.stop = 2;
+      //console.log("(" + this.currentStep + ")getConfig超出tryCount限制");
+      this.broadcast({
+        "operate": "getConfig",
+        "step": this.currentStep,
+        "message": "超出tryCount限制",
+        "error": true,
+        "date": new Date().getTime(),
+      });
+      await this.close();
+    } else {
+      await scheduler.wait(10000);
+      await this.getConfig(tryCount + 1, option);
+    }
+  }
+
   async getConfig(tryCount, option) {
     this.apiCount += 1;
     let configResult = {};
@@ -407,21 +425,7 @@ export class WebSocketServer extends DurableObject {
         "error": true,
         "date": new Date().getTime(),
       });
-      if (tryCount === 20) {
-        this.stop = 2;
-        //console.log("(" + this.currentStep + ")getConfig超出tryCount限制");
-        this.broadcast({
-          "operate": "getConfig",
-          "step": this.currentStep,
-          "message": "超出tryCount限制",
-          "error": true,
-          "date": new Date().getTime(),
-        });
-        await this.close();
-      } else {
-        await scheduler.wait(10000);
-        await this.getConfig(tryCount + 1, option);
-      }
+      await this.getConfigError(tryCount, option);
       return;
     }
     //console.log("configResult : " + configResult);  //测试
@@ -460,6 +464,25 @@ export class WebSocketServer extends DurableObject {
         "error": true,
         "date": new Date().getTime(),
       });
+      await this.getConfigError(tryCount, option);
+    }
+  }
+
+  async noExistChatError(tryCount) {
+    if (tryCount === 20) {
+      this.stop = 2;
+      //console.log("(" + this.currentStep + ")noExistChat超出tryCount限制");
+      this.broadcast({
+        "operate": "noExistChat",
+        "step": this.currentStep,
+        "message": "超出tryCount限制",
+        "error": true,
+        "date": new Date().getTime(),
+      });
+      await this.close();
+    } else {
+      await scheduler.wait(10000);
+      await this.noExistChat(tryCount + 1);
     }
   }
 
@@ -476,21 +499,7 @@ export class WebSocketServer extends DurableObject {
         "error": true,
         "date": new Date().getTime(),
       });
-      if (tryCount === 20) {
-        this.stop = 2;
-        //console.log("(" + this.currentStep + ")noExistChat超出tryCount限制");
-        this.broadcast({
-          "operate": "noExistChat",
-          "step": this.currentStep,
-          "message": "超出tryCount限制",
-          "error": true,
-          "date": new Date().getTime(),
-        });
-        await this.close();
-      } else {
-        await scheduler.wait(10000);
-        await this.noExistChat(tryCount + 1);
-      }
+      await this.noExistChatError(tryCount);
       return;
     }
     //console.log(chatResult);  //测试
@@ -509,6 +518,7 @@ export class WebSocketServer extends DurableObject {
         "error": true,
         "date": new Date().getTime(),
       });
+      await this.noExistChatError(tryCount);
     }
   }
 
@@ -636,6 +646,24 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
+  async nextChatError(tryCount, check) {
+    if (tryCount === 20) {
+      this.stop = 2;
+      //console.log("(" + this.currentStep + ")nextChat超出tryCount限制");
+      this.broadcast({
+        "operate": "nextChat",
+        "step": this.currentStep,
+        "message": "超出tryCount限制",
+        "error": true,
+        "date": new Date().getTime(),
+      });
+      await this.close();
+    } else {
+      await scheduler.wait(10000);
+      await this.nextChat(tryCount + 1, check);
+    }
+  }
+
   async nextChat(tryCount, check) {
     this.apiCount += 1;
     let chatResult = {};
@@ -650,21 +678,7 @@ export class WebSocketServer extends DurableObject {
         "error": true,
         "date": new Date().getTime(),
       });
-      if (tryCount === 20) {
-        this.stop = 2;
-        //console.log("(" + this.currentStep + ")nextChat超出tryCount限制");
-        this.broadcast({
-          "operate": "nextChat",
-          "step": this.currentStep,
-          "message": "超出tryCount限制",
-          "error": true,
-          "date": new Date().getTime(),
-        });
-        await this.close();
-      } else {
-        await scheduler.wait(10000);
-        await this.nextChat(tryCount + 1, check);
-      }
+      await this.nextChatError(tryCount, check);
       return;
     }
     //console.log("chatResult : " + chatResult"]);  //测试
@@ -693,6 +707,7 @@ export class WebSocketServer extends DurableObject {
         "error": true,
         "date": new Date().getTime(),
       });
+      await this.nextChatError(tryCount, check);
     }
   }
 
@@ -704,7 +719,7 @@ export class WebSocketServer extends DurableObject {
         this.apiCount += 1;
         let chatResult = {};
         try {
-        chatResult = await this.env.MAINDB.prepare("SELECT * FROM `PANCHAT` WHERE `Cindex` = 0 LIMIT 1;").run();
+          chatResult = await this.env.MAINDB.prepare("SELECT * FROM `PANCHAT` WHERE `Cindex` = 0 LIMIT 1;").run();
         } catch (e) {
           tryCount += 1;
           //console.log("(" + this.currentStep + ")getChat出错 : " + e);
@@ -802,6 +817,24 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
+  async updateConfigError(tryCount) {
+    if (tryCount === 20) {
+      this.stop = 2;
+      //console.log("(" + this.currentStep + ")updateConfig超出tryCount限制");
+      this.broadcast({
+        "operate": "updateConfig",
+        "step": this.currentStep,
+        "message": "超出tryCount限制",
+        "error": true,
+        "date": new Date().getTime(),
+      });
+      await this.close();
+    } else {
+      await scheduler.wait(10000);
+      await this.updateConfig(tryCount + 1);
+    }
+  }
+
   async updateConfig(tryCount) {
     this.apiCount += 1;
     let configResult = {};
@@ -815,21 +848,7 @@ export class WebSocketServer extends DurableObject {
         "error": true,
         "date": new Date().getTime(),
       });
-      if (tryCount === 20) {
-        this.stop = 2;
-        //console.log("(" + this.currentStep + ")updateConfig超出tryCount限制");
-        this.broadcast({
-          "operate": "updateConfig",
-          "step": this.currentStep,
-          "message": "超出tryCount限制",
-          "error": true,
-          "date": new Date().getTime(),
-        });
-        await this.close();
-      } else {
-        await scheduler.wait(10000);
-        await this.updateConfig(tryCount + 1);
-      }
+      await this.updateConfigError(tryCount);
       return;
     }
     //console.log(configResult);  //测试
@@ -848,6 +867,7 @@ export class WebSocketServer extends DurableObject {
         "error": true,
         "date": new Date().getTime(),
       });
+      await this.updateConfigError(tryCount);
     }
   }
 
@@ -932,6 +952,24 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
+  async selectMessageError(tryCount, messageId) {
+    if (tryCount === 20) {
+      this.stop = 2;
+      //console.log("(" + this.currentStep + ")selectMessage超出tryCount限制");
+      this.broadcast({
+        "operate": "selectMessage",
+        "step": this.currentStep,
+        "message": "超出tryCount限制",
+        "error": true,
+        "date": new Date().getTime(),
+      });
+      await this.close();
+    } else {
+      await scheduler.wait(10000);
+      await this.selectMessage(tryCount + 1, messageId);
+    }
+  }
+
   async selectMessage(tryCount, messageId) {
     this.apiCount += 1;
     let messageResult = {};
@@ -947,21 +985,7 @@ export class WebSocketServer extends DurableObject {
         "status": "try",
         "date": new Date().getTime(),
       });
-      if (tryCount === 20) {
-        this.stop = 2;
-        //console.log("(" + this.currentStep + ")selectMessage超出tryCount限制");
-        this.broadcast({
-          "operate": "selectMessage",
-          "step": this.currentStep,
-          "message": "超出tryCount限制",
-          "error": true,
-          "date": new Date().getTime(),
-        });
-        await this.close();
-      } else {
-        await scheduler.wait(10000);
-        await this.selectMessage(tryCount + 1, messageId);
-      }
+      await this.selectMessageError(tryCount, messageId);
       return;
     }
     //console.log("messageResult : " + messageResult["COUNT(id)"]);  //测试
@@ -969,6 +993,26 @@ export class WebSocketServer extends DurableObject {
       if (messageResult.results && messageResult.results.length > 0) {
         return messageResult.results[0]["COUNT(id)"];
       }
+    } else {
+      await this.selectMessageError(tryCount, messageId);
+    }
+  }
+
+  async insertMessageError(tryCount, messageId, txt, id, url) {
+    if (tryCount === 20) {
+      this.stop = 2;
+      //console.log("(" + this.currentStep + ")insertMessage超出tryCount限制");
+      this.broadcast({
+        "operate": "insertMessage",
+        "step": this.currentStep,
+        "message": "超出tryCount限制",
+        "error": true,
+        "date": new Date().getTime(),
+      });
+      await this.close();
+    } else {
+      await scheduler.wait(10000);
+      await this.insertMessage(tryCount + 1, messageId, txt, id, url);
     }
   }
 
@@ -987,21 +1031,7 @@ export class WebSocketServer extends DurableObject {
         "status": "try",
         "date": new Date().getTime(),
       });
-      if (tryCount === 20) {
-        this.stop = 2;
-        //console.log("(" + this.currentStep + ")insertMessage超出tryCount限制");
-        this.broadcast({
-          "operate": "insertMessage",
-          "step": this.currentStep,
-          "message": "超出tryCount限制",
-          "error": true,
-          "date": new Date().getTime(),
-        });
-        await this.close();
-      } else {
-        await scheduler.wait(10000);
-        await this.insertMessage(tryCount + 1, messageId, txt, id, url);
-      }
+      await this.insertMessageError(tryCount, messageId, txt, id, url);
       return;
     }
     //console.log(messageResult);  //测试
@@ -1023,6 +1053,7 @@ export class WebSocketServer extends DurableObject {
         "status": "error",
         "date": new Date().getTime()
       });
+      await this.insertMessageError(tryCount, messageId, txt, id, url);
     }
   }
 
@@ -1057,6 +1088,24 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
+  async updateChatError(tryCount) {
+    if (tryCount === 20) {
+      this.stop = 2;
+      //console.log("(" + this.currentStep + ")updateChat超出tryCount限制");
+      this.broadcast({
+        "operate": "updateChat",
+        "step": this.currentStep,
+        "message": "超出tryCount限制",
+        "error": true,
+        "date": new Date().getTime(),
+      });
+      await this.close();
+    } else {
+      await scheduler.wait(10000);
+      await this.updateChat(tryCount + 1);
+    }
+  }
+
   async updateChat(tryCount) {
     this.apiCount += 1;
     let chatResult = {};
@@ -1071,21 +1120,7 @@ export class WebSocketServer extends DurableObject {
         "error": true,
         "date": new Date().getTime(),
       });
-      if (tryCount === 20) {
-        this.stop = 2;
-        //console.log("(" + this.currentStep + ")updateChat超出tryCount限制");
-        this.broadcast({
-          "operate": "updateChat",
-          "step": this.currentStep,
-          "message": "超出tryCount限制",
-          "error": true,
-          "date": new Date().getTime(),
-        });
-        await this.close();
-      } else {
-        await scheduler.wait(10000);
-        await this.updateChat(tryCount + 1);
-      }
+      await this.updateChatError(tryCount);
       return;
     }
     //console.log(chatResult);  //测试
@@ -1106,6 +1141,7 @@ export class WebSocketServer extends DurableObject {
         "error": true,
         "date": new Date().getTime(),
       });
+      await this.updateChatError(tryCount);
     }
   }
 
@@ -1472,6 +1508,23 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
+  async selectChatError(tryCount, channelId, accessHash) {
+    if (tryCount === 20) {
+      this.stop = 2;
+      //console.log("selectChat超出tryCount限制");
+      this.broadcast({
+        "operate": "selectChat",
+        "message": "超出tryCount限制",
+        "error": true,
+        "date": new Date().getTime(),
+      });
+      await this.close();
+    } else {
+      await scheduler.wait(10000);
+      await this.selectChat(tryCount + 1, channelId, accessHash);
+    }
+  }
+
   async selectChat(tryCount, channelId, accessHash) {
     this.apiCount += 1;
     let chatResult = {};
@@ -1487,20 +1540,7 @@ export class WebSocketServer extends DurableObject {
         "status": "try",
         "date": new Date().getTime(),
       });
-      if (tryCount === 20) {
-        this.stop = 2;
-        //console.log("selectChat超出tryCount限制");
-        this.broadcast({
-          "operate": "selectChat",
-          "message": "超出tryCount限制",
-          "error": true,
-          "date": new Date().getTime(),
-        });
-        await this.close();
-      } else {
-        await scheduler.wait(10000);
-        await this.selectChat(tryCount + 1, channelId, accessHash);
-      }
+      await this.selectChatError(tryCount, channelId, accessHash);
       return;
     }
     //console.log("chatResult : " + chatResult["COUNT(Cindex)"]);  //测试
@@ -1508,6 +1548,25 @@ export class WebSocketServer extends DurableObject {
       if (chatResult.results && chatResult.results.length > 0) {
         return chatResult.results[0]["COUNT(Cindex)"];
       }
+    } else {
+      await this.selectChatError(tryCount, channelId, accessHash);
+    }
+  }
+
+  async insertChatError(tryCount, channelId, accessHash, title) {
+    if (tryCount === 20) {
+      this.stop = 2;
+      //console.log("insertChat超出tryCount限制");
+      this.broadcast({
+        "operate": "insertChat",
+        "message": "超出tryCount限制",
+        "error": true,
+        "date": new Date().getTime(),
+      });
+      await this.close();
+    } else {
+      await scheduler.wait(10000);
+      await this.insertChat(tryCount + 1, channelId, accessHash, title);
     }
   }
 
@@ -1526,20 +1585,7 @@ export class WebSocketServer extends DurableObject {
         "status": "try",
         "date": new Date().getTime(),
       });
-      if (tryCount === 20) {
-        this.stop = 2;
-        //console.log("insertChat超出tryCount限制");
-        this.broadcast({
-          "operate": "insertChat",
-          "message": "超出tryCount限制",
-          "error": true,
-          "date": new Date().getTime(),
-        });
-        await this.close();
-      } else {
-        await scheduler.wait(10000);
-        await this.insertChat(tryCount + 1, channelId, accessHash, title);
-      }
+      await this.insertChatError(tryCount, channelId, accessHash, title);
       return;
     }
     //console.log(chatResult);  //测试
@@ -1559,6 +1605,7 @@ export class WebSocketServer extends DurableObject {
         "status": "error",
         "date": new Date().getTime()
       });
+      await this.insertChatError(tryCount, channelId, accessHash, title);
     }
   }
 
