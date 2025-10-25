@@ -459,14 +459,16 @@ const App = () => {
       //console.log("当前chat采集完毕");  //测试
       addNewEvent({
         "key": ++key,
-        "message": renderTime(Date.now()) + "  >>>当前chat采集完毕",
+        // "message": renderTime(Date.now()) + "  >>>当前chat采集完毕",
+        "message": renderTime(message.date) + "  " + message.operate + " - " + message.message,
       });
     } else if (message.result === "over") {
       over.current = true;
       //console.log("全部chat采集完毕");  //测试
       addNewEvent({
         "key": ++key,
-        "message": renderTime(Date.now()) + "  >>>全部chat采集完毕",
+        // "message": renderTime(Date.now()) + "  >>>全部chat采集完毕",
+        "message": renderTime(message.date) + "  " + message.operate + " - " + message.message,
       });
     } else {
       if (message.offsetId && message.offsetId >= 0) {
@@ -555,40 +557,58 @@ const App = () => {
   const setTime = useCallback(() => {
     clearTimeout(timeOut.current);
     timeOut.current = setTimeout(function() {
-      addNewEvent({
-        "key": ++key,
-        "error": true,
-        "message": renderTime(Date.now()) + "  >>> 过了2分钟都没有收到任何消息",
-      });
-      if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-        ws.current.send(JSON.stringify({
-          "command": "close",
-        }));
-        ws.current.close();
-        closeHandler();
+      if (over.current === false) {
+        addNewEvent({
+          "key": ++key,
+          "error": true,
+          "message": renderTime(Date.now()) + "  >>> 过了2分钟都没有收到任何消息",
+        });
+        if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+          ws.current.send(JSON.stringify({
+            "command": "close",
+          }));
+          ws.current.close();
+          closeHandler();
+        }
+      } else {
+        //console.log("停止采集，不再继续send");  //测试
+        addNewEvent({
+          "key": ++key,
+          "error": true,
+          "message": renderTime(Date.now()) + "  >>> 停止采集，不再继续send",
+        });
       }
     }, 120000);
  }, [addNewEvent, renderTime, closeHandler, key]);
 
   const waitReconnect = useCallback((command, time) => {
     setTimeout(function() {
-      btnEnableHandler();
-      //console.log("连接远程websocket");  //测试
-      addNewEvent({
-        "key": ++key,
-        "message": renderTime(Date.now()) + "  >>> 连接远程websocket",
-      });
-      try {
-        collectWS(command);
-      } catch (e) {
-        btnUnableHandler();
-        //console.log("连接远程websocket失败");  //测试
+      if (over.current === false) {
+        btnEnableHandler();
+        //console.log("连接远程websocket");  //测试
+        addNewEvent({
+          "key": ++key,
+          "message": renderTime(Date.now()) + "  >>> 连接远程websocket",
+        });
+        try {
+          collectWS(command);
+        } catch (e) {
+          btnUnableHandler();
+          //console.log("连接远程websocket失败");  //测试
+          addNewEvent({
+            "key": ++key,
+            "error": true,
+            "message": renderTime(Date.now()) + "  >>> 连接远程websocket失败",
+          });
+          waitReconnect(command, time);
+        }
+      } else {
+        //console.log("停止采集，不再继续send");  //测试
         addNewEvent({
           "key": ++key,
           "error": true,
-          "message": renderTime(Date.now()) + "  >>> 连接远程websocket失败",
+          "message": renderTime(Date.now()) + "  >>> 停止采集，不再继续send",
         });
-        waitReconnect(command, time);
       }
     }, time);
   }, [addNewEvent, renderTime, btnEnableHandler, btnUnableHandler, collectWS, key]);
