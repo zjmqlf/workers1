@@ -30,8 +30,8 @@ function getDB(id) {
 }
 
 async function exportDB(databaseId) {
-  const accountId = "ac4c475ca3875ec3dea2d2306fde9c69";
-  const d1ApiKey = "Vk_7LsZt_ZEwDMMU4tqHHaYghAApWQ8I5M5TV7x9";
+  const accountId = "399e535af535f1efb41355caef170840";
+  const d1ApiKey = "NZ3T0g7Z5JzhTnrNSpZ19QQGXzgwJXxqhTxpgFln";
   const d1Url = `https://api.cloudflare.com/client/v4/accounts/${accountId}/d1/database/${databaseId}/export`;
   const method = "POST";
   const headers = {
@@ -1464,6 +1464,55 @@ export class WebSocketServer extends DurableObject {
             });
             await this.close();
           }
+        } else {
+          await this.updateChat(1);
+          this.fromPeer = null;
+          //console.log("(" + this.currentStep + ")" + this.chatId + " : 当前chat采集完毕");
+          this.broadcast({
+            "result": "end",
+            "operate": "start",
+            "step": this.currentStep,
+            "message": this.chatId + " : 当前chat采集完毕",
+            "date": new Date().getTime(),
+          });
+          this.chatId += 1;
+          if (!this.endChat || this.endChat === 0 || (this.endChat > 0 && this.chatId <= this.endChat)) {
+            await this.getChat();
+            if (this.fromPeer) {
+              if (this.chatId != this.lastChat) {
+                if (this.lastChat != 0) {
+                  await this.updateConfig();
+                }
+                this.lastChat = this.chatId;
+              }
+              if (this.stop === 1) {
+                await this.nextStep();
+              } else if (this.stop === 2) {
+                this.broadcast({
+                  "result": "pause",
+                });
+                await this.close();
+              }
+            } else {
+              //console.log("(" + this.currentStep + ")全部chat采集完毕");
+              this.broadcast({
+                "result": "over",
+                "operate": "start",
+                "step": this.currentStep,
+                "message": "全部chat采集完毕",
+                "date": new Date().getTime(),
+              });
+              await this.close();
+            }
+          } else {
+            //console.log(this.endChat + " : 超过最大chat了");  //测试
+            this.broadcast({
+              "operate": "start",
+              "message": this.endChat + " : 超过最大chat了",
+              "error": true,
+              "date": new Date().getTime(),
+            });
+          }
         }
       } else if (this.stop === 2) {
         this.broadcast({
@@ -1662,13 +1711,13 @@ export class WebSocketServer extends DurableObject {
             "message": "新插入chat了 : " + dialog.title,
             "date": new Date().getTime(),
           });
-        // } else {
-        //   //console.log("chat - chat已在数据库中 : " + dialog.title);
-        //   this.broadcast({
-        //     "operate": "chat",
-        //     "message": "chat已在数据库中 : " + dialog.title,
-        //     "date": new Date().getTime(),
-        //   });
+        } else {
+          //console.log("chat - " + count + " : chat已在数据库中 - " + dialog.title);
+          this.broadcast({
+            "operate": "chat",
+            "message": count + " : chat已在数据库中 - " + dialog.title,
+            "date": new Date().getTime(),
+          });
         }
       } else {
         //console.log("chat - channelId或accessHash错误 : " + dialog.title);
