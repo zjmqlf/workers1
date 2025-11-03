@@ -31,7 +31,7 @@ function getDB(id) {
 
 async function exportDB(databaseId) {
   const accountId = "399e535af535f1efb41355caef170840";
-  const d1ApiKey = "NZ3T0g7Z5JzhTnrNSpZ19QQGXzgwJXxqhTxpgFln";
+  const d1ApiKey = "5IJ_fW5LT68yr15tRIJIU0ekKLVWGiH4vL5Wdj8b";
   const d1Url = `https://api.cloudflare.com/client/v4/accounts/${accountId}/d1/database/${databaseId}/export`;
   const method = "POST";
   const headers = {
