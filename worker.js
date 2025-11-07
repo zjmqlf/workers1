@@ -291,31 +291,33 @@ export class WebSocketServer extends DurableObject {
     // }
     this.ctx.getWebSockets().forEach((ws) => {
     // this.webSocket.forEach((ws) => {
-      try {
-        // ws.send(JSON.stringify(message));
-        ws.send(message);
-      } catch (e) {
-        // console.log(e);
-        // const index = this.webSocket.findIndex(element => element === ws);
-        // if (index > -1) {
-        //   this.webSocket.splice(index, 1);
-        //   //console.log("(" + this.currentStep + ")删除ws成功");
-        //   // this.broadcast({
-        //   //   "operate": "broadcast",
-        //   //   "step": this.currentStep,
-        //   //   "message": "删除ws成功",
-        //   //   "date": new Date().getTime(),
-        //   // });
-        // } else {
-        //   //console.log("(" + this.currentStep + ")没找到该ws");
-        //   this.broadcast({
-        //     "operate": "broadcast",
-        //     "step": this.currentStep,
-        //     "message": "没找到该ws",
-        //     "error": true,
-        //     "date": new Date().getTime(),
-        //   });
-        // }
+      if (ws.readyState === WebSocket.OPEN) {
+        try {
+          // ws.send(JSON.stringify(message));
+          ws.send(message);
+        } catch (e) {
+          // console.log(e);
+          // const index = this.webSocket.findIndex(element => element === ws);
+          // if (index > -1) {
+          //   this.webSocket.splice(index, 1);
+          //   //console.log("(" + this.currentStep + ")删除ws成功");
+          //   // this.broadcast({
+          //   //   "operate": "broadcast",
+          //   //   "step": this.currentStep,
+          //   //   "message": "删除ws成功",
+          //   //   "date": new Date().getTime(),
+          //   // });
+          // } else {
+          //   //console.log("(" + this.currentStep + ")没找到该ws");
+          //   this.broadcast({
+          //     "operate": "broadcast",
+          //     "step": this.currentStep,
+          //     "message": "没找到该ws",
+          //     "error": true,
+          //     "date": new Date().getTime(),
+          //   });
+          // }
+        }
       }
     });
   }
@@ -934,7 +936,7 @@ export class WebSocketServer extends DurableObject {
     // if (messageResult) {
     //   return messageResult["COUNT(id)"];
     // }
-    const cacheResult = await fetch(`https://index.zjmqlf2021.workers.dev/getDB?chatId=${this.chatId}&id=${messageId}`);
+    const cacheResult = await fetch(`https://index.zjmqlf2022.workers.dev/getDB?chatId=${this.chatId}&id=${messageId}`);
     if (cacheResult) {
       if (cacheResult.error) {
         //console.log("(" + this.currentStep + ")selectMessageIndex - " + cacheResult.error);
@@ -1074,11 +1076,18 @@ export class WebSocketServer extends DurableObject {
     //   "status": "success",
     //   "date": new Date().getTime(),
     // });
-    const cacheResult = await fetch(`https://index.zjmqlf2021.workers.dev/put?chatId=${this.chatId}&id=${messageId}&dbId=1`);
+    const cacheResult = await fetch(`https://index.zjmqlf2022.workers.dev/put?chatId=${this.chatId}&id=${messageId}&dbId=1`);
+      this.ws.send(JSON.stringify({
+        "operate": "insertMessageIndex",
+        "step": this.currentStep,
+        "message": "cacheResult : " + JSON.stringify(cacheResult),
+        "error": true,
+        "date": new Date().getTime(),
+      }));  //测试
     if (cacheResult && cacheResult.error) {
       // console.log("(" + this.currentStep + ")insertMessageIndex - 插入cache数据 ; " + cacheResult.error);
       this.broadcast({
-        "operate": "cache",
+        "operate": "insertMessageIndex",
         "step": this.currentStep,
         "message": "插入cache数据 ; " + cacheResult.error,
         "error": true,
@@ -1758,8 +1767,9 @@ export class WebSocketServer extends DurableObject {
       // });  //测试
       this.apiCount += 1;
       let messageResult = {};
+      this.chatId = 131;  //测试
       try {
-        messageResult = await this.env.PANSOUDB.prepare("SELECT `Mindex`,`id` FROM `PANMESSAGE` WHERE `chatId` = ? AND  `Mindex` >= ? ORDER BY Mindex ASC LIMIT 0,50;").bind(this.chatId, this.offsetId).run();
+        messageResult = await this.env.PANSOUDB.prepare("SELECT `Mindex`,`id` FROM `PANMESSAGE` WHERE `chatId` = ? AND  `Mindex` >= ? ORDER BY Mindex ASC LIMIT 0,20;").bind(this.chatId, this.offsetId).run();
       } catch (e) {
         //console.log("(" + this.currentStep + ")cache出错 : " + e);
         this.broadcast({
