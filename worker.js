@@ -20,6 +20,7 @@ function getDB(id) {
     "57db5b64-03a6-4cc2-8c43-3c9994240d9d",  //2 : pansou2
     "b6e33f0e-061e-4ff9-8ac6-6f80f86b7d4d",  //3 : pansou3
     "0bce0745-a204-4382-b16f-c03e827a33f2",  //4 : pansou4
+    "cd5d8762-0272-451c-b0d4-f4881016b6ad",  //5 : pansou5
   ];
   const length = database.length;
   if (id < length) {
@@ -930,13 +931,40 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
-  async selectMessageIndex(messageId) {
+  async selectMessageIndex(tryCount, messageId) {
     // const messageResult = this.sql.exec(`SELECT COUNT(id) FROM CHAT${this.chatId} WHERE id = ?;`, messageId).one();
     // //console.log("messageResult : " + messageResult["COUNT(id)"]);  //测试
     // if (messageResult) {
     //   return messageResult["COUNT(id)"];
     // }
-    const cacheResult = await fetch(`https://index.zjmqlf2022.workers.dev/getDB?chatId=${this.chatId}&id=${messageId}`);
+    let cacheResult = {};
+    try {
+      cacheResult = await fetch(`https://index.zjmqlf2022.workers.dev/getDB?chatId=${this.chatId}&id=${messageId}`);
+    } catch (e) {
+      //console.log("出错 : " + e);
+      this.broadcast({
+        "operate": "selectMessageIndex",
+        "message": "出错 : " + e,
+        "error": true,
+        "date": new Date().getTime(),
+      });
+      if (tryCount === 20) {
+        this.stop = 2;
+        //console.log("(" + this.currentStep + ")selectMessageIndex超出tryCount限制");
+        this.broadcast({
+          "operate": "selectMessageIndex",
+          "step": this.currentStep,
+          "message": "超出tryCount限制",
+          "error": true,
+          "date": new Date().getTime(),
+        });
+        await this.close();
+      } else {
+        await scheduler.wait(30000);
+        await this.selectMessageIndex(tryCount + 1, messageId);
+      }
+      return;
+    }
     if (cacheResult) {
       if (cacheResult.error) {
         //console.log("(" + this.currentStep + ")selectMessageIndex - " + cacheResult.error);
@@ -1067,7 +1095,7 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
-  async insertMessageIndex(messageId) {
+  async insertMessageIndex(tryCount, messageId) {
     // this.sql.exec(`INSERT INTO CHAT${this.chatId} (id) VALUES (?);`, messageId);
     // //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : 插入messageIndex数据库成功");
     // this.broadcast({
@@ -1076,14 +1104,42 @@ export class WebSocketServer extends DurableObject {
     //   "status": "success",
     //   "date": new Date().getTime(),
     // });
-    const cacheResult = await fetch(`https://index.zjmqlf2022.workers.dev/put?chatId=${this.chatId}&id=${messageId}&dbId=1`);
-      this.ws.send(JSON.stringify({
+    let cacheResult = {};
+    try {
+      // cacheResult = await this.env.SERVERS.fetch(`https://test.zjmqlf2022.workers.dev/put?chatId=${this.chatId}&id=${messageId}&dbId=1`);
+      cacheResult = await fetch(`https://index.zjmqlf2022.workers.dev/put?chatId=${this.chatId}&id=${messageId}&dbId=1`);
+    } catch (e) {
+      //console.log("出错 : " + e);
+      this.broadcast({
         "operate": "insertMessageIndex",
-        "step": this.currentStep,
-        "message": "cacheResult : " + JSON.stringify(cacheResult),
+        "message": "出错 : " + e,
         "error": true,
         "date": new Date().getTime(),
-      }));  //测试
+      });
+      if (tryCount === 20) {
+        this.stop = 2;
+        //console.log("(" + this.currentStep + ")insertMessageIndex超出tryCount限制");
+        this.broadcast({
+          "operate": "insertMessageIndex",
+          "step": this.currentStep,
+          "message": "超出tryCount限制",
+          "error": true,
+          "date": new Date().getTime(),
+        });
+        await this.close();
+      } else {
+        await scheduler.wait(30000);
+        await this.insertMessageIndex(tryCount + 1, messageId);
+      }
+      return;
+    }
+    this.ws.send(JSON.stringify({
+      "operate": "insertMessageIndex",
+      "step": this.currentStep,
+      "message": "cacheResult : " + JSON.stringify(cacheResult),
+      "error": true,
+      "date": new Date().getTime(),
+    }));  //测试
     if (cacheResult && cacheResult.error) {
       // console.log("(" + this.currentStep + ")insertMessageIndex - 插入cache数据 ; " + cacheResult.error);
       this.broadcast({
@@ -1180,7 +1236,7 @@ export class WebSocketServer extends DurableObject {
             "date": new Date().getTime(),
           });
           if (txt) {
-            // const indexCount = await this.selectMessageIndex(messageId);
+            // const indexCount = await this.selectMessageIndex(1, messageId);
             // if (parseInt(indexCount) === 0) {
               const messageCount = await this.selectMessage(1, messageId);
               if (parseInt(messageCount) === 0) {
@@ -1203,7 +1259,7 @@ export class WebSocketServer extends DurableObject {
                   }
                 }
                 await this.insertMessage(1, messageId, txt, webpage, url);
-                // await this.insertMessageIndex(messageId);
+                // await this.insertMessageIndex(1, messageId);
               } else {
                 //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : message已在数据库中");
                 this.broadcast({
@@ -1819,7 +1875,7 @@ export class WebSocketServer extends DurableObject {
             "message": "["+ this.chatId + "] " + this.offsetId + " : " + messageResult.results[messageIndex].id,
             "date": new Date().getTime(),
           });  //测试
-          await this.insertMessageIndex(messageResult.results[messageIndex].id);
+          await this.insertMessageIndex(1, messageResult.results[messageIndex].id);
         }
         this.offsetId += 1;  //测试
         // this.offsetId = parseInt(messageResult.results[messageLength - 1].Mindex) + 1;
