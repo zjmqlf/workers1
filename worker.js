@@ -474,7 +474,7 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
-  async noExistChatError(tryCount) {
+  async noExistChatError(tryCount, Cindex) {
     if (tryCount === 20) {
       this.stop = 2;
       //console.log("(" + this.currentStep + ")noExistChat超出tryCount限制");
@@ -488,15 +488,15 @@ export class WebSocketServer extends DurableObject {
       await this.close();
     } else {
       await scheduler.wait(10000);
-      await this.noExistChat(tryCount + 1);
+      await this.noExistChat(tryCount + 1, Cindex);
     }
   }
 
-  async noExistChat(tryCount) {
+  async noExistChat(tryCount, Cindex) {
     this.apiCount += 1;
     let chatResult = {};
     try {
-      chatResult = await this.env.MAINDB.prepare("UPDATE `PANCHAT` SET `exist` = 0 WHERE `Cindex` = ?;").bind(chatResult.Cindex).run();
+      chatResult = await this.env.MAINDB.prepare("UPDATE `PANCHAT` SET `exist` = 0 WHERE `Cindex` = ?;").bind(Cindex).run();
     } catch (e) {
       //console.log("noExistChat出错 : " + e);
       this.broadcast({
@@ -505,7 +505,7 @@ export class WebSocketServer extends DurableObject {
         "error": true,
         "date": new Date().getTime(),
       });
-      await this.noExistChatError(tryCount);
+      await this.noExistChatError(tryCount, Cindex);
       return;
     }
     //console.log(chatResult);  //测试
@@ -524,7 +524,7 @@ export class WebSocketServer extends DurableObject {
         "error": true,
         "date": new Date().getTime(),
       });
-      await this.noExistChatError(tryCount);
+      await this.noExistChatError(tryCount, Cindex);
     }
   }
 
@@ -583,7 +583,7 @@ export class WebSocketServer extends DurableObject {
               "date": new Date().getTime(),
             });
           } else {
-            await this.noExistChat(1);
+            await this.noExistChat(1, chatResult.Cindex);
             this.chatId = chatResult.Cindex + 1;
             if (!this.endChat || this.endChat === 0 || (this.endChat > 0 && this.chatId <= this.endChat)) {
               //console.log(chatResult.title + " : chat已不存在了");  //测试
