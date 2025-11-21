@@ -17,7 +17,7 @@ function getDB(id) {
   const database = [
     "52bec4a2-a12a-484d-8f58-4f254b8cffd0",  //0 : main
     "97d41e14-a9b6-45a9-b5cc-f60eb29acc02",  //1 : pansou1
-    "57db5b64-03a6-4cc2-8c43-3c9994240d9d",  //2 : pansou2
+    "4e48fcd0-a8fa-4dca-a8f9-021184e57753",  //2 : pansou2
     "b6e33f0e-061e-4ff9-8ac6-6f80f86b7d4d",  //3 : pansou3
     "0bce0745-a204-4382-b16f-c03e827a33f2",  //4 : pansou4
     "cd5d8762-0272-451c-b0d4-f4881016b6ad",  //5 : pansou5
@@ -1995,11 +1995,39 @@ export class WebSocketServer extends DurableObject {
         this.endChat = data.endChat;
       }
     } else if (command === "backup") {
-      const signed_url = await exportDB();
-      if (signed_url) {
-        ws.send(signed_url);
+      if (option && option.id && option.id >= 0) {
+        const name = getDB(option.id);
+        if (name) {
+          const signed_url = await exportDB(name);
+          if (signed_url) {
+            this.broadcast({
+              "operate": "backup",
+              "message": signed_url,
+              "date": new Date().getTime(),
+            });
+          } else {
+            this.broadcast({
+              "operate": "backup",
+              "message": "获取signed_url失败",
+              "error": true,
+              "date": new Date().getTime(),
+            });
+          }
+        } else {
+          this.broadcast({
+            "operate": "backup",
+            "message": "获取db失败",
+            "error": true,
+            "date": new Date().getTime(),
+          });
+        }
       } else {
-        ws.send("获取signed_url失败");
+        this.broadcast({
+          "operate": "backup",
+          "message": "要备份的数据库id不能为空",
+          "error": true,
+          "date": new Date().getTime(),
+        });
       }
     } else {
       this.broadcast({

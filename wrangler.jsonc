@@ -20,6 +20,11 @@
     /**
     {
       "binding": "PANSOUDB",
+      "database_name": "pansou2",
+      "database_id": "4e48fcd0-a8fa-4dca-a8f9-021184e57753"
+    },
+    {
+      "binding": "PANSOUDB",
       "database_name": "pansou3",
       "database_id": "b6e33f0e-061e-4ff9-8ac6-6f80f86b7d4d"
     },
