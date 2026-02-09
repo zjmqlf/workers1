@@ -17,12 +17,6 @@ function getDB(id) {
   const database = [
     "52bec4a2-a12a-484d-8f58-4f254b8cffd0",  //0 : main
     "97d41e14-a9b6-45a9-b5cc-f60eb29acc02",  //1 : pansou1
-    "4e48fcd0-a8fa-4dca-a8f9-021184e57753",  //2 : pansou2
-    "b6e33f0e-061e-4ff9-8ac6-6f80f86b7d4d",  //3 : pansou3
-    "0bce0745-a204-4382-b16f-c03e827a33f2",  //4 : pansou4
-    "cd5d8762-0272-451c-b0d4-f4881016b6ad",  //5 : pansou5
-    "43209852-2723-47cd-b52d-44fddea94558",  //6 : pansou6
-    "61bfab17-17e0-4c7a-bd3c-27bb2bdc5981",  //7 : pansou7
   ];
   const length = database.length;
   if (id < length) {
@@ -244,17 +238,17 @@ export class WebSocketServer extends DurableObject {
           }
         }
         return;
-      } else if (message.operate === "insertMessageIndex") {
-        if (this.cacheMessage) {
-          if (message.offsetId === this.cacheMessage.offsetId) {
-            if (message.status === "success") {
-              this.cacheMessage["insertMessageIndex"] = true;
-            } else if (message.status === "error") {
-              this.cacheMessage["insertMessageIndex"] = false;
-            }
-          }
-        }
-        return;
+      // } else if (message.operate === "insertMessageIndex") {
+      //   if (this.cacheMessage) {
+      //     if (message.offsetId === this.cacheMessage.offsetId) {
+      //       if (message.status === "success") {
+      //         this.cacheMessage["insertMessageIndex"] = true;
+      //       } else if (message.status === "error") {
+      //         this.cacheMessage["insertMessageIndex"] = false;
+      //       }
+      //     }
+      //   }
+      //   return;
       } else if (message.operate === "cache") {
       } else if (message.operate === "open") {
       } else if (message.operate === "checkChat") {
@@ -933,64 +927,64 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
-  async selectMessageIndex(tryCount, messageId) {
-    // const messageResult = this.sql.exec(`SELECT COUNT(id) FROM CHAT${this.chatId} WHERE id = ?;`, messageId).one();
-    // //console.log("messageResult : " + messageResult["COUNT(id)"]);  //测试
-    // if (messageResult) {
-    //   return messageResult["COUNT(id)"];
-    // }
-    let cacheResult = {};
-    try {
-      cacheResult = await fetch(`https://index.zjmqlf2022.workers.dev/getDB?chatId=${this.chatId}&id=${messageId}`);
-    } catch (e) {
-      //console.log("出错 : " + e);
-      this.broadcast({
-        "operate": "selectMessageIndex",
-        "message": "出错 : " + e,
-        "error": true,
-        "date": new Date().getTime(),
-      });
-      if (tryCount === 20) {
-        this.stop = 2;
-        //console.log("(" + this.currentStep + ")selectMessageIndex超出tryCount限制");
-        this.broadcast({
-          "operate": "selectMessageIndex",
-          "step": this.currentStep,
-          "message": "超出tryCount限制",
-          "error": true,
-          "date": new Date().getTime(),
-        });
-        await this.close();
-      } else {
-        await scheduler.wait(30000);
-        await this.selectMessageIndex(tryCount + 1, messageId);
-      }
-      return;
-    }
-    if (cacheResult) {
-      if (cacheResult.error) {
-        //console.log("(" + this.currentStep + ")selectMessageIndex - " + cacheResult.error);
-        this.broadcast({
-          "operate": "selectMessageIndex",
-          "step": this.currentStep,
-          "message": cacheResult.error,
-          "error": true,
-          "date": new Date().getTime(),
-        });
-      } else {
-        return cacheResult.result;
-      }
-    } else {
-      //console.log("(" + this.currentStep + ")selectMessageIndex - " + messageId + " : 插入cache数据出错);
-      this.broadcast({
-        "operate": "selectMessageIndex",
-        "step": this.currentStep,
-        "message": messageId + " : 插入cache数据出错",
-        "error": true,
-        "date": new Date().getTime(),
-      });
-    }
-  }
+  // async selectMessageIndex(tryCount, messageId) {
+  //   const messageResult = this.sql.exec(`SELECT COUNT(id) FROM CHAT${this.chatId} WHERE id = ?;`, messageId).one();
+  //   //console.log("messageResult : " + messageResult["COUNT(id)"]);  //测试
+  //   if (messageResult) {
+  //     return messageResult["COUNT(id)"];
+  //   }
+  //   // let cacheResult = {};
+  //   // try {
+  //   //   cacheResult = await fetch(`https://index.zjmqlf2022.workers.dev/getDB?chatId=${this.chatId}&id=${messageId}`);
+  //   // } catch (e) {
+  //   //   //console.log("出错 : " + e);
+  //   //   this.broadcast({
+  //   //     "operate": "selectMessageIndex",
+  //   //     "message": "出错 : " + e,
+  //   //     "error": true,
+  //   //     "date": new Date().getTime(),
+  //   //   });
+  //   //   if (tryCount === 20) {
+  //   //     this.stop = 2;
+  //   //     //console.log("(" + this.currentStep + ")selectMessageIndex超出tryCount限制");
+  //   //     this.broadcast({
+  //   //       "operate": "selectMessageIndex",
+  //   //       "step": this.currentStep,
+  //   //       "message": "超出tryCount限制",
+  //   //       "error": true,
+  //   //       "date": new Date().getTime(),
+  //   //     });
+  //   //     await this.close();
+  //   //   } else {
+  //   //     await scheduler.wait(30000);
+  //   //     await this.selectMessageIndex(tryCount + 1, messageId);
+  //   //   }
+  //   //   return;
+  //   // }
+  //   // if (cacheResult) {
+  //   //   if (cacheResult.error) {
+  //   //     //console.log("(" + this.currentStep + ")selectMessageIndex - " + cacheResult.error);
+  //   //     this.broadcast({
+  //   //       "operate": "selectMessageIndex",
+  //   //       "step": this.currentStep,
+  //   //       "message": cacheResult.error,
+  //   //       "error": true,
+  //   //       "date": new Date().getTime(),
+  //   //     });
+  //   //   } else {
+  //   //     return cacheResult.result;
+  //   //   }
+  //   // } else {
+  //   //   //console.log("(" + this.currentStep + ")selectMessageIndex - " + messageId + " : 插入cache数据出错);
+  //   //   this.broadcast({
+  //   //     "operate": "selectMessageIndex",
+  //   //     "step": this.currentStep,
+  //   //     "message": messageId + " : 插入cache数据出错",
+  //   //     "error": true,
+  //   //     "date": new Date().getTime(),
+  //   //   });
+  //   // }
+  // }
 
   async selectMessageError(tryCount, messageId) {
     if (tryCount === 20) {
@@ -1097,71 +1091,71 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
-  async insertMessageIndex(tryCount, messageId) {
-    // this.sql.exec(`INSERT INTO CHAT${this.chatId} (id) VALUES (?);`, messageId);
-    // //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : 插入messageIndex数据库成功");
-    // this.broadcast({
-    //   "offsetId": this.offsetId,
-    //   "operate": "insertMessageIndex",
-    //   "status": "success",
-    //   "date": new Date().getTime(),
-    // });
-    let cacheResult = {};
-    try {
-      // cacheResult = await this.env.SERVERS.fetch(`https://test.zjmqlf2022.workers.dev/put?chatId=${this.chatId}&id=${messageId}&dbId=1`);
-      cacheResult = await fetch(`https://index.zjmqlf2022.workers.dev/put?chatId=${this.chatId}&id=${messageId}&dbId=1`);
-    } catch (e) {
-      //console.log("出错 : " + e);
-      this.broadcast({
-        "operate": "insertMessageIndex",
-        "message": "出错 : " + e,
-        "error": true,
-        "date": new Date().getTime(),
-      });
-      if (tryCount === 20) {
-        this.stop = 2;
-        //console.log("(" + this.currentStep + ")insertMessageIndex超出tryCount限制");
-        this.broadcast({
-          "operate": "insertMessageIndex",
-          "step": this.currentStep,
-          "message": "超出tryCount限制",
-          "error": true,
-          "date": new Date().getTime(),
-        });
-        await this.close();
-      } else {
-        await scheduler.wait(30000);
-        await this.insertMessageIndex(tryCount + 1, messageId);
-      }
-      return;
-    }
-    this.ws.send(JSON.stringify({
-      "operate": "insertMessageIndex",
-      "step": this.currentStep,
-      "message": "cacheResult : " + JSON.stringify(cacheResult),
-      "error": true,
-      "date": new Date().getTime(),
-    }));  //测试
-    if (cacheResult && cacheResult.error) {
-      // console.log("(" + this.currentStep + ")insertMessageIndex - 插入cache数据 ; " + cacheResult.error);
-      this.broadcast({
-        "operate": "insertMessageIndex",
-        "step": this.currentStep,
-        "message": "插入cache数据 ; " + cacheResult.error,
-        "error": true,
-        "date": new Date().getTime(),
-      });
-    } else {
-      //console.log("(" + this.currentStep + ")insertMessageIndex - " + messageId + " : 插入cache数据出错);
-      this.broadcast({
-        "operate": "insertMessageIndex",
-        "step": this.currentStep,
-        "message": messageId + " : 插入cache数据出错",
-        "error": true,
-        "date": new Date().getTime(),
-      });
-    }
-  }
+  // async insertMessageIndex(tryCount, messageId) {
+  //   this.sql.exec(`INSERT INTO CHAT${this.chatId} (id) VALUES (?);`, messageId);
+  //   //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : 插入messageIndex数据库成功");
+  //   this.broadcast({
+  //     "offsetId": this.offsetId,
+  //     "operate": "insertMessageIndex",
+  //     "status": "success",
+  //     "date": new Date().getTime(),
+  //   });
+  //   // let cacheResult = {};
+  //   // try {
+  //   //   // cacheResult = await this.env.SERVERS.fetch(`https://test.zjmqlf2022.workers.dev/put?chatId=${this.chatId}&id=${messageId}&dbId=1`);
+  //   //   cacheResult = await fetch(`https://index.zjmqlf2022.workers.dev/put?chatId=${this.chatId}&id=${messageId}&dbId=1`);
+  //   // } catch (e) {
+  //   //   //console.log("出错 : " + e);
+  //   //   this.broadcast({
+  //   //     "operate": "insertMessageIndex",
+  //   //     "message": "出错 : " + e,
+  //   //     "error": true,
+  //   //     "date": new Date().getTime(),
+  //   //   });
+  //   //   if (tryCount === 20) {
+  //   //     this.stop = 2;
+  //   //     //console.log("(" + this.currentStep + ")insertMessageIndex超出tryCount限制");
+  //   //     this.broadcast({
+  //   //       "operate": "insertMessageIndex",
+  //   //       "step": this.currentStep,
+  //   //       "message": "超出tryCount限制",
+  //   //       "error": true,
+  //   //       "date": new Date().getTime(),
+  //   //     });
+  //   //     await this.close();
+  //   //   } else {
+  //   //     await scheduler.wait(30000);
+  //   //     await this.insertMessageIndex(tryCount + 1, messageId);
+  //   //   }
+  //   //   return;
+  //   // }
+  //   // this.ws.send(JSON.stringify({
+  //   //   "operate": "insertMessageIndex",
+  //   //   "step": this.currentStep,
+  //   //   "message": "cacheResult : " + JSON.stringify(cacheResult),
+  //   //   "error": true,
+  //   //   "date": new Date().getTime(),
+  //   // }));  //测试
+  //   // if (cacheResult && cacheResult.error) {
+  //   //   // console.log("(" + this.currentStep + ")insertMessageIndex - 插入cache数据 ; " + cacheResult.error);
+  //   //   this.broadcast({
+  //   //     "operate": "insertMessageIndex",
+  //   //     "step": this.currentStep,
+  //   //     "message": "插入cache数据 ; " + cacheResult.error,
+  //   //     "error": true,
+  //   //     "date": new Date().getTime(),
+  //   //   });
+  //   // } else {
+  //   //   //console.log("(" + this.currentStep + ")insertMessageIndex - " + messageId + " : 插入cache数据出错);
+  //   //   this.broadcast({
+  //   //     "operate": "insertMessageIndex",
+  //   //     "step": this.currentStep,
+  //   //     "message": messageId + " : 插入cache数据出错",
+  //   //     "error": true,
+  //   //     "date": new Date().getTime(),
+  //   //   });
+  //   // }
+  // }
 
   async updateChatError(tryCount) {
     if (tryCount === 20) {
@@ -1877,7 +1871,7 @@ export class WebSocketServer extends DurableObject {
             "message": "["+ this.chatId + "] " + this.offsetId + " : " + messageResult.results[messageIndex].id,
             "date": new Date().getTime(),
           });  //测试
-          await this.insertMessageIndex(1, messageResult.results[messageIndex].id);
+          // await this.insertMessageIndex(1, messageResult.results[messageIndex].id);
         }
         this.offsetId += 1;  //测试
         // this.offsetId = parseInt(messageResult.results[messageLength - 1].Mindex) + 1;
