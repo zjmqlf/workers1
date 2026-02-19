@@ -1671,7 +1671,7 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
-  async insertChatError(tryCount, channelId, accessHash, title) {
+  async insertChatError(tryCount, channelId, accessHash, username, title) {
     if (tryCount === 20) {
       this.stop = 2;
       //console.log("insertChat超出tryCount限制");
@@ -1684,15 +1684,15 @@ export class WebSocketServer extends DurableObject {
       await this.close();
     } else {
       await scheduler.wait(10000);
-      await this.insertChat(tryCount + 1, channelId, accessHash, title);
+      await this.insertChat(tryCount + 1, channelId, accessHash, username, title);
     }
   }
 
-  async insertChat(tryCount, channelId, accessHash, title) {
+  async insertChat(tryCount, channelId, accessHash, username, title) {
     this.apiCount += 1;
     let chatResult = {};
     try {
-      chatResult = await this.env.MAINDB.prepare("INSERT INTO `PANCHAT` (channelId, accessHash, title, current, exist) VALUES (?, ?, ?, ?, ?);").bind(channelId, accessHash, title, 0, 1).run();
+      chatResult = await this.env.MAINDB.prepare("INSERT INTO `PANCHAT` (channelId, accessHash, username, title, current, exist) VALUES (?, ?, ?, ?, ?, ?);").bind(channelId, accessHash, username, title, 0, 1).run();
     } catch (e) {
       //console.log("insertChat出错 : " + e);;
       this.broadcast({
@@ -1703,7 +1703,7 @@ export class WebSocketServer extends DurableObject {
         "status": "try",
         "date": new Date().getTime(),
       });
-      await this.insertChatError(tryCount, channelId, accessHash, title);
+      await this.insertChatError(tryCount, channelId, accessHash, username, title);
       return;
     }
     //console.log(chatResult);  //测试
@@ -1723,7 +1723,7 @@ export class WebSocketServer extends DurableObject {
         "status": "error",
         "date": new Date().getTime()
       });
-      await this.insertChatError(tryCount, channelId, accessHash, title);
+      await this.insertChatError(tryCount, channelId, accessHash, username, title);
     }
   }
 
@@ -1765,7 +1765,7 @@ export class WebSocketServer extends DurableObject {
         //console.log("chatCount : " + chatCount);  //测试
         if (parseInt(chatCount) === 0) {
           count += 1;
-          await this.insertChat(1, channelId, accessHash, dialog.title);
+          await this.insertChat(1, channelId, accessHash, dialog.username, dialog.title);
           //console.log("chat - 新插入chat了 : " + dialog.title);
           this.broadcast({
             "operate": "chat",
