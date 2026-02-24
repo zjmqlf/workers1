@@ -1,5 +1,6 @@
 import { DurableObject } from "cloudflare:workers";
-import { TelegramClient, Api, sessions } from "./gramjs";
+// import { TelegramClient, Api, sessions } from "./gramjs";
+import { TelegramClient, Api, sessions } from "./teleproto";
 import bigInt from "big-integer";
 
 async function countMessage(env) {
@@ -253,6 +254,7 @@ export class WebSocketServer extends DurableObject {
       } else if (message.operate === "open") {
       } else if (message.operate === "checkChat") {
       } else if (message.operate === "chat") {
+      } else if (message.operate === "backup") {
       } else if (message.status === "limit") {
       } else if (!message.error) {
         if (!message.result) {
