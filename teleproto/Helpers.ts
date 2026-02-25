@@ -283,9 +283,7 @@ export function getRandomInt(min: number, max: number): number {
 
 export const sleep = (ms: number, isUnref: boolean = false) =>
     new Promise((resolve) =>
-        isUnref
-            ? setTimeout(resolve, ms).unref()
-            : setTimeout(resolve, ms)
+        isUnref ? setTimeout(resolve, ms).unref() : setTimeout(resolve, ms)
     );
 
 export function bufferXor(a: Buffer, b: Buffer) {

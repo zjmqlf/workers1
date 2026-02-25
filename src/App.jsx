@@ -463,6 +463,7 @@ const App = () => {
     } else if (message.result === "over") {
       over.current = true;
       //console.log("全部chat采集完毕");  //测试
+      clearTimeout(timeOut.current);
       addNewEvent({
         // "message": renderTime(Date.now()) + "  >>>全部chat采集完毕",
         "message": renderTime(message.date) + "  " + message.operate + " - " + message.message,

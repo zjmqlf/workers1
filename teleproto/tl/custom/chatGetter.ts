@@ -2,8 +2,7 @@ import type { Entity, EntityLike } from "../../define";
 import type { TelegramClient } from "../../client";
 import * as utils from "../../Utils";
 import { Api } from "../";
-import { betterConsoleLog, returnBigInt } from "../../Helpers";
-import { inspect } from "node:util";
+import { returnBigInt } from "../../Helpers";
 
 export interface ChatGetterConstructorParams {
     chatPeer?: EntityLike;
@@ -18,10 +17,6 @@ export class ChatGetter {
     _chat?: Entity;
     _broadcast?: boolean;
     public _client?: TelegramClient;
-
-    [inspect.custom]() {
-        return betterConsoleLog(this);
-    }
 
     static initChatClass(
         c: any,

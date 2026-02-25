@@ -2,8 +2,6 @@ import type { TelegramClient } from "../../client";
 import type { EntityLike } from "../../define";
 import { Api } from "../";
 import { InlineResult } from "./inlineResult";
-import { betterConsoleLog } from "../../Helpers";
-import { inspect } from "node:util";
 
 export class InlineResults extends Array<InlineResult> {
     private result: Api.messages.TypeBotResults;
@@ -14,9 +12,6 @@ export class InlineResults extends Array<InlineResult> {
     private gallery: boolean;
     private nextOffset: string | undefined;
     private switchPm: Api.TypeInlineBotSwitchPM | undefined;
-    [inspect.custom]() {
-        return betterConsoleLog(this);
-    }
 
     constructor(
         client: TelegramClient,

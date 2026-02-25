@@ -7,8 +7,7 @@ import type { Entity, EntityLike, MessageIDLike } from "../define";
 import { Api } from "../tl";
 import { sanitizeParseMode } from "../Utils";
 import { MTProtoSender } from "../network";
-import { LAYER } from "../tl/AllTLObjects";
-import { betterConsoleLog } from "../Helpers";
+import { LAYER } from "../tl/runtime/registry";
 import { Session } from "../sessions";
 import { LogLevel } from "../extensions";
 import { inspect } from "node:util";
@@ -148,7 +147,7 @@ export class TelegramClient extends TelegramBaseClient {
         }
         const connection = new this._connection({
             ip: this.session.serverAddress,
-            port: this.useWSS ? 443 : 80,
+            port: this.session.port || 80,
             dcId: this.session.dcId,
             loggers: this._log,
             socket: this.networkSocket,
@@ -187,8 +186,7 @@ export class TelegramClient extends TelegramBaseClient {
 
     async getDC(
         dcId: number,
-        downloadDC = false,
-        web = false
+        downloadDC = false
     ): Promise<{ id: number; ipAddress: string; port: number }> {
         this._log.debug(`Getting DC ${dcId}`);
         if (!this._config) {
@@ -213,9 +211,4 @@ export class TelegramClient extends TelegramBaseClient {
     _getResponseMessage(req: any, result: any, inputChat: any) {
         return parseMethods._getResponseMessage(this, req, result, inputChat);
     }
-
-    [inspect.custom]() {
-        return betterConsoleLog(this);
-    }
-
 }

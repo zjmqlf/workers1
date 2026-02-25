@@ -6,10 +6,9 @@ import { ChatGetter } from "./chatGetter";
 import * as utils from "../../Utils";
 import { Forward } from "./forward";
 import { File } from "./file";
-import { betterConsoleLog, returnBigInt } from "../../Helpers";
+import { returnBigInt } from "../../Helpers";
 import { _selfId } from "../../client/users";
 import bigInt, { BigInteger } from "big-integer";
-import { inspect } from "node:util";
 import { Buffer } from "node:buffer";
 
 interface MessageBaseInterface {
@@ -98,10 +97,6 @@ export class CustomMessage extends SenderGetter {
     getBytes(): Buffer;
     originalArgs: any;
     patternMatch?: RegExpMatchArray;
-
-    [inspect.custom]() {
-        return betterConsoleLog(this);
-    }
 
     init({
         id,

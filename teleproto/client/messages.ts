@@ -499,7 +499,7 @@ export async function forwardMessages(
         noforwards,
         dropAuthor,
         topMsgId,
-    }: ForwardMessagesParams & { topMsgId?: number | Api.Message } // §Ú§Ý§Ú §ã§Ó§à§Û §ä§Ú§á ID
+    }: ForwardMessagesParams & { topMsgId?: number | Api.Message }
 ) {
     if (!isArrayLike(messages)) {
         messages = [messages];

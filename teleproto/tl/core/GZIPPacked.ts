@@ -1,5 +1,5 @@
 import { serializeBytes } from "..";
-import { inflate } from "pako";
+import { unzipSync } from "zlib";
 import type { BinaryReader } from "../../extensions";
 import { Buffer } from "node:buffer";
 
@@ -33,7 +33,7 @@ export class GZIPPacked {
     }
 
     static ungzip(input: Buffer) {
-        return Buffer.from(inflate(input));
+        return unzipSync(input);
     }
 
     async toBytes() {

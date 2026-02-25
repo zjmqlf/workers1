@@ -1,6 +1,8 @@
 import { DurableObject } from "cloudflare:workers";
 // import { TelegramClient, Api, sessions } from "./gramjs";
 import { TelegramClient, Api, sessions } from "./teleproto";
+// import { LogLevel } from "./gramjs/extensions";
+import { LogLevel } from "./teleproto/extensions";
 import bigInt from "big-integer";
 
 async function countMessage(env) {
@@ -360,7 +362,7 @@ export class WebSocketServer extends DurableObject {
         //useWSS: false,
       })
       await this.client.session.setDC(5, "91.108.56.128", 80);
-      await this.client.setLogLevel("error");
+      await this.client.setLogLevel(LogLevel.ERROR);
       await this.client.connect();
     } catch (e) {
       //console.log("login出错 : " + e);

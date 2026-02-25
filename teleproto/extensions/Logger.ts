@@ -89,7 +89,7 @@ export class Logger {
         );
     }
 
-    _log(level: LogLevel, message: string, color: string) {
+    _log(level: LogLevel, message: string) {
         if (this.canSend(level)) {
             this.log(level, message);
         }

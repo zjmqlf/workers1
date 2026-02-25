@@ -13,7 +13,7 @@ import { EntityCache } from "../entityCache";
 import type { ParseInterface } from "./messageParse";
 import { MarkdownParser, LogLevel, Deferred } from "../extensions";
 import { MTProtoSender } from "../network";
-import { LAYER } from "../tl/AllTLObjects";
+import { LAYER } from "../tl/runtime/registry";
 import { Semaphore } from "async-mutex";
 
 const EXPORTED_SENDER_RECONNECT_TIMEOUT = 1000;
@@ -40,7 +40,6 @@ export interface TelegramClientParams {
     langCode?: string;
     systemLangCode?: string;
     baseLogger?: Logger;
-    useWSS?: boolean;
     maxConcurrentDownloads?: number;
     securityChecks?: boolean;
     networkSocket?: typeof PromisedNetSockets;
@@ -66,7 +65,6 @@ const clientParamsDefault = {
     langCode: "en",
     systemLangCode: "en",
     _securityChecks: true,
-    useWSS: false,
 };
 
 export abstract class TelegramBaseClient {
@@ -91,12 +89,12 @@ export abstract class TelegramBaseClient {
     public _bot?: boolean;
     public _useIPV6: boolean;
     public _selfInputPeer?: Api.InputPeerUser;
-    public useWSS: boolean;
     public _errorHandler?: (error: Error) => Promise<void>;
     public _eventBuilders: [EventBuilder, CallableFunction][];
     public _entityCache: EntityCache;
     public _lastRequest?: number;
     public _parseMode?: ParseInterface;
+    public _reCaptchaCallback?: (siteKey: string) => Promise<string>;
     public _ALBUMS = new Map<
         string,
         [ReturnType<typeof setTimeout>, Api.TypeUpdate[]]
@@ -173,7 +171,6 @@ export abstract class TelegramBaseClient {
         this._borrowedSenderPromises = {};
         this._bot = undefined;
         this._selfInputPeer = undefined;
-        this.useWSS = clientParams.useWSS!;
         this._securityChecks = !!clientParams.securityChecks;
         this._entityCache = new EntityCache();
         this._config = undefined;
@@ -204,7 +201,7 @@ export abstract class TelegramBaseClient {
             this.session.setDC(
                 DEFAULT_DC_ID,
                 this._useIPV6 ? DEFAULT_IPV6_IP : DEFAULT_IPV4_IP,
-                this.useWSS ? 443 : 80
+                80
             );
         } else {
             this._useIPV6 = this.session.serverAddress.includes(":");

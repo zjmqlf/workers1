@@ -217,7 +217,7 @@ export class MTProtoSender {
                     );
                 }
                 this._log.error(
-                    `WebSocket connection failed attempt: ${attempt + 1}`
+                    `Connection failed attempt: ${attempt + 1}`
                 );
                 if (this._client._errorHandler) {
                     await this._client._errorHandler(err as Error);
@@ -487,9 +487,10 @@ export class MTProtoSender {
                 await this._processMessage(message);
             } catch (e) {
                 if (e instanceof RPCError) {
+                    const rpcMessage = e.errorMessage;
                     if (
-                        e.message === "AUTH_KEY_UNREGISTERED" ||
-                        e.message === "SESSION_REVOKED"
+                        rpcMessage === "AUTH_KEY_UNREGISTERED" ||
+                        rpcMessage === "SESSION_REVOKED"
                     ) {
                         this._handleBadAuthKey(true);
                     }
