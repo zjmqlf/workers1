@@ -119,11 +119,6 @@ export class TelegramClient extends TelegramBaseClient {
                 console.error(e);
             }
         }
-        if (!this._loopStarted && !this._destroyed) {
-            this._log.info("Restarting update loop after reconnect");
-            _updateLoop(this);
-            this._loopStarted = true;
-        }
     }
 
     async connect() {

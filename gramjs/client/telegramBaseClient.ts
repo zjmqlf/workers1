@@ -100,7 +100,6 @@ export abstract class TelegramBaseClient {
         [ReturnType<typeof setTimeout>, Api.TypeUpdate[]]
     >();
     public _exportedSenderPromises = new Map<number, Promise<MTProtoSender>>();
-    protected _loopStarted: boolean;
     _reconnecting: boolean;
     _destroyed: boolean;
     _isSwitchingDc: boolean;
@@ -173,7 +172,6 @@ export abstract class TelegramBaseClient {
         this._securityChecks = !!clientParams.securityChecks;
         this._entityCache = new EntityCache();
         this._config = undefined;
-        this._loopStarted = false;
         this._reconnecting = false;
         this._destroyed = false;
         this._isSwitchingDc = false;
