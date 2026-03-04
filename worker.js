@@ -71,13 +71,13 @@ async function exportDB(databaseId) {
 
 export class WebSocketServer extends DurableObject {
   // webSocket = [];
-  compress = true;
-  batch = false;
   ws = null;
-  client = null;
   stop = 0;
   apiCount = 0;
   currentStep = 0;
+  compress = true;
+  batch = false;
+  client = null;
   chatId = 0;
   endChat = 0;
   lastChat = 0;
@@ -157,6 +157,7 @@ export class WebSocketServer extends DurableObject {
         this.limit = 20;
         this.offsetId = 0;
       }
+      this.ws = null;
       // this.client = null;
       // this.stop = 0;
       // this.webSocket = [];
@@ -326,6 +327,7 @@ export class WebSocketServer extends DurableObject {
   async close() {
     if (this.client) {
       await this.client.destroy();
+      this.client = null;
       //console.log("断开服务器成功");
       this.broadcast({
         "operate": "close",

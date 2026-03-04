@@ -554,7 +554,7 @@ const App = () => {
       if (over.current === false) {
         addNewEvent({
           "error": true,
-          "message": renderTime(Date.now()) + "  >>> 过了2分钟都没有收到任何消息",
+          "message": renderTime(Date.now()) + "  >>> 过了1分钟都没有收到任何消息",
         });
         if (ws.current && ws.current.readyState === WebSocket.OPEN) {
           ws.current.send(JSON.stringify({
@@ -570,7 +570,7 @@ const App = () => {
           "message": renderTime(Date.now()) + "  >>> 停止采集，不再继续send",
         });
       }
-    }, 120000);
+    }, 60000);
  }, [addNewEvent, renderTime]);
 
   const collectWS = useCallback((command) => {
