@@ -1705,7 +1705,6 @@ export class WebSocketServer extends DurableObject {
     } catch (e) {
       //console.log("selectChat出错 : " + e);
       this.broadcast({
-        "offsetId": this.offsetId,
         "operate": "selectChat",
         "step": this.currentStep,
         "message": "出错 : " + JSON.stringify(e),
@@ -1752,7 +1751,6 @@ export class WebSocketServer extends DurableObject {
     } catch (e) {
       //console.log("insertChat出错 : " + e);;
       this.broadcast({
-        "offsetId": this.offsetId,
         "operate": "insertChat",
         "step": this.currentStep,
         "message": "出错 : " + JSON.stringify(e),
