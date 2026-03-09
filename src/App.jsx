@@ -282,15 +282,15 @@ const App = () => {
     }
   }, [addNewEvent, renderTime, setRowData, setClearGridBtnDisabled]);
 
-  const updateLastRow = useCallback((Items) => {
-    if (Items.date && (Items.date >= lastRow.current.data.time)) {
-      lastRow.current.setDataValue("useTime", Items.date - lastRow.current.data.time);
+  const updateLastRow = useCallback((items) => {
+    if (items.date && (items.date >= lastRow.current.data.time)) {
+      lastRow.current.setDataValue("useTime", items.date - lastRow.current.data.time);
     }
-    for (const name in Items) {
+    for (const name in items) {
       //console.log(name);  //测试
-      //console.log(Items[name]);  //测试
+      //console.log(items[name]);  //测试
       if (name === "error") {
-        if (Items[name] === true) {
+        if (items[name] === true) {
           if (lastRow.current.data.error > 0) {
             lastRow.current.setDataValue("error", lastRow.current.data.error + 1);
           } else {
@@ -298,18 +298,18 @@ const App = () => {
           }
         }
       } else {
-        lastRow.current.setDataValue(name, Items[name]);
+        lastRow.current.setDataValue(name, items[name]);
       }
     }
   }, []);
 
-  const getLastRow = useCallback((offsetId, Items) => {
+  const getLastRow = useCallback((offsetId, items) => {
     let found = false;
     gridRef.current.api.forEachNode((rowNode) => {
       if (rowNode.data.offsetId === offsetId) {
         lastRow.current = rowNode;
         lastId.current = lastRow.current.data.offsetId;
-        updateLastRow(Items);
+        updateLastRow(items);
         found = true;
         return;
       }
@@ -325,17 +325,17 @@ const App = () => {
 
   const updateItems = useCallback((data) => {
     //console.log(lastRow.current);  //测试
-    const {offsetId, ...Items} = data;
+    const {offsetId, ...items} = data;
     if (lastRow.current) {
       //console.log(offsetId);  //测试
-      //console.log(Items);  //测试
+      //console.log(items);  //测试
       if (lastId.current === offsetId) {
-        updateLastRow(Items);
+        updateLastRow(items);
       } else {
-        getLastRow(offsetId, Items);
+        getLastRow(offsetId, items);
       }
     } else {
-      getLastRow(offsetId, Items);
+      getLastRow(offsetId, items);
     }
   }, [updateLastRow, getLastRow]);
 
