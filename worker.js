@@ -558,20 +558,29 @@ export class WebSocketServer extends DurableObject {
           "error": true,
           "date": new Date().getTime(),
         });
-        if (tryCount === 20) {
-          this.stop = 2;
-          //console.log("(" + this.currentStep + ")checkChat超出tryCount限制");
-          this.broadcast({
-            "operate": "checkChat",
-            "step": this.currentStep,
-            "message": "超出tryCount限制",
-            "error": true,
-            "date": new Date().getTime(),
-          });
-          await this.close();
+        const err = e.toString();
+        if (err.includes("CHANNEL_INVALID") === true) {
+          await this.noExistChat(1, chatResult.Cindex);
+        } else if (err.includes("CHANNEL_PRIVATE") === true) {
+          await this.noExistChat(1, chatResult.Cindex);
+        } else if (err.includes("400") === true) {
+          await this.noExistChat(1, chatResult.Cindex);
         } else {
-          await scheduler.wait(10000);
-          await this.checkChat(tryCount + 1, chatResult);
+          if (tryCount === 20) {
+            this.stop = 2;
+            //console.log("(" + this.currentStep + ")checkChat超出tryCount限制");
+            this.broadcast({
+              "operate": "checkChat",
+              "step": this.currentStep,
+              "message": "超出tryCount限制",
+              "error": true,
+              "date": new Date().getTime(),
+            });
+            await this.close();
+          } else {
+            await scheduler.wait(10000);
+            await this.checkChat(tryCount + 1, chatResult);
+          }
         }
         return;
       }
