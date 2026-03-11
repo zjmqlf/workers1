@@ -45,6 +45,8 @@ const App = () => {
   const pagination = true;
   const paginationPageSize = 50;
   const paginationPageSizeSelector = [50, 150, 200];
+  const lastId = useRef(0);
+  const lastRow = useRef(null);
   const ws = useRef(null);
   const stop = useRef(false);
   const over = useRef(false);
@@ -54,20 +56,31 @@ const App = () => {
   const waitTime = useRef(30000);
   const containerStyle = useMemo(() => ({ width: "100%", height: "100%", margin: "1px" }), []);
   const gridStyle = useMemo(() => ({ width: "100%", height: "100%", margin: "1px" }), []);
-  const [documentValue, setDocumentValue] = useState(2);
   const [isCloseBtnDisabled, setCloseBtnDisabled] = useState(true);
   const [isCollectBtnDisabled, setCollectBtnDisabled] = useState(true);
   const [isNextBtnDisabled, setNextBtnDisabled] = useState(true);
   const [isClearGridBtnDisabled, setClearGridBtnDisabled] = useState(true);
   const [isClearLogBtnDisabled, setClearLogBtnDisabled] = useState(true);
   const [pauseBtnText, setPauseBtnText] = useState("开始");
-  const [isCompressChecked, setCompressChecked] = useState(false);
+  const [isCompressChecked, setCompressChecked] = useState(true);
   const [isBatchChecked, setBatchChecked] = useState(false);
   const [rowData, setRowData] = useState([]);
   const [logData, setLogData] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const [isSendBtnDisabled, setSendBtnDisabled] = useState(true);
-  const getRowId = useCallback((params) => String(params.data.clientName), []);
+  const getRowId = useCallback((params) => String(params.data.offsetId), []);
+
+  const resultRenderer = useCallback((params) => {
+    return params.value === true ?
+      <span className="missionSpan">
+        {<img alt="" src="icons/tick-in-circle.png" className="missionIcon"/>}
+      </span> :
+      params.value === false ?
+        <span className="missionSpan">
+          {<img alt="" src="icons/cross-in-circle.png" className="missionIcon"/>}
+        </span> :
+        ""
+  }, []);
 
   const renderTime = useCallback((timestamp ) => {
     if (timestamp && timestamp > 0) {
@@ -96,17 +109,12 @@ const App = () => {
           {
             field: "step",
             headerName: "step",
-            columnGroupShow: "closed",
-          },
-          {
-            field: "clientId",
-            headerName: "clientId",
-            columnGroupShow: "closed",
+            columnGroupShow: "open",
           },
           {
             field: "chatId",
             headerName:"chatId",
-            columnGroupShow: "closed",
+            columnGroupShow: "open",
           },
           {
             field: "offsetId",
@@ -114,10 +122,20 @@ const App = () => {
             columnGroupShow: "open",
           },
           // {
-          //   field: "messageId",
-          //   headerName:"messageId",
+          //   field: "messageLength",
+          //   headerName: "messageLength",
           //   columnGroupShow: "open",
           // },
+          // {
+          //   field: "messageIndex",
+          //   headerName: "messageIndex",
+          //   columnGroupShow: "open",
+          // },
+          {
+            field: "messageId",
+            headerName:"messageId",
+            columnGroupShow: "open",
+          },
         ],
       },
       {
@@ -126,14 +144,34 @@ const App = () => {
         openByDefault: true,
         children: [
           {
-            field: "forward",
-            headerName: "forward",
+            field: "selectMessageIndex",
+            headerName: "selectMessageIndex",
             columnGroupShow: "open",
+            cellRenderer: resultRenderer,
           },
           {
-            field: "messageLength",
-            headerName: "messageLength",
+            field: "selectMessage",
+            headerName: "selectMessage",
             columnGroupShow: "open",
+            cellRenderer: resultRenderer,
+          },
+          {
+            field: "insertMessage",
+            headerName: "insertMessage",
+            columnGroupShow: "open",
+            cellRenderer: resultRenderer,
+          },
+          {
+            field: "insertMessageIndex",
+            headerName: "insertMessageIndex",
+            columnGroupShow: "open",
+            cellRenderer: resultRenderer,
+          },
+          {
+            field: "webpage",
+            headerName: "webpage",
+            columnGroupShow: "open",
+            cellRenderer: resultRenderer,
           },
           {
             field: "error",
@@ -143,7 +181,6 @@ const App = () => {
           {
             field: "date",
             headerName: "startTime",
-            columnGroupShow: "open",
             cellRenderer: params => renderTime(params.value),
           },
           // {
@@ -180,16 +217,11 @@ const App = () => {
     };
   }, []);
 
-  // const rowClassRules = useMemo(() => {
-  //   let clientName = null;
-  //   gridRef.current.api.forEachNode(function (node) {
-  //     clientName = node.data.clientName;
-  //     return;
-  //   });
-  //   return {
-  //     "rag-red": params => stop.current === true && params.node.data.clientName === clientName,
-  //   };
-  // }, []);
+  const rowClassRules = useMemo(() => {
+    return {
+      "rag-red": params => stop.current === true && params.node.data.offsetId === lastRow.current.data.offsetId,
+    };
+  }, []);
 
   const addNewEvent = useCallback((newItem) => {
     // if (logData.length >= 100) {
@@ -230,7 +262,13 @@ const App = () => {
       addIndex: 0,
     });
     //console.log(res);  //测试
-    if (!res.add || res.add.length || res.add.length <= 0) {
+    if (res.add && res.add.length > 0) {
+      lastRow.current = res.add[0];
+      //console.log(lastRow.current);  //测试
+      lastId.current = lastRow.current.data.offsetId;
+    } else {
+      lastRow.current = null;
+      lastId.current = 0;
       console.log("添加row失败");
       addNewEvent({
         "message": renderTime(Date.now()) + "  >>> 添加row失败",
@@ -244,74 +282,111 @@ const App = () => {
     }
   }, [addNewEvent, renderTime, setRowData, setClearGridBtnDisabled]);
 
-  const deleteItems = useCallback((items) => {
-    const res = gridRef.current.api.applyTransaction({
-      remove: items,
-    });
-    //console.log(res);  //测试
-    if (!res.remove || res.remove.length || res.remove.length <= 0) {
-      console.log("删除row失败");
-      addNewEvent({
-        "message": renderTime(Date.now()) + "  >>> 删除row失败",
-      });
-    }
-  }, [addNewEvent, renderTime]);
-
-  const updateRow = useCallback((rowNode, items) => {
-    if (items.forward && items.forward > 0) {
-      if (items.messageLength && items.messageLength > 0) {
-        items.forward += items.messageLength;
-      }
-    } else {
-      if (items.messageLength && items.messageLength > 0) {
-        items.forward = items.messageLength;
-      }
+  const updateLastRow = useCallback((items) => {
+    if (items.date && (items.date >= lastRow.current.data.time)) {
+      lastRow.current.setDataValue("useTime", items.date - lastRow.current.data.time);
     }
     for (const name in items) {
       //console.log(name);  //测试
       //console.log(items[name]);  //测试
       if (name === "error") {
         if (items[name] === true) {
-          if (rowNode.data.error > 0) {
-            rowNode.setDataValue("error", rowNode.data.error + 1);
+          if (lastRow.current.data.error > 0) {
+            lastRow.current.setDataValue("error", lastRow.current.data.error + 1);
           } else {
-            rowNode.setDataValue("error", 1);
+            lastRow.current.setDataValue("error", 1);
           }
         }
       } else {
-        rowNode.setDataValue(name, items[name]);
+        lastRow.current.setDataValue(name, items[name]);
       }
     }
   }, []);
 
-  const updateItems = useCallback((data) => {
-    const {clientName, ...items} = data;
+  const getLastRow = useCallback((offsetId, items) => {
     let found = false;
-    // gridRef.current.api.forEachNodeAfterFilterAndSort((rowNode, index) => {
-    gridRef.current.api.forEachNode((rowNode, index) => {
-      if (rowNode.data.clientName === clientName) {
-        if (items.clientCount && items.clientCount > 0 && index >= items.clientCount) {
-          deleteItems([rowNode]);
-          addItems([rowNode]);
-        }
-        updateRow(rowNode, items);
+    gridRef.current.api.forEachNode((rowNode) => {
+      if (rowNode.data.offsetId === offsetId) {
+        lastRow.current = rowNode;
+        lastId.current = lastRow.current.data.offsetId;
+        updateLastRow(items);
         found = true;
         return;
       }
     });
     if (found === false) {
-      console.log("查找row失败");
+      console.log("lastRow错误");
       addNewEvent({
         "error": true,
-        "message": renderTime(Date.now()) + "  >>> 查找row失败",
+        "message": renderTime(Date.now()) + "  >>> lastRow错误",
       });
     }
-  }, [addNewEvent, renderTime, deleteItems, addItems, updateRow]);
+  }, [addNewEvent, renderTime, updateLastRow]);
 
-  // const handleBeforeUnload = useCallback((event) => {
-  //   event.preventDefault();
-  //   event.returnValue = '程序正在运行中，确定要关闭吗？';
-  // }, []);
+  const updateItems = useCallback((data) => {
+    //console.log(lastRow.current);  //测试
+    const {offsetId, ...items} = data;
+    if (lastRow.current) {
+      //console.log(offsetId);  //测试
+      //console.log(items);  //测试
+      if (lastId.current === offsetId) {
+        updateLastRow(items);
+      } else {
+        getLastRow(offsetId, items);
+      }
+    } else {
+      getLastRow(offsetId, items);
+    }
+  }, [updateLastRow, getLastRow]);
+
+  const updateSelect = useCallback((message, name) => {
+    if (message.status === "try") {
+      updateItems({
+        "offsetId": message.offsetId,
+        [name]: false,
+        "error": true,
+        "date": message.date,
+      });
+      addNewEvent({
+        "error": true,
+        "message": renderTime(message.date) + "  " + message.offsetId + " : " + message.operate + " - " + message.message,
+      });
+    } else {
+      console.log("未知消息");
+    }
+  }, [addNewEvent, renderTime, updateItems]);
+
+  const updateInsert = useCallback((message, name) => {
+    if (message.status === "success") {
+      updateItems({
+        "offsetId": message.offsetId,
+        [name]: true,
+        "date": message.date,
+      });
+    } else if (message.status === "error") {
+      updateItems({
+        "offsetId": message.offsetId,
+        [name]: false,
+        "date": message.date,
+      });
+      addNewEvent({
+        "error": true,
+        "message": renderTime(message.date) + "  " + message.offsetId + " : " + message.operate + " - " + message.message,
+      });
+    } else if (message.status === "try") {
+      addNewEvent({
+        "error": true,
+        "message": renderTime(message.date) + "  " + message.offsetId + " : " + message.operate + " - " + message.message,
+      });
+    } else {
+      console.log("未知消息");
+    }
+  }, [addNewEvent, renderTime, updateItems]);
+
+  const handleBeforeUnload = useCallback((event) => {
+    event.preventDefault();
+    event.returnValue = '程序正在运行中，确定要关闭吗？';
+  }, []);
 
   const btnHandler = useCallback((status) => {
     setCollectBtnDisabled(status);
@@ -344,18 +419,13 @@ const App = () => {
     if (errorCount.current === 10) {
       waitTime.current = 300000;
     }
-    // window.removeEventListener('beforeunload', handleBeforeUnload);
-    // window.removeEventListener('popstate', handleBeforeUnload);
-    // let rowNode = null;
-    // gridRef.current.api.forEachNode(function (node) {
-    //   rowNode = node;
-    //   return;
-    // });
-    // if (rowNode) {
-    //   gridRef.current.api.redrawRows({
-    //     rowNodes: [rowNode],
-    //   });
-    // }
+    window.removeEventListener('beforeunload', handleBeforeUnload);
+    window.removeEventListener('popstate', handleBeforeUnload);
+    if (lastRow.current) {
+      gridRef.current.api.redrawRows({
+        rowNodes: [lastRow.current],
+      });
+    }
     btnUnableHandler();
     // setLogData(() => {
     //   return [];
@@ -365,7 +435,7 @@ const App = () => {
       "error": true,
       "message": renderTime(Date.now()) + "  >>> 远程websocket连续" + errorCount.current + "次断开了连接",
     });
-  }, [addNewEvent, renderTime, btnUnableHandler]);
+  }, [addNewEvent, renderTime, handleBeforeUnload, btnUnableHandler]);
 
   const parseMessage = useCallback((message) => {
     if (message.result === "pause") {
@@ -377,12 +447,14 @@ const App = () => {
       ws.current.close();
       // closeHandler();
     } else if (message.result === "end") {
+      lastId.current = 0;
+      lastRow.current = null;
       setRowData([]);
       setClearGridBtnDisabled(true);
-      setLogData(() => {
-        return [];
-      });
-      setClearLogBtnDisabled(true);
+      // setLogData(() => {
+      //   return [];
+      // });
+      // setClearLogBtnDisabled(true);
       //console.log("当前chat采集完毕");  //测试
       addNewEvent({
         // "message": renderTime(Date.now()) + "  >>>当前chat采集完毕",
@@ -390,76 +462,99 @@ const App = () => {
       });
     } else if (message.result === "over") {
       over.current = true;
-      clearTimeout(timeOut.current);
       //console.log("全部chat采集完毕");  //测试
+      clearTimeout(timeOut.current);
       addNewEvent({
         // "message": renderTime(Date.now()) + "  >>>全部chat采集完毕",
         "message": renderTime(message.date) + "  " + message.operate + " - " + message.message,
       });
     } else {
-      if (message.clientId && message.clientId > 0 && message.chatId && message.chatId >= 0) {
-        message.clientName = message.clientId + "-" + message.chatId;
-        switch (message.operate) {
-          case "forwardMessage":
-            if (message.status === "update") {
-              const {
-                operate,
-                status,
-                ...temp
-              } = message;
-              updateItems(temp);
-            } else if (message.status === "add") {
-              //delete message.operate;
-              //delete message.status;
-              const {
-                operate,
-                status,
-                ...temp
-              } = message;
-              addItems([temp]);
-            } else if (message.status === "error") {
-              updateItems({
-                "clientName": message.clientName,
-                "date": message.date,
-              });
-              addNewEvent({
-                "error": true,
-                "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
-              });
-            } else if (message.status === "limit") {
-              addNewEvent({
-                "error": true,
-                "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
-              });
-            } else {
+      if (message.offsetId && message.offsetId >= 0) {
+        if (message.offsetId < lastId.current) {
+          console.log("消息offsetId小了");
+          addNewEvent({
+            "error": true,
+            "message": renderTime(message.date) + " " + message.offsetId + " : " + message.operate + " 消息offsetId小了" + (message.message ? " - " + message.message  : " "),
+          });
+        } else {
+          switch (message.operate) {
+            case "nextMessage":
+              if (message.status === "add") {
+                if (!lastRow.current || lastRow.current.data.offsetId !== message.offsetId) {
+                  //delete message.operate;
+                  //delete message.status;
+                  const {
+                    operate,
+                    status,
+                    ...temp
+                  } = message;
+                  addItems([temp]);
+                }
+              } else if (message.status === "update") {
+                const {
+                  operate,
+                  status,
+                  ...temp
+                } = message;
+                updateItems(temp);
+              } else if (message.status === "error") {
+                if (isCompressChecked === false) {
+                  updateItems({
+                    "offsetId": message.offsetId,
+                    "date": message.date,
+                  });
+                }
+                addNewEvent({
+                  "error": true,
+                  "message": renderTime(message.date) + "  " + message.offsetId + " : " + message.operate + " - " + message.message,
+                });
+              } else if (message.status === "exist") {
+                updateItems({
+                  "offsetId": message.offsetId,
+                  "selectMessage": true,
+                  "date": message.date,
+                });
+              } else if (message.status === "webpage") {
+                updateItems({
+                  "offsetId": message.offsetId,
+                  "webpage": true,
+                  "date": message.date,
+                });
+              } else if (message.status === "limit") {
+                addNewEvent({
+                  "error": true,
+                  "message": renderTime(message.date) + "  " + message.offsetId + " : " + message.operate + " - " + message.message,
+                });
+              } else {
+                console.log("未知消息");
+              }
+              break;
+            case "selectMessage":
+              updateSelect(message, "selectMessage");
+              break;
+            case "insertMessage":
+              updateInsert(message, "insertMessage");
+              break;
+            default:
               console.log("未知消息");
-            }
-            break;
-          default:
-            console.log("未知消息");
+          }
         }
       } else {
         addNewEvent({
           "error": message.error,
-          "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
+          "message": renderTime(message.date) + (message.step ? "  (" + message.step + ")" : " ") + message.operate + " - " + message.message,
         });
       }
     }
-  }, [addNewEvent, renderTime, setRowData, setClearGridBtnDisabled, setLogData, setClearLogBtnDisabled, addItems, updateItems]);
+  }, [addNewEvent, renderTime, setRowData, setClearGridBtnDisabled, addItems, updateInsert, updateItems, updateSelect, isCompressChecked]);
 
   const setTime = useCallback(() => {
     clearTimeout(timeOut.current);
-    let time = 120000;
-    let count = 2;
-    if (documentValue === 1) {
-      time = 60000;
-      count = 1;
-    }
     timeOut.current = setTimeout(function() {
       if (over.current === false) {
         addNewEvent({
           "error": true,
-          "message": renderTime(Date.now()) + "  >>> 过了" + count + "分钟都没有收到任何消息",
+          "message": renderTime(Date.now()) + "  >>> 过了1分钟都没有收到任何消息",
         });
         if (ws.current && ws.current.readyState === WebSocket.OPEN) {
           ws.current.send(JSON.stringify({
@@ -475,12 +570,11 @@ const App = () => {
           "message": renderTime(Date.now()) + "  >>> 停止采集，不再继续send",
         });
       }
-    }, time);
- }, [addNewEvent, renderTime, documentValue]);
+    }, 60000);
+ }, [addNewEvent, renderTime]);
 
   const collectWS = useCallback((command) => {
-    // console.log("documentValue : " + documentValue);  //测试
-    //const url = "wss://forward.19420.xyz/ws";  //测试
+    //const url = "wss://workers1.19425.xyz/ws";  //测试
     const url = new URL(window.location);
     url.protocol = "wss";
     url.pathname = "/ws";
@@ -505,18 +599,13 @@ const App = () => {
           waitTime.current = 30000;
         }
       }
-      // window.addEventListener('beforeunload', handleBeforeUnload);
-      // window.addEventListener('popstate', handleBeforeUnload);
-      // let rowNode = null;
-      // gridRef.current.api.forEachNode(function (node) {
-      //   rowNode = node;
-      //   return;
-      // });
-      // if (rowNode) {
-      //   gridRef.current.api.redrawRows({
-      //     rowNodes: [rowNode],
-      //   });
-      // }
+      window.addEventListener('beforeunload', handleBeforeUnload);
+      window.addEventListener('popstate', handleBeforeUnload);
+      if (lastRow.current) {
+        gridRef.current.api.redrawRows({
+          rowNodes: [lastRow.current],
+        });
+      }
       if (ws.current && ws.current.readyState === WebSocket.OPEN) {
         try {
           ws.current.send(command);
@@ -533,7 +622,6 @@ const App = () => {
           }
           // waitReconnect(JSON.stringify({
           //   "command": "start",
-          //   "filterType": documentValue,
           // }), waitTime.current);
         }
       } else {
@@ -586,15 +674,14 @@ const App = () => {
     ws.current.addEventListener("close", () => {
       closeHandler();
       if (over.current === false) {
-        // console.log(documentValue);  //测试
         waitReconnect(JSON.stringify({
           "command": "start",
-          "filterType": documentValue,
         }), waitTime.current);
       }
     })
 
-  }, [addNewEvent, renderTime, parseMessage, setTime, closeHandler, waitReconnect, documentValue]);
+  }, [addNewEvent, renderTime, handleBeforeUnload, parseMessage, setTime, closeHandler, waitReconnect]);
+
 
   waitReconnect = useCallback((command, time) => {
     setTimeout(function() {
@@ -625,11 +712,6 @@ const App = () => {
     }, time);
   }, [addNewEvent, renderTime, btnEnableHandler, collectWS, btnUnableHandler, waitReconnect]);
 
-  const radioChangeHandler = useCallback((e) => {
-    // console.log(parseInt(e.target.value));  //测试
-    setDocumentValue(parseInt(e.target.value));
-  }, [setDocumentValue]);
-
   const messageErrorHandler = useCallback((message) => {
     addNewEvent({
       "error": true,
@@ -658,17 +740,15 @@ const App = () => {
         messageErrorHandler("  >>> 没有连接ws");
       }
     } else if (pauseBtnText === "开始") {
-      // console.log(documentValue);  //测试
       setPauseBtnText("暂停");
       btnHandler(false);
       if (!ws.current || ws.current.readyState !== WebSocket.OPEN) {
         waitReconnect(JSON.stringify({
           "command": "start",
-          "filterType": documentValue,
         }), 1000);
       }
     }
-  }, [setPauseBtnText, btnHandler, btnEnableHandler, messageErrorHandler, waitReconnect, pauseBtnText, documentValue]);
+  }, [setPauseBtnText, btnHandler, btnEnableHandler, messageErrorHandler, waitReconnect, pauseBtnText]);
 
   const collectBtnClickHandler = useCallback(() => {
     btnUnableHandler();
@@ -740,6 +820,23 @@ const App = () => {
     }
   }, [messageErrorHandler, waitReconnect]);
 
+  const cacheBtnClickHandler = useCallback(() => {
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+      try {
+        ws.current.send(JSON.stringify({
+          "command": "cache",
+        }));
+      } catch (e) {
+        // console.log(e);  //测试
+        messageErrorHandler("  >>> cache失败");
+      }
+    } else {
+      waitReconnect(JSON.stringify({
+        "command": "cache",
+      }), 1000);
+    }
+  }, [messageErrorHandler, waitReconnect]);
+
   const clearCacheBtnClickHandler = useCallback(() => {
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       try {
@@ -756,6 +853,8 @@ const App = () => {
   }, [messageErrorHandler]);
 
   const clearGridBtnClickHandler = useCallback(() => {
+    lastId.current = 0;
+    lastRow.current = null;
     setRowData([]);
     setClearGridBtnDisabled(true);
   }, [setRowData, setClearGridBtnDisabled]);
@@ -898,7 +997,7 @@ const App = () => {
             columnDefs={colDefs}
             defaultColDef={defaultColDef}
             getRowId={getRowId}
-            // rowClassRules={rowClassRules}
+            rowClassRules={rowClassRules}
             rowSelection={rowSelection}
             pagination={pagination}
             paginationPageSize={paginationPageSize}
@@ -906,31 +1005,12 @@ const App = () => {
           />
         </div>
         <div style={{ margin: "1px" }}>
-          <label>
-            <input type="radio" name="filterType" value="0" checked={documentValue === 0} onChange={radioChangeHandler} />
-            媒体
-          </label>
-          <label>
-            <input type="radio" name="filterType" value="1" checked={documentValue === 1} onChange={radioChangeHandler} />
-            图片
-          </label>
-          <label>
-            <input type="radio" name="filterType" value="2" checked={documentValue === 2} onChange={radioChangeHandler} />
-            视频
-          </label>
-          <label>
-            <input type="radio" name="filterType" value="3" checked={documentValue === 3} onChange={radioChangeHandler} />
-            文档
-          </label>
-          <label>
-            <input type="radio" name="filterType" value="4" checked={documentValue === 4} onChange={radioChangeHandler} />
-            动图
-          </label>
           <button onClick={pauseBtnClickHandler}>{pauseBtnText}</button>
           <button onClick={collectBtnClickHandler} disabled={isCollectBtnDisabled}>断开</button>
           <button onClick={closeBtnClickHandler} disabled={isCloseBtnDisabled}>强制关闭</button>
           <button onClick={nextBtnClickHandler} disabled={isNextBtnDisabled}>不再继续</button>
           <button onClick={chatBtnClickHandler}>chat</button>
+          <button onClick={cacheBtnClickHandler}>cache</button>
           <button onClick={clearCacheBtnClickHandler}>清空cache</button>
           <button onClick={clearGridBtnClickHandler} disabled={isClearGridBtnDisabled}>清空grid</button>
           <button onClick={clearLogBtnClickHandler} disabled={isClearLogBtnDisabled}>清空log</button>

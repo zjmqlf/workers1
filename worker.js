@@ -599,9 +599,11 @@ export class WebSocketServer extends DurableObject {
             //   "date": new Date().getTime(),
             // });  //测试
             this.broadcast({
+              "offsetId": this.offsetId,
               "operate": "checkChat",
               "step": this.currentStep,
               "message": this.chatId + " : " + chatResult.title,
+              "status": "add",
               "date": new Date().getTime(),
             });
           } else {
@@ -728,6 +730,16 @@ export class WebSocketServer extends DurableObject {
           await this.checkChat(1, chatResult.results[0]);
         } else {
           this.chatId = chatResult.results[0].Cindex;
+          this.broadcast({
+            "clientId": this.id,
+            "offsetId": this.offsetId,
+            "operate": "nextChat",
+            "step": this.currentStep,
+            "tgCount": this.clientCount,
+            "message": this.chatId + " : " + chatResult.results[0].title,
+            "status": "add",
+            "date": new Date().getTime(),
+          });
         }
       } else {
         this.chatId = -1;
@@ -1832,7 +1844,8 @@ export class WebSocketServer extends DurableObject {
         //console.log("chatCount : " + chatCount);  //测试
         if (parseInt(chatCount) === 0) {
           count += 1;
-          await this.insertChat(1, channelId, accessHash, dialog.username, dialog.title);
+          const username = dialog.username || "";
+          await this.insertChat(1, channelId, accessHash, username, dialog.title);
           //console.log("chat - 新插入chat了 : " + dialog.title);
           this.broadcast({
             "operate": "chat",
