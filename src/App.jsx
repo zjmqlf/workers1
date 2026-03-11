@@ -399,16 +399,10 @@ const App = () => {
     } else {
       if (message.clientId && message.clientId > 0 && message.chatId && message.chatId >= 0) {
         message.clientName = message.clientId + "-" + message.chatId;
+        console.log(message.operate);  //测试
         switch (message.operate) {
           case "forwardMessage":
             if (message.status === "update") {
-              const {
-                operate,
-                status,
-                ...temp
-              } = message;
-              updateItems(temp);
-            } else if (message.status === "add") {
               //delete message.operate;
               //delete message.status;
               const {
@@ -416,7 +410,7 @@ const App = () => {
                 status,
                 ...temp
               } = message;
-              addItems([temp]);
+              updateItems(temp);
             } else if (message.status === "error") {
               updateItems({
                 "clientName": message.clientName,
@@ -426,11 +420,35 @@ const App = () => {
                 "error": true,
                 "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
               });
-            } else if (message.status === "limit") {
+            } else if (message.status === "wait") {
               addNewEvent({
                 "error": true,
                 "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
               });
+            } else {
+              console.log("未知消息");
+            }
+            break;
+          case "checkChat":
+            if (message.status === "add") {
+              const {
+                operate,
+                status,
+                ...temp
+              } = message;
+              addItems([temp]);
+            } else {
+              console.log("未知消息");
+            }
+            break;
+          case "nextChat":
+            if (message.status === "add") {
+              const {
+                operate,
+                status,
+                ...temp
+              } = message;
+              addItems([temp]);
             } else {
               console.log("未知消息");
             }

@@ -39,7 +39,7 @@ export class WebSocketServer extends DurableObject {
     //     // this.broadcast({
     //     //   "operate": "constructor",
     //     //   "step": this.currentStep,
-    //     //   "tgCount": this.clientCount,
+    //     //   "clientCount": this.clientCount,
     //     //   "message": "添加ws成功",
     //     //   "date": new Date().getTime(),
     //     // });
@@ -113,13 +113,13 @@ export class WebSocketServer extends DurableObject {
           "apiHash": "f13a574d518557713ca6eff0306e838f",
           "sessionString": "1BQANOTEuMTA4LjU2LjEyOABQYDGS8hPTs40IReZCouYiIwtKelTny+ROgAUXhqS/0W+/L5iwRBk7au1c7W0YRRR9iSZoG0UQoW3TxMaatQnUHzM3s42QeOq88wEoyNoxewx6LRdX/twCwEHfyf1MGR78h5ITMbn/xhPA/BhctBzos6wGDQ7sFjBxxT7UMRG7VFSS3bNeHIPfGgIngAAWeEUSmEWl0B7rro6pQ6wpdaEgHRQGRzAMYCfJpEc/tBQAr4mXziLfNYZQcxcfzZ4OSehmi2qi8oWyt/07GOUCq/jRwUD0/xKblgwi++qhfHSoMkYfmUbSkiYlRYiD2nT4tnKYQPiCcqOAk5GvSDiAqAHg/A==",
         },
-        // {
-        //   "id": 4,
-        //   "name": "zjm2026",
-        //   "phone": +8615015138112,
-        //   "apiId": 10483870,
-        //   "apiHash": "0d275d0a85762e0bd8da7ea43ec6a88c",
-        //   "sessionString": "1BQANOTEuMTA4LjU2LjEyOABQuYVH+XfTL7Xz81fPLXvG/aJXeHyrbwN2lR82cjJCuPnfO8URLXbfZOgsFQq2L4p1NcH7+XKrxPhEpz4+ye2daAJpLBBoq6kvrRRjOe41LSeiv/Aov4UiUrlBxxNfdNRO51EHg48VZbez7PVviM1SKwTF0Vs0SpTm3qQn1iONI0tUl/mVOe5OotkrjfklEgQU9CsyknMwQ/E0Mzx5vr9ChPZS38BO0wUwbZXfkx1wY2To8QKwv7hSKShw+au1kuenrLbVFNRVyKP+znNuJMZjBkAlvCq6PaPH2ETd9M15pIkUht+W5zye1Ckc+iDqyzJVkA4+2EP2E9yPM2nbHHqI8w==",
+        {
+          "id": 4,
+          "name": "zjm2026",
+          "phone": +8615015138112,
+          "apiId": 10483870,
+          "apiHash": "0d275d0a85762e0bd8da7ea43ec6a88c",
+          "sessionString": "1BQANOTEuMTA4LjU2LjEyOABQuYVH+XfTL7Xz81fPLXvG/aJXeHyrbwN2lR82cjJCuPnfO8URLXbfZOgsFQq2L4p1NcH7+XKrxPhEpz4+ye2daAJpLBBoq6kvrRRjOe41LSeiv/Aov4UiUrlBxxNfdNRO51EHg48VZbez7PVviM1SKwTF0Vs0SpTm3qQn1iONI0tUl/mVOe5OotkrjfklEgQU9CsyknMwQ/E0Mzx5vr9ChPZS38BO0wUwbZXfkx1wY2To8QKwv7hSKShw+au1kuenrLbVFNRVyKP+znNuJMZjBkAlvCq6PaPH2ETd9M15pIkUht+W5zye1Ckc+iDqyzJVkA4+2EP2E9yPM2nbHHqI8w==",
         // },
         // {
         //   "id": 5,
@@ -128,7 +128,7 @@ export class WebSocketServer extends DurableObject {
         //   "apiId": 10490964,
         //   "apiHash": "288dee9bb4e7a16febea366fc6252364",
         //   "sessionString": "1BQANOTEuMTA4LjU2LjEyOABQhQXbhbGD9Eada7i3mQetaj3Gi44q6bQ41urfSbyxcJ0ZHNBCDwh5rupQW6mVaFITgss1+iWm6U2j95/LXiKE9x2S69AojiY08SZFXoMVlg8HysJc8QMftK8yCGRKa7I+fbYUtMfljtQBzVQDOrkSJDzVjwesunCscMYTXWnZGYgv1gYsqej/JQLvx4ikCAt1yV1/qgUngKroHW3FJ+jcCQkW9+yaeDGJkonyv+gT8yhsooT/LlRAns5Z8xAluizJce8EIwAUuOB/RaC1aReMYcnlDUBTe/+BlOVbGc0eOj849KZRfAOdFHZlXQcSibL2fi+6B95N0CLFy4aNfm9rdA==",
-        // }
+        }
       ];
       this.clientCount = this.api.length;
       this.tg = Array(this.clientCount).fill({
@@ -175,7 +175,7 @@ export class WebSocketServer extends DurableObject {
         this.tg[clientIndex].chatId = 0;
         this.tg[clientIndex].endChat = 0;
         this.tg[clientIndex].reverse = true;
-        this.tg[clientIndex].limit = 20;
+        this.tg[clientIndex].limit = 100;
         this.tg[clientIndex].offsetId = 0;
       }
       // this.tg[clientIndex].client = null;
@@ -237,7 +237,7 @@ export class WebSocketServer extends DurableObject {
           //   // this.broadcast({
           //   //   "operate": "broadcast",
           //   //   "step": this.currentStep,
-          //   //   "tgCount": this.clientCount,
+          //   //   "clientCount": this.clientCount,
           //   //   "message": "删除ws成功",
           //   //   "date": new Date().getTime(),
           //   // });
@@ -246,7 +246,7 @@ export class WebSocketServer extends DurableObject {
           //   this.broadcast({
           //     "operate": "broadcast",
           //     "step": this.currentStep,
-          //     "tgCount": this.clientCount,
+          //     "clientCount": this.clientCount,
           //     "message": "没找到该ws",
           //     "error": true,
           //     "date": new Date().getTime(),
@@ -265,7 +265,7 @@ export class WebSocketServer extends DurableObject {
       this.broadcast({
         "operate": "close",
         "step": this.currentStep,
-        "tgCount": this.clientCount,
+        "clientCount": this.clientCount,
         "message": "断开服务器" + (clientIndex + 1) + "成功",
         "date": new Date().getTime(),
       });
@@ -294,7 +294,7 @@ export class WebSocketServer extends DurableObject {
       this.broadcast({
         "operate": "open",
         "step": this.currentStep,
-        "tgCount": this.clientCount,
+        "clientCount": this.clientCount,
         "message": "login出错 : " + e,
         "error": true,
         "date": new Date().getTime(),
@@ -304,7 +304,7 @@ export class WebSocketServer extends DurableObject {
         this.broadcast({
           "operate": "open",
           "step": this.currentStep,
-          "tgCount": this.clientCount,
+          "clientCount": this.clientCount,
           "message": "超出tryCount限制",
           "error": true,
           "date": new Date().getTime(),
@@ -321,12 +321,12 @@ export class WebSocketServer extends DurableObject {
     this.broadcast({
       "operate": "open",
       "step": this.currentStep,
-      "tgCount": this.clientCount,
+      "clientCount": this.clientCount,
       "message": "连接服务器" + (clientIndex + 1) + "成功",
       "date": new Date().getTime(),
     });  //测试
     //console.log(this.tg[clientIndex].client);  //测试
-    //await scheduler.wait(5000);
+    await scheduler.wait(5000);
   }
 
   async closeAll() {
@@ -344,7 +344,7 @@ export class WebSocketServer extends DurableObject {
       this.broadcast({
         "operate": "insertConfig",
         "step": this.currentStep,
-        "tgCount": this.clientCount,
+        "clientCount": this.clientCount,
         "message": "超出tryCount限制",
         "error": true,
         "date": new Date().getTime(),
@@ -366,7 +366,7 @@ export class WebSocketServer extends DurableObject {
       this.broadcast({
         "operate": "insertConfig",
         "step": this.currentStep,
-        "tgCount": this.clientCount,
+        "clientCount": this.clientCount,
         "message": "出错 : " + JSON.stringify(e),
         "error": true,
         "status": "try",
@@ -381,7 +381,7 @@ export class WebSocketServer extends DurableObject {
       this.broadcast({
         "operate": "insertConfig",
         "step": this.currentStep,
-        "tgCount": this.clientCount,
+        "clientCount": this.clientCount,
         "status": "success",
         "date": new Date().getTime(),
       });
@@ -390,7 +390,7 @@ export class WebSocketServer extends DurableObject {
       this.broadcast({
         "operate": "insertConfig",
         "step": this.currentStep,
-        "tgCount": this.clientCount,
+        "clientCount": this.clientCount,
         "message": "插入config数据失败",
         "error": true,
         "status": "error",
@@ -406,7 +406,7 @@ export class WebSocketServer extends DurableObject {
       this.broadcast({
         "operate": "getConfig",
         "step": this.currentStep,
-        "tgCount": this.clientCount,
+        "clientCount": this.clientCount,
         "message": "超出tryCount限制",
         "error": true,
         "date": new Date().getTime(),
@@ -428,7 +428,7 @@ export class WebSocketServer extends DurableObject {
       this.broadcast({
         "operate": "getConfig",
         "step": this.currentStep,
-        "tgCount": this.clientCount,
+        "clientCount": this.clientCount,
         "message": "出错 : " + e,
         "error": true,
         "date": new Date().getTime(),
@@ -461,14 +461,14 @@ export class WebSocketServer extends DurableObject {
         // this.broadcast({
         //   "operate": "getConfig",
         //   "step": this.currentStep,
-        //   "tgCount": this.clientCount,
+        //   "clientCount": this.clientCount,
         //   "message": "没有预设config",
         //   "date": new Date().getTime(),
         // });
         this.tg[clientIndex].chatId = 1;
         this.tg[clientIndex].lastChat = this.tg[clientIndex].chatId;
         this.tg[clientIndex].reverse = true;
-        this.tg[clientIndex].limit = 10;
+        this.tg[clientIndex].limit = 100;
         await this.insertConfig(clientIndex, 1);
       }
     } else {
@@ -476,7 +476,7 @@ export class WebSocketServer extends DurableObject {
       this.broadcast({
         "operate": "getConfig",
         "step": this.currentStep,
-        "tgCount": this.clientCount,
+        "clientCount": this.clientCount,
         "message": "查询config失败",
         "error": true,
         "date": new Date().getTime(),
@@ -550,7 +550,7 @@ export class WebSocketServer extends DurableObject {
       this.broadcast({
         "operate": "noExistChat",
         "step": this.currentStep,
-        "tgCount": this.clientCount,
+        "clientCount": this.clientCount,
         "message": "超出tryCount限制",
         "error": true,
         "date": new Date().getTime(),
@@ -572,7 +572,7 @@ export class WebSocketServer extends DurableObject {
       this.broadcast({
         "operate": "noExistChat",
         "step": this.currentStep,
-        "tgCount": this.clientCount,
+        "clientCount": this.clientCount,
         "message": "出错 : " + e,
         "error": true,
         "date": new Date().getTime(),
@@ -586,7 +586,7 @@ export class WebSocketServer extends DurableObject {
       this.broadcast({
         "operate": "noExistChat",
         "step": this.currentStep,
-        "tgCount": this.clientCount,
+        "clientCount": this.clientCount,
         "message": "更新不存在chat数据成功",
         "date": new Date().getTime(),
       });
@@ -595,7 +595,7 @@ export class WebSocketServer extends DurableObject {
       this.broadcast({
         "operate": "noExistChat",
         "step": this.currentStep,
-        "tgCount": this.clientCount,
+        "clientCount": this.clientCount,
         "message": "更新不存在chat数据失败",
         "error": true,
         "date": new Date().getTime(),
@@ -619,7 +619,7 @@ export class WebSocketServer extends DurableObject {
         this.broadcast({
           "operate": "checkChat",
           "step": this.currentStep,
-          "tgCount": this.clientCount,
+          "clientCount": this.clientCount,
           "message": "出错 : " + e,
           "error": true,
           "date": new Date().getTime(),
@@ -637,7 +637,7 @@ export class WebSocketServer extends DurableObject {
             this.broadcast({
               "operate": "checkChat",
               "step": this.currentStep,
-              "tgCount": this.clientCount,
+              "clientCount": this.clientCount,
               "message": "超出tryCount限制",
               "error": true,
               "date": new Date().getTime(),
@@ -661,7 +661,7 @@ export class WebSocketServer extends DurableObject {
             // this.broadcast({
             //   "operate": "checkChat",
             //   "step": this.currentStep,
-            //   "tgCount": this.clientCount,
+            //   "clientCount": this.clientCount,
             //   "message": "获取fromPeer成功",
             //   "date": new Date().getTime(),
             // });  //测试
@@ -670,7 +670,7 @@ export class WebSocketServer extends DurableObject {
               "offsetId": this.tg[clientIndex].offsetId,
               "operate": "checkChat",
               "step": this.currentStep,
-              "tgCount": this.clientCount,
+              "clientCount": this.clientCount,
               "message": this.tg[clientIndex].chatId + " : " + chatResult.title,
               "status": "add",
               "date": new Date().getTime(),
@@ -683,7 +683,7 @@ export class WebSocketServer extends DurableObject {
               this.broadcast({
                 "operate": "checkChat",
                 "step": this.currentStep,
-                "tgCount": this.clientCount,
+                "clientCount": this.clientCount,
                 "message": chatResult.title + " : chat已不存在了",
                 "error": true,
                 "date": new Date().getTime(),
@@ -694,7 +694,7 @@ export class WebSocketServer extends DurableObject {
               this.broadcast({
                 "operate": "checkChat",
                 "step": this.currentStep,
-                "tgCount": this.clientCount,
+                "clientCount": this.clientCount,
                 "message": this.tg[clientIndex].endChat + " : 超过最大chat了",
                 "error": true,
                 "date": new Date().getTime(),
@@ -706,7 +706,7 @@ export class WebSocketServer extends DurableObject {
           this.broadcast({
             "operate": "checkChat",
             "step": this.currentStep,
-            "tgCount": this.clientCount,
+            "clientCount": this.clientCount,
             "message": this.tg[clientIndex].endChat + " : 超过最大chat了",
             "error": true,
             "date": new Date().getTime(),
@@ -719,7 +719,7 @@ export class WebSocketServer extends DurableObject {
           this.broadcast({
             "operate": "checkChat",
             "step": this.currentStep,
-            "tgCount": this.clientCount,
+            "clientCount": this.clientCount,
             "message": chatResult.title + " : chat已不存在了",
             "error": true,
             "date": new Date().getTime(),
@@ -730,7 +730,7 @@ export class WebSocketServer extends DurableObject {
           this.broadcast({
             "operate": "checkChat",
             "step": this.currentStep,
-            "tgCount": this.clientCount,
+            "clientCount": this.clientCount,
             "message": this.tg[clientIndex].endChat + " : 超过最大chat了",
             "error": true,
             "date": new Date().getTime(),
@@ -744,7 +744,7 @@ export class WebSocketServer extends DurableObject {
         this.broadcast({
           "operate": "checkChat",
           "step": this.currentStep,
-          "tgCount": this.clientCount,
+          "clientCount": this.clientCount,
           "message": chatResult.title + " : channelId或accessHash出错",
           "error": true,
           "date": new Date().getTime(),
@@ -755,7 +755,7 @@ export class WebSocketServer extends DurableObject {
         this.broadcast({
           "operate": "checkChat",
           "step": this.currentStep,
-          "tgCount": this.clientCount,
+          "clientCount": this.clientCount,
           "message": this.tg[clientIndex].endChat + " : 超过最大chat了",
           "error": true,
           "date": new Date().getTime(),
@@ -770,7 +770,7 @@ export class WebSocketServer extends DurableObject {
       this.broadcast({
         "operate": "nextChat",
         "step": this.currentStep,
-        "tgCount": this.clientCount,
+        "clientCount": this.clientCount,
         "message": "超出tryCount限制",
         "error": true,
         "date": new Date().getTime(),
@@ -792,7 +792,7 @@ export class WebSocketServer extends DurableObject {
       this.broadcast({
         "operate": "nextChat",
         "step": this.currentStep,
-        "tgCount": this.clientCount,
+        "clientCount": this.clientCount,
         "message": "出错 : " + e,
         "error": true,
         "date": new Date().getTime(),
@@ -812,7 +812,7 @@ export class WebSocketServer extends DurableObject {
             "offsetId": this.tg[clientIndex].offsetId,
             "operate": "nextChat",
             "step": this.currentStep,
-            "tgCount": this.clientCount,
+            "clientCount": this.clientCount,
             "message": this.tg[clientIndex].chatId + " : " + chatResult.results[0].title,
             "status": "add",
             "date": new Date().getTime(),
@@ -824,7 +824,7 @@ export class WebSocketServer extends DurableObject {
         this.broadcast({
           "operate": "nextChat",
           "step": this.currentStep,
-          "tgCount": this.clientCount,
+          "clientCount": this.clientCount,
           "message": "没有更多chat了",
           "error": true,
           "date": new Date().getTime(),
@@ -835,7 +835,7 @@ export class WebSocketServer extends DurableObject {
       this.broadcast({
         "operate": "nextChat",
         "step": this.currentStep,
-        "tgCount": this.clientCount,
+        "clientCount": this.clientCount,
         "message": "查询chat失败",
         "error": true,
         "date": new Date().getTime(),
@@ -853,7 +853,7 @@ export class WebSocketServer extends DurableObject {
         this.broadcast({
           "operate": "getChat",
           "step": this.currentStep,
-          "tgCount": this.clientCount,
+          "clientCount": this.clientCount,
           "message": this.tg[clientIndex].endChat + " : 超过最大chat了",
           "error": true,
           "date": new Date().getTime(),
@@ -883,7 +883,7 @@ export class WebSocketServer extends DurableObject {
             this.broadcast({
               "operate": "getChat",
               "step": this.currentStep,
-              "tgCount": this.clientCount,
+              "clientCount": this.clientCount,
               "message": "出错 : " + e,
               "error": true,
               "date": new Date().getTime(),
@@ -901,7 +901,7 @@ export class WebSocketServer extends DurableObject {
               this.broadcast({
                 "operate": "getChat",
                 "step": this.currentStep,
-                "tgCount": this.clientCount,
+                "clientCount": this.clientCount,
                 "message": "没有更多chat了",
                 "error": true,
                 "date": new Date().getTime(),
@@ -913,7 +913,7 @@ export class WebSocketServer extends DurableObject {
             this.broadcast({
               "operate": "getChat",
               "step": this.currentStep,
-              "tgCount": this.clientCount,
+              "clientCount": this.clientCount,
               "message": "查询chat失败",
               "date": new Date().getTime(),
             });
@@ -924,7 +924,7 @@ export class WebSocketServer extends DurableObject {
         this.broadcast({
           "operate": "getChat",
           "step": this.currentStep,
-          "tgCount": this.clientCount,
+          "clientCount": this.clientCount,
           "message": this.tg[clientIndex].endChat + " : 超过最大chat了",
           "error": true,
           "date": new Date().getTime(),
@@ -939,7 +939,7 @@ export class WebSocketServer extends DurableObject {
       this.broadcast({
         "operate": "updateConfig",
         "step": this.currentStep,
-        "tgCount": this.clientCount,
+        "clientCount": this.clientCount,
         "message": "超出tryCount限制",
         "error": true,
         "date": new Date().getTime(),
@@ -961,7 +961,7 @@ export class WebSocketServer extends DurableObject {
       this.broadcast({
         "operate": "updateConfig",
         "step": this.currentStep,
-        "tgCount": this.clientCount,
+        "clientCount": this.clientCount,
         "message": "出错 : " + e,
         "error": true,
         "date": new Date().getTime(),
@@ -975,7 +975,7 @@ export class WebSocketServer extends DurableObject {
       this.broadcast({
         "operate": "updateConfig",
         "step": this.currentStep,
-        "tgCount": this.clientCount,
+        "clientCount": this.clientCount,
         "message": "更新config数据成功",
         "date": new Date().getTime(),
       });
@@ -984,7 +984,7 @@ export class WebSocketServer extends DurableObject {
       this.broadcast({
         "operate": "updateConfig",
         "step": this.currentStep,
-        "tgCount": this.clientCount,
+        "clientCount": this.clientCount,
         "message": "更新config数据失败",
         "error": true,
         "date": new Date().getTime(),
@@ -1027,7 +1027,7 @@ export class WebSocketServer extends DurableObject {
       this.broadcast({
         "operate": "getMessage",
         "step": this.currentStep,
-        "tgCount": this.clientCount,
+        "clientCount": this.clientCount,
         "message": "出错 : " + e,
         "error": true,
         "date": new Date().getTime(),
@@ -1037,7 +1037,7 @@ export class WebSocketServer extends DurableObject {
         this.broadcast({
           "operate": "getMessage",
           "step": this.currentStep,
-          "tgCount": this.clientCount,
+          "clientCount": this.clientCount,
           "message": "超出tryCount限制",
           "error": true,
           "date": new Date().getTime(),
@@ -1057,7 +1057,7 @@ export class WebSocketServer extends DurableObject {
       this.broadcast({
         "operate": "updateChat",
         "step": this.currentStep,
-        "tgCount": this.clientCount,
+        "clientCount": this.clientCount,
         "message": "超出tryCount限制",
         "error": true,
         "date": new Date().getTime(),
@@ -1074,22 +1074,22 @@ export class WebSocketServer extends DurableObject {
     let chatResult = {};
     try {
       if (this.filterType === 0) {
-        chatResult = await this.env.MAINDB.prepare("UPDATE `FORWARDCHAT` SET `current` = ?, `updated` = ? WHERE `Cindex` = ?;").bind(this.tg[clientIndex].offsetId, new Date().getTime(), this.chatId).run();
+        chatResult = await this.env.MAINDB.prepare("UPDATE `FORWARDCHAT` SET `current` = ?, `updated` = ? WHERE `Cindex` = ?;").bind(this.tg[clientIndex].offsetId, new Date().getTime(), this.tg[clientIndex].chatId).run();
       } else if (this.filterType === 1) {
-        chatResult = await this.env.MAINDB.prepare("UPDATE `FORWARDCHAT` SET `photo` = ?, `updated` = ? WHERE `Cindex` = ?;").bind(this.tg[clientIndex].offsetId, new Date().getTime(), this.chatId).run();
+        chatResult = await this.env.MAINDB.prepare("UPDATE `FORWARDCHAT` SET `photo` = ?, `updated` = ? WHERE `Cindex` = ?;").bind(this.tg[clientIndex].offsetId, new Date().getTime(), this.tg[clientIndex].chatId).run();
       } else if (this.filterType === 2) {
-        chatResult = await this.env.MAINDB.prepare("UPDATE `FORWARDCHAT` SET `video` = ?, `updated` = ? WHERE `Cindex` = ?;").bind(this.tg[clientIndex].offsetId, new Date().getTime(), this.chatId).run();
+        chatResult = await this.env.MAINDB.prepare("UPDATE `FORWARDCHAT` SET `video` = ?, `updated` = ? WHERE `Cindex` = ?;").bind(this.tg[clientIndex].offsetId, new Date().getTime(), this.tg[clientIndex].chatId).run();
       } else if (this.filterType === 3) {
-        chatResult = await this.env.MAINDB.prepare("UPDATE `FORWARDCHAT` SET `document` = ?, `updated` = ? WHERE `Cindex` = ?;").bind(this.tg[clientIndex].offsetId, new Date().getTime(), this.chatId).run();
+        chatResult = await this.env.MAINDB.prepare("UPDATE `FORWARDCHAT` SET `document` = ?, `updated` = ? WHERE `Cindex` = ?;").bind(this.tg[clientIndex].offsetId, new Date().getTime(), this.tg[clientIndex].chatId).run();
       } else if (this.filterType === 4) {
-        chatResult = await this.env.MAINDB.prepare("UPDATE `FORWARDCHAT` SET `gif` = ?, `updated` = ? WHERE `Cindex` = ?;").bind(this.tg[clientIndex].offsetId, new Date().getTime(), this.chatId).run();
+        chatResult = await this.env.MAINDB.prepare("UPDATE `FORWARDCHAT` SET `gif` = ?, `updated` = ? WHERE `Cindex` = ?;").bind(this.tg[clientIndex].offsetId, new Date().getTime(), this.tg[clientIndex].chatId).run();
       }
     } catch (e) {
       //console.log("(" + this.currentStep + ")updateChat出错 : " + e);
       this.broadcast({
         "operate": "updateChat",
         "step": this.currentStep,
-        "tgCount": this.clientCount,
+        "clientCount": this.clientCount,
         "message": "出错 : " + e,
         "error": true,
         "date": new Date().getTime(),
@@ -1103,7 +1103,7 @@ export class WebSocketServer extends DurableObject {
       this.broadcast({
         "operate": "updateChat",
         "step": this.currentStep,
-        "tgCount": this.clientCount,
+        "clientCount": this.clientCount,
         "message": "更新chat数据成功",
         "date": new Date().getTime(),
       });
@@ -1112,7 +1112,7 @@ export class WebSocketServer extends DurableObject {
       this.broadcast({
         "operate": "updateChat",
         "step": this.currentStep,
-        "tgCount": this.clientCount,
+        "clientCount": this.clientCount,
         "message": "更新chat数据失败",
         "error": true,
         "date": new Date().getTime(),
@@ -1124,11 +1124,41 @@ export class WebSocketServer extends DurableObject {
   async forwardMessage(clientIndex, idArray, fileIdArray) {
     const messageLength = idArray.length;
     //console.log(length);
-    if (messageLength > 0) {
-      const time = new Date().getTime() - this.tg[clientIndex].time;
-      if (time < 60000) {
-        await scheduler.wait(60000 - time);
+    if (this.tg[clientIndex].time && this.tg[clientIndex].time > 0) {
+      const time = 120000 - (new Date().getTime() - this.tg[clientIndex].time);
+      if (time > 0) {
+        //console.log("(" + this.currentStep + ") 还需等待" + (time / 1000) + "秒");
+        this.broadcast({
+          "clientId": this.tg[clientIndex].id,
+          "offsetId": this.tg[clientIndex].offsetId,
+          "operate": "forwardMessage",
+          "step": this.currentStep,
+          "clientCount": this.clientCount,
+          "message": "还需等待" + (time / 1000) + "秒",
+          "status": "wait",
+          "date": new Date().getTime(),
+        });
+        await scheduler.wait(time);
       }
+    }
+    if (messageLength > 0) {
+      // if (this.tg[clientIndex].time && this.tg[clientIndex].time > 0) {
+      //   const time = 120000 - (new Date().getTime() - this.tg[clientIndex].time);
+      //   if (time > 0) {
+      //     //console.log("(" + this.currentStep + ") 还需等待" + (time / 1000) + "秒");
+      //     this.broadcast({
+      //       "clientId": this.tg[clientIndex].id,
+      //       "offsetId": this.tg[clientIndex].offsetId,
+      //       "operate": "forwardMessage",
+      //       "step": this.currentStep,
+      //       "clientCount": this.clientCount,
+      //       "message": "还需等待" + (time / 1000) + "秒",
+      //       "status": "wait",
+      //       "date": new Date().getTime(),
+      //     });
+      //     await scheduler.wait(time);
+      //   }
+      // }
       try {
         const forwardResult = await this.tg[clientIndex].client.invoke(new Api.messages.ForwardMessages({
           fromPeer: this.tg[clientIndex].fromPeer,
@@ -1145,6 +1175,15 @@ export class WebSocketServer extends DurableObject {
           // sendAs: "username",
         }));
         //console.log(forwardResult);
+        // this.broadcast({
+        //   "clientId": this.tg[clientIndex].id,
+        //   "offsetId": this.tg[clientIndex].offsetId,
+        //   "operate": "forwardMessage",
+        //   "step": this.currentStep,
+        //   "clientCount": this.clientCount,
+        //   "message": JSON.stringify(forwardResult),
+        //   "date": new Date().getTime(),
+        // });
       } catch (e) {
         console.log("(" + this.currentStep + ") 转发消息时发生错误" + e);
         this.broadcast({
@@ -1152,7 +1191,7 @@ export class WebSocketServer extends DurableObject {
           "offsetId": this.tg[clientIndex].offsetId,
           "operate": "forwardMessage",
           "step": this.currentStep,
-          "tgCount": this.clientCount,
+          "clientCount": this.clientCount,
           "message": "出错 : " + JSON.stringify(e),
           "status": "error",
           "error": true,
@@ -1166,13 +1205,13 @@ export class WebSocketServer extends DurableObject {
         "offsetId": this.tg[clientIndex].offsetId,
         "operate": "forwardMessage",
         "step": this.currentStep,
-        "tgCount": this.clientCount,
+        "clientCount": this.clientCount,
         "messageLength": messageLength,
         "message": "成功转发了" + messageLength + "条消息",
         "status": "update",
         "date": new Date().getTime(),
       });
-      this.tg[clientIndex].time = new Date().getTime();
+      // this.tg[clientIndex].time = new Date().getTime();
     } else {
       //console.log("(" + this.currentStep + ") 无需转发");
       this.broadcast({
@@ -1180,13 +1219,14 @@ export class WebSocketServer extends DurableObject {
         "offsetId": this.tg[clientIndex].offsetId,
         "operate": "forwardMessage",
         "step": this.currentStep,
-        "tgCount": this.clientCount,
+        "clientCount": this.clientCount,
         "message": "无需转发",
         "status": "error",
         "error": true,
         "date": new Date().getTime(),
       });
     }
+    this.tg[clientIndex].time = new Date().getTime();
   }
 
   async nextStep() {
@@ -1206,7 +1246,7 @@ export class WebSocketServer extends DurableObject {
               this.broadcast({
                 "operate": "nextStep",
                 "step": this.currentStep,
-                "tgCount": this.clientCount,
+                "clientCount": this.clientCount,
                 "message": "messageLength : " + messageLength,
                 "date": new Date().getTime(),
               });
@@ -1216,14 +1256,24 @@ export class WebSocketServer extends DurableObject {
                 for (let messageIndex = 0; messageIndex < messageLength; messageIndex++) {
                   let fileId = null;
                   const id = messageArray[messageIndex].id;
-                  if (this.filterType === 1) {
+                  if (this.filterType === 2) {
                     if (messageArray[messageIndex].media) {
                       if (messageArray[messageIndex].media.document) {
                         fileId = messageArray[messageIndex].media.document.id;
                       }
                     }
-                  } else if (this.filterType === 2) {
+                  } else if (this.filterType === 1) {
                     if (messageArray[messageIndex].media) {
+                      if (messageArray[messageIndex].media.photo) {
+                        fileId = messageArray[messageIndex].media.photo.id;
+                      }
+                    }
+                  } else if (this.filterType === 0) {
+                    if (messageArray[messageIndex].media) {
+                      if (messageArray[messageIndex].media.document) {
+                        fileId = messageArray[messageIndex].media.document.id;
+                      }
+                    } else if (messageArray[messageIndex].media) {
                       if (messageArray[messageIndex].media.photo) {
                         fileId = messageArray[messageIndex].media.photo.id;
                       }
@@ -1248,7 +1298,7 @@ export class WebSocketServer extends DurableObject {
               this.broadcast({
                 "operate": "nextStep",
                 "step": this.currentStep,
-                "tgCount": this.clientCount,
+                "clientCount": this.clientCount,
                 "message": "messageCount : " + messageCount,
                 "error": true,
                 "date": new Date().getTime(),
@@ -1269,7 +1319,7 @@ export class WebSocketServer extends DurableObject {
                 "result": "end",
                 "operate": "nextStep",
                 "step": this.currentStep,
-                "tgCount": this.clientCount,
+                "clientCount": this.clientCount,
                 "message": this.tg[clientIndex].chatId + " : 当前chat采集完毕",
                 "date": new Date().getTime(),
               });
@@ -1295,7 +1345,7 @@ export class WebSocketServer extends DurableObject {
                     "result": "over",
                     "operate": "nextStep",
                     "step": this.currentStep,
-                    "tgCount": this.clientCount,
+                    "clientCount": this.clientCount,
                     "message": "全部chat采集完毕",
                     "date": new Date().getTime(),
                   });
@@ -1309,7 +1359,7 @@ export class WebSocketServer extends DurableObject {
                 this.broadcast({
                   "operate": "nextStep",
                   "step": this.currentStep,
-                  "tgCount": this.clientCount,
+                  "clientCount": this.clientCount,
                   "message": this.tg[clientIndex].endChat + " : 超过最大chat了",
                   "error": true,
                   "date": new Date().getTime(),
@@ -1323,9 +1373,9 @@ export class WebSocketServer extends DurableObject {
           } else {
             //console.log("连接TG服务" + clientIndex + "失败");
             this.broadcast({
-              "operate": "start",
+              "operate": "nextStep",
               "step": this.currentStep,
-              "tgCount": this.clientCount,
+              "clientCount": this.clientCount,
               "message": "连接TG服务" + clientIndex + "失败",
               "error": true,
               "date": new Date().getTime(),
@@ -1335,22 +1385,22 @@ export class WebSocketServer extends DurableObject {
         if (this.stop === 1) {
           if (this.apiCount < 900) {
             await this.nextStep();
-        } else {
-          this.stop = 2;
-          //console.log("(" + this.currentStep + ")nextStep超出apiCount限制");
-          this.broadcast({
-            "operate": "nextStep",
-            "step": this.currentStep,
-            "tgCount": this.clientCount,
-            "message": "超出apiCount限制",
-            "error": true,
-            "status": "limit",
-            "date": new Date().getTime(),
-          });
-          await this.updateChat(clientIndex, 1);
-          await this.closeAll();
-          // this.ctx.abort("reset");
-        }
+          } else {
+            this.stop = 2;
+            //console.log("(" + this.currentStep + ")nextStep超出apiCount限制");
+            this.broadcast({
+              "operate": "nextStep",
+              "step": this.currentStep,
+              "clientCount": this.clientCount,
+              "message": "超出apiCount限制",
+              "error": true,
+              "status": "limit",
+              "date": new Date().getTime(),
+            });
+            // await this.updateChat(clientIndex, 1);
+            await this.closeAll();
+            // this.ctx.abort("reset");
+          }
         } else if (this.stop === 2) {
           this.broadcast({
             "result": "pause",
@@ -1363,13 +1413,13 @@ export class WebSocketServer extends DurableObject {
         this.broadcast({
           "operate": "nextStep",
           "step": this.currentStep,
-          "tgCount": this.clientCount,
+          "clientCount": this.clientCount,
           "message": "超出apiCount限制",
           "error": true,
           "status": "limit",
           "date": new Date().getTime(),
         });
-        await this.updateChat(clientIndex, 1);
+        // await this.updateChat(clientIndex, 1);
         await this.closeAll();
         // this.ctx.abort("reset");
       }
@@ -1399,7 +1449,7 @@ export class WebSocketServer extends DurableObject {
       this.ws.send(JSON.stringify({
         "operate": "start",
         "step": this.currentStep,
-        "tgCount": this.clientCount,
+        "clientCount": this.clientCount,
         "message": "服务已经运行过了",
         "error": true,
         "date": new Date().getTime(),
@@ -1426,7 +1476,6 @@ export class WebSocketServer extends DurableObject {
             this.tg[clientIndex].lastChat = this.tg[clientIndex].chatId;
           }
           if (this.stop === 1) {
-            this.currentStep += 1;
             const messageCount = await this.getMessage(clientIndex, 1);
             const messageArray = this.messageArray;
             const messageLength = messageArray.length;
@@ -1434,7 +1483,7 @@ export class WebSocketServer extends DurableObject {
             this.broadcast({
               "operate": "start",
               "step": this.currentStep,
-              "tgCount": this.clientCount,
+              "clientCount": this.clientCount,
               "message": "messageLength : " + messageLength,
               "date": new Date().getTime(),
             });  //测试
@@ -1444,14 +1493,24 @@ export class WebSocketServer extends DurableObject {
               for (let messageIndex = 0; messageIndex < messageLength; messageIndex++) {
                 let fileId = null;
                 const id = messageArray[messageIndex].id;
-                if (this.filterType === 1) {
+                if (this.filterType === 2) {
                   if (messageArray[messageIndex].media) {
                     if (messageArray[messageIndex].media.document) {
                       fileId = messageArray[messageIndex].media.document.id;
                     }
                   }
-                } else if (this.filterType === 2) {
+                } else if (this.filterType === 1) {
                   if (messageArray[messageIndex].media) {
+                    if (messageArray[messageIndex].media.photo) {
+                      fileId = messageArray[messageIndex].media.photo.id;
+                    }
+                  }
+                } else if (this.filterType === 0) {
+                  if (messageArray[messageIndex].media) {
+                    if (messageArray[messageIndex].media.document) {
+                      fileId = messageArray[messageIndex].media.document.id;
+                    }
+                  } else if (messageArray[messageIndex].media) {
                     if (messageArray[messageIndex].media.photo) {
                       fileId = messageArray[messageIndex].media.photo.id;
                     }
@@ -1470,7 +1529,7 @@ export class WebSocketServer extends DurableObject {
               this.broadcast({
                 "operate": "start",
                 "step": this.currentStep,
-                "tgCount": this.clientCount,
+                "clientCount": this.clientCount,
                 "message": "messageCount : " + messageCount,
                 "error": true,
                 "date": new Date().getTime(),
@@ -1491,7 +1550,7 @@ export class WebSocketServer extends DurableObject {
                 "result": "end",
                 "operate": "start",
                 "step": this.currentStep,
-                "tgCount": this.clientCount,
+                "clientCount": this.clientCount,
                 "message": this.tg[clientIndex].chatId + " : 当前chat采集完毕",
                 "date": new Date().getTime(),
               });
@@ -1517,7 +1576,7 @@ export class WebSocketServer extends DurableObject {
                     "result": "over",
                     "operate": "start",
                     "step": this.currentStep,
-                    "tgCount": this.clientCount,
+                    "clientCount": this.clientCount,
                     "message": "全部chat采集完毕",
                     "date": new Date().getTime(),
                   });
@@ -1531,7 +1590,7 @@ export class WebSocketServer extends DurableObject {
                 this.broadcast({
                   "operate": "start",
                   "step": this.currentStep,
-                  "tgCount": this.clientCount,
+                  "clientCount": this.clientCount,
                   "message": this.tg[clientIndex].endChat + " : 超过最大chat了",
                   "error": true,
                   "date": new Date().getTime(),
@@ -1554,7 +1613,7 @@ export class WebSocketServer extends DurableObject {
             "result": "over",
             "operate": "start",
             "step": this.currentStep,
-            "tgCount": this.clientCount,
+            "clientCount": this.clientCount,
             "message": "全部chat采集完毕",
             "date": new Date().getTime(),
           });
@@ -1568,7 +1627,7 @@ export class WebSocketServer extends DurableObject {
         this.broadcast({
           "operate": "start",
           "step": this.currentStep,
-          "tgCount": this.clientCount,
+          "clientCount": this.clientCount,
           "message": "连接TG服务" + clientIndex + "失败",
           "error": true,
           "date": new Date().getTime(),
@@ -1584,13 +1643,13 @@ export class WebSocketServer extends DurableObject {
         this.broadcast({
           "operate": "start",
           "step": this.currentStep,
-          "tgCount": this.clientCount,
+          "clientCount": this.clientCount,
           "message": "超出apiCount限制",
           "error": true,
           "status": "limit",
           "date": new Date().getTime(),
         });
-        await this.updateChat(clientIndex, 1);
+        // await this.updateChat(clientIndex, 1);
         await this.closeAll();
         // this.ctx.abort("reset");
       }
@@ -1613,7 +1672,7 @@ export class WebSocketServer extends DurableObject {
       this.broadcast({
         "operate": "getDialog",
         "step": this.currentStep,
-        "tgCount": this.clientCount,
+        "clientCount": this.clientCount,
         "message": "出错 : " + e,
         "error": true,
         "date": new Date().getTime(),
@@ -1623,7 +1682,7 @@ export class WebSocketServer extends DurableObject {
         this.broadcast({
           "operate": "getDialog",
           "step": this.currentStep,
-          "tgCount": this.clientCount,
+          "clientCount": this.clientCount,
           "message": "超出tryCount限制",
           "error": true,
           "date": new Date().getTime(),
@@ -1643,7 +1702,7 @@ export class WebSocketServer extends DurableObject {
       this.broadcast({
         "operate": "selectChat",
         "step": this.currentStep,
-        "tgCount": this.clientCount,
+        "clientCount": this.clientCount,
         "message": "超出tryCount限制",
         "error": true,
         "date": new Date().getTime(),
@@ -1665,7 +1724,7 @@ export class WebSocketServer extends DurableObject {
       this.broadcast({
         "operate": "selectChat",
         "step": this.currentStep,
-        "tgCount": this.clientCount,
+        "clientCount": this.clientCount,
         "message": "出错 : " + JSON.stringify(e),
         "error": true,
         "status": "try",
@@ -1690,7 +1749,7 @@ export class WebSocketServer extends DurableObject {
       this.broadcast({
         "operate": "insertChat",
         "step": this.currentStep,
-        "tgCount": this.clientCount,
+        "clientCount": this.clientCount,
         "message": "超出tryCount限制",
         "error": true,
         "date": new Date().getTime(),
@@ -1712,7 +1771,7 @@ export class WebSocketServer extends DurableObject {
       this.broadcast({
         "operate": "insertChat",
         "step": this.currentStep,
-        "tgCount": this.clientCount,
+        "clientCount": this.clientCount,
         "message": "出错 : " + JSON.stringify(e),
         "error": true,
         "status": "try",
@@ -1727,7 +1786,7 @@ export class WebSocketServer extends DurableObject {
       this.broadcast({
         "operate": "insertChat",
         "step": this.currentStep,
-        "tgCount": this.clientCount,
+        "clientCount": this.clientCount,
         "status": "success",
         "date": new Date().getTime(),
       });
@@ -1736,7 +1795,7 @@ export class WebSocketServer extends DurableObject {
       this.broadcast({
         "operate": "insertChat",
         "step": this.currentStep,
-        "tgCount": this.clientCount,
+        "clientCount": this.clientCount,
         "message": "插入chat数据失败",
         "error": true,
         "status": "error",
@@ -1752,7 +1811,7 @@ export class WebSocketServer extends DurableObject {
     //   this.ws.send(JSON.stringify({
     //     "operate": "chat",
     //     "step": this.currentStep,
-    //     "tgCount": this.clientCount,
+    //     "clientCount": this.clientCount,
     //     "message": "服务已经运行过了",
     //     "error": true,
     //     "date": new Date().getTime(),
@@ -1764,8 +1823,8 @@ export class WebSocketServer extends DurableObject {
     for (let clientIndex = 0; clientIndex < this.clientCount; clientIndex++) {
       await this.open(clientIndex, 1);
       if (this.tg[clientIndex].client) {
-        this.tg[clientIndex].id = this.api[clientIndex].id;
         let count = 0;
+        this.tg[clientIndex].id = this.api[clientIndex].id;
         await this.getDialog(clientIndex, 1);
         const dialogArray = this.dialogArray;
         // const dialogLength = dialogArray.length;
@@ -1794,8 +1853,8 @@ export class WebSocketServer extends DurableObject {
               this.broadcast({
                 "operate": "chat",
                 "step": this.currentStep,
-                "tgCount": this.clientCount,
-                "message": "新插入chat了 : " + dialog.title,
+                "clientCount": this.clientCount,
+                "message": this.tg[clientIndex].id + " - " + count + " : 新插入chat了 : " + dialog.title,
                 "date": new Date().getTime(),
               });
             } else {
@@ -1803,8 +1862,8 @@ export class WebSocketServer extends DurableObject {
               this.broadcast({
                 "operate": "chat",
                 "step": this.currentStep,
-                "tgCount": this.clientCount,
-                "message": count + " : chat已在数据库中 - " + dialog.title,
+                "clientCount": this.clientCount,
+                "message": this.tg[clientIndex].id + " - " + count + " : chat已在数据库中 - " + dialog.title,
                 "date": new Date().getTime(),
               });
             }
@@ -1813,8 +1872,8 @@ export class WebSocketServer extends DurableObject {
             this.broadcast({
               "operate": "chat",
               "step": this.currentStep,
-              "tgCount": this.clientCount,
-              "message": "channelId或accessHash错误 : " + dialog.title,
+              "clientCount": this.clientCount,
+              "message": this.tg[clientIndex].id + " - " + count + " : channelId或accessHash错误 : " + dialog.title,
               "error": true,
               "date": new Date().getTime(),
             });
@@ -1825,8 +1884,8 @@ export class WebSocketServer extends DurableObject {
           this.broadcast({
             "operate": "chat",
             "step": this.currentStep,
-            "tgCount": this.clientCount,
-            "message": "新插入了" + count + "条chat数据",
+            "clientCount": this.clientCount,
+            "message": this.tg[clientIndex].id + " - " + count + " : 新插入了" + count + "条chat数据",
             "date": new Date().getTime(),
           });
         }
@@ -1836,8 +1895,8 @@ export class WebSocketServer extends DurableObject {
         this.broadcast({
           "operate": "chat",
           "step": this.currentStep,
-          "tgCount": this.clientCount,
-          "message": "连接TG服务" + clientIndex + "失败",
+          "clientCount": this.clientCount,
+          "message": this.tg[clientIndex].id + " - 连接TG服务" + clientIndex + "失败",
           "error": true,
           "date": new Date().getTime(),
         });
@@ -1862,7 +1921,7 @@ export class WebSocketServer extends DurableObject {
         this.broadcast({
           "operate": "webSocketMessage",
           "step": this.currentStep,
-          "tgCount": this.clientCount,
+          "clientCount": this.clientCount,
           "message": "parse出错 : " + e,
           "error": true,
           "date": new Date().getTime(),
@@ -1908,7 +1967,7 @@ export class WebSocketServer extends DurableObject {
       this.broadcast({
         "operate": "webSocketMessage",
         "step": this.currentStep,
-        "tgCount": this.clientCount,
+        "clientCount": this.clientCount,
         "message": "未知消息",
         "error": true,
         "date": new Date().getTime(),

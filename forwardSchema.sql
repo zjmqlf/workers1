@@ -20,6 +20,10 @@ CREATE TABLE IF NOT EXISTS FORWARDCHAT (
   username TEXT,
   title TEXT NOT NULL,
   current INTEGER,
+  photo INTEGER,
+  video INTEGER,
+  document INTEGER,
+  gif INTEGER,
   exist INTEGER,
   updated DATE
 );
@@ -27,6 +31,10 @@ CREATE TABLE IF NOT EXISTS FORWARDCHAT (
 CREATE INDEX IF NOT EXISTS idx_forwardChat_tgId_id_accessHash ON FORWARDCHAT(tgId, channelId, accessHash);
 CREATE INDEX IF NOT EXISTS idx_forwardChat_tgId_index_exist ON FORWARDCHAT(tgId, Cindex, exist);
 CREATE INDEX IF NOT EXISTS idx_forwardChat_tgId_current_exist ON FORWARDCHAT(tgId, current, exist);
+CREATE INDEX IF NOT EXISTS idx_forwardChat_tgId_photo_exist ON FORWARDCHAT(tgId, photo, exist);
+CREATE INDEX IF NOT EXISTS idx_forwardChat_tgId_video_exist ON FORWARDCHAT(tgId, video, exist);
+CREATE INDEX IF NOT EXISTS idx_forwardChat_tgId_document_exist ON FORWARDCHAT(tgId, document, exist);
+CREATE INDEX IF NOT EXISTS idx_forwardChat_tgId_gif_exist ON FORWARDCHAT(tgId, gif, exist);
 
 
 DROP TABLE IF EXISTS FORWARDMESSAGE;
