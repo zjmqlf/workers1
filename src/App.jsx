@@ -96,17 +96,17 @@ const App = () => {
           {
             field: "step",
             headerName: "step",
-            columnGroupShow: "closed",
+            columnGroupShow: "open",
           },
           {
             field: "clientId",
             headerName: "clientId",
-            columnGroupShow: "closed",
+            columnGroupShow: "open",
           },
           {
             field: "chatId",
             headerName:"chatId",
-            columnGroupShow: "closed",
+            columnGroupShow: "open",
           },
           {
             field: "offsetId",
@@ -192,7 +192,7 @@ const App = () => {
   // }, []);
 
   const addNewEvent = useCallback((newItem) => {
-    // if (logData.length >= 100) {
+    // if (logData.length >= 200) {
     //   setLogData([]);
     //   console.log("删除log成功");  //测试
     // }
@@ -230,7 +230,9 @@ const App = () => {
       addIndex: 0,
     });
     //console.log(res);  //测试
-    if (!res.add || res.add.length || res.add.length <= 0) {
+    // if (!res.add || res.add.length || res.add.length <= 0) {
+    if (res.add && res.add.length > 0) {
+    } else {
       console.log("添加row失败");
       addNewEvent({
         "message": renderTime(Date.now()) + "  >>> 添加row失败",
@@ -249,7 +251,9 @@ const App = () => {
       remove: items,
     });
     //console.log(res);  //测试
-    if (!res.remove || res.remove.length || res.remove.length <= 0) {
+    // if (!res.remove || res.remove.length || res.remove.length <= 0) {
+    if (res.remove && res.add.remove > 0) {
+    } else {
       console.log("删除row失败");
       addNewEvent({
         "message": renderTime(Date.now()) + "  >>> 删除row失败",
@@ -258,13 +262,13 @@ const App = () => {
   }, [addNewEvent, renderTime]);
 
   const updateRow = useCallback((rowNode, items) => {
-    if (items.forward && items.forward > 0) {
+    if (rowNode.data.forward && rowNode.data.forward > 0) {
       if (items.messageLength && items.messageLength > 0) {
-        items.forward += items.messageLength;
+        rowNode.data.forward += items.messageLength;
       }
     } else {
       if (items.messageLength && items.messageLength > 0) {
-        items.forward = items.messageLength;
+        rowNode.data.forward = items.messageLength;
       }
     }
     for (const name in items) {
@@ -290,7 +294,7 @@ const App = () => {
     // gridRef.current.api.forEachNodeAfterFilterAndSort((rowNode, index) => {
     gridRef.current.api.forEachNode((rowNode, index) => {
       if (rowNode.data.clientName === clientName) {
-        if (items.clientCount && items.clientCount > 0 && index >= items.clientCount) {
+        if (items.clientCount && items.clientCount > 0 && index > items.clientCount) {
           deleteItems([rowNode]);
           addItems([rowNode]);
         }
@@ -399,7 +403,6 @@ const App = () => {
     } else {
       if (message.clientId && message.clientId > 0 && message.chatId && message.chatId >= 0) {
         message.clientName = message.clientId + "-" + message.chatId;
-        console.log(message.operate);  //测试
         switch (message.operate) {
           case "forwardMessage":
             if (message.status === "update") {
@@ -426,7 +429,11 @@ const App = () => {
                 "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
               });
             } else {
-              console.log("未知消息");
+              //console.log("未知消息");
+              addNewEvent({
+                "error": message.error,
+                "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
+              });
             }
             break;
           case "checkChat":
@@ -438,7 +445,11 @@ const App = () => {
               } = message;
               addItems([temp]);
             } else {
-              console.log("未知消息");
+              //console.log("未知消息");
+              addNewEvent({
+                "error": message.error,
+                "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
+              });
             }
             break;
           case "nextChat":
@@ -450,11 +461,19 @@ const App = () => {
               } = message;
               addItems([temp]);
             } else {
-              console.log("未知消息");
+              //console.log("未知消息");
+              addNewEvent({
+                "error": message.error,
+                "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
+              });
             }
             break;
           default:
-            console.log("未知消息");
+            //console.log("未知消息");
+            addNewEvent({
+              "error": message.error,
+              "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
+            });
         }
       } else {
         addNewEvent({
@@ -467,17 +486,19 @@ const App = () => {
 
   const setTime = useCallback(() => {
     clearTimeout(timeOut.current);
-    let time = 120000;
-    let count = 2;
-    if (documentValue === 1) {
-      time = 60000;
-      count = 1;
-    }
+    // let time = 120000;
+    // let count = 2;
+    // if (documentValue === 1) {
+    //   time = 60000;
+    //   count = 1;
+    // }
+    let time = 240000;
     timeOut.current = setTimeout(function() {
       if (over.current === false) {
         addNewEvent({
           "error": true,
-          "message": renderTime(Date.now()) + "  >>> 过了" + count + "分钟都没有收到任何消息",
+          // "message": renderTime(Date.now()) + "  >>> 过了" + count + "分钟都没有收到任何消息",
+          "message": renderTime(Date.now()) + "  >>> 过了4分钟都没有收到任何消息",
         });
         if (ws.current && ws.current.readyState === WebSocket.OPEN) {
           ws.current.send(JSON.stringify({
@@ -565,32 +586,36 @@ const App = () => {
 
     ws.current.addEventListener("message", ({ data }) => {
       if (data) {
-        let message = null;
-        try {
-          message = JSON.parse(data);
-        } catch (e) {
-          //console.log("解析JSON失败");  //测试
-          addNewEvent({
-            "error": true,
-            "message": renderTime(Date.now()) + "  >>> 解析JSON失败",
-          });
-        }
-        if (message) {
-          const length = message.length;
-          if (length && length > 0) {
-            for (let index = 0; index < length; index++) {
-              parseMessage(message[index]);
+        // if (data === "ping") {
+        //   //console.log("ping");  //测试
+        // } else {
+          let message = null;
+          try {
+            message = JSON.parse(data);
+          } catch (e) {
+            //console.log("解析JSON失败");  //测试
+            addNewEvent({
+              "error": true,
+              "message": renderTime(Date.now()) + "  >>> 解析JSON失败",
+            });
+          }
+          if (message) {
+            const length = message.length;
+            if (length && length > 0) {
+              for (let index = 0; index < length; index++) {
+                parseMessage(message[index]);
+              }
+            } else {
+              parseMessage(message);
             }
           } else {
-            parseMessage(message);
+            //console.log("message错误");  //测试
+            addNewEvent({
+              "error": true,
+              "message": renderTime(Date.now()) + "  >>> message错误",
+            });
           }
-        } else {
-          //console.log("message错误");  //测试
-          addNewEvent({
-            "error": true,
-            "message": renderTime(Date.now()) + "  >>> message错误",
-          });
-        }
+        // }
       } else {
         console.log("消息为空");
         addNewEvent({
@@ -872,7 +897,7 @@ const App = () => {
   useEffect(() => {
     if (logData.length === 0) {
       setClearLogBtnDisabled(true);
-    } else if (logData.length >= 100) {
+    } else if (logData.length >= 200) {
       setLogData(() => {
         return [];
       });
