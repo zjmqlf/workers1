@@ -251,14 +251,14 @@ const App = () => {
     // }
   }, [setLogData, key]);
 
-  const addItems = useCallback((newItems) => {
+  const addItems = useCallback((items) => {
     if (gridRef.current.api.getDisplayedRowCount() >= 200) {
       setRowData([]);
       setClearGridBtnDisabled(true);
       console.log("删除grid成功");  //测试
     }
     const res = gridRef.current.api.applyTransaction({
-      add: newItems,
+      add: items,
       addIndex: 0,
     });
     //console.log(res);  //测试
@@ -273,7 +273,7 @@ const App = () => {
       addNewEvent({
         "message": renderTime(Date.now()) + "  >>> 添加row失败",
       });
-      //console.log(newItems);  //测试
+      //console.log(items);  //测试
     }
     if (gridRef.current.api.getDisplayedRowCount() === 0) {
       setClearGridBtnDisabled(true);

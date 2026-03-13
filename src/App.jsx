@@ -45,6 +45,7 @@ const App = () => {
   const pagination = true;
   const paginationPageSize = 50;
   const paginationPageSizeSelector = [50, 150, 200];
+  const rowArray = useRef({});
   const ws = useRef(null);
   const stop = useRef(false);
   const over = useRef(false);
@@ -67,7 +68,7 @@ const App = () => {
   const [logData, setLogData] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const [isSendBtnDisabled, setSendBtnDisabled] = useState(true);
-  const getRowId = useCallback((params) => String(params.data.clientName), []);
+  const getRowId = useCallback((params) => String(params.data.chatId), []);
 
   const renderTime = useCallback((timestamp ) => {
     if (timestamp && timestamp > 0) {
@@ -142,7 +143,7 @@ const App = () => {
           },
           {
             field: "date",
-            headerName: "startTime",
+            headerName: "date",
             columnGroupShow: "open",
             cellRenderer: params => renderTime(params.value),
           },
@@ -181,18 +182,18 @@ const App = () => {
   }, []);
 
   // const rowClassRules = useMemo(() => {
-  //   let clientName = null;
+  //   let chatId = 0;
   //   gridRef.current.api.forEachNode(function (node) {
-  //     clientName = node.data.clientName;
+  //     chatId = node.data.chatId;
   //     return;
   //   });
   //   return {
-  //     "rag-red": params => stop.current === true && params.node.data.clientName === clientName,
+  //     "rag-red": params => stop.current === true && params.node.data.chatId === chatId,
   //   };
   // }, []);
 
   const addNewEvent = useCallback((newItem) => {
-    // if (logData.length >= 200) {
+    // if (logData.length >= 100) {
     //   setLogData([]);
     //   console.log("删除log成功");  //测试
     // }
@@ -219,44 +220,61 @@ const App = () => {
     // }
   }, [setLogData, key]);
 
-  const addItems = useCallback((newItems) => {
+  const addItems = useCallback((items) => {
     if (gridRef.current.api.getDisplayedRowCount() >= 200) {
+      rowArray.current = {};
       setRowData([]);
       setClearGridBtnDisabled(true);
       console.log("删除grid成功");  //测试
     }
-    const res = gridRef.current.api.applyTransaction({
-      add: newItems,
-      addIndex: 0,
-    });
-    //console.log(res);  //测试
-    // if (!res.add || res.add.length || res.add.length <= 0) {
-    if (res.add && res.add.length > 0) {
-    } else {
-      console.log("添加row失败");
+    //console.log(items);  //测试
+    if (rowArray.current[items.chatId]) {
+      console.log(items.chatId + " : 已添加过该row了");
       addNewEvent({
-        "message": renderTime(Date.now()) + "  >>> 添加row失败",
+        "message": renderTime(Date.now()) + "  >>> " + items.chatId + "已添加过该row了",
       });
-      //console.log(newItems);  //测试
-    }
-    if (gridRef.current.api.getDisplayedRowCount() === 0) {
-      setClearGridBtnDisabled(true);
     } else {
-      setClearGridBtnDisabled(false);
+      const res = gridRef.current.api.applyTransaction({
+        add: [items],
+        addIndex: 0,
+      });
+      //console.log(res);  //测试
+      if (res.add && res.add.length > 0) {
+        rowArray.current[items.chatId] = res.add[0];
+        // console.log(items.chatId + " : 添加row成功");
+        // addNewEvent({
+        //   "message": renderTime(Date.now()) + "  >>> " + items.chatId + " : 添加row成功",
+        // });
+      } else {
+        console.log(items.chatId + " : 添加row失败");
+        addNewEvent({
+          "message": renderTime(Date.now()) + "  >>> " + items.chatId + " : 添加row失败",
+        });
+        //console.log(items);  //测试
+      }
+      if (gridRef.current.api.getDisplayedRowCount() === 0) {
+        setClearGridBtnDisabled(true);
+      } else {
+        setClearGridBtnDisabled(false);
+      }
     }
   }, [addNewEvent, renderTime, setRowData, setClearGridBtnDisabled]);
 
   const deleteItems = useCallback((items) => {
     const res = gridRef.current.api.applyTransaction({
-      remove: items,
+      remove: [items],
     });
     //console.log(res);  //测试
-    // if (!res.remove || res.remove.length || res.remove.length <= 0) {
     if (res.remove && res.add.remove > 0) {
+      delete rowArray.current[items.chatId];
+      //console.log("删除row成功");
+      // addNewEvent({
+      //   "message": renderTime(Date.now()) + "  >>> " + items.chatId + " : 删除row成功",
+      // });
     } else {
-      console.log("删除row失败");
+      console.log(items.chatId + " : 删除row失败");
       addNewEvent({
-        "message": renderTime(Date.now()) + "  >>> 删除row失败",
+        "message": renderTime(Date.now()) + "  >>> " + items.chatId + " : 删除row失败",
       });
     }
   }, [addNewEvent, renderTime]);
@@ -289,26 +307,32 @@ const App = () => {
   }, []);
 
   const updateItems = useCallback((data) => {
-    const {clientName, ...items} = data;
-    let found = false;
-    // gridRef.current.api.forEachNodeAfterFilterAndSort((rowNode, index) => {
-    gridRef.current.api.forEachNode((rowNode, index) => {
-      if (rowNode.data.clientName === clientName) {
-        if (items.clientCount && items.clientCount > 0 && index > items.clientCount) {
-          deleteItems([rowNode]);
-          addItems([rowNode]);
+    const {chatId, ...items} = data;
+    if (rowArray.current[chatId]) {
+      updateRow(rowArray.current[chatId], items);
+    } else {
+      let found = false;
+      // gridRef.current.api.forEachNodeAfterFilterAndSort((rowNode, index) => {
+      gridRef.current.api.forEachNode((rowNode, index) => {
+        if (rowNode.data.chatId === chatId) {
+          if (items.clientCount && items.clientCount > 0 && index > items.clientCount) {
+            deleteItems(rowNode);
+            addItems(rowNode);
+          }
+          updateRow(rowNode, items);
+          found = true;
+          return;
         }
-        updateRow(rowNode, items);
-        found = true;
-        return;
-      }
-    });
-    if (found === false) {
-      console.log("查找row失败");
-      addNewEvent({
-        "error": true,
-        "message": renderTime(Date.now()) + "  >>> 查找row失败",
       });
+      if (found === false) {
+        console.log(chatId + " : 查找row失败");
+        addNewEvent({
+          "error": true,
+          "message": renderTime(Date.now()) + "  >>> " + chatId + " : 查找row失败",
+        });
+      // } else {
+      //   addItems(data);
+      }
     }
   }, [addNewEvent, renderTime, deleteItems, addItems, updateRow]);
 
@@ -381,12 +405,13 @@ const App = () => {
       ws.current.close();
       // closeHandler();
     } else if (message.result === "end") {
-      setRowData([]);
-      setClearGridBtnDisabled(true);
-      setLogData(() => {
-        return [];
-      });
-      setClearLogBtnDisabled(true);
+      // rowArray.current = {};
+      // setRowData([]);
+      // setClearGridBtnDisabled(true);
+      // setLogData(() => {
+      //   return [];
+      // });
+      // setClearLogBtnDisabled(true);
       //console.log("当前chat采集完毕");  //测试
       addNewEvent({
         // "message": renderTime(Date.now()) + "  >>>当前chat采集完毕",
@@ -402,7 +427,6 @@ const App = () => {
       });
     } else {
       if (message.clientId && message.clientId > 0 && message.chatId && message.chatId >= 0) {
-        message.clientName = message.clientId + "-" + message.chatId;
         switch (message.operate) {
           case "forwardMessage":
             if (message.status === "update") {
@@ -416,7 +440,7 @@ const App = () => {
               updateItems(temp);
             } else if (message.status === "error") {
               updateItems({
-                "clientName": message.clientName,
+                "chatId": message.chatId,
                 "date": message.date,
               });
               addNewEvent({
@@ -443,7 +467,7 @@ const App = () => {
                 status,
                 ...temp
               } = message;
-              addItems([temp]);
+              addItems(temp);
             } else {
               //console.log("未知消息");
               addNewEvent({
@@ -459,7 +483,7 @@ const App = () => {
                 status,
                 ...temp
               } = message;
-              addItems([temp]);
+              addItems(temp);
             } else {
               //console.log("未知消息");
               addNewEvent({
@@ -482,7 +506,7 @@ const App = () => {
         });
       }
     }
-  }, [addNewEvent, renderTime, setRowData, setClearGridBtnDisabled, setLogData, setClearLogBtnDisabled, addItems, updateItems]);
+  }, [addNewEvent, renderTime, addItems, updateItems]);
 
   const setTime = useCallback(() => {
     clearTimeout(timeOut.current);
@@ -515,7 +539,7 @@ const App = () => {
         });
       }
     }, time);
- }, [addNewEvent, renderTime, documentValue]);
+ }, [addNewEvent, renderTime]);
 
   const collectWS = useCallback((command) => {
     // console.log("documentValue : " + documentValue);  //测试
@@ -799,6 +823,7 @@ const App = () => {
   }, [messageErrorHandler]);
 
   const clearGridBtnClickHandler = useCallback(() => {
+    rowArray.current = {};
     setRowData([]);
     setClearGridBtnDisabled(true);
   }, [setRowData, setClearGridBtnDisabled]);
@@ -881,7 +906,7 @@ const App = () => {
   // useEffect(() => {
   //   if (rowData.length === 0) {
   //     setClearGridBtnDisabled(true);
-  //   } else if (rowData.length >= 200) {
+  //   } else if (rowData.length >= 100) {
   //     setLogData(() => {
   //       return [];
   //     });
@@ -897,7 +922,7 @@ const App = () => {
   useEffect(() => {
     if (logData.length === 0) {
       setClearLogBtnDisabled(true);
-    } else if (logData.length >= 200) {
+    } else if (logData.length >= 100) {
       setLogData(() => {
         return [];
       });

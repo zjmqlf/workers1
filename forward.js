@@ -76,7 +76,7 @@ export class WebSocketServer extends DurableObject {
         this.batch = false;
         this.filterType = 0;
       }
-      this.ws = null;
+      // this.ws = null;
       // this.stop = 0;
       // this.webSocket = [];
       this.apiCount = 0;
@@ -85,7 +85,7 @@ export class WebSocketServer extends DurableObject {
         // {
         //   "id": 0,
         //   "name": "name",
-        //   "phone": 123456,
+        //   "phone": "phone",
         //   "apiId": 123456,
         //   "apiHash": "apiHash",
         //   "sessionString": "sessionString",
@@ -94,7 +94,7 @@ export class WebSocketServer extends DurableObject {
           "id": 1,
           "pc": 3,
           "name": "zjm2023",
-          "phone": +8615015178337,
+          "phone": "+8615015178337",
           "apiId": 8851987,
           "apiHash": "8c353f36d876aa5b71b671dd221d763c",
           "sessionString": "1BQANOTEuMTA4LjU2LjEyOABQLHDMD4nttp5nlyYavCPWP5Mu6WVqx7EprUCty5ZofNENdyWJn6FsczIjIQ95L/qNm5v3Z/pCBJ7kC25NdWudkeIAKXQBrE37b16VObxHq+0oXQk/ySOspHUPJSFy3E1UDPQjFdWS0lbKiAs4Fhd1/P7FYFNpXeGobfi9lfWY8TZlbS0m5+7s2L6bxj/JGWbNFtPL+0B+F0QbhGW9pFdmpdw/eEAiw7ZENCZxY0hJ74KNiPRqunDHXQRiXLPlXU/NoxygvOizxKFsCduCKrcloIrjZTLnbeF26SmNR3EdC8MmC1emxoPyfxd1KpQyWUPRmx+nZBV4NRDZPS3Y8JetHw==",
@@ -103,7 +103,7 @@ export class WebSocketServer extends DurableObject {
           "id": 2,
           "pc": 3,
           "name": "zjm2024",
-          "phone": +8615817718306,
+          "phone": "+8615817718306",
           "apiId": 18848967,
           "apiHash": "894c7cd30639e0e898702b7ff3672282",
           "sessionString": "1BQANOTEuMTA4LjU2LjEyOABQIlXrXd7o7Vs/Jl61BFUmpwKNJM/lMK8WhUQctOvWiMpGr4o5tXB3zFKUcPBbynH/VsphMD20JT17nzAKRsDMvnhwcNjWnIBPvqcCoQlxCl1Be8vYSLqWrlUCfpfUxdzxP3R1XlS2t3f1Rdtp+RG23vkcBzBmmQHgZfw5Ty1YoMzJVnrKAOje2WKJu8wLC1VXMAFToiKsdZGmOff2dJJEVR7MgP8AtyconAuc8NmkIOsUEamh6L5Y8gajDk3wZGmhjwdAv0gNVeEpb9dSYQYURAN0Aa7k0sv5KjIXVJIONaM+zlDZV6Is1Pk2BvPrGdjS0SN2hmDsci/sq6pnKDPYRw==",
@@ -112,7 +112,7 @@ export class WebSocketServer extends DurableObject {
           "id": 3,
           "pc": 3,
           "name": "zjm2025",
-          "phone": +8615015170034,
+          "phone": "+8615015170034",
           "apiId": 11322827,
           "apiHash": "f13a574d518557713ca6eff0306e838f",
           "sessionString": "1BQANOTEuMTA4LjU2LjEyOABQYDGS8hPTs40IReZCouYiIwtKelTny+ROgAUXhqS/0W+/L5iwRBk7au1c7W0YRRR9iSZoG0UQoW3TxMaatQnUHzM3s42QeOq88wEoyNoxewx6LRdX/twCwEHfyf1MGR78h5ITMbn/xhPA/BhctBzos6wGDQ7sFjBxxT7UMRG7VFSS3bNeHIPfGgIngAAWeEUSmEWl0B7rro6pQ6wpdaEgHRQGRzAMYCfJpEc/tBQAr4mXziLfNYZQcxcfzZ4OSehmi2qi8oWyt/07GOUCq/jRwUD0/xKblgwi++qhfHSoMkYfmUbSkiYlRYiD2nT4tnKYQPiCcqOAk5GvSDiAqAHg/A==",
@@ -121,7 +121,7 @@ export class WebSocketServer extends DurableObject {
           "id": 4,
           "pc": 4,
           "name": "zjm2026",
-          "phone": +8615015138112,
+          "phone": "+8615015138112",
           "apiId": 10483870,
           "apiHash": "0d275d0a85762e0bd8da7ea43ec6a88c",
           "sessionString": "1BQANOTEuMTA4LjU2LjEyOABQuYVH+XfTL7Xz81fPLXvG/aJXeHyrbwN2lR82cjJCuPnfO8URLXbfZOgsFQq2L4p1NcH7+XKrxPhEpz4+ye2daAJpLBBoq6kvrRRjOe41LSeiv/Aov4UiUrlBxxNfdNRO51EHg48VZbez7PVviM1SKwTF0Vs0SpTm3qQn1iONI0tUl/mVOe5OotkrjfklEgQU9CsyknMwQ/E0Mzx5vr9ChPZS38BO0wUwbZXfkx1wY2To8QKwv7hSKShw+au1kuenrLbVFNRVyKP+znNuJMZjBkAlvCq6PaPH2ETd9M15pIkUht+W5zye1Ckc+iDqyzJVkA4+2EP2E9yPM2nbHHqI8w==",
@@ -130,20 +130,20 @@ export class WebSocketServer extends DurableObject {
           "id": 5,
           "pc": 4,
           "name": "zjm2027",
-          "phone": +8615112760327,
+          "phone": "+8615112760327",
           "apiId": 10490964,
           "apiHash": "288dee9bb4e7a16febea366fc6252364",
           "sessionString": "1BQANOTEuMTA4LjU2LjEyOABQhQXbhbGD9Eada7i3mQetaj3Gi44q6bQ41urfSbyxcJ0ZHNBCDwh5rupQW6mVaFITgss1+iWm6U2j95/LXiKE9x2S69AojiY08SZFXoMVlg8HysJc8QMftK8yCGRKa7I+fbYUtMfljtQBzVQDOrkSJDzVjwesunCscMYTXWnZGYgv1gYsqej/JQLvx4ikCAt1yV1/qgUngKroHW3FJ+jcCQkW9+yaeDGJkonyv+gT8yhsooT/LlRAns5Z8xAluizJce8EIwAUuOB/RaC1aReMYcnlDUBTe/+BlOVbGc0eOj849KZRfAOdFHZlXQcSibL2fi+6B95N0CLFy4aNfm9rdA==",
-        // },
-        // {
-        //   "id": 6,
-        //   "pc": 5,
-        //   "name": "zjm2034",
-        //   "phone": +19297322444,
-        //   "apiId": 19419096,
-        //   "apiHash": "4b1c4d1f87156adc7433b5dd760a4e9d",
-        //   "sessionString": "sessionString",
-        // },
+        },
+        {
+          "id": 6,
+          "pc": 5,
+          "name": "zjm2034",
+          "phone": "+19297322444",
+          "apiId": 19419096,
+          "apiHash": "4b1c4d1f87156adc7433b5dd760a4e9d",
+          "sessionString": "1BQANOTEuMTA4LjU2LjEyOABQQCX34zbrBFR/5z5cKA5qHiAcyyjxf2/P3JY3JE0X/SkXRkGzwraFBu48W5WG9K1NermNVpAf7p7x+vkpg61kYLhr7XZ055rDrifvi2AFXSRvMZNICh1gOzKQ7zVEZIz8H+BRVmhOxu1bS4u3XzmHgwSp68je8zLWFFJbzkiyLu1XWOUss8De3w7OdmV0Aa/0nD+68jb0UNHzYhFv1ygJTv40Y3vDU0PUZGgde7nibwdfScKwCix4ssXcV5Ek7qdEnz9oJPGnkgCitTY7edisxYP7Rg7lo+jEQvdvF4EV95ZqrRPykHYc8C0VRHd6TJ9+HLyF66iCL8pPI1DcKKICqA==",
+        },
         // {
         //   "id": 7,
         //   "pc": 7,
@@ -153,15 +153,15 @@ export class WebSocketServer extends DurableObject {
         //   "apiHash": "02bc2490824d8ae6e111dc8d9f5730cc",
         //   "sessionString": "sessionString",
         // },
-        // {
-        //   "id": 8,
-        //   "pc": 7,
-        //   "name": "zjm2040",
-        //   "phone": +85255742290,
-        //   "apiId": 16349596,
-        //   "apiHash": "44964f46a2f3699afcde27da231e9109",
-        //   "sessionString": "sessionString",
-        // }
+        {
+          "id": 8,
+          "pc": 7,
+          "name": "zjm2040",
+          "phone": "+85255742290",
+          "apiId": 16349596,
+          "apiHash": "44964f46a2f3699afcde27da231e9109",
+          "sessionString": "1BQANOTEuMTA4LjU2LjEyOABQDjl1J8lThy1WR2qSo1wTO1JgHdFqBjfB32czp7ypGwUXaRwIXcItj5EkB0KO3HXVcDg57UICHzeR5kGgIyY2xuJj7N1kPDS8D/8qYnCTxx7TvM2q40QiBV9p7DTAylndvS6oNyO4no/+1q80Mh1Y2ftasTRfPZI+Xsj0dFZWFBFx92aZp1nIsxabB2aPCPys8OEe0Xwk7vTH67Q1LEPE2/L9LJgIkCoeziaW+UeU12zRUEt+mp/s7oJ7zK5zs8jzB9IyP7/VhdTsouHa+G8ASSHWZTIpBsFtqym71SM+riYthllRFYSp5mmIx081Vrv7TPMV5leZwB98NAjJkXMoLg==",
+        }
       ];
       this.clientCount = this.api.length;
       this.tg = Array(this.clientCount).fill(null);
@@ -419,6 +419,7 @@ export class WebSocketServer extends DurableObject {
         "operate": "insertConfig",
         "step": this.currentStep,
         "clientCount": this.clientCount,
+        "message": "插入config数据成功",
         "status": "success",
         "date": new Date().getTime(),
       });
@@ -1312,7 +1313,7 @@ export class WebSocketServer extends DurableObject {
       } catch (e) {
         if (e.errorMessage === "CHAT_FORWARDS_RESTRICTED" || e.code === 400) {
           this.tg[clientIndex].offsetId += this.tg[clientIndex].limit;
-          await this.updateChat(clientIndex, 1);
+          // await this.updateChat(clientIndex, 1);
           //console.log("(" + this.currentStep + ") 消息不允许转发" + e);
           this.broadcast({
             "clientId": this.tg[clientIndex].clientId,
@@ -1326,6 +1327,43 @@ export class WebSocketServer extends DurableObject {
             "error": true,
             "date": new Date().getTime(),
           });
+          this.tg[clientIndex].fromPeer = null;
+          this.tg[clientIndex].chatId += 1;
+          if (this.contrastChat(clientIndex)) {
+            await this.getChat(clientIndex);
+            if (this.tg[clientIndex].fromPeer) {
+              if (this.tg[clientIndex].chatId != this.tg[clientIndex].lastChat) {
+                if (this.tg[clientIndex].lastChat != 0) {
+                  await this.updateConfig(clientIndex);
+                }
+                this.tg[clientIndex].lastChat = this.tg[clientIndex].chatId;
+              }
+            } else {
+              //console.log("(" + this.currentStep + ")全部chat采集完毕");
+              this.broadcast({
+                "result": "over",
+                "operate": "forwardMessage",
+                "step": this.currentStep,
+                "clientCount": this.clientCount,
+                "message": "全部chat采集完毕",
+                "date": new Date().getTime(),
+              });
+              await this.close(clientIndex);
+            }
+          } else {
+            //console.log(this.tg[clientIndex].endChat + " : 超过最大chat了");  //测试
+            this.broadcast({
+              "clientId": this.tg[clientIndex].clientId,
+              "chatId": this.tg[clientIndex].chatId,
+              "operate": "forwardMessage",
+              "step": this.currentStep,
+              "clientCount": this.clientCount,
+              "message": this.tg[clientIndex].endChat + " : 超过最大chat了",
+              "error": true,
+              "date": new Date().getTime(),
+            });
+            await this.close(clientIndex);
+          }
         } else if (e.errorMessage === "FLOOD" || e.code === 420) {
           this.waitTime += 120000;
           //console.log("(" + this.currentStep + ") 触发了洪水警告，请求太频繁" + e);
@@ -2038,6 +2076,18 @@ export class WebSocketServer extends DurableObject {
     // this.stop = 1;
     this.init(option);
     for (let clientIndex = 0; clientIndex < this.clientCount; clientIndex++) {
+      this.tg[clientIndex] = {
+        "clientId": 0,
+        "client": null,
+        "chatId": 0,
+        "endChat": 0,
+        "lastChat": 0,
+        "reverse": true,
+        "limit": 100,
+        "offsetId": 0,
+        "fromPeer": null,
+        "time": 0,
+      };
       this.tg[clientIndex].clientId = this.api[clientIndex].id;
       await this.open(clientIndex, 1);
       if (this.tg[clientIndex].client) {
