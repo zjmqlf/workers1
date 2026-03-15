@@ -388,31 +388,31 @@ const App = () => {
     event.returnValue = '程序正在运行中，确定要关闭吗？';
   }, []);
 
-  const btnHandler = useCallback((status) => {
+  const handlerBtn = useCallback((status) => {
     setCollectBtnDisabled(status);
     setCloseBtnDisabled(status);
     setNextBtnDisabled(status);
   }, [setCollectBtnDisabled, setCloseBtnDisabled, setNextBtnDisabled]);
 
-  const btnUnableHandler = useCallback(() => {
-    btnHandler(true);
+  const handlerBtnUnable = useCallback(() => {
+    handlerBtn(true);
     // // if (pauseBtnText === "暂停") {
     // if (pauseBtnText !== "开始") {
       setPauseBtnText("开始");
     // }
-  // }, [btnHandler, setPauseBtnText, pauseBtnText]);
-  }, [btnHandler, setPauseBtnText]);
+  // }, [handlerBtn, setPauseBtnText, pauseBtnText]);
+  }, [handlerBtn, setPauseBtnText]);
 
-  const btnEnableHandler = useCallback(() => {
-    btnHandler(false);
+  const handlerBtnEnable = useCallback(() => {
+    handlerBtn(false);
     // // if (pauseBtnText === "开始") {
     // if (pauseBtnText !== "暂停") {
       setPauseBtnText("暂停");
     // }
-  // }, [btnHandler, setPauseBtnText, pauseBtnText]);
-  }, [btnHandler, setPauseBtnText]);
+  // }, [handlerBtn, setPauseBtnText, pauseBtnText]);
+  }, [handlerBtn, setPauseBtnText]);
 
-  const closeHandler = useCallback(() => {
+  const handlerClose = useCallback(() => {
     ws.current = null;
     stop.current = true;
     errorCount.current += 1;
@@ -426,7 +426,7 @@ const App = () => {
         rowNodes: [lastRow.current],
       });
     }
-    btnUnableHandler();
+    handlerBtnUnable();
     // setLogData(() => {
     //   return [];
     // });
@@ -435,7 +435,7 @@ const App = () => {
       "error": true,
       "message": renderTime(Date.now()) + "  >>> 远程websocket连续" + errorCount.current + "次断开了连接",
     });
-  }, [addNewEvent, renderTime, handleBeforeUnload, btnUnableHandler]);
+  }, [addNewEvent, renderTime, handleBeforeUnload, handlerBtnUnable]);
 
   const parseMessage = useCallback((message) => {
     if (message.result === "pause") {
@@ -445,7 +445,7 @@ const App = () => {
         "message": renderTime(Date.now()) + "  >>> 远程websocket已停止完毕",
       });
       ws.current.close();
-      // closeHandler();
+      // handlerClose();
     } else if (message.result === "end") {
       lastId.current = 0;
       lastRow.current = null;
@@ -561,7 +561,7 @@ const App = () => {
             "command": "close",
           }));
           ws.current.close();
-          // closeHandler();
+          // handlerClose();
         }
       } else {
         //console.log("停止采集，不再继续send");  //测试
@@ -618,7 +618,7 @@ const App = () => {
           });
           if (ws.current && ws.current.readyState === WebSocket.OPEN) {
             ws.current.close();
-            // closeHandler();
+            // handlerClose();
           }
           // waitReconnect(JSON.stringify({
           //   "command": "start",
@@ -672,7 +672,7 @@ const App = () => {
     })
 
     ws.current.addEventListener("close", () => {
-      closeHandler();
+      handlerClose();
       if (over.current === false) {
         waitReconnect(JSON.stringify({
           "command": "start",
@@ -680,13 +680,13 @@ const App = () => {
       }
     })
 
-  }, [addNewEvent, renderTime, handleBeforeUnload, parseMessage, setTime, closeHandler, waitReconnect]);
+  }, [addNewEvent, renderTime, handleBeforeUnload, parseMessage, setTime, handlerClose, waitReconnect]);
 
 
   waitReconnect = useCallback((command, time) => {
     setTimeout(function() {
       if (over.current === false) {
-        btnEnableHandler();
+        handlerBtnEnable();
         //console.log("连接远程websocket");  //测试
         addNewEvent({
           "message": renderTime(Date.now()) + "  >>> 连接远程websocket",
@@ -694,7 +694,7 @@ const App = () => {
         try {
           collectWS(command);
         } catch (e) {
-          btnUnableHandler();
+          handlerBtnUnable();
           //console.log("连接远程websocket失败");  //测试
           addNewEvent({
             "error": true,
@@ -710,20 +710,20 @@ const App = () => {
         });
       }
     }, time);
-  }, [addNewEvent, renderTime, btnEnableHandler, collectWS, btnUnableHandler, waitReconnect]);
+  }, [addNewEvent, renderTime, handlerBtnEnable, collectWS, handlerBtnUnable, waitReconnect]);
 
-  const messageErrorHandler = useCallback((message) => {
+  const handlerMessageError = useCallback((message) => {
     addNewEvent({
       "error": true,
       "message": renderTime(Date.now()) + message,
     });
   }, [addNewEvent, renderTime]);
 
-  const pauseBtnClickHandler = useCallback(() => {
+  const handlerPauseBtnClick = useCallback(() => {
     //console.log(pauseBtnText);  //测试
     if (pauseBtnText === "暂停") {
       setPauseBtnText("开始");
-      btnHandler(true);
+      handlerBtn(true);
       //console.log(ws.current);  //测试
       if (ws.current && ws.current.readyState === WebSocket.OPEN) {
         try {
@@ -732,43 +732,43 @@ const App = () => {
           }));
         } catch (e) {
           // console.log(e);  //测试
-          btnEnableHandler();
-          messageErrorHandler("  >>> pause失败");
+          handlerBtnEnable();
+          handlerMessageError("  >>> pause失败");
         }
       } else {
-        btnEnableHandler();
-        messageErrorHandler("  >>> 没有连接ws");
+        handlerBtnEnable();
+        handlerMessageError("  >>> 没有连接ws");
       }
     } else if (pauseBtnText === "开始") {
       setPauseBtnText("暂停");
-      btnHandler(false);
+      handlerBtn(false);
       if (!ws.current || ws.current.readyState !== WebSocket.OPEN) {
         waitReconnect(JSON.stringify({
           "command": "start",
         }), 1000);
       }
     }
-  }, [setPauseBtnText, btnHandler, btnEnableHandler, messageErrorHandler, waitReconnect, pauseBtnText]);
+  }, [setPauseBtnText, handlerBtn, handlerBtnEnable, handlerMessageError, waitReconnect, pauseBtnText]);
 
-  const collectBtnClickHandler = useCallback(() => {
-    btnUnableHandler();
+  const handlerCollectBtnClick = useCallback(() => {
+    handlerBtnUnable();
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       try {
         ws.current.close();
-        // closeHandler();
+        // handlerClose();
       } catch (e) {
         // console.log(e);  //测试
-        btnEnableHandler();
-        messageErrorHandler("  >>> collect失败");
+        handlerBtnEnable();
+        handlerMessageError("  >>> collect失败");
       }
     } else {
-      btnEnableHandler();
-      messageErrorHandler("  >>> 没有连接ws");
+      handlerBtnEnable();
+      handlerMessageError("  >>> 没有连接ws");
     }
-  }, [btnUnableHandler, btnEnableHandler, messageErrorHandler]);
+  }, [handlerBtnUnable, handlerBtnEnable, handlerMessageError]);
 
-  const closeBtnClickHandler = useCallback(() => {
-    btnUnableHandler();
+  const handlerCloseBtnClick = useCallback(() => {
+    handlerBtnUnable();
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       try {
         ws.current.send(JSON.stringify({
@@ -776,16 +776,16 @@ const App = () => {
         }));
       } catch (e) {
         // console.log(e);  //测试
-        btnEnableHandler();
-        messageErrorHandler("  >>> close失败");
+        handlerBtnEnable();
+        handlerMessageError("  >>> close失败");
       }
     } else {
-      btnEnableHandler();
-      messageErrorHandler("  >>> 没有连接ws");
+      handlerBtnEnable();
+      handlerMessageError("  >>> 没有连接ws");
     }
-  }, [btnUnableHandler, btnEnableHandler, messageErrorHandler]);
+  }, [handlerBtnUnable, handlerBtnEnable, handlerMessageError]);
 
-  const nextBtnClickHandler = useCallback(() => {
+  const handlerNextBtnClick = useCallback(() => {
     setNextBtnDisabled(true);
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       try {
@@ -794,16 +794,16 @@ const App = () => {
         }));
       } catch (e) {
         // console.log(e);  //测试
-        messageErrorHandler("  >>> next失败");
+        handlerMessageError("  >>> next失败");
         setNextBtnDisabled(false);
       }
     } else {
-      messageErrorHandler("  >>> 没有连接ws");
+      handlerMessageError("  >>> 没有连接ws");
       setNextBtnDisabled(false);
     }
-  }, [setNextBtnDisabled, messageErrorHandler]);
+  }, [setNextBtnDisabled, handlerMessageError]);
 
-  const chatBtnClickHandler = useCallback(() => {
+  const handlerChatBtnClick = useCallback(() => {
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       try {
         ws.current.send(JSON.stringify({
@@ -811,14 +811,14 @@ const App = () => {
         }));
       } catch (e) {
         // console.log(e);  //测试
-        messageErrorHandler("  >>> chat失败");
+        handlerMessageError("  >>> chat失败");
       }
     } else {
       waitReconnect(JSON.stringify({
         "command": "chat",
       }), 1000);
     }
-  }, [messageErrorHandler, waitReconnect]);
+  }, [handlerMessageError, waitReconnect]);
 
   const cacheBtnClickHandler = useCallback(() => {
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
@@ -828,16 +828,16 @@ const App = () => {
         }));
       } catch (e) {
         // console.log(e);  //测试
-        messageErrorHandler("  >>> cache失败");
+        handlerMessageError("  >>> cache失败");
       }
     } else {
       waitReconnect(JSON.stringify({
         "command": "cache",
       }), 1000);
     }
-  }, [messageErrorHandler, waitReconnect]);
+  }, [handlerMessageError, waitReconnect]);
 
-  const clearCacheBtnClickHandler = useCallback(() => {
+  const handlerClearCacheBtnClick = useCallback(() => {
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       try {
         ws.current.send(JSON.stringify({
@@ -845,28 +845,28 @@ const App = () => {
         }));
       } catch (e) {
         // console.log(e);  //测试
-        messageErrorHandler("  >>> clear失败");
+        handlerMessageError("  >>> clear失败");
       }
     } else {
-      messageErrorHandler("  >>> 没有连接ws");
+      handlerMessageError("  >>> 没有连接ws");
     }
-  }, [messageErrorHandler]);
+  }, [handlerMessageError]);
 
-  const clearGridBtnClickHandler = useCallback(() => {
+  const handlerClearGridBtnClick = useCallback(() => {
     lastId.current = 0;
     lastRow.current = null;
     setRowData([]);
     setClearGridBtnDisabled(true);
   }, [setRowData, setClearGridBtnDisabled]);
 
-  const clearLogBtnClickHandler = useCallback(() => {
+  const handlerClearLogBtnClick = useCallback(() => {
     setLogData(() => {
       return [];
     });
     setClearLogBtnDisabled(true);
   }, [setLogData, setClearLogBtnDisabled]);
 
-  const compressChangeHandler = useCallback(() => {
+  const handlerCompressChange = useCallback(() => {
     const isCompress = isCompressChecked;
     setCompressChecked(!isCompress);
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
@@ -882,13 +882,13 @@ const App = () => {
         }
       } catch (e) {
         // console.log(e);  //测试
-        messageErrorHandler("  >>> compress失败");
+        handlerMessageError("  >>> compress失败");
         setCompressChecked(isCompress);
       }
     }
-  }, [setCompressChecked, messageErrorHandler, isCompressChecked]);
+  }, [setCompressChecked, handlerMessageError, isCompressChecked]);
 
-  const batchChangeHandler = useCallback(() => {
+  const handlerBatchChange = useCallback(() => {
     const isBatch = isBatchChecked;
     setBatchChecked(!isBatch);
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
@@ -904,17 +904,17 @@ const App = () => {
         }
       } catch (e) {
         // console.log(e);  //测试
-        messageErrorHandler("  >>> batch失败");
+        handlerMessageError("  >>> batch失败");
         setBatchChecked(isBatch);
       }
     }
-  }, [setBatchChecked, messageErrorHandler, isBatchChecked]);
+  }, [setBatchChecked, handlerMessageError, isBatchChecked]);
 
   const inputHandleChange = useCallback((e) => {
     setInputValue(e.target.value);
   }, [setInputValue]);
 
-  const sendBtnClickHandler = useCallback(() => {
+  const handlerSendBtnClick = useCallback(() => {
     setSendBtnDisabled(true);
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       try {
@@ -924,15 +924,15 @@ const App = () => {
         setInputValue("");
       } catch (e) {
         // console.log(e);  //测试
-        messageErrorHandler("  >>> send失败");
+        handlerMessageError("  >>> send失败");
         setSendBtnDisabled(false);
       }
     } else {
-      // messageErrorHandler("  >>> 没有连接ws");
+      // handlerMessageError("  >>> 没有连接ws");
       // setSendBtnDisabled(false);
       waitReconnect(inputValue, 1000);
     }
-  }, [setSendBtnDisabled, setInputValue, messageErrorHandler, waitReconnect, inputValue]);
+  }, [setSendBtnDisabled, setInputValue, handlerMessageError, waitReconnect, inputValue]);
 
   // useEffect(() => {
   //   if (rowData.length === 0) {
@@ -1005,25 +1005,25 @@ const App = () => {
           />
         </div>
         <div style={{ margin: "1px" }}>
-          <button onClick={pauseBtnClickHandler}>{pauseBtnText}</button>
-          <button onClick={collectBtnClickHandler} disabled={isCollectBtnDisabled}>断开</button>
-          <button onClick={closeBtnClickHandler} disabled={isCloseBtnDisabled}>强制关闭</button>
-          <button onClick={nextBtnClickHandler} disabled={isNextBtnDisabled}>不再继续</button>
-          <button onClick={chatBtnClickHandler}>chat</button>
+          <button onClick={handlerPauseBtnClick}>{pauseBtnText}</button>
+          <button onClick={handlerCollectBtnClick} disabled={isCollectBtnDisabled}>断开</button>
+          <button onClick={handlerCloseBtnClick} disabled={isCloseBtnDisabled}>强制关闭</button>
+          <button onClick={handlerNextBtnClick} disabled={isNextBtnDisabled}>不再继续</button>
+          <button onClick={handlerChatBtnClick}>chat</button>
           <button onClick={cacheBtnClickHandler}>cache</button>
-          <button onClick={clearCacheBtnClickHandler}>清空cache</button>
-          <button onClick={clearGridBtnClickHandler} disabled={isClearGridBtnDisabled}>清空grid</button>
-          <button onClick={clearLogBtnClickHandler} disabled={isClearLogBtnDisabled}>清空log</button>
+          <button onClick={handlerClearCacheBtnClick}>清空cache</button>
+          <button onClick={handlerClearGridBtnClick} disabled={isClearGridBtnDisabled}>清空grid</button>
+          <button onClick={handlerClearLogBtnClick} disabled={isClearLogBtnDisabled}>清空log</button>
           <label>
-            <input type="checkbox" checked={isCompressChecked} onChange={compressChangeHandler} />
+            <input type="checkbox" checked={isCompressChecked} onChange={handlerCompressChange} />
             压缩
           </label>
           <label>
-            <input type="checkbox" checked={isBatchChecked} onChange={batchChangeHandler} />
+            <input type="checkbox" checked={isBatchChecked} onChange={handlerBatchChange} />
             批量
           </label>
           <input type="text" value={inputValue} onChange={inputHandleChange} />
-          <button onClick={sendBtnClickHandler} disabled={isSendBtnDisabled}>发送</button>
+          <button onClick={handlerSendBtnClick} disabled={isSendBtnDisabled}>发送</button>
         </div>
         <div style={{ height: "20%", margin: "1px",  }}>
           <h4>日志</h4>

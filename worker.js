@@ -157,7 +157,7 @@ export class WebSocketServer extends DurableObject {
         this.limit = 20;
         this.offsetId = 0;
       }
-      this.ws = null;
+      // this.ws = null;
       // this.client = null;
       // this.stop = 0;
       // this.webSocket = [];
@@ -724,16 +724,6 @@ export class WebSocketServer extends DurableObject {
           await this.checkChat(1, chatResult.results[0]);
         } else {
           this.chatId = chatResult.results[0].Cindex;
-          this.broadcast({
-            "clientId": this.id,
-            "offsetId": this.offsetId,
-            "operate": "nextChat",
-            "step": this.currentStep,
-            "tgCount": this.clientCount,
-            "message": this.chatId + " : " + chatResult.results[0].title,
-            "status": "add",
-            "date": new Date().getTime(),
-          });
         }
       } else {
         this.chatId = -1;

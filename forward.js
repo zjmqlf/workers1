@@ -1237,6 +1237,47 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
+  async getNext(clientIndex) {
+    this.tg[clientIndex].fromPeer = null;
+    this.tg[clientIndex].chatId += 1;
+    if (this.contrastChat(clientIndex)) {
+      this.tg[clientIndex].errorCount = 0;
+      await this.getChat(clientIndex);
+      if (this.tg[clientIndex].fromPeer) {
+        if (this.tg[clientIndex].chatId != this.tg[clientIndex].lastChat) {
+          if (this.tg[clientIndex].lastChat != 0) {
+            await this.updateConfig(clientIndex);
+          }
+          this.tg[clientIndex].lastChat = this.tg[clientIndex].chatId;
+        }
+      } else {
+        //console.log("(" + this.currentStep + ")全部chat采集完毕");
+        this.broadcast({
+          "result": "over",
+          "operate": "getNext",
+          "step": this.currentStep,
+          "clientCount": this.clientCount,
+          "message": "全部chat采集完毕",
+          "date": new Date().getTime(),
+        });
+        await this.close(clientIndex);
+      }
+    } else {
+      //console.log(this.tg[clientIndex].endChat + " : 超过最大chat了");  //测试
+      this.broadcast({
+        "clientId": this.tg[clientIndex].clientId,
+        "chatId": this.tg[clientIndex].chatId,
+        "operate": "getNext",
+        "step": this.currentStep,
+        "clientCount": this.clientCount,
+        "message": this.tg[clientIndex].endChat + " : 超过最大chat了",
+        "error": true,
+        "date": new Date().getTime(),
+      });
+      await this.close(clientIndex);
+    }
+  }
+
   async forwardMessage(clientIndex, idArray, fileIdArray) {
     const messageLength = idArray.length;
     //console.log(length);
@@ -1260,30 +1301,23 @@ export class WebSocketServer extends DurableObject {
         //   this.ws.send("ping");
         // }, 30000);
         // await this.ctx.storage.setAlarm(30000);
-        await scheduler.wait(time);
+        // await scheduler.wait(time);
         // clearInterval(pingInterval);
         // await this.ctx.storage.deleteAlarm();
+        if (time > 60000) {
+          // const timeLength = Math.floor(time / 60000);
+          const timeLength = Math.ceil(time / 60000);
+          for (let i = 0; i < timeLength; i++) {
+            await scheduler.wait(60000);
+            // this.ws.ping();
+            this.ws.send("ping");
+          }
+        } else {
+          await scheduler.wait(time);
+        }
       }
     }
     if (messageLength > 0) {
-      // if (this.tg[clientIndex].time && this.tg[clientIndex].time > 0) {
-      //   const time = this.waitTime - (new Date().getTime() - this.tg[clientIndex].time);
-      //   if (time > 0) {
-      //     //console.log("(" + this.currentStep + ") 还需等待" + (time / 1000) + "秒");
-      //     this.broadcast({
-      //       "clientId": this.tg[clientIndex].clientId,
-      //       "chatId": this.tg[clientIndex].chatId,
-      //       "offsetId": this.tg[clientIndex].offsetId,
-      //       "operate": "forwardMessage",
-      //       "step": this.currentStep,
-      //       "clientCount": this.clientCount,
-      //       "message": "还需等待" + Math.ceil(time / 1000) + "秒",
-      //       "status": "wait",
-      //       "date": new Date().getTime(),
-      //     });
-      //     await scheduler.wait(time);
-      //   }
-      // }
       try {
         const forwardResult = await this.tg[clientIndex].client.invoke(new Api.messages.ForwardMessages({
           fromPeer: this.tg[clientIndex].fromPeer,
@@ -1313,7 +1347,6 @@ export class WebSocketServer extends DurableObject {
       } catch (e) {
         if (e.errorMessage === "CHAT_FORWARDS_RESTRICTED" || e.code === 400) {
           this.tg[clientIndex].offsetId += this.tg[clientIndex].limit;
-          // await this.updateChat(clientIndex, 1);
           //console.log("(" + this.currentStep + ") 消息不允许转发" + e);
           this.broadcast({
             "clientId": this.tg[clientIndex].clientId,
@@ -1327,43 +1360,7 @@ export class WebSocketServer extends DurableObject {
             "error": true,
             "date": new Date().getTime(),
           });
-          this.tg[clientIndex].fromPeer = null;
-          this.tg[clientIndex].chatId += 1;
-          if (this.contrastChat(clientIndex)) {
-            await this.getChat(clientIndex);
-            if (this.tg[clientIndex].fromPeer) {
-              if (this.tg[clientIndex].chatId != this.tg[clientIndex].lastChat) {
-                if (this.tg[clientIndex].lastChat != 0) {
-                  await this.updateConfig(clientIndex);
-                }
-                this.tg[clientIndex].lastChat = this.tg[clientIndex].chatId;
-              }
-            } else {
-              //console.log("(" + this.currentStep + ")全部chat采集完毕");
-              this.broadcast({
-                "result": "over",
-                "operate": "forwardMessage",
-                "step": this.currentStep,
-                "clientCount": this.clientCount,
-                "message": "全部chat采集完毕",
-                "date": new Date().getTime(),
-              });
-              await this.close(clientIndex);
-            }
-          } else {
-            //console.log(this.tg[clientIndex].endChat + " : 超过最大chat了");  //测试
-            this.broadcast({
-              "clientId": this.tg[clientIndex].clientId,
-              "chatId": this.tg[clientIndex].chatId,
-              "operate": "forwardMessage",
-              "step": this.currentStep,
-              "clientCount": this.clientCount,
-              "message": this.tg[clientIndex].endChat + " : 超过最大chat了",
-              "error": true,
-              "date": new Date().getTime(),
-            });
-            await this.close(clientIndex);
-          }
+          await this.getNext(clientIndex);
         } else if (e.errorMessage === "FLOOD" || e.code === 420) {
           this.waitTime += 120000;
           //console.log("(" + this.currentStep + ") 触发了洪水警告，请求太频繁" + e);
@@ -1415,19 +1412,37 @@ export class WebSocketServer extends DurableObject {
     } else {
       this.tg[clientIndex].offsetId += this.tg[clientIndex].limit;
       await this.updateChat(clientIndex, 1);
-      //console.log("(" + this.currentStep + ") 消息无需转发");
-      this.broadcast({
-        "clientId": this.tg[clientIndex].clientId,
-        "chatId": this.tg[clientIndex].chatId,
-        "offsetId": this.tg[clientIndex].offsetId,
-        "operate": "forwardMessage",
-        "step": this.currentStep,
-        "clientCount": this.clientCount,
-        "message": "消息无需转发",
-        "status": "error",
-        "error": true,
-        "date": new Date().getTime(),
-      });
+      this.tg[clientIndex].errorCount += 1;
+      if (this.tg[clientIndex].errorCount >= 10) {
+        //console.log("(" + this.currentStep + ") 连续10次的消息无需转发");
+        this.broadcast({
+          "clientId": this.tg[clientIndex].clientId,
+          "chatId": this.tg[clientIndex].chatId,
+          "offsetId": this.tg[clientIndex].offsetId,
+          "operate": "forwardMessage",
+          "step": this.currentStep,
+          "clientCount": this.clientCount,
+          "message": "连续10次的消息无需转发",
+          "status": "error",
+          "error": true,
+          "date": new Date().getTime(),
+        });
+        await this.getNext(clientIndex);
+      } else {
+        //console.log("(" + this.currentStep + ") 消息无需转发");
+        this.broadcast({
+          "clientId": this.tg[clientIndex].clientId,
+          "chatId": this.tg[clientIndex].chatId,
+          "offsetId": this.tg[clientIndex].offsetId,
+          "operate": "forwardMessage",
+          "step": this.currentStep,
+          "clientCount": this.clientCount,
+          "message": "消息无需转发",
+          "status": "error",
+          "error": true,
+          "date": new Date().getTime(),
+        });
+      }
     }
     this.tg[clientIndex].time = new Date().getTime();
   }
@@ -1435,7 +1450,6 @@ export class WebSocketServer extends DurableObject {
   async nextStep() {
     if (this.stop === 1) {
       if (this.apiCount < 900) {
-        // await this.updateChat(clientIndex, 1);
         this.currentStep += 1;
         await scheduler.wait(3000);
         for (let clientIndex = 0; clientIndex < this.clientCount; clientIndex++) {
@@ -1532,6 +1546,7 @@ export class WebSocketServer extends DurableObject {
               });
               this.tg[clientIndex].chatId += 1;
               if (this.contrastChat(clientIndex)) {
+                this.tg[clientIndex].errorCount = 0;
                 await this.getChat(clientIndex);
                 if (this.tg[clientIndex].fromPeer) {
                   if (this.tg[clientIndex].chatId != this.tg[clientIndex].lastChat) {
@@ -1610,7 +1625,6 @@ export class WebSocketServer extends DurableObject {
               "status": "limit",
               "date": new Date().getTime(),
             });
-            // await this.updateChat(clientIndex, 1);
             await this.closeAll();
             // this.ctx.abort("reset");
           }
@@ -1634,7 +1648,6 @@ export class WebSocketServer extends DurableObject {
           "status": "limit",
           "date": new Date().getTime(),
         });
-        // await this.updateChat(clientIndex, 1);
         await this.closeAll();
         // this.ctx.abort("reset");
       }
@@ -1686,13 +1699,13 @@ export class WebSocketServer extends DurableObject {
         "limit": 100,
         "offsetId": 0,
         "fromPeer": null,
+        "errorCount": 0,
         "time": 0,
       };
       this.tg[clientIndex].clientId = this.api[clientIndex].id;
       this.initChat(clientIndex, option);
       await this.open(clientIndex, 1);
       if (this.tg[clientIndex].client) {
-        // this.tg[clientIndex].clientId = this.api[clientIndex].id;
         if (!option || !option.chatId || !option.reverse || !option.limited) {
           await this.getConfig(clientIndex, 1, option);
         }
@@ -1787,6 +1800,7 @@ export class WebSocketServer extends DurableObject {
                 "message": this.tg[clientIndex].chatId + " : 当前chat采集完毕",
                 "date": new Date().getTime(),
               });
+              this.tg[clientIndex].errorCount = 0;
               this.tg[clientIndex].chatId += 1;
               if (this.contrastChat(clientIndex)) {
                 await this.getChat(clientIndex);
@@ -1888,7 +1902,6 @@ export class WebSocketServer extends DurableObject {
           "status": "limit",
           "date": new Date().getTime(),
         });
-        // await this.updateChat(clientIndex, 1);
         await this.closeAll();
         // this.ctx.abort("reset");
       }
