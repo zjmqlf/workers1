@@ -1253,6 +1253,8 @@ export class WebSocketServer extends DurableObject {
       } else {
         //console.log("(" + this.currentStep + ")全部chat采集完毕");
         this.broadcast({
+          "clientId": this.tg[clientIndex].clientId,
+          "chatId": this.tg[clientIndex].chatId,
           "result": "over",
           "operate": "getNext",
           "step": this.currentStep,
@@ -1429,7 +1431,7 @@ export class WebSocketServer extends DurableObject {
         });
         await this.getNext(clientIndex);
       } else {
-        //console.log("(" + this.currentStep + ") 消息无需转发");
+        //console.log("(" + this.currentStep + ") 第" + this.tg[clientIndex].errorCount + "轮消息无需转发");
         this.broadcast({
           "clientId": this.tg[clientIndex].clientId,
           "chatId": this.tg[clientIndex].chatId,
@@ -1437,7 +1439,7 @@ export class WebSocketServer extends DurableObject {
           "operate": "forwardMessage",
           "step": this.currentStep,
           "clientCount": this.clientCount,
-          "message": "消息无需转发",
+          "message": "第" + this.tg[clientIndex].errorCount + "轮消息无需转发",
           "status": "error",
           "error": true,
           "date": new Date().getTime(),
@@ -1537,11 +1539,13 @@ export class WebSocketServer extends DurableObject {
               this.tg[clientIndex].fromPeer = null;
               //console.log("(" + this.currentStep + ")" + this.tg[clientIndex].chatId + " : 当前chat采集完毕");
               this.broadcast({
+                "clientId": this.tg[clientIndex].clientId,
+                "chatId": this.tg[clientIndex].chatId,
                 "result": "end",
                 "operate": "nextStep",
                 "step": this.currentStep,
                 "clientCount": this.clientCount,
-                "message": this.tg[clientIndex].chatId + " : 当前chat采集完毕",
+                "message": "当前chat采集完毕",
                 "date": new Date().getTime(),
               });
               this.tg[clientIndex].chatId += 1;
@@ -1564,6 +1568,8 @@ export class WebSocketServer extends DurableObject {
                 } else {
                   //console.log("(" + this.currentStep + ")全部chat采集完毕");
                   this.broadcast({
+                    "clientId": this.tg[clientIndex].clientId,
+                    "chatId": this.tg[clientIndex].chatId,
                     "result": "over",
                     "operate": "nextStep",
                     "step": this.currentStep,
@@ -1793,11 +1799,13 @@ export class WebSocketServer extends DurableObject {
               this.tg[clientIndex].fromPeer = null;
               //console.log("(" + this.currentStep + ")" + this.tg[clientIndex].chatId + " : 当前chat采集完毕");
               this.broadcast({
+                "clientId": this.tg[clientIndex].clientId,
+                "chatId": this.tg[clientIndex].chatId,
                 "result": "end",
                 "operate": "start",
                 "step": this.currentStep,
                 "clientCount": this.clientCount,
-                "message": this.tg[clientIndex].chatId + " : 当前chat采集完毕",
+                "message": "当前chat采集完毕",
                 "date": new Date().getTime(),
               });
               this.tg[clientIndex].errorCount = 0;
@@ -1820,6 +1828,8 @@ export class WebSocketServer extends DurableObject {
                 } else {
                   //console.log("(" + this.currentStep + ")全部chat采集完毕");
                   this.broadcast({
+                    "clientId": this.tg[clientIndex].clientId,
+                    "chatId": this.tg[clientIndex].chatId,
                     "result": "over",
                     "operate": "start",
                     "step": this.currentStep,
@@ -1859,6 +1869,8 @@ export class WebSocketServer extends DurableObject {
         } else {
           //console.log("全部chat采集完毕");
           this.broadcast({
+            "clientId": this.tg[clientIndex].clientId,
+            "chatId": this.tg[clientIndex].chatId,
             "result": "over",
             "operate": "start",
             "step": this.currentStep,

@@ -315,7 +315,7 @@ const App = () => {
       // gridRef.current.api.forEachNodeAfterFilterAndSort((rowNode, index) => {
       gridRef.current.api.forEachNode((rowNode, index) => {
         if (rowNode.data.chatId === chatId) {
-          if (items.clientCount && items.clientCount > 0 && index > items.clientCount) {
+          if (items.clientCount && items.clientCount > 0 && index >= items.clientCount) {
             deleteItems(rowNode);
             addItems(rowNode);
           }
@@ -516,13 +516,12 @@ const App = () => {
     //   time = 60000;
     //   count = 1;
     // }
-    let time = 240000;
     timeOut.current = setTimeout(function() {
       if (over.current === false) {
         addNewEvent({
           "error": true,
           // "message": renderTime(Date.now()) + "  >>> 过了" + count + "分钟都没有收到任何消息",
-          "message": renderTime(Date.now()) + "  >>> 过了4分钟都没有收到任何消息",
+          "message": renderTime(Date.now()) + "  >>> 过了2分钟都没有收到任何消息",
         });
         if (ws.current && ws.current.readyState === WebSocket.OPEN) {
           ws.current.send(JSON.stringify({
@@ -538,7 +537,8 @@ const App = () => {
           "message": renderTime(Date.now()) + "  >>> 停止采集，不再继续send",
         });
       }
-    }, time);
+    // }, time);
+    }, 120000);
  }, [addNewEvent, renderTime]);
 
   const collectWS = useCallback((command) => {
