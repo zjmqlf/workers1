@@ -17,6 +17,7 @@ export class WebSocketServer extends DurableObject {
   clientCount = 0;
   tg = [];
   waitTime = 180000;
+  pingTime = 20000;
   filterType = 0;
   filter = Api.InputMessagesFilterVideo;
   //filterTitle = "媒体";
@@ -287,236 +288,237 @@ export class WebSocketServer extends DurableObject {
           "apiId": 15816416,
           "apiHash": "22bde2958e42528d60debaa9bfc6a3ac",
           "sessionString": "1BQANOTEuMTA4LjU2LjEyOABQOhVBQg/GX1aEEdRs4l9MQBDnS00ospmsEnhbooeQ8Z/NsDXkgJED/iZkDT2clExrl1CDioBbqm8AOhzfeDJ+2tajYsO54o/jWVTWzpnSDGjs71me+e5DR/S6EJGtY85sGhMmHE+ILjS4rqbiOtS42Py+p6p77SIP+ImPsfDWHVWkGAszNYIAJ5ZmfR55b7xyKKXoqa4mu/fz9kmW4pH1HwQJw8q1rS7fdG8ippwLvP/1tYUSrDN5uPyzNF22XEmANIWbB7ZyBDcN1eaH32Dm3HFSS2fLnetuMQTMUXZbLWFnzWIz73RJbV7DatIK+z7IvUzEPy6a5VOXgFdUYj1pSw==",
-        },
+        }
+        // // {
+        // //   "id": 23,
+        // //   "pc": 27,
+        // //   "name": "zjm2099",
+        // //   "phone": "+13528903059",
+        // //   "apiId": 15753848,
+        // //   "apiHash": "0fb65e7746da0f4bc9420632bee4eb56",
+        // //   "sessionString": "",
+        // // },
+        // // {
+        // //   "id": 24,
+        // //   "pc": 27,
+        // //   "name": "zjm2100",
+        // //   "phone": "+12026296056",
+        // //   "apiId": 16177121,
+        // //   "apiHash": "7c6fae7288932173500c9072fc2637e8",
+        // //   "sessionString": "",
+        // // },
+        // // {
+        // //   "id": 25,
+        // //   "pc": 29,
+        // //   "name": "zjm2105",
+        // //   "phone": "+12023788637",
+        // //   "apiId": 14267011,
+        // //   "apiHash": "9ef3ca1ed8a157f59587021fd0a389f8",
+        // //   "sessionString": "",
+        // // },
         // {
-        //   "id": 23,
-        //   "pc": 27,
-        //   "name": "zjm2099",
-        //   "phone": "+13528903059",
-        //   "apiId": 15753848,
-        //   "apiHash": "0fb65e7746da0f4bc9420632bee4eb56",
-        //   "sessionString": "",
+        //   "id": 26,
+        //   "pc": 35,
+        //   "name": "zjm2125",
+        //   "phone": "+12024760134",
+        //   "apiId": 19251839,
+        //   "apiHash": "601bc804c1e71efe698588c24ca3ba4f",
+        //   "sessionString": "1BQANOTEuMTA4LjU2LjEyOABQqFZlkxggG9g8nQjTsU1Yu23Xrfr9SY4hR+UbLS3vRm1L1A7n+miDT6/y9VztIzcuj7ZXY2sRCQ0dFnb2CJuriFa7H3v6TMmiXQ/Ul/Rma8bX0228pyWLxP5d0ucASWr3lPl1zZqAfKBuV2e/iF6y8Zhaqx4fTwruuR05ZVkF4LzZRcIMtd9pzhj2ofMMLQXgnUCSJ8d2hhI8pMfAPuC28VYQfLpPCjTUL6oDWx2DXEXCQFcZLOObG5jjfGMlwdL33+KxiBMq0npEYh63J5hSJVE3+2AvzcZncnawaEDmIwKf0oMKyvjBACE+PbTCopE69Wbs8v9iFWNgsompxSAcww==",
         // },
         // {
-        //   "id": 24,
-        //   "pc": 27,
-        //   "name": "zjm2100",
-        //   "phone": "+12026296056",
-        //   "apiId": 16177121,
-        //   "apiHash": "7c6fae7288932173500c9072fc2637e8",
-        //   "sessionString": "",
+        //   "id": 27,
+        //   "pc": 43,
+        //   "name": "zjm2149",
+        //   "phone": "+12407158869",
+        //   "apiId": 16593781,
+        //   "apiHash": "4a6eedd1198bf7f817999216d453fa96",
+        //   "sessionString": "1BQANOTEuMTA4LjU2LjEyOABQZWLvkrDpy3IJxHXO49AeGzKb5OYlTb0hB1EZGDo/0SB1/YEFkIe1B4ewwQJQXuVx0Y1FLdFDQV72+Ld6GVWrlTQaB1bCSr91rju7UHxUnSl4sXwQYYJSRCWckIxiHuzqkVt6wI2W4D2f4Qbn5Eh2+nXdynStoniEd21jsuWDEj7kgLsBU7E6YSMMM1M7jwfKMTC//x0TlnbN8I7vwmTRVmWzXllRGt/awV3A7HngZZ8YbxF6nlEokCA5YIsGWWRFj0IsxIxc2bS+SXT8x43w7KFMvNP66VN6bJtD1QJSz4udN6O1B68sINhD4ygZ39j5rq9kVVvAusFX9FdlSpStFw==",
         // },
         // {
-        //   "id": 25,
-        //   "pc": 29,
-        //   "name": "zjm2105",
-        //   "phone": "+12023788637",
-        //   "apiId": 14267011,
-        //   "apiHash": "9ef3ca1ed8a157f59587021fd0a389f8",
-        //   "sessionString": "",
-        // },
-        {
-          "id": 26,
-          "pc": 35,
-          "name": "zjm2125",
-          "phone": "+12024760134",
-          "apiId": 19251839,
-          "apiHash": "601bc804c1e71efe698588c24ca3ba4f",
-          "sessionString": "1BQANOTEuMTA4LjU2LjEyOABQqFZlkxggG9g8nQjTsU1Yu23Xrfr9SY4hR+UbLS3vRm1L1A7n+miDT6/y9VztIzcuj7ZXY2sRCQ0dFnb2CJuriFa7H3v6TMmiXQ/Ul/Rma8bX0228pyWLxP5d0ucASWr3lPl1zZqAfKBuV2e/iF6y8Zhaqx4fTwruuR05ZVkF4LzZRcIMtd9pzhj2ofMMLQXgnUCSJ8d2hhI8pMfAPuC28VYQfLpPCjTUL6oDWx2DXEXCQFcZLOObG5jjfGMlwdL33+KxiBMq0npEYh63J5hSJVE3+2AvzcZncnawaEDmIwKf0oMKyvjBACE+PbTCopE69Wbs8v9iFWNgsompxSAcww==",
-        },
-        {
-          "id": 27,
-          "pc": 43,
-          "name": "zjm2149",
-          "phone": "+12407158869",
-          "apiId": 16593781,
-          "apiHash": "4a6eedd1198bf7f817999216d453fa96",
-          "sessionString": "1BQANOTEuMTA4LjU2LjEyOABQZWLvkrDpy3IJxHXO49AeGzKb5OYlTb0hB1EZGDo/0SB1/YEFkIe1B4ewwQJQXuVx0Y1FLdFDQV72+Ld6GVWrlTQaB1bCSr91rju7UHxUnSl4sXwQYYJSRCWckIxiHuzqkVt6wI2W4D2f4Qbn5Eh2+nXdynStoniEd21jsuWDEj7kgLsBU7E6YSMMM1M7jwfKMTC//x0TlnbN8I7vwmTRVmWzXllRGt/awV3A7HngZZ8YbxF6nlEokCA5YIsGWWRFj0IsxIxc2bS+SXT8x43w7KFMvNP66VN6bJtD1QJSz4udN6O1B68sINhD4ygZ39j5rq9kVVvAusFX9FdlSpStFw==",
-        },
-        {
-          "id": 28,
-          "pc": 44,
-          "name": "zjm2150",
-          "phone": "+447362054713",
-          "apiId": 15833292,
-          "apiHash": "b5798fe55bcfbe23bd8935cd201047c6",
-          "sessionString": "1BQANOTEuMTA4LjU2LjEyOABQNWNdfv6fdTZiMxlzWfyhkzZAxcxGj2HmzqFNsWsmIGIT9L2l+5LFnk2HJsk1bpldE8kmOULO+2S+0Ma8YhiHT9ISbsMQUkK2VEAxlp0kOLPtLIRizQD9G6KHoM8C+m4+30NoJAFYa4qjZHGDxvyutqcSrUrelpqtZ86HMudra+w1F7SaKRKMY2qPBCM0a4TCq/ZEvTHxab2DZKhVj5BbWxrR0rDidIVzSdZV3/Nx6zfeyf7BghDlMVYTNQDzwEqLC0RpzVQSEbZXv7scrOhdSMisV4UmUVVeIKj8+eJ6lXdPADqZGDqC9eBLOP9oZR99sQ5tdYmW49jeQmWi/0gg1g==",
-        },
-        // {
-        //   "id": 29,
+        //   "id": 28,
         //   "pc": 44,
-        //   "name": "zjm2152",
-        //   "phone": "+436703061883",
-        //   "apiId": 15381367,
-        //   "apiHash": "ac07d5abc6501fec8f538e688a6780b8",
-        //   "sessionString": "",
+        //   "name": "zjm2150",
+        //   "phone": "+447362054713",
+        //   "apiId": 15833292,
+        //   "apiHash": "b5798fe55bcfbe23bd8935cd201047c6",
+        //   "sessionString": "1BQANOTEuMTA4LjU2LjEyOABQNWNdfv6fdTZiMxlzWfyhkzZAxcxGj2HmzqFNsWsmIGIT9L2l+5LFnk2HJsk1bpldE8kmOULO+2S+0Ma8YhiHT9ISbsMQUkK2VEAxlp0kOLPtLIRizQD9G6KHoM8C+m4+30NoJAFYa4qjZHGDxvyutqcSrUrelpqtZ86HMudra+w1F7SaKRKMY2qPBCM0a4TCq/ZEvTHxab2DZKhVj5BbWxrR0rDidIVzSdZV3/Nx6zfeyf7BghDlMVYTNQDzwEqLC0RpzVQSEbZXv7scrOhdSMisV4UmUVVeIKj8+eJ6lXdPADqZGDqC9eBLOP9oZR99sQ5tdYmW49jeQmWi/0gg1g==",
+        // },
+        // // {
+        // //   "id": 29,
+        // //   "pc": 44,
+        // //   "name": "zjm2152",
+        // //   "phone": "+436703061883",
+        // //   "apiId": 15381367,
+        // //   "apiHash": "ac07d5abc6501fec8f538e688a6780b8",
+        // //   "sessionString": "",
+        // // },
+        // // {
+        // //   "id": 30,
+        // //   "pc": 45,
+        // //   "name": "zjm2154",
+        // //   "phone": "+13525301285",
+        // //   "apiId": 12604929,
+        // //   "apiHash": "4c31287581bd7e09e92d6602e2d1cfc5",
+        // //   "sessionString": "",
+        // // },
+        // // {
+        // //   "id": 31,
+        // //   "pc": 46,
+        // //   "name": "zjm2157",
+        // //   "phone": "+16149291798",
+        // //   "apiId": 10018955,
+        // //   "apiHash": "af7fd0a4266fed7a481b7f970a8a876e",
+        // //   "sessionString": "",
+        // // },
+        // {
+        //   "id": 32,
+        //   "pc": 71,
+        //   "name": "zjm2231",
+        //   "phone": "+12024687761",
+        //   "apiId": 10690381,
+        //   "apiHash": "b880e52ce5a0b5d9829b94ead1904506",
+        //   "sessionString": "1BQANOTEuMTA4LjU2LjEyOABQu7MNVNVPBJyWLS7Cn8Q5L7yXlnRSN1bwACLKaHsQfFx5aID0vnLtl0q83clYCEOWYtc6Hx1Ema9zugSkfXOZ27FwMEPdoZbFxAcJvrwi6uRE0FChVbonoCn3dA8CD8uXroKeNfL2njXvpMdZ8pbzVrsHz1xGm9KwX+5nt/4Nh8BlISFCwsIk9DZjQJ4SIG7OBychUSnw0b6ewCZmDNvMcHkEY9FTR1ImAkeKUXQ25xET3rFBaWoRG4a5esi6To/ufgOxSxnu27JGWtOekB4WcJsQnD3hdu4qM6sRH3cgBYfW1n36MCxv+5feg9Nat1M3m6dwDgih61KVvvrtT2HiLA==",
         // },
         // {
-        //   "id": 30,
-        //   "pc": 45,
-        //   "name": "zjm2154",
-        //   "phone": "+13525301285",
-        //   "apiId": 12604929,
-        //   "apiHash": "4c31287581bd7e09e92d6602e2d1cfc5",
-        //   "sessionString": "",
+        //   "id": 33,
+        //   "pc": 71,
+        //   "name": "zjm2232",
+        //   "phone": "+13528904325",
+        //   "apiId": 9097235,
+        //   "apiHash": "8389d7267098c9799e0676bd47f627a9",
+        //   "sessionString": "1BQANOTEuMTA4LjU2LjEyOABQwivZ5mQgL8pJjgfUjK2ONt59wTXy+QTtiusplnP/B1rR2+sUY7pWsLKxXXo8zWhkQJokwDfXZdsWfcvjUwFZZqeDgLQcy1Bx3w2tUx/FHqbj8D+l00rCu3HIPCcaxlFLLfb82li5I4t19/Uea5q+a2M30Wd6SxU7mD5EFYKJfAXlUAoF3Ttud6CeRfhaV0EQMfGLDGgqf2hrC8cNrewNi2iefj6xoc+wRil5Q5FO6F+D5qHGjAD3lvVZDYczcPjuDnX74/0wySaPqBfoD7WVrFSMjiHzNVyF5SK2oik3cDSB6ZbFzTNb7Pa0dDQJZiz0vY8sPPzINaAPwZ82600Hmg==",
         // },
         // {
-        //   "id": 31,
-        //   "pc": 46,
-        //   "name": "zjm2157",
-        //   "phone": "+16149291798",
-        //   "apiId": 10018955,
-        //   "apiHash": "af7fd0a4266fed7a481b7f970a8a876e",
-        //   "sessionString": "",
+        //   "id": 34,
+        //   "pc": 71,
+        //   "name": "zjm2233",
+        //   "phone": "+12024685684",
+        //   "apiId": 14346704,
+        //   "apiHash": "b7b0b78f118d3915e1315c94ee16402a",
+        //   "sessionString": "1BQANOTEuMTA4LjU2LjEyOABQpbqlLEg7nFegoxsWpkLGyAS0dUlIt9MqTDaDheZUx9w+pl84i+wPKs4G2eOGmGVMY+QhmrzfeYAEJYDw9cFxEm5xZbPBrazuz++HPDv2yhDy7Hg/gZDPby36lh1yjdCHYjF3ZeNhMU/vftgHFT2M+b7BXvc+dz0keXSLQEPGkj8eTXzMV0DCaJKUYO3yq2xbJ05ceJF/AprLZbw27AQ7i+6vJIDh3pdD6oiV+S25r3db3RjIN2qJ+2v1xG0OtPPx7geZjI1b525y6VDrJ1+iXW2qN+j0HmzKdrWHMrfb6IZOm15SIZcVVH0f7CRS2i5V5r8b+UjWWbro4mJpjOqAlg==",
         // },
-        {
-          "id": 32,
-          "pc": 71,
-          "name": "zjm2231",
-          "phone": "+12024687761",
-          "apiId": 10690381,
-          "apiHash": "b880e52ce5a0b5d9829b94ead1904506",
-          "sessionString": "1BQANOTEuMTA4LjU2LjEyOABQu7MNVNVPBJyWLS7Cn8Q5L7yXlnRSN1bwACLKaHsQfFx5aID0vnLtl0q83clYCEOWYtc6Hx1Ema9zugSkfXOZ27FwMEPdoZbFxAcJvrwi6uRE0FChVbonoCn3dA8CD8uXroKeNfL2njXvpMdZ8pbzVrsHz1xGm9KwX+5nt/4Nh8BlISFCwsIk9DZjQJ4SIG7OBychUSnw0b6ewCZmDNvMcHkEY9FTR1ImAkeKUXQ25xET3rFBaWoRG4a5esi6To/ufgOxSxnu27JGWtOekB4WcJsQnD3hdu4qM6sRH3cgBYfW1n36MCxv+5feg9Nat1M3m6dwDgih61KVvvrtT2HiLA==",
-        },
-        {
-          "id": 33,
-          "pc": 71,
-          "name": "zjm2232",
-          "phone": "+13528904325",
-          "apiId": 9097235,
-          "apiHash": "8389d7267098c9799e0676bd47f627a9",
-          "sessionString": "1BQANOTEuMTA4LjU2LjEyOABQwivZ5mQgL8pJjgfUjK2ONt59wTXy+QTtiusplnP/B1rR2+sUY7pWsLKxXXo8zWhkQJokwDfXZdsWfcvjUwFZZqeDgLQcy1Bx3w2tUx/FHqbj8D+l00rCu3HIPCcaxlFLLfb82li5I4t19/Uea5q+a2M30Wd6SxU7mD5EFYKJfAXlUAoF3Ttud6CeRfhaV0EQMfGLDGgqf2hrC8cNrewNi2iefj6xoc+wRil5Q5FO6F+D5qHGjAD3lvVZDYczcPjuDnX74/0wySaPqBfoD7WVrFSMjiHzNVyF5SK2oik3cDSB6ZbFzTNb7Pa0dDQJZiz0vY8sPPzINaAPwZ82600Hmg==",
-        },
-        {
-          "id": 34,
-          "pc": 71,
-          "name": "zjm2233",
-          "phone": "+12024685684",
-          "apiId": 14346704,
-          "apiHash": "b7b0b78f118d3915e1315c94ee16402a",
-          "sessionString": "1BQANOTEuMTA4LjU2LjEyOABQpbqlLEg7nFegoxsWpkLGyAS0dUlIt9MqTDaDheZUx9w+pl84i+wPKs4G2eOGmGVMY+QhmrzfeYAEJYDw9cFxEm5xZbPBrazuz++HPDv2yhDy7Hg/gZDPby36lh1yjdCHYjF3ZeNhMU/vftgHFT2M+b7BXvc+dz0keXSLQEPGkj8eTXzMV0DCaJKUYO3yq2xbJ05ceJF/AprLZbw27AQ7i+6vJIDh3pdD6oiV+S25r3db3RjIN2qJ+2v1xG0OtPPx7geZjI1b525y6VDrJ1+iXW2qN+j0HmzKdrWHMrfb6IZOm15SIZcVVH0f7CRS2i5V5r8b+UjWWbro4mJpjOqAlg==",
-        },
-        {
-          "id": 35,
-          "pc": 72,
-          "name": "zjm2235",
-          "phone": "+18194102280",
-          "apiId": 15783504,
-          "apiHash": "c279d17c86194b14e0959eb987b1b0da",
-          "sessionString": "1BQANOTEuMTA4LjU2LjEyOABQOgbeTY9OB5t6NALPM/cIHsK+u5g3hhw1XA0yUEutACbY3wvvxn4HvrLHlpj3OfPsn2g8wuMO75sy9AhWqN8xQFAsfUFtmM2pA9klb46/IuQGh76rGrzc6sO2yDfQRfH/riLQfMiZirDm3wGobwfx7G/D3obxUpZH7fYfhxp5ETYMTovtPUlIr9jjnYFIokwW+nvm4I/GoahEyaxeLLydfWAKPDp/xjDCR+FcBWV1jZ7yJ9BrSrNR7MFUFhIabn/xAsx27YmMnShRTFR5W5s/afrFu50NNfamgkgD0jn5Yx0aaBZZtAgQqkAXhuMYC79IfH+2FNV7cT3qGD2x4QRorw==",
-        },
-        {
-          "id": 36,
-          "pc": 72,
-          "name": "zjm2236",
-          "phone": "+12404214295",
-          "apiId": 9046850,
-          "apiHash": "bc86cc2ebd1c45002c40da29e1a1d746",
-          "sessionString": "1BQANOTEuMTA4LjU2LjEyOABQXCrrwGFqh0fZr7fQpyJ9xS54ydK+Ld0j71pUJsi2z72zbvJyGkcF0o/YTRQBWX8ZSgz3Dctt47QhYDZexRcfpSh62I4WDnAzVs09Q3Uu7cTwc1kqCs+Rkb+8fZxlq2u3xLD8LbCMLHPG2vOL+1sCf0ahYRAZ68f7JuBwBMebZv8kN1bgDFmTZ/F7vcT/IaoidmCS6xO9swdPq2LCvHWnKr+bhhKQWiU/8M6wvNFVr4FeXKKj3JaO+BeyPoMrzxomeTN23vSiZzeyYrlW8NTbDfWmWbnk5dVySkDF5Z59LCp/7Wv7u8ClMVOV7Sju4C0YapmPYsOirRKUgtuwd7Fpvw==",
-        },
-        {
-          "id": 37,
-          "pc": 74,
-          "name": "zjm2240",
-          "phone": "+12404217085",
-          "apiId": 14254774,
-          "apiHash": "01ab4d78bdbc4dffff967acd4b13de22",
-          "sessionString": "1BQANOTEuMTA4LjU2LjEyOABQPd0zKc6i2EytlaP0DOBr1ewCH78Z1CJ4kwK+Irwnc5TkRb1HbUXeMqvO56Mzu0PtDhaB1HHprAFH2wAlQXOquGttupOMMEysfVYy8A2pCFU5mro5TCKRLH94mRfnG5eaUHqtBoc3hEQy7PumgEdyPJKQAUOXUZ4JqjFCRVZMqzu/Af2018ne7kF3+JozmeMHfm6wBivdLTEwP2eb/gKkbDcfByv82a03qywFKl/S7iQwkbGYZEgZqFOL1oBCFckG+ec9EUF1Ay4ssTCXp5g4VFijvaGdAGOWAM8M3j1q5ET1dBRLWnSZr5agu8YkJPBnCTr9+myQ4wJBkOX/c2y5QA==",
-        },
         // {
-        //   "id": 38,
+        //   "id": 35,
+        //   "pc": 72,
+        //   "name": "zjm2235",
+        //   "phone": "+18194102280",
+        //   "apiId": 15783504,
+        //   "apiHash": "c279d17c86194b14e0959eb987b1b0da",
+        //   "sessionString": "1BQANOTEuMTA4LjU2LjEyOABQOgbeTY9OB5t6NALPM/cIHsK+u5g3hhw1XA0yUEutACbY3wvvxn4HvrLHlpj3OfPsn2g8wuMO75sy9AhWqN8xQFAsfUFtmM2pA9klb46/IuQGh76rGrzc6sO2yDfQRfH/riLQfMiZirDm3wGobwfx7G/D3obxUpZH7fYfhxp5ETYMTovtPUlIr9jjnYFIokwW+nvm4I/GoahEyaxeLLydfWAKPDp/xjDCR+FcBWV1jZ7yJ9BrSrNR7MFUFhIabn/xAsx27YmMnShRTFR5W5s/afrFu50NNfamgkgD0jn5Yx0aaBZZtAgQqkAXhuMYC79IfH+2FNV7cT3qGD2x4QRorw==",
+        // },
+        // {
+        //   "id": 36,
+        //   "pc": 72,
+        //   "name": "zjm2236",
+        //   "phone": "+12404214295",
+        //   "apiId": 9046850,
+        //   "apiHash": "bc86cc2ebd1c45002c40da29e1a1d746",
+        //   "sessionString": "1BQANOTEuMTA4LjU2LjEyOABQXCrrwGFqh0fZr7fQpyJ9xS54ydK+Ld0j71pUJsi2z72zbvJyGkcF0o/YTRQBWX8ZSgz3Dctt47QhYDZexRcfpSh62I4WDnAzVs09Q3Uu7cTwc1kqCs+Rkb+8fZxlq2u3xLD8LbCMLHPG2vOL+1sCf0ahYRAZ68f7JuBwBMebZv8kN1bgDFmTZ/F7vcT/IaoidmCS6xO9swdPq2LCvHWnKr+bhhKQWiU/8M6wvNFVr4FeXKKj3JaO+BeyPoMrzxomeTN23vSiZzeyYrlW8NTbDfWmWbnk5dVySkDF5Z59LCp/7Wv7u8ClMVOV7Sju4C0YapmPYsOirRKUgtuwd7Fpvw==",
+        // },
+        // {
+        //   "id": 37,
         //   "pc": 74,
-        //   "name": "zjm2241",
-        //   "phone": "+13522179773",
-        //   "apiId": 11529789,
-        //   "apiHash": "18f9b0abbeb32c902a3717662e1bf991",
-        //   "sessionString": "",
+        //   "name": "zjm2240",
+        //   "phone": "+12404217085",
+        //   "apiId": 14254774,
+        //   "apiHash": "01ab4d78bdbc4dffff967acd4b13de22",
+        //   "sessionString": "1BQANOTEuMTA4LjU2LjEyOABQPd0zKc6i2EytlaP0DOBr1ewCH78Z1CJ4kwK+Irwnc5TkRb1HbUXeMqvO56Mzu0PtDhaB1HHprAFH2wAlQXOquGttupOMMEysfVYy8A2pCFU5mro5TCKRLH94mRfnG5eaUHqtBoc3hEQy7PumgEdyPJKQAUOXUZ4JqjFCRVZMqzu/Af2018ne7kF3+JozmeMHfm6wBivdLTEwP2eb/gKkbDcfByv82a03qywFKl/S7iQwkbGYZEgZqFOL1oBCFckG+ec9EUF1Ay4ssTCXp5g4VFijvaGdAGOWAM8M3j1q5ET1dBRLWnSZr5agu8YkJPBnCTr9+myQ4wJBkOX/c2y5QA==",
         // },
-        {
-          "id": 39,
-          "pc": 75,
-          "name": "zjm2244",
-          "phone": "+37066154513",
-          "apiId": 19988259,
-          "apiHash": "3cd5347f2f5c8cdfc7d4ff89af2f8a57",
-          "sessionString": "1BQANOTEuMTA4LjU2LjEyOABQDMofmsQMVwdjcxJ42pPrB5j7WFrvn6H7LBD8NN6H3z4NlIR68lduR0tRwuMnqcunra/Y+hIFj4kiC1b0ZlXb3w3lWkIf+gxImENPwMlWeq7KmvU9VKTw7LyaFJ61k8MkPUWXaeeMxc3OoSK0JTamDh75VReJeYxJuWdnMepi59vlyBjmaxuhK1Mk1FLEc91lDteMQ1VbztIA09hHNVIqwhq7nGMNNOpZoX7Y8u1pKWUAva7Jk/luY1koczY2Esn/QxF1FnX4LqX9EUKa+vC/E/m7wSHLi63F62qZjly4CSaiQTfx0eRmTVh+d0Cx3DZvswUWP19gXpIlwmHRTHnIdA==",
-        },
-        {
-          "id": 40,
-          "pc": 75,
-          "name": "zjm2245",
-          "phone": "+16143164251",
-          "apiId": 15998596,
-          "apiHash": "29f9d44ecc51856bacf03486e186f855",
-          "sessionString": "1BQANOTEuMTA4LjU2LjEyOABQZkUY+aeZnpxL/kIGAVxbHBapRi8BHIS0uUrDeHyaZmv5bsEr9E+FdCw1R1UXcl0V0TbduQS/ywRwLnQoSshrsKTUhCs4bRNeoR5Ot6rXQNoX+GXCwHIJu2oYlHUmYslelSHJh3Q0cJqRFbE96O95PYbrYabURVXnSQBglQIk1UREMtUJLjmjMmqUbDtY1ECLYpzszHCpGqz0HMM/cw7+vzwmbxlYEAVqiYa8v4KCqh614jRsTh9g3xewjdQ/mKUndgVX6LyZE7hyK15jzS+ARVB/6b6ptcpzFNzOmTaormHEKV6m5wL/S4dLALqrzLqyviBfif3eNFldPyn0J0DOrQ==",
-        },
-        {
-          "id": 41,
-          "pc": 76,
-          "name": "zjm2246",
-          "phone": "+14044836428",
-          "apiId": 9866793,
-          "apiHash": "e8d898f4a243c682302bbae3b3ae0b4d",
-          "sessionString": "1BQANOTEuMTA4LjU2LjEyOABQv9tW5Xt1Pb1Cpz48M7aD9aU9QS15/kKhP8QQl6nt4ZrnMFUg3TsVYQe3l+mPha29cvfj3grxGoKzdQ/AGVJMLWxk7sXJBksA+3R8XkIiyrUFfXWD0TZHqI4naDyXNoAmoc6RISks3Pctu7m9mQroK04F0ke6RFNUVLeQqVmz+zvTyANKsBeV6maCHiW69PcDqBND9XVkHgg3bDtwkwZ0h3Trx/zOZ+ennvgfctNTALC2BUBfTgVtrT322TwvqGyyyYWn67kdSntqZe9kGiFPSyCNQJBRqDQmGS1tbg58K8YgnOVcz7PmKI9pd5PwfAOQy8noPukmnB4yoXiyi4keGg==",
-        },
+        // // {
+        // //   "id": 38,
+        // //   "pc": 74,
+        // //   "name": "zjm2241",
+        // //   "phone": "+13522179773",
+        // //   "apiId": 11529789,
+        // //   "apiHash": "18f9b0abbeb32c902a3717662e1bf991",
+        // //   "sessionString": "",
+        // // },
         // {
-        //   "id": 42,
-        //   "pc": 133,
-        //   "name": "zjm2419",
-        //   "phone": "+14706523433",
-        //   "apiId": 11785576,
-        //   "apiHash": "b44fa1e1652981b518ed5420caa3153a",
-        //   "sessionString": "",
+        //   "id": 39,
+        //   "pc": 75,
+        //   "name": "zjm2244",
+        //   "phone": "+37066154513",
+        //   "apiId": 19988259,
+        //   "apiHash": "3cd5347f2f5c8cdfc7d4ff89af2f8a57",
+        //   "sessionString": "1BQANOTEuMTA4LjU2LjEyOABQDMofmsQMVwdjcxJ42pPrB5j7WFrvn6H7LBD8NN6H3z4NlIR68lduR0tRwuMnqcunra/Y+hIFj4kiC1b0ZlXb3w3lWkIf+gxImENPwMlWeq7KmvU9VKTw7LyaFJ61k8MkPUWXaeeMxc3OoSK0JTamDh75VReJeYxJuWdnMepi59vlyBjmaxuhK1Mk1FLEc91lDteMQ1VbztIA09hHNVIqwhq7nGMNNOpZoX7Y8u1pKWUAva7Jk/luY1koczY2Esn/QxF1FnX4LqX9EUKa+vC/E/m7wSHLi63F62qZjly4CSaiQTfx0eRmTVh+d0Cx3DZvswUWP19gXpIlwmHRTHnIdA==",
         // },
         // {
-        //   "id": 43,
-        //   "pc": 133,
-        //   "name": "zjm2420",
-        //   "phone": "+16505377616",
-        //   "apiId": 17764563,
-        //   "apiHash": "6db60ad52ab0f331fee925d7ecd62d68",
-        //   "sessionString": "",
+        //   "id": 40,
+        //   "pc": 75,
+        //   "name": "zjm2245",
+        //   "phone": "+16143164251",
+        //   "apiId": 15998596,
+        //   "apiHash": "29f9d44ecc51856bacf03486e186f855",
+        //   "sessionString": "1BQANOTEuMTA4LjU2LjEyOABQZkUY+aeZnpxL/kIGAVxbHBapRi8BHIS0uUrDeHyaZmv5bsEr9E+FdCw1R1UXcl0V0TbduQS/ywRwLnQoSshrsKTUhCs4bRNeoR5Ot6rXQNoX+GXCwHIJu2oYlHUmYslelSHJh3Q0cJqRFbE96O95PYbrYabURVXnSQBglQIk1UREMtUJLjmjMmqUbDtY1ECLYpzszHCpGqz0HMM/cw7+vzwmbxlYEAVqiYa8v4KCqh614jRsTh9g3xewjdQ/mKUndgVX6LyZE7hyK15jzS+ARVB/6b6ptcpzFNzOmTaormHEKV6m5wL/S4dLALqrzLqyviBfif3eNFldPyn0J0DOrQ==",
         // },
         // {
-        //   "id": 44,
-        //   "pc": 148,
-        //   "name": "zjm2463",
-        //   "phone": "+16502106659",
-        //   "apiId": 22995669,
-        //   "apiHash": "ba356f82d9938db30fe8f8d636301482",
-        //   "sessionString": "",
+        //   "id": 41,
+        //   "pc": 76,
+        //   "name": "zjm2246",
+        //   "phone": "+14044836428",
+        //   "apiId": 9866793,
+        //   "apiHash": "e8d898f4a243c682302bbae3b3ae0b4d",
+        //   "sessionString": "1BQANOTEuMTA4LjU2LjEyOABQv9tW5Xt1Pb1Cpz48M7aD9aU9QS15/kKhP8QQl6nt4ZrnMFUg3TsVYQe3l+mPha29cvfj3grxGoKzdQ/AGVJMLWxk7sXJBksA+3R8XkIiyrUFfXWD0TZHqI4naDyXNoAmoc6RISks3Pctu7m9mQroK04F0ke6RFNUVLeQqVmz+zvTyANKsBeV6maCHiW69PcDqBND9XVkHgg3bDtwkwZ0h3Trx/zOZ+ennvgfctNTALC2BUBfTgVtrT322TwvqGyyyYWn67kdSntqZe9kGiFPSyCNQJBRqDQmGS1tbg58K8YgnOVcz7PmKI9pd5PwfAOQy8noPukmnB4yoXiyi4keGg==",
         // },
-        // {
-        //   "id": 45,
-        //   "pc": 149,
-        //   "name": "zjm2466",
-        //   "phone": "+12023527104",
-        //   "apiId": 25102839,
-        //   "apiHash": "7a2bc5dbb0faf5cfe0ecba45308171d2",
-        //   "sessionString": "",
-        // },
-        // {
-        //   "id": 46,
-        //   "pc": 171,
-        //   "name": "zjm2589",
-        //   "phone": "+447406613751",
-        //   "apiId": 26611861,
-        //   "apiHash": "479d34e5abc594feb3685117445903df",
-        //   "sessionString": "",
-        // },
-        // {
-        //   "id": 47,
-        //   "pc": 171,
-        //   "name": "zjm2590",
-        //   "phone": "+447406613754",
-        //   "apiId": 21979386,
-        //   "apiHash": "f89dbd720d7b2b2b843ae9aea2e4f02f",
-        //   "sessionString": "",
-        // }
+        // // {
+        // //   "id": 42,
+        // //   "pc": 133,
+        // //   "name": "zjm2419",
+        // //   "phone": "+14706523433",
+        // //   "apiId": 11785576,
+        // //   "apiHash": "b44fa1e1652981b518ed5420caa3153a",
+        // //   "sessionString": "",
+        // // },
+        // // {
+        // //   "id": 43,
+        // //   "pc": 133,
+        // //   "name": "zjm2420",
+        // //   "phone": "+16505377616",
+        // //   "apiId": 17764563,
+        // //   "apiHash": "6db60ad52ab0f331fee925d7ecd62d68",
+        // //   "sessionString": "",
+        // // },
+        // // {
+        // //   "id": 44,
+        // //   "pc": 148,
+        // //   "name": "zjm2463",
+        // //   "phone": "+16502106659",
+        // //   "apiId": 22995669,
+        // //   "apiHash": "ba356f82d9938db30fe8f8d636301482",
+        // //   "sessionString": "",
+        // // },
+        // // {
+        // //   "id": 45,
+        // //   "pc": 149,
+        // //   "name": "zjm2466",
+        // //   "phone": "+12023527104",
+        // //   "apiId": 25102839,
+        // //   "apiHash": "7a2bc5dbb0faf5cfe0ecba45308171d2",
+        // //   "sessionString": "",
+        // // },
+        // // {
+        // //   "id": 46,
+        // //   "pc": 171,
+        // //   "name": "zjm2589",
+        // //   "phone": "+447406613751",
+        // //   "apiId": 26611861,
+        // //   "apiHash": "479d34e5abc594feb3685117445903df",
+        // //   "sessionString": "",
+        // // },
+        // // {
+        // //   "id": 47,
+        // //   "pc": 171,
+        // //   "name": "zjm2590",
+        // //   "phone": "+447406613754",
+        // //   "apiId": 21979386,
+        // //   "apiHash": "f89dbd720d7b2b2b843ae9aea2e4f02f",
+        // //   "sessionString": "",
+        // // }
       ];
       this.clientCount = this.api.length;
       this.tg = Array(this.clientCount).fill(null);
       this.waitTime = 180000;
+      this.pingTime = 20000;
       this.messageArray = [];
       this.filter = Api.InputMessagesFilterVideo;
       //this.filterTitle = "媒体";
@@ -1011,6 +1013,9 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
+  async noforwardChat(clientIndex, tryCount, Cindex) {
+  }
+
   async checkChat(clientIndex, tryCount, chatResult) {
     if (chatResult.channelId && chatResult.accessHash) {
       let result = null;
@@ -1216,7 +1221,7 @@ export class WebSocketServer extends DurableObject {
     this.apiCount += 1;
     let chatResult = {};
     try {
-      chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = ? AND `Cindex` >= ? AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").bind(this.tg[clientIndex].clientId, this.tg[clientIndex].chatId).run();
+      chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = ? AND `Cindex` >= ? AND `noforwards` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").bind(this.tg[clientIndex].clientId, this.tg[clientIndex].chatId).run();
     } catch (e) {
       //console.log("(" + this.currentStep + ")出错 : " + e);
       this.broadcast({
@@ -1306,15 +1311,15 @@ export class WebSocketServer extends DurableObject {
           let chatResult = {};
           try {
             if (this.filterType === 0) {
-              chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = ? AND `Cindex` > ? AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").bind(this.tg[clientIndex].clientId, this.tg[clientIndex].chatId).run();
+              chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = ? AND `Cindex` > ? AND `noforwards` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").bind(this.tg[clientIndex].clientId, this.tg[clientIndex].chatId).run();
             } else if (this.filterType === 1) {
-              chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = ? AND `Cindex` > ? AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").bind(this.tg[clientIndex].clientId, this.tg[clientIndex].chatId).run();
+              chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = ? AND `Cindex` > ? AND `noforwards` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").bind(this.tg[clientIndex].clientId, this.tg[clientIndex].chatId).run();
             } else if (this.filterType === 2) {
-              chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = ? AND `Cindex` > ? AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").bind(this.tg[clientIndex].clientId, this.tg[clientIndex].chatId).run();
+              chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = ? AND `Cindex` > ? AND `noforwards` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").bind(this.tg[clientIndex].clientId, this.tg[clientIndex].chatId).run();
             } else if (this.filterType === 3) {
-              chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = ? AND `Cindex` > ? AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").bind(this.tg[clientIndex].clientId, this.tg[clientIndex].chatId).run();
+              chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = ? AND `Cindex` > ? AND `noforwards` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").bind(this.tg[clientIndex].clientId, this.tg[clientIndex].chatId).run();
             } else if (this.filterType === 4) {
-              chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = ? AND `Cindex` > ? AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").bind(this.tg[clientIndex].clientId, this.tg[clientIndex].chatId).run();
+              chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = ? AND `Cindex` > ? AND `noforwards` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").bind(this.tg[clientIndex].clientId, this.tg[clientIndex].chatId).run();
             }
           } catch (e) {
             tryCount += 1;
@@ -1657,11 +1662,11 @@ export class WebSocketServer extends DurableObject {
         // await scheduler.wait(time);
         // clearInterval(pingInterval);
         // await this.ctx.storage.deleteAlarm();
-        if (time > 60000) {
+        if (time > this.pingTime) {
           // const timeLength = Math.floor(time / 60000);
-          const timeLength = Math.ceil(time / 60000);
+          const timeLength = Math.ceil(time / this.pingTime);
           for (let i = 0; i < timeLength; i++) {
-            await scheduler.wait(60000);
+            await scheduler.wait(this.pingTime);
             // this.ws.ping();
             this.ws.send("ping");
           }
@@ -1930,7 +1935,7 @@ export class WebSocketServer extends DurableObject {
                   });
                   await this.close(clientIndex);
                   this.tg.splice(clientIndex, 1);
-                  this.clientCount--;
+                  clientCount--;
                   clientIndex--;
                 }
               } else {
@@ -1947,7 +1952,7 @@ export class WebSocketServer extends DurableObject {
                 });
                 await this.close(clientIndex);
                 this.tg.splice(clientIndex, 1);
-                this.clientCount--;
+                clientCount--;
                 clientIndex--;
               }
             }
@@ -2190,7 +2195,7 @@ export class WebSocketServer extends DurableObject {
                   });
                   await this.close(clientIndex);
                   this.tg.splice(clientIndex, 1);
-                  this.clientCount--;
+                  clientCount--;
                   clientIndex--;
                 }
               } else {
@@ -2207,7 +2212,7 @@ export class WebSocketServer extends DurableObject {
                 });
                 await this.close(clientIndex);
                 this.tg.splice(clientIndex, 1);
-                this.clientCount--;
+                clientCount--;
                 clientIndex--;
               }
             }
@@ -2231,7 +2236,7 @@ export class WebSocketServer extends DurableObject {
           });
           await this.close(clientIndex);
           this.tg.splice(clientIndex, 1);
-          this.clientCount--;
+          clientCount--;
           clientIndex--;
         }
       } else {
@@ -2366,7 +2371,7 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
-  async insertChatError(clientIndex, tryCount, channelId, accessHash, username, title) {
+  async insertChatError(clientIndex, tryCount, channelId, accessHash, username, title, noforwards) {
     if (tryCount === 20) {
       //console.log("insertChat超出tryCount限制");
       this.broadcast({
@@ -2382,15 +2387,15 @@ export class WebSocketServer extends DurableObject {
       await this.close(clientIndex);
     } else {
       await scheduler.wait(10000);
-      await this.insertChat(clientIndex, tryCount + 1, channelId, accessHash, username, title);
+      await this.insertChat(clientIndex, tryCount + 1, channelId, accessHash, username, title, noforwards);
     }
   }
 
-  async insertChat(clientIndex, tryCount, channelId, accessHash, username, title) {
+  async insertChat(clientIndex, tryCount, channelId, accessHash, username, title, noforwards) {
     this.apiCount += 1;
     let chatResult = {};
     try {
-      chatResult = await this.env.MAINDB.prepare("INSERT INTO `FORWARDCHAT` (tgId, channelId, accessHash, username, title, current, exist) VALUES (?, ?, ?, ?, ?, ?, ?);").bind(this.tg[clientIndex].clientId, channelId, accessHash, username, title, 0, 1).run();
+      chatResult = await this.env.MAINDB.prepare("INSERT INTO `FORWARDCHAT` (tgId, channelId, accessHash, username, title, noforwards, current, photo, video, document, gif, exist) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);").bind(this.tg[clientIndex].clientId, channelId, accessHash, username, title, noforwards, 0, 0, 0, 0, 0, 1).run();
     } catch (e) {
       //console.log("insertChat出错 : " + e);;
       this.broadcast({
@@ -2404,7 +2409,7 @@ export class WebSocketServer extends DurableObject {
         "status": "try",
         "date": new Date().getTime(),
       });
-      await this.insertChatError(clientIndex, tryCount, channelId, accessHash, username, title);
+      await this.insertChatError(clientIndex, tryCount, channelId, accessHash, username, title, noforwards);
       return;
     }
     //console.log(chatResult);  //测试
@@ -2416,6 +2421,7 @@ export class WebSocketServer extends DurableObject {
         "operate": "insertChat",
         "step": this.currentStep,
         "clientCount": this.clientCount,
+        "message": "插入chat数据成功",
         "status": "success",
         "date": new Date().getTime(),
       });
@@ -2432,7 +2438,7 @@ export class WebSocketServer extends DurableObject {
         "status": "error",
         "date": new Date().getTime()
       });
-      await this.insertChatError(clientIndex, tryCount, channelId, accessHash, username, title);
+      await this.insertChatError(clientIndex, tryCount, channelId, accessHash, username, title, noforwards);
     }
   }
 
@@ -2451,7 +2457,12 @@ export class WebSocketServer extends DurableObject {
     // }
     // this.stop = 1;
     this.init(option);
-    for (let clientIndex = 0; clientIndex < this.clientCount; clientIndex++) {
+    let clientIndex = option.clientIndex || 0;
+    let clientCount = this.clientCount;
+    if (option.clientCount && option.clientCount > 0 && option.clientCount > clientIndex) {
+      clientCount = option.clientCount;
+    }
+    for (clientIndex; clientIndex < clientCount; clientIndex++) {
       this.tg[clientIndex] = {
         "clientId": 0,
         "client": null,
@@ -2468,65 +2479,68 @@ export class WebSocketServer extends DurableObject {
       await this.open(clientIndex, 1);
       if (this.tg[clientIndex].client) {
         let count = 0;
-        // this.tg[clientIndex].clientId = this.api[clientIndex].id;
         await this.getDialog(clientIndex, 1);
         const dialogArray = this.dialogArray;
         // const dialogLength = dialogArray.length;
         this.dialogArray = [];
         // for (let dialogIndex = 0; dialogIndex < dialogLength; dialogIndex++) {
         for await (const dialog of dialogArray) {
-          let channelId = "";
-          let accessHash = "";
-          const isChannel = dialog.isChannel;
-          // console.log("isChannel : " + isChannel);  //测试
-          if (isChannel === true) {
-            channelId = dialog.inputEntity.channelId.toString();
-            accessHash = dialog.inputEntity.accessHash.toString();
+          if (dialog.title === "test110") {
           } else {
-            channelId = dialog.id.toString();
-          }
-          //console.log(channelId + " : " + accessHash);  //测试
-          if (channelId && accessHash) {
-            const chatCount = await this.selectChat(clientIndex, 1, channelId, accessHash);
-            //console.log("chatCount : " + chatCount);  //测试
-            if (parseInt(chatCount) === 0) {
-              count += 1;
-              const username = dialog.username || "";
-              await this.insertChat(clientIndex, 1, channelId, accessHash, username, dialog.title);
-              //console.log("chat - 新插入chat了 : " + dialog.title);
-              this.broadcast({
-                "clientId": this.tg[clientIndex].clientId,
-                "chatId": this.tg[clientIndex].chatId,
-                "operate": "chat",
-                "step": this.currentStep,
-                "clientCount": this.clientCount,
-                "message": this.tg[clientIndex].clientId + " - " + count + " : 新插入chat了 : " + dialog.title,
-                "date": new Date().getTime(),
-              });
+            let channelId = "";
+            let accessHash = "";
+            const isChannel = dialog.isChannel;
+            // console.log("isChannel : " + isChannel);  //测试
+            if (isChannel === true) {
+              channelId = dialog.inputEntity.channelId.toString();
+              accessHash = dialog.inputEntity.accessHash.toString();
             } else {
-              //console.log("chat - " + count + " : chat已在数据库中 - " + dialog.title);
+              channelId = dialog.id.toString();
+            }
+            //console.log(channelId + " : " + accessHash);  //测试
+            if (channelId && accessHash) {
+              const chatCount = await this.selectChat(clientIndex, 1, channelId, accessHash);
+              //console.log("chatCount : " + chatCount);  //测试
+              if (parseInt(chatCount) === 0) {
+                count += 1;
+                const username = dialog.username || "";
+                const noforwards = dialog.noforwards === true ? 1 : 0;
+                await this.insertChat(clientIndex, 1, channelId, accessHash, username, dialog.title, noforwards);
+                //console.log("chat - 新插入chat了 : " + dialog.title);
+                this.broadcast({
+                  "clientId": this.tg[clientIndex].clientId,
+                  "chatId": this.tg[clientIndex].chatId,
+                  "operate": "chat",
+                  "step": this.currentStep,
+                  "clientCount": this.clientCount,
+                  "message": this.tg[clientIndex].clientId + " - " + count + " : 新插入chat了 : " + dialog.title,
+                  "date": new Date().getTime(),
+                });
+              } else {
+                //console.log("chat - " + count + " : chat已在数据库中 - " + dialog.title);
+                this.broadcast({
+                  "clientId": this.tg[clientIndex].clientId,
+                  "chatId": this.tg[clientIndex].chatId,
+                  "operate": "chat",
+                  "step": this.currentStep,
+                  "clientCount": this.clientCount,
+                  "message": this.tg[clientIndex].clientId + " - " + count + " : chat已在数据库中 - " + dialog.title,
+                  "date": new Date().getTime(),
+                });
+              }
+            } else {
+              //console.log("chat - channelId或accessHash错误 : " + dialog.title);
               this.broadcast({
                 "clientId": this.tg[clientIndex].clientId,
                 "chatId": this.tg[clientIndex].chatId,
                 "operate": "chat",
                 "step": this.currentStep,
                 "clientCount": this.clientCount,
-                "message": this.tg[clientIndex].clientId + " - " + count + " : chat已在数据库中 - " + dialog.title,
+                "message": this.tg[clientIndex].clientId + " - " + count + " : channelId或accessHash错误 : " + dialog.title,
+                "error": true,
                 "date": new Date().getTime(),
               });
             }
-          } else {
-            //console.log("chat - channelId或accessHash错误 : " + dialog.title);
-            this.broadcast({
-              "clientId": this.tg[clientIndex].clientId,
-              "chatId": this.tg[clientIndex].chatId,
-              "operate": "chat",
-              "step": this.currentStep,
-              "clientCount": this.clientCount,
-              "message": this.tg[clientIndex].clientId + " - " + count + " : channelId或accessHash错误 : " + dialog.title,
-              "error": true,
-              "date": new Date().getTime(),
-            });
           }
         }
         if (count > 0) {

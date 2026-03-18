@@ -193,7 +193,7 @@ const App = () => {
   // }, []);
 
   const addNewEvent = useCallback((newItem) => {
-    // if (logData.length >= 100) {
+    // if (logData.length >= 200) {
     //   setLogData([]);
     //   console.log("删除log成功");  //测试
     // }
@@ -922,7 +922,7 @@ const App = () => {
   useEffect(() => {
     if (logData.length === 0) {
       setClearLogBtnDisabled(true);
-    } else if (logData.length >= 100) {
+    } else if (logData.length >= 200) {
       setLogData(() => {
         return [];
       });

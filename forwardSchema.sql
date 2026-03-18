@@ -24,12 +24,13 @@ CREATE TABLE IF NOT EXISTS FORWARDCHAT (
   video INTEGER,
   document INTEGER,
   gif INTEGER,
+  noforwards INTEGER,
   exist INTEGER,
   updated DATE
 );
 
 CREATE INDEX IF NOT EXISTS idx_forwardChat_tgId_id_accessHash ON FORWARDCHAT(tgId, channelId, accessHash);
-CREATE INDEX IF NOT EXISTS idx_forwardChat_tgId_index_exist ON FORWARDCHAT(tgId, Cindex, exist);
+CREATE INDEX IF NOT EXISTS idx_forwardChat_tgId_index_noforwards_exist ON FORWARDCHAT(tgId, Cindex, noforwards, exist);
 CREATE INDEX IF NOT EXISTS idx_forwardChat_tgId_current_exist ON FORWARDCHAT(tgId, current, exist);
 CREATE INDEX IF NOT EXISTS idx_forwardChat_tgId_photo_exist ON FORWARDCHAT(tgId, photo, exist);
 CREATE INDEX IF NOT EXISTS idx_forwardChat_tgId_video_exist ON FORWARDCHAT(tgId, video, exist);
