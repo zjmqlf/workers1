@@ -99,6 +99,11 @@ const App = () => {
             headerName: "step",
             columnGroupShow: "open",
           },
+          // {
+          //   field: "clientIndex",
+          //   headerName: "clientIndex",
+          //   columnGroupShow: "open",
+          // },
           {
             field: "clientId",
             headerName: "clientId",
@@ -415,7 +420,7 @@ const App = () => {
       //console.log("当前chat采集完毕");  //测试
       addNewEvent({
         // "message": renderTime(Date.now()) + "  >>>当前chat采集完毕",
-        "message": renderTime(message.date) + "  " + message.operate + " - " + message.message,
+        "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientIndex + "-" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
       });
     } else if (message.result === "over") {
       over.current = true;
@@ -423,7 +428,7 @@ const App = () => {
       //console.log("全部chat采集完毕");  //测试
       addNewEvent({
         // "message": renderTime(Date.now()) + "  >>>全部chat采集完毕",
-        "message": renderTime(message.date) + "  " + message.operate + " - " + message.message,
+        "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientIndex + "-" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
       });
     } else {
       if (message.clientId && message.clientId > 0 && message.chatId && message.chatId >= 0) {
@@ -445,18 +450,18 @@ const App = () => {
               });
               addNewEvent({
                 "error": true,
-                "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
+                "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientIndex + "-" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
               });
             } else if (message.status === "wait") {
               addNewEvent({
                 "error": true,
-                "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
+                "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientIndex + "-" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
               });
             } else {
               //console.log("未知消息");
               addNewEvent({
                 "error": message.error,
-                "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
+                "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientIndex + "-" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
               });
             }
             break;
@@ -472,7 +477,7 @@ const App = () => {
               //console.log("未知消息");
               addNewEvent({
                 "error": message.error,
-                "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
+                "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientIndex + "-" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
               });
             }
             break;
@@ -488,7 +493,7 @@ const App = () => {
               //console.log("未知消息");
               addNewEvent({
                 "error": message.error,
-                "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
+                "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientIndex + "-" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
               });
             }
             break;
@@ -496,13 +501,13 @@ const App = () => {
             //console.log("未知消息");
             addNewEvent({
               "error": message.error,
-              "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
+              "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientIndex + "-" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
             });
         }
       } else {
         addNewEvent({
           "error": message.error,
-          "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
+          "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientIndex + "-" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
         });
       }
     }

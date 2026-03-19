@@ -1,0 +1,7 @@
+
+
+SELECT * FROM `FORWARDCHAT` WHERE `title` = "test110";
+
+UPDATE `FORWARDCHAT` SET `exist` = 0 WHERE `title` = "test110";
+UPDATE `FORWARDCHAT` SET `video` = 0 WHERE 1;
+
