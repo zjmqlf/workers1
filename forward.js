@@ -61,6 +61,49 @@ export class WebSocketServer extends DurableObject {
     );
   }
 
+  getExcludeIndex(option, begin, end, exclude) {
+    const temp = [];
+    for (let clientIndex = begin; clientIndex < end; clientIndex++) {
+      if (exclude.includes(clientIndex) === false) {
+        temp.push(this.api[clientIndex]);
+        if (option.clientCount && option.clientCount > 0) {
+          if (temp.length === option.clientCount) {
+            break;
+          }
+        }
+      }
+    }
+    this.api = temp;
+    this.clientCount = this.api.length;
+    this.tg = Array(this.clientCount).fill(null);
+  }
+
+  getExcludeId(option, begin, end, exclude) {
+    const temp = [];
+    for (let clientIndex = begin; clientIndex < end; clientIndex++) {
+      if (exclude.includes(this.api[clientIndex].id) === false) {
+        temp.push(this.api[clientIndex]);
+        if (option.clientCount && option.clientCount > 0) {
+          if (temp.length === option.clientCount) {
+            break;
+          }
+        }
+      }
+    }
+    this.api = temp;
+    this.clientCount = this.api.length;
+    this.tg = Array(this.clientCount).fill(null);
+  }
+
+  getClientCount(option, begin, end) {
+    this.api = this.api.slice(begin, end);
+    if (option.clientCount && option.clientCount > 0) {
+      this.api = this.api.slice(0, option.clientCount);
+    }
+    this.clientCount = this.api.length;
+    this.tg = Array(this.clientCount).fill(null);
+  }
+
   init(option) {
     if (!this.stop || this.stop === 0) {
       if (option) {
@@ -94,6 +137,223 @@ export class WebSocketServer extends DurableObject {
       this.cacheMessage = null;
       this.batchMessage = [];
       this.dialogArray = [];
+      if (option.includeIndex && option.includeIndex.length && option.includeIndex.length > 0) {
+        const temp = [];
+        for (let clientIndex = 0; clientIndex < this.clientCount; clientIndex++) {
+          if (option.includeIndex.includes(clientIndex) === true) {
+            temp.push(this.api[clientIndex]);
+            if (option.clientCount && option.clientCount > 0) {
+              if (temp.length === option.clientCount) {
+                break;
+              }
+            }
+          }
+        }
+        this.api = temp;
+        this.clientCount = this.api.length;
+        this.tg = Array(this.clientCount).fill(null);
+      } else if (option.includeId && option.includeId.length && option.includeId.length > 0) {
+        const temp = [];
+        for (let clientIndex = 0; clientIndex < this.clientCount; clientIndex++) {
+          if (option.includeId.includes(this.api[clientIndex].id) === true) {
+            temp.push(this.api[clientIndex]);
+            if (option.clientCount && option.clientCount > 0) {
+              if (temp.length === option.clientCount) {
+                break;
+              }
+            }
+          }
+        }
+        this.api = temp;
+        this.clientCount = this.api.length;
+        this.tg = Array(this.clientCount).fill(null);
+      } else if (option.beginIndex && option.beginIndex > 0) {
+        if (option.endIndex && option.endIndex > 0) {
+          if (option.excludeIndex && option.excludeIndex.length && option.excludeIndex.length > 0) {
+            this.getExcludeIndex(option, option.beginIndex, option.endIndex, option.excludeIndex);
+          } else if (option.excludeId && option.excludeId.length && option.excludeId.length > 0) {
+            this.getExcludeId(option, option.beginIndex, option.endIndex, option.excludeId);
+          } else {
+            this.getClientCount(option, option.beginIndex, option.endIndex);
+          }
+        } else {
+          if (option.excludeIndex && option.excludeIndex.length && option.excludeIndex.length > 0) {
+            this.getExcludeIndex(option, option.beginIndex, this.clientCount, option.excludeIndex);
+          } else if (option.excludeId && option.excludeId.length && option.excludeId.length > 0) {
+            this.getExcludeId(option, option.beginIndex, this.clientCount, option.excludeId);
+          } else {
+            this.getClientCount(option, option.beginIndex, this.clientCount);
+          }
+        }
+      } else if (option.endIndex && option.endIndex > 0) {
+        if (option.excludeIndex && option.excludeIndex.length && option.excludeIndex.length > 0) {
+          this.getExcludeIndex(option, 0, option.endIndex, option.excludeIndex);
+        } else if (option.excludeId && option.excludeId.length && option.excludeId.length > 0) {
+          this.getExcludeId(option, 0, option.endIndex, option.excludeId);
+        } else {
+          this.getClientCount(option, 0, option.endIndex);
+        }
+      } else if (option.beginId && option.beginId > 0) {
+        if (option.endId && option.endId > 0) {
+          if (option.excludeIndex && option.excludeIndex.length && option.excludeIndex.length > 0) {
+            const temp = [];
+            for (let clientIndex = 0; clientIndex < this.clientCount; clientIndex++) {
+              if (this.api[clientIndex].id >= option.beginId && this.api[clientIndex].id <= option.endId) {
+                if (option.excludeIndex.includes(clientIndex) === false) {
+                  temp.push(this.api[clientIndex]);
+                  if (option.clientCount && option.clientCount > 0) {
+                    if (temp.length === option.clientCount) {
+                      break;
+                    }
+                  }
+                }
+              }
+            }
+            this.api = temp;
+          } else if (option.excludeId && option.excludeId.length && option.excludeId.length > 0) {
+            const temp = [];
+            for (let clientIndex = 0; clientIndex < this.clientCount; clientIndex++) {
+              if (this.api[clientIndex].id >= option.beginId && this.api[clientIndex].id <= option.endId) {
+                if (option.excludeId.includes(this.api[clientIndex].id) === false) {
+                  temp.push(this.api[clientIndex]);
+                  if (option.clientCount && option.clientCount > 0) {
+                    if (temp.length === option.clientCount) {
+                      break;
+                    }
+                  }
+                }
+              }
+            }
+            this.api = temp;
+          } else {
+            const temp = [];
+            for (let clientIndex = 0; clientIndex < this.clientCount; clientIndex++) {
+              if (this.api[clientIndex].id >= option.beginId && this.api[clientIndex].id <= option.endId) {
+                temp.push(this.api[clientIndex]);
+                if (option.clientCount && option.clientCount > 0) {
+                  if (temp.length === option.clientCount) {
+                    break;
+                  }
+                }
+              }
+            }
+            this.api = temp;
+            if (option.clientCount && option.clientCount > 0) {
+              this.api = this.api.slice(0, option.clientCount);
+            }
+          }
+        } else {
+          if (option.excludeIndex && option.excludeIndex.length && option.excludeIndex.length > 0) {
+            const temp = [];
+            for (let clientIndex = option.beginIndex; clientIndex < this.clientCount; clientIndex++) {
+              if (this.api[clientIndex].id >= option.beginId) {
+                if (option.excludeIndex.includes(clientIndex) === false) {
+                  temp.push(this.api[clientIndex]);
+                  if (option.clientCount && option.clientCount > 0) {
+                    if (temp.length === option.clientCount) {
+                      break;
+                    }
+                  }
+                }
+              }
+            }
+            this.api = temp;
+          } else if (option.excludeId && option.excludeId.length && option.excludeId.length > 0) {
+            const temp = [];
+            for (let clientIndex = 0; clientIndex < this.clientCount; clientIndex++) {
+              if (this.api[clientIndex].id >= option.beginId) {
+                if (option.excludeId.includes(this.api[clientIndex].id) === false) {
+                  temp.push(this.api[clientIndex]);
+                  if (option.clientCount && option.clientCount > 0) {
+                    if (temp.length === option.clientCount) {
+                      break;
+                    }
+                  }
+                }
+              }
+            }
+            this.api = temp;
+          } else {
+            const temp = [];
+            for (let clientIndex = 0; clientIndex < this.clientCount; clientIndex++) {
+              if (this.api[clientIndex].id >= option.beginId) {
+                temp.push(this.api[clientIndex]);
+                if (option.clientCount && option.clientCount > 0) {
+                  if (temp.length === option.clientCount) {
+                    break;
+                  }
+                }
+              }
+            }
+            this.api = temp;
+            if (option.clientCount && option.clientCount > 0) {
+              this.api = this.api.slice(0, option.clientCount);
+            }
+          }
+        }
+        this.clientCount = this.api.length;
+        this.tg = Array(this.clientCount).fill(null);
+      } else if (option.endId && option.endId > 0) {
+        if (option.excludeIndex && option.excludeIndex.length && option.excludeIndex.length > 0) {
+          const temp = [];
+          for (let clientIndex = 0; clientIndex < this.clientCount; clientIndex++) {
+            if (this.api[clientIndex].id <= option.endId) {
+              if (option.excludeIndex.includes(clientIndex) === false) {
+                temp.push(this.api[clientIndex]);
+                if (option.clientCount && option.clientCount > 0) {
+                  if (temp.length === option.clientCount) {
+                    break;
+                  }
+                }
+              }
+            }
+          }
+          this.api = temp;
+        } else if (option.excludeId && option.excludeId.length && option.excludeId.length > 0) {
+          const temp = [];
+          for (let clientIndex = 0; clientIndex < this.clientCount; clientIndex++) {
+            if (this.api[clientIndex].id <= option.endId) {
+              if (option.excludeId.includes(this.api[clientIndex].id) === false) {
+                temp.push(this.api[clientIndex]);
+                if (option.clientCount && option.clientCount > 0) {
+                  if (temp.length === option.clientCount) {
+                    break;
+                  }
+                }
+              }
+            }
+          }
+          this.api = temp;
+        } else {
+          const temp = [];
+          for (let clientIndex = 0; clientIndex < this.clientCount; clientIndex++) {
+            if (this.api[clientIndex].id <= option.endId) {
+              temp.push(this.api[clientIndex]);
+              if (option.clientCount && option.clientCount > 0) {
+                if (temp.length === option.clientCount) {
+                  break;
+                }
+              }
+            }
+          }
+          this.api = temp;
+          if (option.clientCount && option.clientCount > 0) {
+            this.api = this.api.slice(0, option.clientCount);
+          }
+        }
+        this.clientCount = this.api.length;
+        this.tg = Array(this.clientCount).fill(null);
+      } else {
+        if (option.excludeIndex && option.excludeIndex.length && option.excludeIndex.length > 0) {
+          this.getExcludeIndex(option, 0, this.clientCount, option.excludeIndex);
+        } else if (option.excludeId && option.excludeId.length && option.excludeId.length > 0) {
+          this.getExcludeId(option, 0, this.clientCount, option.excludeId);
+        } else if (option.clientCount && option.clientCount > 0) {
+          this.api = this.api.slice(0, option.clientCount);
+          this.clientCount = this.api.length;
+          this.tg = Array(this.clientCount).fill(null);
+        }
+      }
     }
   }
 
@@ -132,6 +392,7 @@ export class WebSocketServer extends DurableObject {
   broadcast(message) {
     if (this.compress === true) {
       if (message.operate === "open") {
+      } else if (message.operate === "close") {
       } else if (message.operate === "checkChat") {
       } else if (message.operate === "chat") {
       } else if (message.status === "limit") {
@@ -202,21 +463,44 @@ export class WebSocketServer extends DurableObject {
     });
   }
 
+  sendGrid(clientIndex, operate, message, status, error) {
+    this.broadcast({
+      "step": this.currentStep,
+      "clientCount": this.clientCount,
+      "clientIndex": clientIndex,
+      "clientId": this.tg[clientIndex].clientId,
+      "chatId": this.tg[clientIndex].chatId,
+      "offsetId": this.tg[clientIndex].offsetId,
+      "operate": operate,
+      "message": message,
+      "status": status,
+      "error": error,
+      "date": new Date().getTime(),
+    });
+  }
+
+  sendLog(clientIndex, operate, result, message, status, error) {
+    this.broadcast({
+      "step": this.currentStep,
+      "clientCount": this.clientCount,
+      "clientIndex": clientIndex,
+      "clientId": this.tg[clientIndex].clientId,
+      "chatId": this.tg[clientIndex].chatId,
+      "operate": operate,
+      "result": result,
+      "message": message,
+      "status": status,
+      "error": error,
+      "date": new Date().getTime(),
+    });
+  }
+
   async close(clientIndex) {
     if (this.tg[clientIndex].client) {
       await this.tg[clientIndex].client.destroy();
       this.tg[clientIndex].client = null;
       //console.log("断开服务器" + (clientIndex + 1) + "成功");
-      this.broadcast({
-        "clientIndex": clientIndex,
-        "clientId": this.tg[clientIndex].clientId,
-        "chatId": this.tg[clientIndex].chatId,
-        "operate": "close",
-        "step": this.currentStep,
-        "clientCount": this.clientCount,
-        "message": "断开服务器" + (clientIndex + 1) + "成功",
-        "date": new Date().getTime(),
-      });
+      this.sendLog(clientIndex, "close", null, "断开服务器" + (clientIndex + 1) + "成功", null, false);
     }
   }
 
@@ -239,30 +523,10 @@ export class WebSocketServer extends DurableObject {
       await this.tg[clientIndex].client.connect();
     } catch (e) {
       //console.log("login出错 : " + e);
-      this.broadcast({
-        "clientIndex": clientIndex,
-        "clientId": this.tg[clientIndex].clientId,
-        "chatId": this.tg[clientIndex].chatId,
-        "operate": "open",
-        "step": this.currentStep,
-        "clientCount": this.clientCount,
-        "message": "login出错 : " + e,
-        "error": true,
-        "date": new Date().getTime(),
-      });
+      this.sendLog(clientIndex, "open", null, "login出错 : " + e, null, true);
       if (tryCount === 20) {
         //console.log("(" + this.currentStep + ")open超出tryCount限制");
-        this.broadcast({
-        "clientIndex": clientIndex,
-          "clientId": this.tg[clientIndex].clientId,
-          "chatId": this.tg[clientIndex].chatId,
-          "operate": "open",
-          "step": this.currentStep,
-          "clientCount": this.clientCount,
-          "message": "超出tryCount限制",
-          "error": true,
-          "date": new Date().getTime(),
-        });
+        this.sendLog(clientIndex, "open", null, "超出tryCount限制", null, true);
         await this.close(clientIndex);
       } else {
         await scheduler.wait(30000);
@@ -272,16 +536,7 @@ export class WebSocketServer extends DurableObject {
     }
     this.stop = 1;
     //console.log("连接服务器" + (clientIndex + 1) + "成功");
-    this.broadcast({
-      "clientIndex": clientIndex,
-      "clientId": this.tg[clientIndex].clientId,
-      "chatId": this.tg[clientIndex].chatId,
-      "operate": "open",
-      "step": this.currentStep,
-      "clientCount": this.clientCount,
-      "message": "连接服务器" + (clientIndex + 1) + "成功",
-      "date": new Date().getTime(),
-    });  //测试
+    this.sendLog(clientIndex, "open", null, "连接服务器" + (clientIndex + 1) + "成功", null, false);  //测试
     //console.log(this.tg[clientIndex].client);  //测试
     await scheduler.wait(5000);
   }
@@ -298,17 +553,7 @@ export class WebSocketServer extends DurableObject {
   async insertConfigError(clientIndex, tryCount) {
     if (tryCount === 20) {
       //console.log("(" + this.currentStep + ")insertConfig超出tryCount限制");
-      this.broadcast({
-        "clientIndex": clientIndex,
-        "clientId": this.tg[clientIndex].clientId,
-        "chatId": this.tg[clientIndex].chatId,
-        "operate": "insertConfig",
-        "step": this.currentStep,
-        "clientCount": this.clientCount,
-        "message": "超出tryCount限制",
-        "error": true,
-        "date": new Date().getTime(),
-      });
+      this.sendLog(clientIndex, "insertConfig", null, "超出tryCount限制", null, true);
       await this.close(clientIndex);
     } else {
       await scheduler.wait(10000);
@@ -323,49 +568,17 @@ export class WebSocketServer extends DurableObject {
       configResult = await this.env.MAINDB.prepare("INSERT INTO `CONFIG` (tgId, name, chatId, reverse, limited) VALUES (?, ?, ?, ?, ?);").bind(this.tg[clientIndex].clientId, 'forward', this.tg[clientIndex].chatId, this.tg[clientIndex].reverse, this.tg[clientIndex].limit).run();
     } catch (e) {
       //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] insertConfig出错 : " + e);;
-      this.broadcast({
-        "clientIndex": clientIndex,
-        "clientId": this.tg[clientIndex].clientId,
-        "chatId": this.tg[clientIndex].chatId,
-        "operate": "insertConfig",
-        "step": this.currentStep,
-        "clientCount": this.clientCount,
-        "message": "出错 : " + JSON.stringify(e),
-        "error": true,
-        "status": "try",
-        "date": new Date().getTime(),
-      });
+      this.sendLog(clientIndex, "insertConfig", null, "出错 : " + JSON.stringify(e), "try", true);
       await this.insertConfigError(clientIndex, tryCount);
       return;
     }
     //console.log(configResult);  //测试
     if (configResult.success === true) {
       //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] 插入config数据成功");
-      this.broadcast({
-        "clientIndex": clientIndex,
-        "clientId": this.tg[clientIndex].clientId,
-        "chatId": this.tg[clientIndex].chatId,
-        "operate": "insertConfig",
-        "step": this.currentStep,
-        "clientCount": this.clientCount,
-        "message": "插入config数据成功",
-        "status": "success",
-        "date": new Date().getTime(),
-      });
+      this.sendLog(clientIndex, "insertConfig", null, "插入config数据成功", "success", false);
     } else {
       //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] 插入config数据失败");
-      this.broadcast({
-        "clientIndex": clientIndex,
-        "clientId": this.tg[clientIndex].clientId,
-        "chatId": this.tg[clientIndex].chatId,
-        "operate": "insertConfig",
-        "step": this.currentStep,
-        "clientCount": this.clientCount,
-        "message": "插入config数据失败",
-        "error": true,
-        "status": "error",
-        "date": new Date().getTime(),
-      });
+      this.sendLog(clientIndex, "insertConfig", null, "插入config数据失败", "error", true);
       await this.insertConfigError(clientIndex, tryCount);
     }
   }
@@ -373,17 +586,7 @@ export class WebSocketServer extends DurableObject {
   async getConfigError(clientIndex, tryCount, option) {
     if (tryCount === 20) {
       //console.log("(" + this.currentStep + ")getConfig超出tryCount限制");
-      this.broadcast({
-        "clientIndex": clientIndex,
-        "clientId": this.tg[clientIndex].clientId,
-        "chatId": this.tg[clientIndex].chatId,
-        "operate": "getConfig",
-        "step": this.currentStep,
-        "clientCount": this.clientCount,
-        "message": "超出tryCount限制",
-        "error": true,
-        "date": new Date().getTime(),
-      });
+      this.sendLog(clientIndex, "getConfig", null, "超出tryCount限制", null, true);
       await this.close(clientIndex);
     } else {
       await scheduler.wait(10000);
@@ -398,17 +601,7 @@ export class WebSocketServer extends DurableObject {
       configResult = await this.env.MAINDB.prepare("SELECT * FROM `CONFIG` WHERE `tgId` = ? AND `name` = 'forward' LIMIT 1;").bind(this.tg[clientIndex].clientId).run();
     } catch (e) {
       //console.log("getConfig出错 : " + e);
-      this.broadcast({
-        "clientIndex": clientIndex,
-        "clientId": this.tg[clientIndex].clientId,
-        "chatId": this.tg[clientIndex].chatId,
-        "operate": "getConfig",
-        "step": this.currentStep,
-        "clientCount": this.clientCount,
-        "message": "出错 : " + e,
-        "error": true,
-        "date": new Date().getTime(),
-      });
+      this.sendLog(clientIndex, "getConfig", null, "出错 : " + JSON.stringify(e), null, true);
       await this.getConfigError(clientIndex, tryCount, option);
       return;
     }
@@ -434,16 +627,7 @@ export class WebSocketServer extends DurableObject {
         }
       } else {
         //console.log("没有预设config");
-        // this.broadcast({
-        //   "clientIndex": clientIndex,
-        //   "clientId": this.tg[clientIndex].clientId,
-        //   "chatId": this.tg[clientIndex].chatId,
-        //   "operate": "getConfig",
-        //   "step": this.currentStep,
-        //   "clientCount": this.clientCount,
-        //   "message": "没有预设config",
-        //   "date": new Date().getTime(),
-        // });
+        // this.sendLog(clientIndex, "getConfig", null, "没有预设config", null, false);
         this.tg[clientIndex].chatId = 1;
         this.tg[clientIndex].lastChat = this.tg[clientIndex].chatId;
         this.tg[clientIndex].reverse = true;
@@ -452,17 +636,7 @@ export class WebSocketServer extends DurableObject {
       }
     } else {
       //console.log("查询config失败");
-      this.broadcast({
-        "clientIndex": clientIndex,
-        "clientId": this.tg[clientIndex].clientId,
-        "chatId": this.tg[clientIndex].chatId,
-        "operate": "getConfig",
-        "step": this.currentStep,
-        "clientCount": this.clientCount,
-        "message": "查询config失败",
-        "error": true,
-        "date": new Date().getTime(),
-      });
+      this.sendLog(clientIndex, "getConfig", null, "查询config失败", null, true);
       await this.getConfigError(clientIndex, tryCount, option);
     }
   }
@@ -529,17 +703,7 @@ export class WebSocketServer extends DurableObject {
   async noExistChatError(clientIndex, tryCount, Cindex) {
     if (tryCount === 20) {
       //console.log("(" + this.currentStep + ")noExistChat超出tryCount限制");
-      this.broadcast({
-        "clientIndex": clientIndex,
-        "clientId": this.tg[clientIndex].clientId,
-        "chatId": this.tg[clientIndex].chatId,
-        "operate": "noExistChat",
-        "step": this.currentStep,
-        "clientCount": this.clientCount,
-        "message": "超出tryCount限制",
-        "error": true,
-        "date": new Date().getTime(),
-      });
+      this.sendLog(clientIndex, "noExistChat", null, "超出tryCount限制", null, true);
       await this.close(clientIndex);
     } else {
       await scheduler.wait(10000);
@@ -554,46 +718,17 @@ export class WebSocketServer extends DurableObject {
       chatResult = await this.env.MAINDB.prepare("UPDATE `FORWARDCHAT` SET `exist` = 0 WHERE `Cindex` = ?;").bind(Cindex).run();
     } catch (e) {
       //console.log("noExistChat出错 : " + e);
-      this.broadcast({
-        "clientIndex": clientIndex,
-        "clientId": this.tg[clientIndex].clientId,
-        "chatId": this.tg[clientIndex].chatId,
-        "operate": "noExistChat",
-        "step": this.currentStep,
-        "clientCount": this.clientCount,
-        "message": "出错 : " + e,
-        "error": true,
-        "date": new Date().getTime(),
-      });
+      this.sendLog(clientIndex, "noExistChat", null, "出错 : " + JSON.stringify(e), null, true);
       await this.noExistChatError(clientIndex, tryCount, Cindex);
       return;
     }
     //console.log(chatResult);  //测试
     if (chatResult.success === true) {
       //console.log("更新不存在chat数据成功");
-      this.broadcast({
-        "clientIndex": clientIndex,
-        "clientId": this.tg[clientIndex].clientId,
-        "chatId": this.tg[clientIndex].chatId,
-        "operate": "noExistChat",
-        "step": this.currentStep,
-        "clientCount": this.clientCount,
-        "message": "更新不存在chat数据成功",
-        "date": new Date().getTime(),
-      });
+      this.sendLog(clientIndex, "noExistChat", null, "更新不存在chat数据成功", null, false);
     } else {
       //console.log("更新不存在chat数据失败");
-      this.broadcast({
-        "clientIndex": clientIndex,
-        "clientId": this.tg[clientIndex].clientId,
-        "chatId": this.tg[clientIndex].chatId,
-        "operate": "noExistChat",
-        "step": this.currentStep,
-        "clientCount": this.clientCount,
-        "message": "更新不存在chat数据失败",
-        "error": true,
-        "date": new Date().getTime(),
-      });
+      this.sendLog(clientIndex, "noExistChat", null, "更新不存在chat数据失败", null, true);
       await this.noExistChatError(clientIndex, tryCount, Cindex);
     }
   }
@@ -601,17 +736,7 @@ export class WebSocketServer extends DurableObject {
   async noforwardChatError(clientIndex, tryCount, Cindex) {
     if (tryCount === 20) {
       //console.log("(" + this.currentStep + ")noforwardChat超出tryCount限制");
-      this.broadcast({
-        "clientIndex": clientIndex,
-        "clientId": this.tg[clientIndex].clientId,
-        "chatId": this.tg[clientIndex].chatId,
-        "operate": "noforwardChat",
-        "step": this.currentStep,
-        "clientCount": this.clientCount,
-        "message": "超出tryCount限制",
-        "error": true,
-        "date": new Date().getTime(),
-      });
+      this.sendLog(clientIndex, "noforwardChat", null, "超出tryCount限制", null, true);
       await this.close(clientIndex);
     } else {
       await scheduler.wait(10000);
@@ -626,46 +751,17 @@ export class WebSocketServer extends DurableObject {
       chatResult = await this.env.MAINDB.prepare("UPDATE `FORWARDCHAT` SET `noforwards` = 1 WHERE `Cindex` = ?;").bind(Cindex).run();
     } catch (e) {
       //console.log("noforwardChat出错 : " + e);
-      this.broadcast({
-        "clientIndex": clientIndex,
-        "clientId": this.tg[clientIndex].clientId,
-        "chatId": this.tg[clientIndex].chatId,
-        "operate": "noforwardChat",
-        "step": this.currentStep,
-        "clientCount": this.clientCount,
-        "message": "出错 : " + e,
-        "error": true,
-        "date": new Date().getTime(),
-      });
+      this.sendLog(clientIndex, "noforwardChat", null, "出错 : " + JSON.stringify(e), null, true);
       await this.noforwardChatError(clientIndex, tryCount, Cindex);
       return;
     }
     //console.log(chatResult);  //测试
     if (chatResult.success === true) {
       //console.log("更新不允许转发消息的chat数据成功");
-      this.broadcast({
-        "clientIndex": clientIndex,
-        "clientId": this.tg[clientIndex].clientId,
-        "chatId": this.tg[clientIndex].chatId,
-        "operate": "noforwardChat",
-        "step": this.currentStep,
-        "clientCount": this.clientCount,
-        "message": "更新不允许转发消息的chat数据成功",
-        "date": new Date().getTime(),
-      });
+      this.sendLog(clientIndex, "noforwardChat", null, "更新不允许转发消息的chat数据成功", null, false);
     } else {
       //console.log("更新不允许转发消息的chat数据失败");
-      this.broadcast({
-        "clientIndex": clientIndex,
-        "clientId": this.tg[clientIndex].clientId,
-        "chatId": this.tg[clientIndex].chatId,
-        "operate": "noforwardChat",
-        "step": this.currentStep,
-        "clientCount": this.clientCount,
-        "message": "更新不允许转发消息的chat数据失败",
-        "error": true,
-        "date": new Date().getTime(),
-      });
+      this.sendLog(clientIndex, "noforwardChat", null, "更新不允许转发消息的chat数据失败", null, true);
       await this.noforwardChatError(clientIndex, tryCount, Cindex);
     }
   }
@@ -682,17 +778,7 @@ export class WebSocketServer extends DurableObject {
         }));
       } catch (e) {
         //console.log("(" + this.currentStep + ")出错 : " + e);
-        this.broadcast({
-          "clientIndex": clientIndex,
-          "clientId": this.tg[clientIndex].clientId,
-          "chatId": this.tg[clientIndex].chatId,
-          "operate": "checkChat",
-          "step": this.currentStep,
-          "clientCount": this.clientCount,
-          "message": "出错 : " + e,
-          "error": true,
-          "date": new Date().getTime(),
-        });
+        this.sendLog(clientIndex, "checkChat", null, "出错 : " + JSON.stringify(e), null, true);
         const err = e.toString();
         if (err.includes("CHANNEL_INVALID") === true) {
           await this.noExistChat(clientIndex, 1, chatResult.Cindex);
@@ -703,17 +789,7 @@ export class WebSocketServer extends DurableObject {
         } else {
           if (tryCount === 20) {
             //console.log("(" + this.currentStep + ")checkChat超出tryCount限制");
-            this.broadcast({
-              "clientIndex": clientIndex,
-              "clientId": this.tg[clientIndex].clientId,
-              "chatId": this.tg[clientIndex].chatId,
-              "operate": "checkChat",
-              "step": this.currentStep,
-              "clientCount": this.clientCount,
-              "message": "超出tryCount限制",
-              "error": true,
-              "date": new Date().getTime(),
-            });
+            this.sendLog(clientIndex, "checkChat", null, "超出tryCount限制", null, true);
             await this.close(clientIndex);
           } else {
             await scheduler.wait(10000);
@@ -731,156 +807,55 @@ export class WebSocketServer extends DurableObject {
             this.tg[clientIndex].chatId = chatResult.Cindex + 1;
             if (this.contrastChat(clientIndex)) {
               //console.log(chatResult.title + " : chat不允许转发消息");  //测试
-              this.broadcast({
-                "clientIndex": clientIndex,
-                "clientId": this.tg[clientIndex].clientId,
-                "chatId": this.tg[clientIndex].chatId,
-                "operate": "checkChat",
-                "step": this.currentStep,
-                "clientCount": this.clientCount,
-                "message": chatResult.title + " : chat不允许转发消息",
-                "error": true,
-                "date": new Date().getTime(),
-              });
+              this.sendLog(clientIndex, "checkChat", null, chatResult.title + " : chat不允许转发消息", null, true);
               await this.nextChat(clientIndex, 1, true);
             } else {
               //console.log(this.tg[clientIndex].endChat + " : 超过最大chat了");  //测试
-              this.broadcast({
-                "clientIndex": clientIndex,
-                "clientId": this.tg[clientIndex].clientId,
-                "chatId": this.tg[clientIndex].chatId,
-                "operate": "checkChat",
-                "step": this.currentStep,
-                "clientCount": this.clientCount,
-                "message": this.tg[clientIndex].endChat + " : 超过最大chat了",
-                "error": true,
-                "date": new Date().getTime(),
-              });
+              this.sendLog(clientIndex, "checkChat", null, this.tg[clientIndex].endChat + " : 超过最大chat了", null, true);
             }
           } else {
             this.tg[clientIndex].fromPeer = result.chats[0];
             if (this.tg[clientIndex].fromPeer) {
               this.setOffsetId(clientIndex, chatResult);
-              this.broadcast({
-                "clientIndex": clientIndex,
-                "clientId": this.tg[clientIndex].clientId,
-                "chatId": this.tg[clientIndex].chatId,
-                "offsetId": this.tg[clientIndex].offsetId,
-                "operate": "checkChat",
-                "step": this.currentStep,
-                "clientCount": this.clientCount,
-                "message": this.tg[clientIndex].chatId + " : " + chatResult.title,
-                "status": "add",
-                "date": new Date().getTime(),
-              });
+              this.sendGrid(clientIndex, "checkChat", this.tg[clientIndex].chatId + " : " + chatResult.title, "add", false);
             } else {
               await this.noExistChat(clientIndex, 1, chatResult.Cindex);
               this.tg[clientIndex].chatId = chatResult.Cindex + 1;
               if (this.contrastChat(clientIndex)) {
                 //console.log(chatResult.title + " : chat已不存在了");  //测试
-                this.broadcast({
-                  "clientIndex": clientIndex,
-                  "clientId": this.tg[clientIndex].clientId,
-                  "chatId": this.tg[clientIndex].chatId,
-                  "operate": "checkChat",
-                  "step": this.currentStep,
-                  "clientCount": this.clientCount,
-                  "message": chatResult.title + " : chat已不存在了",
-                  "error": true,
-                  "date": new Date().getTime(),
-                });
+                this.sendLog(clientIndex, "checkChat", null, chatResult.title + " : chat已不存在了", null, true);
                 await this.nextChat(clientIndex, 1, true);
               } else {
                 //console.log(this.tg[clientIndex].endChat + " : 超过最大chat了");  //测试
-                this.broadcast({
-                  "clientIndex": clientIndex,
-                  "clientId": this.tg[clientIndex].clientId,
-                  "chatId": this.tg[clientIndex].chatId,
-                  "operate": "checkChat",
-                  "step": this.currentStep,
-                  "clientCount": this.clientCount,
-                  "message": this.tg[clientIndex].endChat + " : 超过最大chat了",
-                  "error": true,
-                  "date": new Date().getTime(),
-                });
+                this.sendLog(clientIndex, "checkChat", null, this.tg[clientIndex].endChat + " : 超过最大chat了", null, true);
               }
             }
           }
         } else {
           //console.log(this.tg[clientIndex].endChat + " : 超过最大chat了");  //测试
-          this.broadcast({
-            "clientIndex": clientIndex,
-            "clientId": this.tg[clientIndex].clientId,
-            "chatId": this.tg[clientIndex].chatId,
-            "operate": "checkChat",
-            "step": this.currentStep,
-            "clientCount": this.clientCount,
-            "message": this.tg[clientIndex].endChat + " : 超过最大chat了",
-            "error": true,
-            "date": new Date().getTime(),
-          });
+          this.sendLog(clientIndex, "checkChat", null, this.tg[clientIndex].endChat + " : 超过最大chat了", null, true);
         }
       } else {
         await this.noExistChat(clientIndex, 1, chatResult.Cindex);
         this.tg[clientIndex].chatId = chatResult.Cindex + 1;
         if (this.contrastChat(clientIndex)) {
           //console.log(chatResult.title + " : chat已不存在了");  //测试
-          this.broadcast({
-            "clientIndex": clientIndex,
-            "clientId": this.tg[clientIndex].clientId,
-            "chatId": this.tg[clientIndex].chatId,
-            "operate": "checkChat",
-            "step": this.currentStep,
-            "clientCount": this.clientCount,
-            "message": chatResult.title + " : chat已不存在了",
-            "error": true,
-            "date": new Date().getTime(),
-          });
+          this.sendLog(clientIndex, "checkChat", null, chatResult.title + " : chat已不存在了", null, true);
           await this.nextChat(clientIndex, 1, true);
         } else {
           //console.log(this.tg[clientIndex].endChat + " : 超过最大chat了");  //测试
-          this.broadcast({
-            "clientIndex": clientIndex,
-            "clientId": this.tg[clientIndex].clientId,
-            "chatId": this.tg[clientIndex].chatId,
-            "operate": "checkChat",
-            "step": this.currentStep,
-            "clientCount": this.clientCount,
-            "message": this.tg[clientIndex].endChat + " : 超过最大chat了",
-            "error": true,
-            "date": new Date().getTime(),
-          });
+          this.sendLog(clientIndex, "checkChat", null, this.tg[clientIndex].endChat + " : 超过最大chat了", null, true);
         }
       }
     } else {
       this.tg[clientIndex].chatId = chatResult.Cindex + 1;
       if (this.contrastChat(clientIndex)) {
         //console.log(chatResult.title + " : channelId或accessHash出错");  //测试
-        this.broadcast({
-          "clientIndex": clientIndex,
-          "clientId": this.tg[clientIndex].clientId,
-          "chatId": this.tg[clientIndex].chatId,
-          "operate": "checkChat",
-          "step": this.currentStep,
-          "clientCount": this.clientCount,
-          "message": chatResult.title + " : channelId或accessHash出错",
-          "error": true,
-          "date": new Date().getTime(),
-        });
+        this.sendLog(clientIndex, "checkChat", null, chatResult.title + " : channelId或accessHash出错", null, true);
         await this.nextChat(clientIndex, 1, true);
       } else {
         //console.log(this.tg[clientIndex].endChat + " : 超过最大chat了");  //测试
-        this.broadcast({
-          "clientIndex": clientIndex,
-          "clientId": this.tg[clientIndex].clientId,
-          "chatId": this.tg[clientIndex].chatId,
-          "operate": "checkChat",
-          "step": this.currentStep,
-          "clientCount": this.clientCount,
-          "message": this.tg[clientIndex].endChat + " : 超过最大chat了",
-          "error": true,
-          "date": new Date().getTime(),
-        });
+        this.sendLog(clientIndex, "checkChat", null, this.tg[clientIndex].endChat + " : 超过最大chat了", null, true);
       }
     }
   }
@@ -888,17 +863,7 @@ export class WebSocketServer extends DurableObject {
   async nextChatError(clientIndex, tryCount, check) {
     if (tryCount === 20) {
       //console.log("(" + this.currentStep + ")nextChat超出tryCount限制");
-      this.broadcast({
-        "clientIndex": clientIndex,
-        "clientId": this.tg[clientIndex].clientId,
-        "chatId": this.tg[clientIndex].chatId,
-        "operate": "nextChat",
-        "step": this.currentStep,
-        "clientCount": this.clientCount,
-        "message": "超出tryCount限制",
-        "error": true,
-        "date": new Date().getTime(),
-      });
+      this.sendLog(clientIndex, "nextChat", null, "超出tryCount限制", null, true);
       await this.close(clientIndex);
     } else {
       await scheduler.wait(10000);
@@ -913,17 +878,7 @@ export class WebSocketServer extends DurableObject {
       chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = ? AND `Cindex` >= ? AND `noforwards` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").bind(this.tg[clientIndex].clientId, this.tg[clientIndex].chatId).run();
     } catch (e) {
       //console.log("(" + this.currentStep + ")出错 : " + e);
-      this.broadcast({
-        "clientIndex": clientIndex,
-        "clientId": this.tg[clientIndex].clientId,
-        "chatId": this.tg[clientIndex].chatId,
-        "operate": "nextChat",
-        "step": this.currentStep,
-        "clientCount": this.clientCount,
-        "message": "出错 : " + e,
-        "error": true,
-        "date": new Date().getTime(),
-      });
+      this.sendLog(clientIndex, "nextChat", null, "出错 : " + JSON.stringify(e), null, true);
       await this.nextChatError(clientIndex, tryCount, check);
       return;
     }
@@ -934,47 +889,16 @@ export class WebSocketServer extends DurableObject {
           await this.checkChat(clientIndex, 1, chatResult.results[0]);
         } else {
           this.tg[clientIndex].chatId = chatResult.results[0].Cindex;
-          this.broadcast({
-            "clientIndex": clientIndex,
-            "clientId": this.tg[clientIndex].clientId,
-            "chatId": this.tg[clientIndex].chatId,
-            "offsetId": this.tg[clientIndex].offsetId,
-            "operate": "nextChat",
-            "step": this.currentStep,
-            "clientCount": this.clientCount,
-            "message": this.tg[clientIndex].chatId + " : " + chatResult.results[0].title,
-            "status": "add",
-            "date": new Date().getTime(),
-          });
+          this.sendGrid(clientIndex, "nextChat", this.tg[clientIndex].chatId + " : " + chatResult.results[0].title, "add", false);
         }
       } else {
         this.tg[clientIndex].chatId = -1;
         //console.log("没有更多chat了");
-        this.broadcast({
-          "clientIndex": clientIndex,
-          "clientId": this.tg[clientIndex].clientId,
-          "chatId": this.tg[clientIndex].chatId,
-          "operate": "nextChat",
-          "step": this.currentStep,
-          "clientCount": this.clientCount,
-          "message": "没有更多chat了",
-          "error": true,
-          "date": new Date().getTime(),
-        });
+        this.sendLog(clientIndex, "nextChat", null, "没有更多chat了", null, true);
       }
     } else {
       //console.log("查询chat失败");
-      this.broadcast({
-        "clientIndex": clientIndex,
-        "clientId": this.tg[clientIndex].clientId,
-        "chatId": this.tg[clientIndex].chatId,
-        "operate": "nextChat",
-        "step": this.currentStep,
-        "clientCount": this.clientCount,
-        "message": "查询chat失败",
-        "error": true,
-        "date": new Date().getTime(),
-      });
+      this.sendLog(clientIndex, "nextChat", null, "查询chat失败", null, true);
       await this.nextChatError(clientIndex, tryCount, check);
     }
   }
@@ -985,17 +909,7 @@ export class WebSocketServer extends DurableObject {
         await this.nextChat(clientIndex, 1, true);
       } else {
         //console.log(this.tg[clientIndex].endChat + " : 超过最大chat了");  //测试
-        this.broadcast({
-          "clientIndex": clientIndex,
-          "clientId": this.tg[clientIndex].clientId,
-          "chatId": this.tg[clientIndex].chatId,
-          "operate": "getChat",
-          "step": this.currentStep,
-          "clientCount": this.clientCount,
-          "message": this.tg[clientIndex].endChat + " : 超过最大chat了",
-          "error": true,
-          "date": new Date().getTime(),
-        });
+        this.sendLog(clientIndex, "getChat", null, this.tg[clientIndex].endChat + " : 超过最大chat了", null, true);
       }
     } else {
       if (this.contrastChat(clientIndex)) {
@@ -1018,17 +932,7 @@ export class WebSocketServer extends DurableObject {
           } catch (e) {
             tryCount += 1;
             //console.log("(" + this.currentStep + ")getChat出错 : " + e);
-            this.broadcast({
-              "clientIndex": clientIndex,
-              "clientId": this.tg[clientIndex].clientId,
-              "chatId": this.tg[clientIndex].chatId,
-              "operate": "getChat",
-              "step": this.currentStep,
-              "clientCount": this.clientCount,
-              "message": "出错 : " + e,
-              "error": true,
-              "date": new Date().getTime(),
-            });
+            this.sendLog(clientIndex, "getChat", null, "出错 : " + JSON.stringify(e), null, true);
             await scheduler.wait(10000);
             return;
           }
@@ -1039,46 +943,17 @@ export class WebSocketServer extends DurableObject {
             } else {
               this.tg[clientIndex].chatId = -1;
               //console.log("没有更多chat了");
-              this.broadcast({
-                "clientIndex": clientIndex,
-                "clientId": this.tg[clientIndex].clientId,
-                "chatId": this.tg[clientIndex].chatId,
-                "operate": "getChat",
-                "step": this.currentStep,
-                "clientCount": this.clientCount,
-                "message": "没有更多chat了",
-                "error": true,
-                "date": new Date().getTime(),
-              });
+              this.sendLog(clientIndex, "getChat", null, "没有更多chat了", null, true);
             }
             break;
           } else {
             //console.log("查询chat失败");
-            this.broadcast({
-              "clientIndex": clientIndex,
-              "clientId": this.tg[clientIndex].clientId,
-              "chatId": this.tg[clientIndex].chatId,
-              "operate": "getChat",
-              "step": this.currentStep,
-              "clientCount": this.clientCount,
-              "message": "查询chat失败",
-              "date": new Date().getTime(),
-            });
+            this.sendLog(clientIndex, "getChat", null, "查询chat失败", null, true);
           }
         }
       } else {
         //console.log(this.tg[clientIndex].endChat + " : 超过最大chat了");  //测试
-        this.broadcast({
-          "clientIndex": clientIndex,
-          "clientId": this.tg[clientIndex].clientId,
-          "chatId": this.tg[clientIndex].chatId,
-          "operate": "getChat",
-          "step": this.currentStep,
-          "clientCount": this.clientCount,
-          "message": this.tg[clientIndex].endChat + " : 超过最大chat了",
-          "error": true,
-          "date": new Date().getTime(),
-        });
+        this.sendLog(clientIndex, "getChat", null, this.tg[clientIndex].endChat + " : 超过最大chat了", null, true);
       }
     }
   }
@@ -1086,17 +961,7 @@ export class WebSocketServer extends DurableObject {
   async updateConfigError(clientIndex, tryCount) {
     if (tryCount === 20) {
       //console.log("(" + this.currentStep + ")updateConfig超出tryCount限制");
-      this.broadcast({
-        "clientIndex": clientIndex,
-        "clientId": this.tg[clientIndex].clientId,
-        "chatId": this.tg[clientIndex].chatId,
-        "operate": "updateConfig",
-        "step": this.currentStep,
-        "clientCount": this.clientCount,
-        "message": "超出tryCount限制",
-        "error": true,
-        "date": new Date().getTime(),
-      });
+      this.sendLog(clientIndex, "updateConfig", null, "超出tryCount限制", null, true);
       await this.close(clientIndex);
     } else {
       await scheduler.wait(10000);
@@ -1111,46 +976,17 @@ export class WebSocketServer extends DurableObject {
       configResult = await this.env.MAINDB.prepare("UPDATE `CONFIG` SET `chatId` = ? WHERE `tgId` = ?;").bind(this.tg[clientIndex].chatId, this.tg[clientIndex].clientId).run();
     } catch (e) {
       //console.log("updateConfig出错 : " + e);
-      this.broadcast({
-        "clientIndex": clientIndex,
-        "clientId": this.tg[clientIndex].clientId,
-        "chatId": this.tg[clientIndex].chatId,
-        "operate": "updateConfig",
-        "step": this.currentStep,
-        "clientCount": this.clientCount,
-        "message": "出错 : " + e,
-        "error": true,
-        "date": new Date().getTime(),
-      });
+      this.sendLog(clientIndex, "updateConfig", null, "出错 : " + JSON.stringify(e), null, true);
       await this.updateConfigError(clientIndex, tryCount);
       return;
     }
     //console.log(configResult);  //测试
     if (configResult.success === true) {
       //console.log("更新config数据成功");
-      this.broadcast({
-        "clientIndex": clientIndex,
-        "clientId": this.tg[clientIndex].clientId,
-        "chatId": this.tg[clientIndex].chatId,
-        "operate": "updateConfig",
-        "step": this.currentStep,
-        "clientCount": this.clientCount,
-        "message": "更新config数据成功",
-        "date": new Date().getTime(),
-      });
+      this.sendLog(clientIndex, "updateConfig", null, "更新config数据成功", null, false);
     } else {
       //console.log("更新config数据失败");
-      this.broadcast({
-        "clientIndex": clientIndex,
-        "clientId": this.tg[clientIndex].clientId,
-        "chatId": this.tg[clientIndex].chatId,
-        "operate": "updateConfig",
-        "step": this.currentStep,
-        "clientCount": this.clientCount,
-        "message": "更新config数据失败",
-        "error": true,
-        "date": new Date().getTime(),
-      });
+      this.sendLog(clientIndex, "updateConfig", null, "更新config数据失败", null, true);
       await this.updateConfigError(clientIndex, tryCount);
     }
   }
@@ -1186,30 +1022,10 @@ export class WebSocketServer extends DurableObject {
     } catch (e) {
       this.messageArray = [];
       //console.log("(" + this.currentStep + ")getMessage出错 : " + e);
-      this.broadcast({
-        "clientIndex": clientIndex,
-        "clientId": this.tg[clientIndex].clientId,
-        "chatId": this.tg[clientIndex].chatId,
-        "operate": "getMessage",
-        "step": this.currentStep,
-        "clientCount": this.clientCount,
-        "message": "出错 : " + e,
-        "error": true,
-        "date": new Date().getTime(),
-      });
+      this.sendLog(clientIndex, "getMessage", null, "出错 : " + JSON.stringify(e), null, true);
       if (tryCount === 20) {
         //console.log("(" + this.currentStep + ")getMessage超出tryCount限制");
-        this.broadcast({
-          "clientIndex": clientIndex,
-          "clientId": this.tg[clientIndex].clientId,
-          "chatId": this.tg[clientIndex].chatId,
-          "operate": "getMessage",
-          "step": this.currentStep,
-          "clientCount": this.clientCount,
-          "message": "超出tryCount限制",
-          "error": true,
-          "date": new Date().getTime(),
-        });
+        this.sendLog(clientIndex, "getMessage", null, "超出tryCount限制", null, true);
         await this.close(clientIndex);
       } else {
         await scheduler.wait(10000);
@@ -1222,17 +1038,7 @@ export class WebSocketServer extends DurableObject {
   async updateChatError(clientIndex, tryCount) {
     if (tryCount === 20) {
       //console.log("(" + this.currentStep + ")updateChat超出tryCount限制");
-      this.broadcast({
-        "clientIndex": clientIndex,
-        "clientId": this.tg[clientIndex].clientId,
-        "chatId": this.tg[clientIndex].chatId,
-        "operate": "updateChat",
-        "step": this.currentStep,
-        "clientCount": this.clientCount,
-        "message": "超出tryCount限制",
-        "error": true,
-        "date": new Date().getTime(),
-      });
+      this.sendLog(clientIndex, "updateChat", null, "超出tryCount限制", null, true);
       await this.close(clientIndex);
     } else {
       await scheduler.wait(10000);
@@ -1257,46 +1063,17 @@ export class WebSocketServer extends DurableObject {
       }
     } catch (e) {
       //console.log("(" + this.currentStep + ")updateChat出错 : " + e);
-      this.broadcast({
-        "clientIndex": clientIndex,
-        "clientId": this.tg[clientIndex].clientId,
-        "chatId": this.tg[clientIndex].chatId,
-        "operate": "updateChat",
-        "step": this.currentStep,
-        "clientCount": this.clientCount,
-        "message": "出错 : " + e,
-        "error": true,
-        "date": new Date().getTime(),
-      });
+      this.sendLog(clientIndex, "updateChat", null, "出错 : " + JSON.stringify(e), null, true);
       await this.updateChatError(clientIndex, tryCount);
       return;
     }
     //console.log(chatResult);  //测试
     if (chatResult.success === true) {
       //console.log("(" + this.currentStep + ")更新chat数据成功");
-      this.broadcast({
-        "clientIndex": clientIndex,
-        "clientId": this.tg[clientIndex].clientId,
-        "chatId": this.tg[clientIndex].chatId,
-        "operate": "updateChat",
-        "step": this.currentStep,
-        "clientCount": this.clientCount,
-        "message": "更新chat数据成功",
-        "date": new Date().getTime(),
-      });
+      this.sendLog(clientIndex, "updateChat", null, "更新chat数据成功", null, false);
     } else {
       //console.log("(" + this.currentStep + ")更新chat数据失败");
-      this.broadcast({
-        "clientIndex": clientIndex,
-        "clientId": this.tg[clientIndex].clientId,
-        "chatId": this.tg[clientIndex].chatId,
-        "operate": "updateChat",
-        "step": this.currentStep,
-        "clientCount": this.clientCount,
-        "message": "更新chat数据失败",
-        "error": true,
-        "date": new Date().getTime(),
-      });
+      this.sendLog(clientIndex, "updateChat", null, "更新chat数据失败", null, true);
       await this.updateChatError(clientIndex, tryCount);
     }
   }
@@ -1317,45 +1094,16 @@ export class WebSocketServer extends DurableObject {
       } else {
         if (this.clientCount === 1) {
           //console.log("(" + this.currentStep + ")全部client的chat采集完毕");
-          this.broadcast({
-            "clientIndex": clientIndex,
-            "clientId": this.tg[clientIndex].clientId,
-            "chatId": this.tg[clientIndex].chatId,
-            "result": "over",
-            "operate": "getNext",
-            "step": this.currentStep,
-            "clientCount": this.clientCount,
-            "message": "全部client的chat采集完毕",
-            "date": new Date().getTime(),
-          });
+          this.sendLog(clientIndex, "getNext", "over", "全部client的chat采集完毕", null, false);
         } else {
           //console.log("(" + this.currentStep + ")当前client的全部chat采集完毕");
-          this.broadcast({
-            "clientIndex": clientIndex,
-            "clientId": this.tg[clientIndex].clientId,
-            "chatId": this.tg[clientIndex].chatId,
-            "operate": "getNext",
-            "step": this.currentStep,
-            "clientCount": this.clientCount,
-            "message": "当前client的全部chat采集完毕",
-            "date": new Date().getTime(),
-          });
+          this.sendLog(clientIndex, "getNext", null, "当前client的全部chat采集完毕", null, false);
         }
         await this.close(clientIndex);
       }
     } else {
       //console.log(this.tg[clientIndex].endChat + " : 超过最大chat了");  //测试
-      this.broadcast({
-        "clientIndex": clientIndex,
-        "clientId": this.tg[clientIndex].clientId,
-        "chatId": this.tg[clientIndex].chatId,
-        "operate": "getNext",
-        "step": this.currentStep,
-        "clientCount": this.clientCount,
-        "message": this.tg[clientIndex].endChat + " : 超过最大chat了",
-        "error": true,
-        "date": new Date().getTime(),
-      });
+      this.sendLog(clientIndex, "getNext", null, this.tg[clientIndex].endChat + " : 超过最大chat了", null, true);
       await this.close(clientIndex);
     }
   }
@@ -1367,18 +1115,7 @@ export class WebSocketServer extends DurableObject {
       const time = this.waitTime - (new Date().getTime() - this.tg[clientIndex].time);
       if (time > 0) {
         //console.log("(" + this.currentStep + ") 还需等待" + (time / 1000) + "秒");
-        this.broadcast({
-          "clientIndex": clientIndex,
-          "clientId": this.tg[clientIndex].clientId,
-          "chatId": this.tg[clientIndex].chatId,
-          "offsetId": this.tg[clientIndex].offsetId,
-          "operate": "forwardMessage",
-          "step": this.currentStep,
-          "clientCount": this.clientCount,
-          "message": "还需等待" + Math.ceil(time / 1000) + "秒",
-          "status": "wait",
-          "date": new Date().getTime(),
-        });
+        this.sendGrid(clientIndex, "forwardMessage", "还需等待" + Math.ceil(time / 1000) + "秒", "wait", false);
         // const pingInterval = setInterval(function () {
         //   // this.ws.ping();
         //   this.ws.send("ping");
@@ -1417,121 +1154,38 @@ export class WebSocketServer extends DurableObject {
           // sendAs: "username",
         }));
         //console.log(forwardResult);
-        // this.broadcast({
-        //   "clientIndex": clientIndex,
-        //   "clientId": this.tg[clientIndex].clientId,
-        //   "chatId": this.tg[clientIndex].chatId,
-        //   "offsetId": this.tg[clientIndex].offsetId,
-        //   "operate": "forwardMessage",
-        //   "step": this.currentStep,
-        //   "clientCount": this.clientCount,
-        //   "message": JSON.stringify(forwardResult),
-        //   "date": new Date().getTime(),
-        // });
+        // this.sendLog(clientIndex, "forwardMessage", null, JSON.stringify(forwardResult), null, false);
       } catch (e) {
         if (e.errorMessage === "CHAT_FORWARDS_RESTRICTED" || e.code === 400) {
           this.tg[clientIndex].offsetId += this.tg[clientIndex].limit;
           //console.log("(" + this.currentStep + ") 消息不允许转发" + e);
-          this.broadcast({
-            "clientIndex": clientIndex,
-            "clientId": this.tg[clientIndex].clientId,
-            "chatId": this.tg[clientIndex].chatId,
-            "offsetId": this.tg[clientIndex].offsetId,
-            "operate": "forwardMessage",
-            "step": this.currentStep,
-            "clientCount": this.clientCount,
-            "message": "消息不允许转发 : " + JSON.stringify(e),
-            "status": "error",
-            "error": true,
-            "date": new Date().getTime(),
-          });
+          this.sendGrid(clientIndex, "forwardMessage", "消息不允许转发 : " + JSON.stringify(e), "error", true);
           await this.getNext(clientIndex);
         } else if (e.errorMessage === "FLOOD" || e.code === 420) {
           this.waitTime += 120000;
           //console.log("(" + this.currentStep + ") 触发了洪水警告，请求太频繁" + e);
-          this.broadcast({
-            "clientIndex": clientIndex,
-            "clientId": this.tg[clientIndex].clientId,
-            "chatId": this.tg[clientIndex].chatId,
-            "offsetId": this.tg[clientIndex].offsetId,
-            "operate": "forwardMessage",
-            "step": this.currentStep,
-            "clientCount": this.clientCount,
-            "message": "触发了洪水警告，请求太频繁 : " + JSON.stringify(e),
-            "status": "error",
-            "error": true,
-            "date": new Date().getTime(),
-          });
+          this.sendGrid(clientIndex, "forwardMessage", "触发了洪水警告，请求太频繁 : " + JSON.stringify(e), "error", true);
         } else {
           //console.log("(" + this.currentStep + ") 转发消息时发生错误" + e);
-          this.broadcast({
-            "clientIndex": clientIndex,
-            "clientId": this.tg[clientIndex].clientId,
-            "chatId": this.tg[clientIndex].chatId,
-            "offsetId": this.tg[clientIndex].offsetId,
-            "operate": "forwardMessage",
-            "step": this.currentStep,
-            "clientCount": this.clientCount,
-            "message": "转发消息时发生错误 : " + JSON.stringify(e),
-            "status": "error",
-            "error": true,
-            "date": new Date().getTime(),
-          });
+          this.sendGrid(clientIndex, "forwardMessage", "转发消息时发生错误 : " + JSON.stringify(e), "error", true);
         }
         return;
       }
       this.tg[clientIndex].offsetId += this.tg[clientIndex].limit;
       await this.updateChat(clientIndex, 1);
       //console.log("(" + this.currentStep + ") 成功转发了" + length + "条消息");
-      this.broadcast({
-        "clientIndex": clientIndex,
-        "clientId": this.tg[clientIndex].clientId,
-        "chatId": this.tg[clientIndex].chatId,
-        "offsetId": this.tg[clientIndex].offsetId,
-        "operate": "forwardMessage",
-        "step": this.currentStep,
-        "clientCount": this.clientCount,
-        "messageLength": messageLength,
-        "message": "成功转发了" + messageLength + "条消息",
-        "status": "update",
-        "date": new Date().getTime(),
-      });
-      // this.tg[clientIndex].time = new Date().getTime();
+      this.sendGrid(clientIndex, "forwardMessage", "成功转发了" + messageLength + "条消息", "update", false);
     } else {
       this.tg[clientIndex].offsetId += this.tg[clientIndex].limit;
       await this.updateChat(clientIndex, 1);
       this.tg[clientIndex].errorCount += 1;
       if (this.tg[clientIndex].errorCount >= 5) {
         //console.log("(" + this.currentStep + ") 连续5轮的消息无需转发");
-        this.broadcast({
-          "clientIndex": clientIndex,
-          "clientId": this.tg[clientIndex].clientId,
-          "chatId": this.tg[clientIndex].chatId,
-          "offsetId": this.tg[clientIndex].offsetId,
-          "operate": "forwardMessage",
-          "step": this.currentStep,
-          "clientCount": this.clientCount,
-          "message": "连续5轮的消息无需转发",
-          "status": "error",
-          "error": true,
-          "date": new Date().getTime(),
-        });
+        this.sendGrid(clientIndex, "forwardMessage", "连续5轮的消息无需转发", "error", true);
         await this.getNext(clientIndex);
       } else {
         //console.log("(" + this.currentStep + ") 第" + this.tg[clientIndex].errorCount + "轮消息无需转发");
-        this.broadcast({
-          "clientIndex": clientIndex,
-          "clientId": this.tg[clientIndex].clientId,
-          "chatId": this.tg[clientIndex].chatId,
-          "offsetId": this.tg[clientIndex].offsetId,
-          "operate": "forwardMessage",
-          "step": this.currentStep,
-          "clientCount": this.clientCount,
-          "message": "第" + this.tg[clientIndex].errorCount + "轮消息无需转发",
-          "status": "error",
-          "error": true,
-          "date": new Date().getTime(),
-        });
+        this.sendGrid(clientIndex, "forwardMessage", "第" + this.tg[clientIndex].errorCount + "轮消息无需转发", "error", true);
       }
     }
     this.tg[clientIndex].time = new Date().getTime();
@@ -1549,16 +1203,7 @@ export class WebSocketServer extends DurableObject {
             const messageLength = messageArray.length;
             this.messageArray = [];
             //console.log("(" + this.currentStep + ")messageLength : " + messageLength);
-            // this.broadcast({
-            //   "clientIndex": clientIndex,
-            //   "clientId": this.tg[clientIndex].clientId,
-            //   "chatId": this.tg[clientIndex].chatId,
-            //   "operate": "nextStep",
-            //   "step": this.currentStep,
-            //   "clientCount": this.clientCount,
-            //   "message": "messageLength : " + messageLength,
-            //   "date": new Date().getTime(),
-            // });  //测试
+            // this.sendLog(clientIndex, "nextStep", null, "messageLength : " + messageLength, null, false);  //测试
             if (messageLength && messageLength > 0) {
               if (this.stop === 1) {
                 const idArray = [];
@@ -1605,17 +1250,7 @@ export class WebSocketServer extends DurableObject {
               }
             } else if (messageCount > 0) {
               //console.log("(" + this.currentStep + ")messageCount : " + messageCount);
-              this.broadcast({
-                "clientIndex": clientIndex,
-                "clientId": this.tg[clientIndex].clientId,
-                "chatId": this.tg[clientIndex].chatId,
-                "operate": "nextStep",
-                "step": this.currentStep,
-                "clientCount": this.clientCount,
-                "message": "messageCount : " + messageCount,
-                "error": true,
-                "date": new Date().getTime(),
-              });
+              this.sendLog(clientIndex, "nextStep", null, "messageCount : " + messageCount, null, true);
               this.tg[clientIndex].offsetId += this.tg[clientIndex].limit;
               await this.updateChat(clientIndex, 1);
               if (this.stop === 2) {
@@ -1628,17 +1263,7 @@ export class WebSocketServer extends DurableObject {
               await this.updateChat(clientIndex, 1);
               this.tg[clientIndex].fromPeer = null;
               //console.log("(" + this.currentStep + ")" + this.tg[clientIndex].chatId + " : 当前chat采集完毕");
-              this.broadcast({
-                "clientIndex": clientIndex,
-                "clientId": this.tg[clientIndex].clientId,
-                "chatId": this.tg[clientIndex].chatId,
-                "result": "end",
-                "operate": "nextStep",
-                "step": this.currentStep,
-                "clientCount": this.clientCount,
-                "message": "当前chat采集完毕",
-                "date": new Date().getTime(),
-              });
+              this.sendLog(clientIndex, "nextStep", "end", "当前chat采集完毕", null, false);
               this.tg[clientIndex].chatId += 1;
               if (this.contrastChat(clientIndex)) {
                 this.tg[clientIndex].errorCount = 0;
@@ -1659,29 +1284,10 @@ export class WebSocketServer extends DurableObject {
                 } else {
                   if (this.clientCount === 1) {
                     //console.log("(" + this.currentStep + ")全部client的chat采集完毕");
-                    this.broadcast({
-                      "clientIndex": clientIndex,
-                      "clientId": this.tg[clientIndex].clientId,
-                      "chatId": this.tg[clientIndex].chatId,
-                      "result": "over",
-                      "operate": "nextStep",
-                      "step": this.currentStep,
-                      "clientCount": this.clientCount,
-                      "message": "全部client的chat采集完毕",
-                      "date": new Date().getTime(),
-                    });
+                    this.sendLog(clientIndex, "nextStep", "over", "全部client的chat采集完毕", null, false);
                   } else {
                     //console.log("(" + this.currentStep + ")当前client的全部chat采集完毕");
-                    this.broadcast({
-                      "clientIndex": clientIndex,
-                      "clientId": this.tg[clientIndex].clientId,
-                      "chatId": this.tg[clientIndex].chatId,
-                      "operate": "nextStep",
-                      "step": this.currentStep,
-                      "clientCount": this.clientCount,
-                      "message": "当前client的全部chat采集完毕",
-                      "date": new Date().getTime(),
-                    });
+                    this.sendLog(clientIndex, "nextStep", null, "当前client的全部chat采集完毕", null, false);
                   }
                   await this.close(clientIndex);
                   this.tg.splice(clientIndex, 1);
@@ -1690,17 +1296,7 @@ export class WebSocketServer extends DurableObject {
                 }
               } else {
                 //console.log(this.tg[clientIndex].endChat + " : 超过最大chat了");  //测试
-                this.broadcast({
-                  "clientIndex": clientIndex,
-                  "clientId": this.tg[clientIndex].clientId,
-                  "chatId": this.tg[clientIndex].chatId,
-                  "operate": "nextStep",
-                  "step": this.currentStep,
-                  "clientCount": this.clientCount,
-                  "message": this.tg[clientIndex].endChat + " : 超过最大chat了",
-                  "error": true,
-                  "date": new Date().getTime(),
-                });
+                this.sendLog(clientIndex, "nextStep", null, this.tg[clientIndex].endChat + " : 超过最大chat了", null, true);
                 await this.close(clientIndex);
                 this.tg.splice(clientIndex, 1);
                 this.clientCount--;
@@ -1709,17 +1305,7 @@ export class WebSocketServer extends DurableObject {
             }
           } else {
             //console.log("连接TG服务" + clientIndex + "失败");
-            this.broadcast({
-              "clientIndex": clientIndex,
-              "clientId": this.tg[clientIndex].clientId,
-              "chatId": this.tg[clientIndex].chatId,
-              "operate": "nextStep",
-              "step": this.currentStep,
-              "clientCount": this.clientCount,
-              "message": "连接TG服务" + clientIndex + "失败",
-              "error": true,
-              "date": new Date().getTime(),
-            });
+            this.sendLog(clientIndex, "nextStep", null, "连接TG服务" + clientIndex + "失败", null, true);
           }
         }
         if (this.stop === 1) {
@@ -1728,18 +1314,7 @@ export class WebSocketServer extends DurableObject {
           } else {
             this.stop = 2;
             //console.log("(" + this.currentStep + ")nextStep超出apiCount限制");
-            this.broadcast({
-              "clientIndex": clientIndex,
-              "clientId": this.tg[clientIndex].clientId,
-              "chatId": this.tg[clientIndex].chatId,
-              "operate": "nextStep",
-              "step": this.currentStep,
-              "clientCount": this.clientCount,
-              "message": "超出apiCount限制",
-              "error": true,
-              "status": "limit",
-              "date": new Date().getTime(),
-            });
+            this.sendLog(clientIndex, "nextStep", null, "超出apiCount限制", "limit", true);
             await this.closeAll();
             // this.ctx.abort("reset");
           }
@@ -1752,18 +1327,7 @@ export class WebSocketServer extends DurableObject {
       } else {
         this.stop = 2;
         //console.log("(" + this.currentStep + ")nextStep超出apiCount限制");
-        this.broadcast({
-          "clientIndex": clientIndex,
-          "clientId": this.tg[clientIndex].clientId,
-          "chatId": this.tg[clientIndex].chatId,
-          "operate": "nextStep",
-          "step": this.currentStep,
-          "clientCount": this.clientCount,
-          "message": "超出apiCount限制",
-          "error": true,
-          "status": "limit",
-          "date": new Date().getTime(),
-        });
+        this.sendLog(clientIndex, "nextStep", null, "超出apiCount限制", "limit", true);
         await this.closeAll();
         // this.ctx.abort("reset");
       }
@@ -1838,16 +1402,7 @@ export class WebSocketServer extends DurableObject {
             const messageArray = this.messageArray;
             const messageLength = messageArray.length;
             this.messageArray = [];
-            // this.broadcast({
-            //   "clientIndex": clientIndex,
-            //   "clientId": this.tg[clientIndex].clientId,
-            //   "chatId": this.tg[clientIndex].chatId,
-            //   "operate": "start",
-            //   "step": this.currentStep,
-            //   "clientCount": this.clientCount,
-            //   "message": "messageLength : " + messageLength,
-            //   "date": new Date().getTime(),
-            // });  //测试
+            // this.sendLog(clientIndex, "start", null, "messageLength : " + messageLength, null, false);  //测试
             if (messageLength && messageLength > 0) {
               const idArray = [];
               const fileIdArray = [];
@@ -1887,17 +1442,7 @@ export class WebSocketServer extends DurableObject {
               await this.forwardMessage(clientIndex, idArray, fileIdArray);
             } else if (messageCount > 0) {
               //console.log("(" + this.currentStep + ")messageCount : " + messageCount");
-              this.broadcast({
-                "clientIndex": clientIndex,
-                "clientId": this.tg[clientIndex].clientId,
-                "chatId": this.tg[clientIndex].chatId,
-                "operate": "start",
-                "step": this.currentStep,
-                "clientCount": this.clientCount,
-                "message": "messageCount : " + messageCount,
-                "error": true,
-                "date": new Date().getTime(),
-              });
+              this.sendLog(clientIndex, "start", null, "messageCount : " + messageCount, null, true);
               this.tg[clientIndex].offsetId += this.tg[clientIndex].limit;
               await this.updateChat(clientIndex, 1);
               if (this.stop === 2) {
@@ -1910,17 +1455,7 @@ export class WebSocketServer extends DurableObject {
               await this.updateChat(clientIndex, 1);
               this.tg[clientIndex].fromPeer = null;
               //console.log("(" + this.currentStep + ")" + this.tg[clientIndex].chatId + " : 当前chat采集完毕");
-              this.broadcast({
-                "clientIndex": clientIndex,
-                "clientId": this.tg[clientIndex].clientId,
-                "chatId": this.tg[clientIndex].chatId,
-                "result": "end",
-                "operate": "start",
-                "step": this.currentStep,
-                "clientCount": this.clientCount,
-                "message": "当前chat采集完毕",
-                "date": new Date().getTime(),
-              });
+              this.sendLog(clientIndex, "start", "end", "当前chat采集完毕", null, false);
               this.tg[clientIndex].errorCount = 0;
               this.tg[clientIndex].chatId += 1;
               if (this.contrastChat(clientIndex)) {
@@ -1941,29 +1476,10 @@ export class WebSocketServer extends DurableObject {
                 } else {
                   if (this.clientCount === 1) {
                     //console.log("(" + this.currentStep + ")全部client的chat采集完毕");
-                    this.broadcast({
-                      "clientIndex": clientIndex,
-                      "clientId": this.tg[clientIndex].clientId,
-                      "chatId": this.tg[clientIndex].chatId,
-                      "result": "over",
-                      "operate": "start",
-                      "step": this.currentStep,
-                      "clientCount": this.clientCount,
-                      "message": "全部client的chat采集完毕",
-                      "date": new Date().getTime(),
-                    });
+                    this.sendLog(clientIndex, "start", "over", "全部client的chat采集完毕", null, false);
                   } else {
                     //console.log("(" + this.currentStep + ")当前client的全部chat采集完毕");
-                    this.broadcast({
-                      "clientIndex": clientIndex,
-                      "clientId": this.tg[clientIndex].clientId,
-                      "chatId": this.tg[clientIndex].chatId,
-                      "operate": "start",
-                      "step": this.currentStep,
-                      "clientCount": this.clientCount,
-                      "message": "当前client的全部chat采集完毕",
-                      "date": new Date().getTime(),
-                    });
+                    this.sendLog(clientIndex, "start", null, "当前client的全部chat采集完毕", null, false);
                   }
                   await this.close(clientIndex);
                   this.tg.splice(clientIndex, 1);
@@ -1972,17 +1488,7 @@ export class WebSocketServer extends DurableObject {
                 }
               } else {
                 //console.log(this.tg[clientIndex].endChat + " : 超过最大chat了");  //测试
-                this.broadcast({
-                  "clientIndex": clientIndex,
-                  "clientId": this.tg[clientIndex].clientId,
-                  "chatId": this.tg[clientIndex].chatId,
-                  "operate": "start",
-                  "step": this.currentStep,
-                  "clientCount": this.clientCount,
-                  "message": this.tg[clientIndex].endChat + " : 超过最大chat了",
-                  "error": true,
-                  "date": new Date().getTime(),
-                });
+                this.sendLog(clientIndex, "start", null, this.tg[clientIndex].endChat + " : 超过最大chat了", null, true);
                 await this.close(clientIndex);
                 this.tg.splice(clientIndex, 1);
                 this.clientCount--;
@@ -1998,29 +1504,10 @@ export class WebSocketServer extends DurableObject {
         } else {
           if (this.clientCount === 1) {
             //console.log("(" + this.currentStep + ")全部client的chat采集完毕");
-            this.broadcast({
-              "clientIndex": clientIndex,
-              "clientId": this.tg[clientIndex].clientId,
-              "chatId": this.tg[clientIndex].chatId,
-              "result": "over",
-              "operate": "start",
-              "step": this.currentStep,
-              "clientCount": this.clientCount,
-              "message": "全部client的chat采集完毕",
-              "date": new Date().getTime(),
-            });
+            this.sendLog(clientIndex, "start", "over", "全部client的chat采集完毕", null, false);
           } else {
             //console.log("(" + this.currentStep + ")当前client的全部chat采集完毕");
-            this.broadcast({
-              "clientIndex": clientIndex,
-              "clientId": this.tg[clientIndex].clientId,
-              "chatId": this.tg[clientIndex].chatId,
-              "operate": "start",
-              "step": this.currentStep,
-              "clientCount": this.clientCount,
-              "message": "当前client的全部chat采集完毕",
-              "date": new Date().getTime(),
-            });
+            this.sendLog(clientIndex, "start", null, "当前client的全部chat采集完毕", null, false);
           }
           await this.close(clientIndex);
           this.tg.splice(clientIndex, 1);
@@ -2029,17 +1516,7 @@ export class WebSocketServer extends DurableObject {
         }
       } else {
         //console.log("连接TG服务" + clientIndex + "失败");
-        this.broadcast({
-          "clientIndex": clientIndex,
-          "clientId": this.tg[clientIndex].clientId,
-          "chatId": this.tg[clientIndex].chatId,
-          "operate": "start",
-          "step": this.currentStep,
-          "clientCount": this.clientCount,
-          "message": "连接TG服务" + clientIndex + "失败",
-          "error": true,
-          "date": new Date().getTime(),
-        });
+        this.sendLog(clientIndex, "start", null, "连接TG服务" + clientIndex + "失败", null, true);
       }
     }
     if (this.stop === 1) {
@@ -2048,18 +1525,7 @@ export class WebSocketServer extends DurableObject {
       } else {
         this.stop = 2;
         //console.log("(" + this.currentStep + ")start超出apiCount限制");
-        this.broadcast({
-          "clientIndex": clientIndex,
-          "clientId": this.tg[clientIndex].clientId,
-          "chatId": this.tg[clientIndex].chatId,
-          "operate": "start",
-          "step": this.currentStep,
-          "clientCount": this.clientCount,
-          "message": "超出apiCount限制",
-          "error": true,
-          "status": "limit",
-          "date": new Date().getTime(),
-        });
+        this.sendLog(clientIndex, "start", null, "超出apiCount限制", "limit", true);
         await this.closeAll();
         // this.ctx.abort("reset");
       }
@@ -2079,30 +1545,10 @@ export class WebSocketServer extends DurableObject {
     } catch (e) {
       this.dialogArray = [];
       //console.log("(" + this.currentStep + ")getDialog出错 : " + e);
-      this.broadcast({
-        "clientIndex": clientIndex,
-        "clientId": this.tg[clientIndex].clientId,
-        "chatId": this.tg[clientIndex].chatId,
-        "operate": "getDialog",
-        "step": this.currentStep,
-        "clientCount": this.clientCount,
-        "message": "出错 : " + e,
-        "error": true,
-        "date": new Date().getTime(),
-      });
+      this.sendLog(clientIndex, "getDialog", null, "出错 : " + JSON.stringify(e), null, true);
       if (tryCount === 20) {
         //console.log("(" + this.currentStep + ")getDialog超出tryCount限制");
-        this.broadcast({
-          "clientIndex": clientIndex,
-          "clientId": this.tg[clientIndex].clientId,
-          "chatId": this.tg[clientIndex].chatId,
-          "operate": "getDialog",
-          "step": this.currentStep,
-          "clientCount": this.clientCount,
-          "message": "超出tryCount限制",
-          "error": true,
-          "date": new Date().getTime(),
-        });
+        this.sendLog(clientIndex, "getDialog", null, "超出tryCount限制", null, true);
         await this.close(clientIndex);
       } else {
         await scheduler.wait(10000);
@@ -2115,17 +1561,7 @@ export class WebSocketServer extends DurableObject {
   async selectChatError(clientIndex, tryCount, channelId, accessHash) {
     if (tryCount === 20) {
       //console.log("selectChat超出tryCount限制");
-      this.broadcast({
-        "clientIndex": clientIndex,
-        "clientId": this.tg[clientIndex].clientId,
-        "chatId": this.tg[clientIndex].chatId,
-        "operate": "selectChat",
-        "step": this.currentStep,
-        "clientCount": this.clientCount,
-        "message": "超出tryCount限制",
-        "error": true,
-        "date": new Date().getTime(),
-      });
+      this.sendLog(clientIndex, "selectChat", null, "超出tryCount限制", null, true);
       await this.close(clientIndex);
     } else {
       await scheduler.wait(10000);
@@ -2140,18 +1576,7 @@ export class WebSocketServer extends DurableObject {
       chatResult = await this.env.MAINDB.prepare("SELECT COUNT(Cindex) FROM `FORWARDCHAT` WHERE `tgId` = ? AND `channelId` = ? AND `accessHash` = ? LIMIT 1;").bind(this.tg[clientIndex].clientId, channelId, accessHash).run();
     } catch (e) {
       //console.log("selectChat出错 : " + e);
-      this.broadcast({
-        "clientIndex": clientIndex,
-        "clientId": this.tg[clientIndex].clientId,
-        "chatId": this.tg[clientIndex].chatId,
-        "operate": "selectChat",
-        "step": this.currentStep,
-        "clientCount": this.clientCount,
-        "message": "出错 : " + JSON.stringify(e),
-        "error": true,
-        "status": "try",
-        "date": new Date().getTime(),
-      });
+      this.sendLog(clientIndex, "selectChat", null, "出错 : " + JSON.stringify(e), "try", true);
       await this.selectChatError(clientIndex, tryCount, channelId, accessHash);
       return;
     }
@@ -2168,17 +1593,7 @@ export class WebSocketServer extends DurableObject {
   async insertChatError(clientIndex, tryCount, channelId, accessHash, username, title, noforwards) {
     if (tryCount === 20) {
       //console.log("insertChat超出tryCount限制");
-      this.broadcast({
-        "clientIndex": clientIndex,
-        "clientId": this.tg[clientIndex].clientId,
-        "chatId": this.tg[clientIndex].chatId,
-        "operate": "insertChat",
-        "step": this.currentStep,
-        "clientCount": this.clientCount,
-        "message": "超出tryCount限制",
-        "error": true,
-        "date": new Date().getTime(),
-      });
+      this.sendLog(clientIndex, "insertChat", null, "超出tryCount限制", null, true);
       await this.close(clientIndex);
     } else {
       await scheduler.wait(10000);
@@ -2193,49 +1608,17 @@ export class WebSocketServer extends DurableObject {
       chatResult = await this.env.MAINDB.prepare("INSERT INTO `FORWARDCHAT` (tgId, channelId, accessHash, username, title, noforwards, current, photo, video, document, gif, exist) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);").bind(this.tg[clientIndex].clientId, channelId, accessHash, username, title, noforwards, 0, 0, 0, 0, 0, 1).run();
     } catch (e) {
       //console.log("insertChat出错 : " + e);;
-      this.broadcast({
-        "clientIndex": clientIndex,
-        "clientId": this.tg[clientIndex].clientId,
-        "chatId": this.tg[clientIndex].chatId,
-        "operate": "insertChat",
-        "step": this.currentStep,
-        "clientCount": this.clientCount,
-        "message": "出错 : " + JSON.stringify(e),
-        "error": true,
-        "status": "try",
-        "date": new Date().getTime(),
-      });
+      this.sendLog(clientIndex, "insertChat", null, "出错 : " + JSON.stringify(e), "try", true);
       await this.insertChatError(clientIndex, tryCount, channelId, accessHash, username, title, noforwards);
       return;
     }
     //console.log(chatResult);  //测试
     if (chatResult.success === true) {
       //console.log("插入chat数据成功");
-      this.broadcast({
-        "clientIndex": clientIndex,
-        "clientId": this.tg[clientIndex].clientId,
-        "chatId": this.tg[clientIndex].chatId,
-        "operate": "insertChat",
-        "step": this.currentStep,
-        "clientCount": this.clientCount,
-        "message": "插入chat数据成功",
-        "status": "success",
-        "date": new Date().getTime(),
-      });
+      this.sendLog(clientIndex, "insertChat", null, "插入chat数据成功", "success", false);
     } else {
       //console.log("插入chat数据失败");
-      this.broadcast({
-        "clientIndex": clientIndex,
-        "clientId": this.tg[clientIndex].clientId,
-        "chatId": this.tg[clientIndex].chatId,
-        "operate": "insertChat",
-        "step": this.currentStep,
-        "clientCount": this.clientCount,
-        "message": "插入chat数据失败",
-        "error": true,
-        "status": "error",
-        "date": new Date().getTime()
-      });
+      this.sendLog(clientIndex, "insertChat", null, "插入chat数据失败", "error", true);
       await this.insertChatError(clientIndex, tryCount, channelId, accessHash, username, title, noforwards);
     }
   }
@@ -2255,12 +1638,7 @@ export class WebSocketServer extends DurableObject {
     // }
     // this.stop = 1;
     this.init(option);
-    let clientIndex = option.clientIndex || 0;
-    let clientCount = this.clientCount;
-    if (option.clientCount && option.clientCount > 0 && option.clientCount > clientIndex) {
-      clientCount = option.clientCount;
-    }
-    for (clientIndex; clientIndex < clientCount; clientIndex++) {
+    for (let clientIndex = 0; clientIndex < this.clientCount; clientIndex++) {
       this.tg[clientIndex] = {
         "clientId": 0,
         "client": null,
@@ -2305,72 +1683,25 @@ export class WebSocketServer extends DurableObject {
                 const noforwards = dialog.noforwards === true ? 1 : 0;
                 await this.insertChat(clientIndex, 1, channelId, accessHash, username, dialog.title, noforwards);
                 //console.log("chat - 新插入chat了 : " + dialog.title);
-                this.broadcast({
-                  "clientIndex": clientIndex,
-                  "clientId": this.tg[clientIndex].clientId,
-                  "chatId": this.tg[clientIndex].chatId,
-                  "operate": "chat",
-                  "step": this.currentStep,
-                  "clientCount": this.clientCount,
-                  "message": this.tg[clientIndex].clientId + " - " + count + " : 新插入chat了 : " + dialog.title,
-                  "date": new Date().getTime(),
-                });
+                this.sendLog(clientIndex, "chat", null, this.tg[clientIndex].clientId + " : 新插入chat了 : " + dialog.title, null, false);
               } else {
                 //console.log("chat - " + count + " : chat已在数据库中 - " + dialog.title);
-                this.broadcast({
-                  "clientIndex": clientIndex,
-                  "clientId": this.tg[clientIndex].clientId,
-                  "chatId": this.tg[clientIndex].chatId,
-                  "operate": "chat",
-                  "step": this.currentStep,
-                  "clientCount": this.clientCount,
-                  "message": this.tg[clientIndex].clientId + " - " + count + " : chat已在数据库中 - " + dialog.title,
-                  "date": new Date().getTime(),
-                });
+                this.sendLog(clientIndex, "chat", null, this.tg[clientIndex].clientId + " : chat已在数据库中 - " + dialog.title, null, false);
               }
             } else {
               //console.log("chat - channelId或accessHash错误 : " + dialog.title);
-              this.broadcast({
-                "clientIndex": clientIndex,
-                "clientId": this.tg[clientIndex].clientId,
-                "chatId": this.tg[clientIndex].chatId,
-                "operate": "chat",
-                "step": this.currentStep,
-                "clientCount": this.clientCount,
-                "message": this.tg[clientIndex].clientId + " - " + count + " : channelId或accessHash错误 : " + dialog.title,
-                "error": true,
-                "date": new Date().getTime(),
-              });
+              this.sendLog(clientIndex, "chat", null, this.tg[clientIndex].clientId + " : channelId或accessHash错误 : " + dialog.title, null, true);
             }
           }
         }
         if (count > 0) {
           //console.log("chat - 新插入了" + count + "条chat数据");
-          this.broadcast({
-            "clientIndex": clientIndex,
-            "clientId": this.tg[clientIndex].clientId,
-            "chatId": this.tg[clientIndex].chatId,
-            "operate": "chat",
-            "step": this.currentStep,
-            "clientCount": this.clientCount,
-            "message": this.tg[clientIndex].clientId + " - " + count + " : 新插入了" + count + "条chat数据",
-            "date": new Date().getTime(),
-          });
+          this.sendLog(clientIndex, "chat", null, this.tg[clientIndex].clientId + " : 新插入了" + count + "条chat数据", null, false);
         }
         await this.close(clientIndex);
       } else {
         //console.log("连接TG服务" + clientIndex + "失败");
-        this.broadcast({
-          "clientIndex": clientIndex,
-          "clientId": this.tg[clientIndex].clientId,
-          "chatId": this.tg[clientIndex].chatId,
-          "operate": "chat",
-          "step": this.currentStep,
-          "clientCount": this.clientCount,
-          "message": this.tg[clientIndex].clientId + " - 连接TG服务" + clientIndex + "失败",
-          "error": true,
-          "date": new Date().getTime(),
-        });
+        this.sendLog(clientIndex, "chat", null, this.tg[clientIndex].clientId + " - 连接TG服务" + clientIndex + "失败", null, true);
       }
     }
   }
