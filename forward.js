@@ -390,7 +390,18 @@ export class WebSocketServer extends DurableObject {
   }
 
   broadcast(message) {
-    if (this.compress === true) {
+    if (message === "ping") {
+      this.ctx.getWebSockets().forEach((ws) => {
+      // this.webSocket.forEach((ws) => {
+        if (ws.readyState === WebSocket.OPEN) {
+          try {
+            ws.send(message);
+          } catch (e) {
+          }
+        }
+      });
+      return;
+    } else if (this.compress === true) {
       if (message.operate === "open") {
       } else if (message.operate === "close") {
       } else if (message.operate === "checkChat") {
@@ -1132,7 +1143,8 @@ export class WebSocketServer extends DurableObject {
           for (let i = 0; i < timeLength; i++) {
             await scheduler.wait(this.pingTime);
             // this.ws.ping();
-            this.ws.send("ping");
+            // this.ws.send("ping");
+            this.broadcast("ping");
           }
         } else {
           await scheduler.wait(time);
@@ -1176,7 +1188,19 @@ export class WebSocketServer extends DurableObject {
       this.tg[clientIndex].offsetId += this.tg[clientIndex].limit;
       await this.updateChat(clientIndex, 1);
       //console.log("(" + this.currentStep + ") 成功转发了" + length + "条消息");
-      this.sendGrid(clientIndex, "forwardMessage", "成功转发了" + messageLength + "条消息", "update", false);
+      this.broadcast({
+        "clientIndex": clientIndex,
+        "clientId": this.tg[clientIndex].clientId,
+        "chatId": this.tg[clientIndex].chatId,
+        "offsetId": this.tg[clientIndex].offsetId,
+        "operate": "forwardMessage",
+        "step": this.currentStep,
+        "clientCount": this.clientCount,
+        "messageLength": messageLength,
+        "message": "成功转发了" + messageLength + "条消息",
+        "status": "update",
+        "date": new Date().getTime(),
+      });
     } else {
       this.tg[clientIndex].offsetId += this.tg[clientIndex].limit;
       await this.updateChat(clientIndex, 1);
@@ -1298,6 +1322,7 @@ export class WebSocketServer extends DurableObject {
                     this.sendLog(clientIndex, "nextStep", "当前client的全部chat采集完毕", null, false);
                   }
                   await this.close(clientIndex);
+                  this.api.splice(clientIndex, 1);
                   this.tg.splice(clientIndex, 1);
                   this.clientCount--;
                   clientIndex--;
@@ -1306,6 +1331,7 @@ export class WebSocketServer extends DurableObject {
                 //console.log(this.tg[clientIndex].endChat + " : 超过最大chat了");  //测试
                 this.sendLog(clientIndex, "nextStep", this.tg[clientIndex].endChat + " : 超过最大chat了", null, true);
                 await this.close(clientIndex);
+                this.api.splice(clientIndex, 1);
                 this.tg.splice(clientIndex, 1);
                 this.clientCount--;
                 clientIndex--;
@@ -1496,6 +1522,7 @@ export class WebSocketServer extends DurableObject {
                     this.sendLog(clientIndex, "start", "当前client的全部chat采集完毕", null, false);
                   }
                   await this.close(clientIndex);
+                  this.api.splice(clientIndex, 1);
                   this.tg.splice(clientIndex, 1);
                   this.clientCount--;
                   clientIndex--;
@@ -1504,6 +1531,7 @@ export class WebSocketServer extends DurableObject {
                 //console.log(this.tg[clientIndex].endChat + " : 超过最大chat了");  //测试
                 this.sendLog(clientIndex, "start", this.tg[clientIndex].endChat + " : 超过最大chat了", null, true);
                 await this.close(clientIndex);
+                this.api.splice(clientIndex, 1);
                 this.tg.splice(clientIndex, 1);
                 this.clientCount--;
                 clientIndex--;
@@ -1527,6 +1555,7 @@ export class WebSocketServer extends DurableObject {
             this.sendLog(clientIndex, "start", "当前client的全部chat采集完毕", null, false);
           }
           await this.close(clientIndex);
+          this.api.splice(clientIndex, 1);
           this.tg.splice(clientIndex, 1);
           this.clientCount--;
           clientIndex--;
