@@ -1332,33 +1332,48 @@ export class WebSocketServer extends DurableObject {
     this.dialogArray = [];
     // for (let dialogIndex = 0; dialogIndex < dialogLength; dialogIndex++) {
     for await (const dialog of dialogArray) {
-      let channelId = "";
-      let accessHash = "";
-      const isChannel = dialog.isChannel;
-      // console.log("isChannel : " + isChannel);  //测试
-      if (isChannel === true) {
-        channelId = dialog.inputEntity.channelId.toString();
-        accessHash = dialog.inputEntity.accessHash.toString();
-      } else {
-        channelId = dialog.id.toString();
-      }
-      //console.log(channelId + " : " + accessHash);  //测试
-      if (channelId && accessHash) {
-        const chatCount = await this.selectChat(1, channelId, accessHash);
-        //console.log("chatCount : " + chatCount);  //测试
-        if (parseInt(chatCount) === 0) {
-          count += 1;
-          const username = dialog.username || "";
-          await this.insertChat(1, channelId, accessHash, username, dialog.title);
-          //console.log("chat - 新插入chat了 : " + dialog.title);
-          this.sendLog("chat", "新插入chat了 : " + dialog.title, null, false);
+      if (this.stop === 1) {
+        if (this.apiCount < 900) {
+          let channelId = "";
+          let accessHash = "";
+          const isChannel = dialog.isChannel;
+          // console.log("isChannel : " + isChannel);  //测试
+          if (isChannel === true) {
+            channelId = dialog.inputEntity.channelId.toString();
+            accessHash = dialog.inputEntity.accessHash.toString();
+          } else {
+            channelId = dialog.id.toString();
+          }
+          //console.log(channelId + " : " + accessHash);  //测试
+          if (channelId && accessHash) {
+            const chatCount = await this.selectChat(1, channelId, accessHash);
+            //console.log("chatCount : " + chatCount);  //测试
+            if (parseInt(chatCount) === 0) {
+              count += 1;
+              const username = dialog.username || "";
+              await this.insertChat(1, channelId, accessHash, username, dialog.title);
+              //console.log("chat - 新插入chat了 : " + dialog.title);
+              this.sendLog("chat", "新插入chat了 : " + dialog.title, null, false);
+            } else {
+              //console.log("chat - " + count + " : chat已在数据库中 - " + dialog.title);
+              this.sendLog("chat", "chat已在数据库中 - " + dialog.title, null, false);
+            }
+          } else {
+            //console.log("chat - channelId或accessHash错误 : " + dialog.title);
+            this.sendLog("chat", "channelId或accessHash错误 : " + dialog.title, null, true);
+          }
         } else {
-          //console.log("chat - " + count + " : chat已在数据库中 - " + dialog.title);
-          this.sendLog("chat", "chat已在数据库中 - " + dialog.title, null, false);
+          this.stop = 2;
+          //console.log("chat - 超出apiCount限制");
+          this.sendLog("chat", "超出apiCount限制", "limit", true);
+          await this.close();
+          // this.ctx.abort("reset");
         }
-      } else {
-        //console.log("chat - channelId或accessHash错误 : " + dialog.title);
-        this.sendLog("chat", "channelId或accessHash错误 : " + dialog.title, null, true);
+      } else if (this.stop === 2) {
+        this.broadcast({
+          "result": "pause",
+        });
+        await this.close();
       }
     }
     if (count > 0) {

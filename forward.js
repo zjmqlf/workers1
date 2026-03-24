@@ -3,7 +3,7 @@ import { DurableObject } from "cloudflare:workers";
 import { TelegramClient, Api, sessions, utils } from "./teleproto";
 // import { LogLevel } from "./gramjs/extensions";
 import { LogLevel } from "./teleproto/extensions";
-import { api } from "./api";
+import { apiString } from "./apiString";
 import bigInt from "big-integer";
 
 export class WebSocketServer extends DurableObject {
@@ -14,7 +14,7 @@ export class WebSocketServer extends DurableObject {
   currentStep = 0;
   compress = false;
   batch = false;
-  api = api;
+  api = apiString;
   clientCount = 0;
   tg = [];
   waitTime = 180000;
@@ -126,7 +126,7 @@ export class WebSocketServer extends DurableObject {
       // this.webSocket = [];
       this.apiCount = 0;
       this.currentStep = 0;
-      this.api = api;
+      this.api = apiString;
       this.clientCount = this.api.length;
       this.tg = Array(this.clientCount).fill(null);
       this.waitTime = 180000;
@@ -354,6 +354,7 @@ export class WebSocketServer extends DurableObject {
           this.tg = Array(this.clientCount).fill(null);
         }
       }
+      this.sendLog(0, "init", "clientCount : " + this.clientCount, null, false);  //测试
     }
   }
 
@@ -478,7 +479,7 @@ export class WebSocketServer extends DurableObject {
     this.broadcast({
       "step": this.currentStep,
       "clientCount": this.clientCount,
-      "clientIndex": clientIndex,
+      "clientIndex": clientIndex + 1,
       "clientId": this.tg[clientIndex].clientId,
       "chatId": this.tg[clientIndex].chatId,
       "offsetId": this.tg[clientIndex].offsetId,
@@ -494,7 +495,7 @@ export class WebSocketServer extends DurableObject {
     this.broadcast({
       "step": this.currentStep,
       "clientCount": this.clientCount,
-      "clientIndex": clientIndex,
+      "clientIndex": clientIndex + 1,
       "clientId": this.tg[clientIndex].clientId,
       "chatId": this.tg[clientIndex].chatId,
       "operate": operate,
@@ -528,7 +529,7 @@ export class WebSocketServer extends DurableObject {
         //retryDelay: 0,
         //useWSS: false,
       })
-      await this.tg[clientIndex].client.session.setDC(5, "91.108.56.128", 80);
+      // await this.tg[clientIndex].client.session.setDC(5, "91.108.56.128", 80);
       await this.tg[clientIndex].client.setLogLevel(LogLevel.ERROR);
       await this.tg[clientIndex].client.connect();
     } catch (e) {
@@ -544,7 +545,6 @@ export class WebSocketServer extends DurableObject {
       }
       return;
     }
-    this.stop = 1;
     //console.log("连接服务器" + (clientIndex + 1) + "成功");
     this.sendLog(clientIndex, "open", "连接服务器" + (clientIndex + 1) + "成功", null, false);  //测试
     //console.log(this.tg[clientIndex].client);  //测试
@@ -1399,7 +1399,7 @@ export class WebSocketServer extends DurableObject {
       return;
     }
     this.init(option);
-    // this.stop = 1;
+    this.stop = 1;
     this.switchType();
     this.currentStep += 1;
     for (let clientIndex = 0; clientIndex < this.clientCount; clientIndex++) {
@@ -1682,74 +1682,106 @@ export class WebSocketServer extends DurableObject {
     //   }));
     //   return;
     // }
-    // this.stop = 1;
     this.init(option);
+    this.stop = 1;
     for (let clientIndex = 0; clientIndex < this.clientCount; clientIndex++) {
-      this.tg[clientIndex] = {
-        "clientId": 0,
-        "client": null,
-        "chatId": 0,
-        "endChat": 0,
-        "lastChat": 0,
-        "reverse": true,
-        "limit": 100,
-        "offsetId": 0,
-        "fromPeer": null,
-        "time": 0,
-      };
-      this.tg[clientIndex].clientId = this.api[clientIndex].id;
-      await this.open(clientIndex, 1);
-      if (this.tg[clientIndex].client) {
-        let count = 0;
-        await this.getDialog(clientIndex, 1);
-        const dialogArray = this.dialogArray;
-        // const dialogLength = dialogArray.length;
-        this.dialogArray = [];
-        // for (let dialogIndex = 0; dialogIndex < dialogLength; dialogIndex++) {
-        for await (const dialog of dialogArray) {
-          if (dialog.title === "test110") {
-          } else {
-            let channelId = "";
-            let accessHash = "";
-            const isChannel = dialog.isChannel;
-            // console.log("isChannel : " + isChannel);  //测试
-            if (isChannel === true) {
-              channelId = dialog.inputEntity.channelId.toString();
-              accessHash = dialog.inputEntity.accessHash.toString();
-            } else {
-              channelId = dialog.id.toString();
-            }
-            //console.log(channelId + " : " + accessHash);  //测试
-            if (channelId && accessHash) {
-              const chatCount = await this.selectChat(clientIndex, 1, channelId, accessHash);
-              //console.log("chatCount : " + chatCount);  //测试
-              if (parseInt(chatCount) === 0) {
-                count += 1;
-                const username = dialog.username || "";
-                const noforwards = dialog.noforwards === true ? 1 : 0;
-                await this.insertChat(clientIndex, 1, channelId, accessHash, username, dialog.title, noforwards);
-                //console.log("chat - 新插入chat了 : " + dialog.title);
-                this.sendLog(clientIndex, "chat", this.tg[clientIndex].clientId + " : 新插入chat了 : " + dialog.title, null, false);
-              } else {
-                //console.log("chat - " + count + " : chat已在数据库中 - " + dialog.title);
-                this.sendLog(clientIndex, "chat", this.tg[clientIndex].clientId + " : chat已在数据库中 - " + dialog.title, null, false);
+      if (this.stop === 1) {
+        if (this.apiCount < 900) {
+          this.tg[clientIndex] = {
+            "clientId": 0,
+            "client": null,
+            "chatId": 0,
+            "endChat": 0,
+            "lastChat": 0,
+            "reverse": true,
+            "limit": 100,
+            "offsetId": 0,
+            "fromPeer": null,
+            "time": 0,
+          };
+          this.tg[clientIndex].clientId = this.api[clientIndex].id;
+          await this.open(clientIndex, 1);
+          if (this.tg[clientIndex].client) {
+            let count = 0;
+            await this.getDialog(clientIndex, 1);
+            const dialogArray = this.dialogArray;
+            // const dialogLength = dialogArray.length;
+            this.dialogArray = [];
+            // for (let dialogIndex = 0; dialogIndex < dialogLength; dialogIndex++) {
+            for await (const dialog of dialogArray) {
+              if (this.stop === 1) {
+                if (this.apiCount < 900) {
+                  if (dialog.title === "test110") {
+                  } else {
+                    let channelId = "";
+                    let accessHash = "";
+                    const isChannel = dialog.isChannel;
+                    // console.log("isChannel : " + isChannel);  //测试
+                    if (isChannel === true) {
+                      channelId = dialog.inputEntity.channelId.toString();
+                      accessHash = dialog.inputEntity.accessHash.toString();
+                    } else {
+                      channelId = dialog.id.toString();
+                    }
+                    //console.log(channelId + " : " + accessHash);  //测试
+                    if (channelId && accessHash) {
+                      const chatCount = await this.selectChat(clientIndex, 1, channelId, accessHash);
+                      //console.log("chatCount : " + chatCount);  //测试
+                      if (parseInt(chatCount) === 0) {
+                        count += 1;
+                        const username = dialog.username || "";
+                        const noforwards = dialog.noforwards === true ? 1 : 0;
+                        await this.insertChat(clientIndex, 1, channelId, accessHash, username, dialog.title, noforwards);
+                        //console.log("chat - 新插入chat了 : " + dialog.title);
+                        this.sendLog(clientIndex, "chat", this.tg[clientIndex].clientId + " : 新插入chat了 : " + dialog.title, null, false);
+                      } else {
+                        //console.log("chat - " + count + " : chat已在数据库中 - " + dialog.title);
+                        this.sendLog(clientIndex, "chat", this.tg[clientIndex].clientId + " : chat已在数据库中 - " + dialog.title, null, false);
+                      }
+                    } else {
+                      //console.log("chat - channelId或accessHash错误 : " + dialog.title);
+                      this.sendLog(clientIndex, "chat", this.tg[clientIndex].clientId + " : channelId或accessHash错误 : " + dialog.title, null, true);
+                    }
+                  }
+                } else {
+                  this.stop = 2;
+                  //console.log("chat - 超出apiCount限制");
+                  this.sendLog(clientIndex, "chat", "超出apiCount限制", "limit", true);
+                  await this.closeAll();
+                  // this.ctx.abort("reset");
+                }
+              } else if (this.stop === 2) {
+                this.broadcast({
+                  "result": "pause",
+                });
+                await this.closeAll();
               }
-            } else {
-              //console.log("chat - channelId或accessHash错误 : " + dialog.title);
-              this.sendLog(clientIndex, "chat", this.tg[clientIndex].clientId + " : channelId或accessHash错误 : " + dialog.title, null, true);
             }
+            if (count > 0) {
+              //console.log("chat - 新插入了" + count + "条chat数据");
+              this.sendLog(clientIndex, "chat", this.tg[clientIndex].clientId + " : 新插入了" + count + "条chat数据", null, false);
+            }
+            await this.close(clientIndex);
+          } else {
+            //console.log("连接TG服务" + clientIndex + "失败");
+            this.sendLog(clientIndex, "chat", this.tg[clientIndex].clientId + " - 连接TG服务" + clientIndex + "失败", null, true);
           }
+        } else {
+          this.stop = 2;
+          //console.log("chat - 超出apiCount限制");
+          this.sendLog(clientIndex, "chat", "超出apiCount限制", "limit", true);
+          await this.closeAll();
+          // this.ctx.abort("reset");
         }
-        if (count > 0) {
-          //console.log("chat - 新插入了" + count + "条chat数据");
-          this.sendLog(clientIndex, "chat", this.tg[clientIndex].clientId + " : 新插入了" + count + "条chat数据", null, false);
-        }
-        await this.close(clientIndex);
-      } else {
-        //console.log("连接TG服务" + clientIndex + "失败");
-        this.sendLog(clientIndex, "chat", this.tg[clientIndex].clientId + " - 连接TG服务" + clientIndex + "失败", null, true);
+      } else if (this.stop === 2) {
+        this.broadcast({
+          "result": "pause",
+        });
+        await this.closeAll();
       }
     }
+    //console.log("chat - 全部client获取chat完毕");
+    this.sendLog("chat", "全部client获取chat完毕", null, false);
   }
 
   async webSocketMessage(ws, data) {
