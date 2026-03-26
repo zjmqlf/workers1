@@ -234,7 +234,7 @@ const App = () => {
     }
     //console.log(items);  //测试
     if (rowArray.current[items.chatId]) {
-      console.log(items.chatId + " : 已添加过该row了");
+      //console.log(items.chatId + " : 已添加过该row了");
       addNewEvent({
         "message": renderTime(Date.now()) + "  >>> " + items.chatId + "已添加过该row了",
       });
@@ -330,7 +330,7 @@ const App = () => {
         }
       });
       if (found === false) {
-        console.log(chatId + " : 查找row失败");
+        //console.log(chatId + " : 查找row失败");
         addNewEvent({
           "error": true,
           "message": renderTime(Date.now()) + "  >>> " + chatId + " : 查找row失败",

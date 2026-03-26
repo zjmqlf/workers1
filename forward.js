@@ -354,7 +354,13 @@ export class WebSocketServer extends DurableObject {
           this.tg = Array(this.clientCount).fill(null);
         }
       }
-      this.sendLog(0, "init", "clientCount : " + this.clientCount, null, false);  //测试
+      // this.sendLog(0, "init", "clientCount : " + this.clientCount, null, false);  //测试
+      this.broadcast({
+        "step": this.currentStep,
+        "operate": "init",
+        "message": "clientCount : " + this.clientCount,
+        "date": new Date().getTime(),
+      });  //测试
     }
   }
 
