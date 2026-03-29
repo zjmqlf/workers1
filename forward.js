@@ -535,7 +535,9 @@ export class WebSocketServer extends DurableObject {
         //retryDelay: 0,
         //useWSS: false,
       })
-      // await this.tg[clientIndex].client.session.setDC(5, "91.108.56.128", 80);
+      if (this.api[clientIndex].dc === 5) {
+        await this.tg[clientIndex].client.session.setDC(5, "91.108.56.128", 80);
+      }
       await this.tg[clientIndex].client.setLogLevel(LogLevel.ERROR);
       await this.tg[clientIndex].client.connect();
     } catch (e) {
