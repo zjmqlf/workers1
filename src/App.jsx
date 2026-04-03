@@ -22,6 +22,9 @@ import {
   HighlightChangesModule,
   ValidationModule,
 } from "ag-grid-community";
+import {
+  RowGroupingModule,
+} from "ag-grid-enterprise";
 //import "./App.css"
 
 //ModuleRegistry.registerModules([AllCommunityModule]);
@@ -37,14 +40,15 @@ ModuleRegistry.registerModules([
   PaginationModule,
   HighlightChangesModule,
   ValidationModule,
+  RowGroupingModule,
 ]);
 
 const App = () => {
   let key = 0;
   let waitReconnect = null;
-  const pagination = true;
-  const paginationPageSize = 50;
-  const paginationPageSizeSelector = [50, 150, 200];
+  // const pagination = true;
+  // const paginationPageSize = 50;
+  // const paginationPageSizeSelector = [50, 150, 200];
   const rowArray = useRef({});
   const ws = useRef(null);
   const stop = useRef(false);
@@ -108,6 +112,9 @@ const App = () => {
             field: "clientId",
             headerName: "clientId",
             columnGroupShow: "open",
+            rowGroup: true,
+            hide: true,
+            // minWidth: 20,
           },
           {
             field: "chatId",
@@ -173,6 +180,12 @@ const App = () => {
       height: "70%",
       editable: false,
       enableCellChangeFlash: true,
+    };
+  }, []);
+
+  const autoGroupColumnDef = useMemo(() => {
+    return {
+      minWidth: 200,
     };
   }, []);
 
@@ -971,9 +984,11 @@ const App = () => {
             getRowId={getRowId}
             // rowClassRules={rowClassRules}
             rowSelection={rowSelection}
-            pagination={pagination}
-            paginationPageSize={paginationPageSize}
-            paginationPageSizeSelector={paginationPageSizeSelector}
+            // pagination={pagination}
+            // paginationPageSize={paginationPageSize}
+            // paginationPageSizeSelector={paginationPageSizeSelector}
+            autoGroupColumnDef={autoGroupColumnDef}
+            groupDefaultExpanded={1}
           />
         </div>
         <div style={{ margin: "1px" }}>
