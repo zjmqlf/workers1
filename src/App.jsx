@@ -50,6 +50,7 @@ const App = () => {
   // const paginationPageSize = 50;
   // const paginationPageSizeSelector = [50, 150, 200];
   const rowArray = useRef({});
+  const lastId = useRef({});
   const ws = useRef(null);
   const stop = useRef(false);
   const over = useRef(false);
@@ -57,8 +58,8 @@ const App = () => {
   const gridRef = useRef(null);
   const errorCount = useRef(0);
   const waitTime = useRef(30000);
-  const containerStyle = useMemo(() => ({ width: "100%", height: "100%", margin: "1px" }), []);
-  const gridStyle = useMemo(() => ({ width: "100%", height: "100%", margin: "1px" }), []);
+  const containerStyle = useMemo(() => ({ width: "100%", height: "100%" }), []);
+  const gridStyle = useMemo(() => ({ width: "65%", height: "95%" }), []);
   const [documentValue, setDocumentValue] = useState(2);
   const [isCloseBtnDisabled, setCloseBtnDisabled] = useState(true);
   const [isCollectBtnDisabled, setCollectBtnDisabled] = useState(true);
@@ -115,6 +116,7 @@ const App = () => {
             rowGroup: true,
             hide: true,
             // minWidth: 20,
+            // maxWidth: 20,
           },
           {
             field: "chatId",
@@ -148,11 +150,11 @@ const App = () => {
             headerName: "messageLength",
             columnGroupShow: "open",
           },
-          {
-            field: "error",
-            headerName: "error",
-            columnGroupShow: "open",
-          },
+          // {
+          //   field: "error",
+          //   headerName: "error",
+          //   columnGroupShow: "open",
+          // },
           {
             field: "date",
             headerName: "date",
@@ -177,7 +179,7 @@ const App = () => {
       flex: 1,
       //filter: true,
       width: "100%",
-      height: "70%",
+      height: "40%",
       editable: false,
       enableCellChangeFlash: true,
     };
@@ -185,7 +187,7 @@ const App = () => {
 
   const autoGroupColumnDef = useMemo(() => {
     return {
-      minWidth: 200,
+      minWidth: 40,
     };
   }, []);
 
@@ -199,15 +201,16 @@ const App = () => {
     };
   }, []);
 
-  // const rowClassRules = useMemo(() => {
-  //   let chatId = 0;
-  //   gridRef.current.api.forEachNode(function (node) {
-  //     chatId = node.data.chatId;
-  //     return;
-  //   });
-  //   return {
-  //     "rag-red": params => stop.current === true && params.node.data.chatId === chatId,
-  //   };
+  const rowClassRules = useMemo(() => {
+    return {
+      "rag-red": params => params.node.level === 1 && params.node.data.chatId === lastId.current[params.node.data.clientId] && (!params.node.data.messageLength || params.node.data.messageLength < 100),
+    };
+  }, []);
+
+  // const onRowDataUpdated = useCallback((event) => {
+  //   // console.log(event);  //测试
+  //   const rowNodeIndex = event.node.rowIndex;
+  //   gridRef.current.api.ensureIndexVisible(rowNodeIndex, 'middle');
   // }, []);
 
   const addNewEvent = useCallback((newItem) => {
@@ -259,6 +262,15 @@ const App = () => {
       //console.log(res);  //测试
       if (res.add && res.add.length > 0) {
         rowArray.current[items.chatId] = res.add[0];
+        if (lastId.current[items.clientId]) {
+          if (lastId.current[items.clientId] < items.chatId) {
+            lastId.current[items.clientId] = items.chatId;
+          }
+        } else {
+          lastId.current[items.clientId] = items.chatId;
+        }
+        // gridRef.current.api.ensureNodeVisible(rowArray.current[items.chatId], 'middle');
+        // gridRef.current.api.ensureIndexVisible(items.chatId, 'middle');
         // console.log(items.chatId + " : 添加row成功");
         // addNewEvent({
         //   "message": renderTime(Date.now()) + "  >>> " + items.chatId + " : 添加row成功",
@@ -278,24 +290,24 @@ const App = () => {
     }
   }, [addNewEvent, renderTime, setRowData, setClearGridBtnDisabled]);
 
-  const deleteItems = useCallback((items) => {
-    const res = gridRef.current.api.applyTransaction({
-      remove: [items],
-    });
-    //console.log(res);  //测试
-    if (res.remove && res.add.remove > 0) {
-      delete rowArray.current[items.chatId];
-      //console.log("删除row成功");
-      // addNewEvent({
-      //   "message": renderTime(Date.now()) + "  >>> " + items.chatId + " : 删除row成功",
-      // });
-    } else {
-      console.log(items.chatId + " : 删除row失败");
-      addNewEvent({
-        "message": renderTime(Date.now()) + "  >>> " + items.chatId + " : 删除row失败",
-      });
-    }
-  }, [addNewEvent, renderTime]);
+  // const deleteItems = useCallback((items) => {
+  //   const res = gridRef.current.api.applyTransaction({
+  //     remove: [items],
+  //   });
+  //   //console.log(res);  //测试
+  //   if (res.remove && res.add.remove > 0) {
+  //     delete rowArray.current[items.chatId];
+  //     //console.log("删除row成功");
+  //     // addNewEvent({
+  //     //   "message": renderTime(Date.now()) + "  >>> " + items.chatId + " : 删除row成功",
+  //     // });
+  //   } else {
+  //     console.log(items.chatId + " : 删除row失败");
+  //     addNewEvent({
+  //       "message": renderTime(Date.now()) + "  >>> " + items.chatId + " : 删除row失败",
+  //     });
+  //   }
+  // }, [addNewEvent, renderTime]);
 
   const updateRow = useCallback((rowNode, items) => {
     if (rowNode.data.forward && rowNode.data.forward > 0) {
@@ -310,17 +322,19 @@ const App = () => {
     for (const name in items) {
       //console.log(name);  //测试
       //console.log(items[name]);  //测试
-      if (name === "error") {
-        if (items[name] === true) {
-          if (rowNode.data.error > 0) {
-            rowNode.setDataValue("error", rowNode.data.error + 1);
-          } else {
-            rowNode.setDataValue("error", 1);
-          }
-        }
-      } else {
+      // if (name === "error") {
+      //   if (items[name] === true) {
+      //     if (rowNode.data.error > 0) {
+      //       rowNode.setDataValue("error", rowNode.data.error + 1);
+      //     } else {
+      //       rowNode.setDataValue("error", 1);
+      //     }
+      //   }
+      // } else {
         rowNode.setDataValue(name, items[name]);
-      }
+        // gridRef.current.api.ensureNodeVisible(rowNode, 'middle');
+        // gridRef.current.api.ensureIndexVisible(rowNode.data.chatId, 'middle');
+      // }
     }
   }, []);
 
@@ -333,10 +347,10 @@ const App = () => {
       // gridRef.current.api.forEachNodeAfterFilterAndSort((rowNode, index) => {
       gridRef.current.api.forEachNode((rowNode, index) => {
         if (rowNode.data.chatId === chatId) {
-          if (items.clientCount && items.clientCount > 0 && index >= items.clientCount) {
-            deleteItems(rowNode);
-            addItems(rowNode);
-          }
+          // if (items.clientCount && items.clientCount > 0 && index >= items.clientCount) {
+          //   deleteItems(rowNode);
+          //   addItems(rowNode);
+          // }
           updateRow(rowNode, items);
           found = true;
           return;
@@ -352,7 +366,7 @@ const App = () => {
         addItems(data);
       }
     }
-  }, [addNewEvent, renderTime, deleteItems, addItems, updateRow]);
+  }, [addNewEvent, renderTime, addItems, updateRow]);
 
   // const handleBeforeUnload = useCallback((event) => {
   //   event.preventDefault();
@@ -537,7 +551,7 @@ const App = () => {
         addNewEvent({
           "error": true,
           // "message": renderTime(Date.now()) + "  >>> 过了" + count + "分钟都没有收到任何消息",
-          "message": renderTime(Date.now()) + "  >>> 过了2分钟都没有收到任何消息",
+          "message": renderTime(Date.now()) + "  >>> 过了1分钟都没有收到任何消息",
         });
         if (ws.current && ws.current.readyState === WebSocket.OPEN) {
           ws.current.send(JSON.stringify({
@@ -554,7 +568,7 @@ const App = () => {
         });
       }
     // }, time);
-    }, 120000);
+    }, 60000);
  }, [addNewEvent, renderTime]);
 
   const collectWS = useCallback((command) => {
@@ -974,7 +988,7 @@ const App = () => {
 
   return (
     <div style={containerStyle}>
-      <div style={{ height: "100%", margin: "1px", display: "flex", flexDirection: "column" }}>
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "row" }}>
         <div style={gridStyle}>
           <AgGridReact
             ref={gridRef}
@@ -982,56 +996,57 @@ const App = () => {
             columnDefs={colDefs}
             defaultColDef={defaultColDef}
             getRowId={getRowId}
-            // rowClassRules={rowClassRules}
+            rowClassRules={rowClassRules}
             rowSelection={rowSelection}
+            // onRowDataUpdated={onRowDataUpdated}
             // pagination={pagination}
             // paginationPageSize={paginationPageSize}
             // paginationPageSizeSelector={paginationPageSizeSelector}
             autoGroupColumnDef={autoGroupColumnDef}
             groupDefaultExpanded={1}
           />
+          <div style={{ width: "100%" }}>
+            <label>
+              <input type="radio" name="filterType" value="0" checked={documentValue === 0} onChange={handlerRadioChange} />
+              媒体
+            </label>
+            <label>
+              <input type="radio" name="filterType" value="1" checked={documentValue === 1} onChange={handlerRadioChange} />
+              图片
+            </label>
+            <label>
+              <input type="radio" name="filterType" value="2" checked={documentValue === 2} onChange={handlerRadioChange} />
+              视频
+            </label>
+            <label>
+              <input type="radio" name="filterType" value="3" checked={documentValue === 3} onChange={handlerRadioChange} />
+              文档
+            </label>
+            <label>
+              <input type="radio" name="filterType" value="4" checked={documentValue === 4} onChange={handlerRadioChange} />
+              动图
+            </label>
+            <button onClick={handlerPauseBtnClick}>{pauseBtnText}</button>
+            <button onClick={handlerCollectBtnClick} disabled={isCollectBtnDisabled}>断开</button>
+            <button onClick={handlerCloseBtnClick} disabled={isCloseBtnDisabled}>强制关闭</button>
+            <button onClick={handlerNextBtnClick} disabled={isNextBtnDisabled}>不再继续</button>
+            <button onClick={handlerChatBtnClick}>chat</button>
+            <button onClick={handlerClearCacheBtnClick}>清空cache</button>
+            <button onClick={handlerClearGridBtnClick} disabled={isClearGridBtnDisabled}>清空grid</button>
+            <button onClick={handlerClearLogBtnClick} disabled={isClearLogBtnDisabled}>清空log</button>
+            <label>
+              <input type="checkbox" checked={isCompressChecked} onChange={handlerCompressChange} />
+              压缩
+            </label>
+            <label>
+              <input type="checkbox" checked={isBatchChecked} onChange={handlerBatchChange} />
+              批量
+            </label>
+            <input type="text" value={inputValue} onChange={inputHandleChange} />
+            <button onClick={handlerSendBtnClick} disabled={isSendBtnDisabled}>发送</button>
+          </div>
         </div>
-        <div style={{ margin: "1px" }}>
-          <label>
-            <input type="radio" name="filterType" value="0" checked={documentValue === 0} onChange={handlerRadioChange} />
-            媒体
-          </label>
-          <label>
-            <input type="radio" name="filterType" value="1" checked={documentValue === 1} onChange={handlerRadioChange} />
-            图片
-          </label>
-          <label>
-            <input type="radio" name="filterType" value="2" checked={documentValue === 2} onChange={handlerRadioChange} />
-            视频
-          </label>
-          <label>
-            <input type="radio" name="filterType" value="3" checked={documentValue === 3} onChange={handlerRadioChange} />
-            文档
-          </label>
-          <label>
-            <input type="radio" name="filterType" value="4" checked={documentValue === 4} onChange={handlerRadioChange} />
-            动图
-          </label>
-          <button onClick={handlerPauseBtnClick}>{pauseBtnText}</button>
-          <button onClick={handlerCollectBtnClick} disabled={isCollectBtnDisabled}>断开</button>
-          <button onClick={handlerCloseBtnClick} disabled={isCloseBtnDisabled}>强制关闭</button>
-          <button onClick={handlerNextBtnClick} disabled={isNextBtnDisabled}>不再继续</button>
-          <button onClick={handlerChatBtnClick}>chat</button>
-          <button onClick={handlerClearCacheBtnClick}>清空cache</button>
-          <button onClick={handlerClearGridBtnClick} disabled={isClearGridBtnDisabled}>清空grid</button>
-          <button onClick={handlerClearLogBtnClick} disabled={isClearLogBtnDisabled}>清空log</button>
-          <label>
-            <input type="checkbox" checked={isCompressChecked} onChange={handlerCompressChange} />
-            压缩
-          </label>
-          <label>
-            <input type="checkbox" checked={isBatchChecked} onChange={handlerBatchChange} />
-            批量
-          </label>
-          <input type="text" value={inputValue} onChange={inputHandleChange} />
-          <button onClick={handlerSendBtnClick} disabled={isSendBtnDisabled}>发送</button>
-        </div>
-        <div style={{ height: "20%", margin: "1px",  }}>
+        <div style={{ width: "35%", height: "100%" }}>
           <h4>日志</h4>
             <ul>
               {logData.map((item) => (

@@ -1009,7 +1009,7 @@ export class WebSocketServer extends DurableObject {
         this.currentStep += 1;
         await scheduler.wait(3000);
         await this.getMessage(1);
-        const messageArray = this.messageArray;
+        const messageArray = this.messageArray.slice();
         const messageLength = messageArray.length;
         this.messageArray = [];
         if (messageLength && messageLength > 0) {
@@ -1139,7 +1139,7 @@ export class WebSocketServer extends DurableObject {
       if (this.stop === 1) {
         this.currentStep += 1;
         await this.getMessage(1);
-        const messageArray = this.messageArray;
+        const messageArray = this.messageArray.slice();
         const messageLength = messageArray.length;
         this.messageArray = [];
         this.sendLog("start", "messageLength : " + messageLength, null, false);  //测试

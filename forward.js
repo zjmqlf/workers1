@@ -14,7 +14,7 @@ export class WebSocketServer extends DurableObject {
   currentStep = 0;
   compress = false;
   batch = false;
-  api = apiString;
+  api = apiString.slice();
   clientCount = 0;
   tg = [];
   waitTime = 180000;
@@ -30,7 +30,7 @@ export class WebSocketServer extends DurableObject {
   constructor(ctx, env) {
     super(ctx, env);
     this.ctx = ctx;
-    // this.storage = ctx.storage;
+    this.storage = ctx.storage;
     // this.sql = ctx.storage.sql;
     this.env = env;
 
@@ -126,7 +126,7 @@ export class WebSocketServer extends DurableObject {
       // this.webSocket = [];
       this.apiCount = 0;
       this.currentStep = 0;
-      this.api = apiString;
+      this.api = apiString.slice();
       this.clientCount = this.api.length;
       this.tg = Array(this.clientCount).fill(null);
       this.waitTime = 180000;
@@ -797,12 +797,7 @@ export class WebSocketServer extends DurableObject {
       } catch (e) {
         //console.log("(" + this.currentStep + ")出错 : " + e);
         this.sendLog(clientIndex, "checkChat", "出错 : " + JSON.stringify(e), null, true);
-        const err = e.toString();
-        if (err.includes("CHANNEL_INVALID") === true) {
-          await this.noExistChat(clientIndex, 1, chatResult.Cindex);
-        } else if (err.includes("CHANNEL_PRIVATE") === true) {
-          await this.noExistChat(clientIndex, 1, chatResult.Cindex);
-        } else if (err.includes("400") === true) {
+        if (e.errorMessage === "CHANNEL_INVALID" || e.errorMessage === "CHANNEL_PRIVATE" || e.code === 400) {
           await this.noExistChat(clientIndex, 1, chatResult.Cindex);
         } else {
           if (tryCount === 20) {
@@ -1041,13 +1036,17 @@ export class WebSocketServer extends DurableObject {
       this.messageArray = [];
       //console.log("(" + this.currentStep + ")getMessage出错 : " + e);
       this.sendLog(clientIndex, "getMessage", "出错 : " + JSON.stringify(e), null, true);
-      if (tryCount === 20) {
-        //console.log("(" + this.currentStep + ")getMessage超出tryCount限制");
-        this.sendLog(clientIndex, "getMessage", "超出tryCount限制", null, true);
-        await this.close(clientIndex);
+      if (e.errorMessage === "CHANNEL_INVALID" || e.errorMessage === "CHANNEL_PRIVATE" || e.code === 400) {
+        await this.noExistChat(clientIndex, 1, chatResult.Cindex);
       } else {
-        await scheduler.wait(10000);
-        await this.getMessage(clientIndex, tryCount + 1);
+        if (tryCount === 20) {
+          //console.log("(" + this.currentStep + ")getMessage超出tryCount限制");
+          this.sendLog(clientIndex, "getMessage", "超出tryCount限制", null, true);
+          await this.close(clientIndex);
+        } else {
+          await scheduler.wait(10000);
+          await this.getMessage(clientIndex, tryCount + 1);
+        }
       }
       return;
     }
@@ -1100,7 +1099,7 @@ export class WebSocketServer extends DurableObject {
     this.tg[clientIndex].fromPeer = null;
     this.tg[clientIndex].chatId += 1;
     if (this.contrastChat(clientIndex)) {
-      this.tg[clientIndex].errorCount = 0;
+      this.tg[clientIndex].errorCount = await this.ctx.storage.get(this.tg[clientIndex].chatId) || 0;
       await this.getChat(clientIndex);
       if (this.tg[clientIndex].fromPeer) {
         if (this.tg[clientIndex].chatId != this.tg[clientIndex].lastChat) {
@@ -1213,11 +1212,13 @@ export class WebSocketServer extends DurableObject {
       this.tg[clientIndex].offsetId += this.tg[clientIndex].limit;
       await this.updateChat(clientIndex, 1);
       this.tg[clientIndex].errorCount += 1;
-      if (this.tg[clientIndex].errorCount >= 5) {
-        //console.log("(" + this.currentStep + ") 连续5轮的消息无需转发");
-        this.sendGrid(clientIndex, "forwardMessage", "连续5轮的消息无需转发", "error", true);
+      if (this.tg[clientIndex].errorCount >= 3) {
+        // await this.ctx.storage.put(this.tg[clientIndex].chatId, 0);
+        //console.log("(" + this.currentStep + ") 连续3轮的消息无需转发");
+        this.sendGrid(clientIndex, "forwardMessage", "连续3轮的消息无需转发", "error", true);
         await this.getNext(clientIndex);
       } else {
+        await this.ctx.storage.put(this.tg[clientIndex].chatId, this.tg[clientIndex].errorCount);
         //console.log("(" + this.currentStep + ") 第" + this.tg[clientIndex].errorCount + "轮消息无需转发");
         this.sendGrid(clientIndex, "forwardMessage", "第" + this.tg[clientIndex].errorCount + "轮消息无需转发", "error", true);
       }
@@ -1233,7 +1234,7 @@ export class WebSocketServer extends DurableObject {
         for (let clientIndex = 0; clientIndex < this.clientCount; clientIndex++) {
           if (this.tg[clientIndex].client) {
             const messageCount = await this.getMessage(clientIndex, 1);
-            const messageArray = this.messageArray;
+            const messageArray = this.messageArray.slice();
             const messageLength = messageArray.length;
             this.messageArray = [];
             //console.log("(" + this.currentStep + ")messageLength : " + messageLength);
@@ -1303,7 +1304,7 @@ export class WebSocketServer extends DurableObject {
               });
               this.tg[clientIndex].chatId += 1;
               if (this.contrastChat(clientIndex)) {
-                this.tg[clientIndex].errorCount = 0;
+                this.tg[clientIndex].errorCount = await this.ctx.storage.get(this.tg[clientIndex].chatId) || 0;
                 await this.getChat(clientIndex);
                 if (this.tg[clientIndex].fromPeer) {
                   if (this.tg[clientIndex].chatId != this.tg[clientIndex].lastChat) {
@@ -1441,7 +1442,7 @@ export class WebSocketServer extends DurableObject {
           }
           if (this.stop === 1) {
             const messageCount = await this.getMessage(clientIndex, 1);
-            const messageArray = this.messageArray;
+            const messageArray = this.messageArray.slice();
             const messageLength = messageArray.length;
             this.messageArray = [];
             // this.sendLog(clientIndex, "start", "messageLength : " + messageLength, null, false);  //测试
@@ -1501,7 +1502,7 @@ export class WebSocketServer extends DurableObject {
               this.broadcast({
                 "result": "end",
               });
-              this.tg[clientIndex].errorCount = 0;
+              this.tg[clientIndex].errorCount = await this.ctx.storage.get(this.tg[clientIndex].chatId) || 0;
               this.tg[clientIndex].chatId += 1;
               if (this.contrastChat(clientIndex)) {
                 await this.getChat(clientIndex);
@@ -1692,6 +1693,7 @@ export class WebSocketServer extends DurableObject {
     // }
     this.init(option);
     this.stop = 1;
+    let currentIndex = 0;
     for (let clientIndex = 0; clientIndex < this.clientCount; clientIndex++) {
       if (this.stop === 1) {
         if (this.apiCount < 900) {
@@ -1710,6 +1712,7 @@ export class WebSocketServer extends DurableObject {
           this.tg[clientIndex].clientId = this.api[clientIndex].id;
           await this.open(clientIndex, 1);
           if (this.tg[clientIndex].client) {
+            currentIndex += 1;
             let count = 0;
             await this.getDialog(clientIndex, 1);
             const dialogArray = this.dialogArray;
@@ -1770,6 +1773,9 @@ export class WebSocketServer extends DurableObject {
               this.sendLog(clientIndex, "chat", this.tg[clientIndex].clientId + " : 新插入了" + count + "条chat数据", null, false);
             }
             await this.close(clientIndex);
+            if (currentIndex === 2) {
+              break;
+            }
           } else {
             //console.log("连接TG服务" + clientIndex + "失败");
             this.sendLog(clientIndex, "chat", this.tg[clientIndex].clientId + " - 连接TG服务" + clientIndex + "失败", null, true);
