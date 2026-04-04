@@ -21,6 +21,7 @@ import {
   PaginationModule,
   HighlightChangesModule,
   ValidationModule,
+  ScrollApiModule,
 } from "ag-grid-community";
 import {
   RowGroupingModule,
@@ -41,6 +42,7 @@ ModuleRegistry.registerModules([
   HighlightChangesModule,
   ValidationModule,
   RowGroupingModule,
+  ScrollApiModule,
 ]);
 
 const App = () => {
@@ -207,11 +209,11 @@ const App = () => {
     };
   }, []);
 
-  // const onRowDataUpdated = useCallback((event) => {
-  //   // console.log(event);  //测试
-  //   const rowNodeIndex = event.node.rowIndex;
-  //   gridRef.current.api.ensureIndexVisible(rowNodeIndex, 'middle');
-  // }, []);
+  const onRowDataUpdated = useCallback((event) => {
+    const rowNodeIndex = event.node.rowIndex;
+    // console.log(rowNodeIndex);  //测试
+    gridRef.current.api.ensureIndexVisible(rowNodeIndex, 'middle');
+  }, []);
 
   const addNewEvent = useCallback((newItem) => {
     // if (logData.length >= 200) {
@@ -270,7 +272,7 @@ const App = () => {
           lastId.current[items.clientId] = items.chatId;
         }
         // gridRef.current.api.ensureNodeVisible(rowArray.current[items.chatId], 'middle');
-        // gridRef.current.api.ensureIndexVisible(items.chatId, 'middle');
+        // gridRef.current.api.ensureIndexVisible(rowArray.current[items.chatId].rowIndex, 'middle');
         // console.log(items.chatId + " : 添加row成功");
         // addNewEvent({
         //   "message": renderTime(Date.now()) + "  >>> " + items.chatId + " : 添加row成功",
@@ -333,7 +335,7 @@ const App = () => {
       // } else {
         rowNode.setDataValue(name, items[name]);
         // gridRef.current.api.ensureNodeVisible(rowNode, 'middle');
-        // gridRef.current.api.ensureIndexVisible(rowNode.data.chatId, 'middle');
+        // gridRef.current.api.ensureIndexVisible(rowNode.rowIndex, 'middle');
       // }
     }
   }, []);
@@ -998,7 +1000,7 @@ const App = () => {
             getRowId={getRowId}
             rowClassRules={rowClassRules}
             rowSelection={rowSelection}
-            // onRowDataUpdated={onRowDataUpdated}
+            onRowDataUpdated={onRowDataUpdated}
             // pagination={pagination}
             // paginationPageSize={paginationPageSize}
             // paginationPageSizeSelector={paginationPageSizeSelector}
