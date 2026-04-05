@@ -1015,7 +1015,7 @@ export class WebSocketServer extends DurableObject {
           //limit: 20,  //测试
           reverse: this.tg[clientIndex].reverse,
           //reverse: false,  //测试
-          addOffset: -this.tg[clientIndex].offsetId,
+          addOffset: this.tg[clientIndex].reverse ? -this.tg[clientIndex].offsetId : this.tg[clientIndex].offsetId,
           //addOffset: 0,  //测试
           filter: this.filter,
           //filter: Api.InputMessagesFilterVideo,  //测试
@@ -1835,6 +1835,16 @@ export class WebSocketServer extends DurableObject {
         "result": "over",
       });
       await this.closeAll();
+    } else if (command === "clear") {
+      await this.ctx.storage.deleteAll();
+      //console.log("删除cache成功");
+      this.broadcast({
+        "operate": "clearCache",
+        "step": this.currentStep,
+        "message": "删除cache成功",
+        "error": true,
+        "date": new Date().getTime(),
+      });
     } else if (command === "chat") {
       await this.chat(option);
     } else if (command === "compress") {

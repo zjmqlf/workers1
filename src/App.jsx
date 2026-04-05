@@ -209,11 +209,13 @@ const App = () => {
     };
   }, []);
 
-  const onRowDataUpdated = useCallback((event) => {
-    const rowNodeIndex = event.node.rowIndex;
-    // console.log(rowNodeIndex);  //测试
-    gridRef.current.api.ensureIndexVisible(rowNodeIndex, 'middle');
-  }, []);
+  // const onRowDataUpdated = useCallback((event) => {
+  //   const rowNodeIndex = event.node?.rowIndex;
+  //   // console.log(rowNodeIndex);  //测试
+  //   if (rowNodeIndex > 0) {
+  //     gridRef.current.api.ensureIndexVisible(rowNodeIndex, 'middle');
+  //   }
+  // }, []);
 
   const addNewEvent = useCallback((newItem) => {
     // if (logData.length >= 200) {
@@ -253,9 +255,9 @@ const App = () => {
     //console.log(items);  //测试
     if (rowArray.current[items.chatId]) {
       //console.log(items.chatId + " : 已添加过该row了");
-      addNewEvent({
-        "message": renderTime(Date.now()) + "  >>> " + items.chatId + "已添加过该row了",
-      });
+      // addNewEvent({
+      //   "message": renderTime(Date.now()) + "  >>> " + items.chatId + "已添加过该row了",
+      // });
     } else {
       const res = gridRef.current.api.applyTransaction({
         add: [items],
@@ -271,7 +273,7 @@ const App = () => {
         } else {
           lastId.current[items.clientId] = items.chatId;
         }
-        // gridRef.current.api.ensureNodeVisible(rowArray.current[items.chatId], 'middle');
+        gridRef.current.api.ensureNodeVisible(rowArray.current[items.chatId], 'middle');
         // gridRef.current.api.ensureIndexVisible(rowArray.current[items.chatId].rowIndex, 'middle');
         // console.log(items.chatId + " : 添加row成功");
         // addNewEvent({
@@ -334,7 +336,7 @@ const App = () => {
       //   }
       // } else {
         rowNode.setDataValue(name, items[name]);
-        // gridRef.current.api.ensureNodeVisible(rowNode, 'middle');
+        gridRef.current.api.ensureNodeVisible(rowNode, 'middle');
         // gridRef.current.api.ensureIndexVisible(rowNode.rowIndex, 'middle');
       // }
     }
@@ -360,10 +362,10 @@ const App = () => {
       });
       if (found === false) {
         //console.log(chatId + " : 查找row失败");
-        addNewEvent({
-          "error": true,
-          "message": renderTime(Date.now()) + "  >>> " + chatId + " : 查找row失败",
-        });
+        // addNewEvent({
+        //   "error": true,
+        //   "message": renderTime(Date.now()) + "  >>> " + chatId + " : 查找row失败",
+        // });
         data.forward = data.messageLength;
         addItems(data);
       }
@@ -1000,14 +1002,14 @@ const App = () => {
             getRowId={getRowId}
             rowClassRules={rowClassRules}
             rowSelection={rowSelection}
-            onRowDataUpdated={onRowDataUpdated}
+            // onRowDataUpdated={onRowDataUpdated}
             // pagination={pagination}
             // paginationPageSize={paginationPageSize}
             // paginationPageSizeSelector={paginationPageSizeSelector}
             autoGroupColumnDef={autoGroupColumnDef}
             groupDefaultExpanded={1}
           />
-          <div style={{ width: "100%" }}>
+          <div style={{ width: "100%", height: "5%" }}>
             <label>
               <input type="radio" name="filterType" value="0" checked={documentValue === 0} onChange={handlerRadioChange} />
               媒体
@@ -1048,7 +1050,7 @@ const App = () => {
             <button onClick={handlerSendBtnClick} disabled={isSendBtnDisabled}>发送</button>
           </div>
         </div>
-        <div style={{ width: "35%", height: "100%" }}>
+        <div style={{ width: "35%", height: "100%", minHeight: 0, flexGrow: 1, overflow: "auto" }}>
           <h4>日志</h4>
             <ul>
               {logData.map((item) => (
