@@ -13,4 +13,10 @@ UPDATE `FORWARDCHAT` SET `video` = 0 WHERE 1;
 }
 
 
+{
+  "command": "setChat",
+  "clientId": 1,
+  "chatId": 1
+}
+
 

@@ -512,6 +512,23 @@ export class WebSocketServer extends DurableObject {
     });
   }
 
+  sendForward(clientIndex, messageLength, message, status, error) {
+    this.broadcast({
+      "step": this.currentStep,
+      "clientCount": this.clientCount,
+      "clientIndex": clientIndex,
+      "clientId": this.tg[clientIndex].clientId,
+      "chatId": this.tg[clientIndex].chatId,
+      "offsetId": this.tg[clientIndex].offsetId,
+      "operate": "forwardMessage",
+      "messageLength": messageLength,
+      "message": message,
+      "status": status,
+      "error": error,
+      "date": new Date().getTime(),
+    });
+  }
+
   async close(clientIndex) {
     if (this.tg[clientIndex].client) {
       await this.tg[clientIndex].client.destroy();
@@ -656,6 +673,28 @@ export class WebSocketServer extends DurableObject {
       //console.log("查询config失败");
       this.sendLog(clientIndex, "getConfig", "查询config失败", null, true);
       await this.getConfigError(clientIndex, tryCount, option);
+    }
+  }
+
+  async updateConfig(clientIndex, tryCount) {
+    this.apiCount += 1;
+    let configResult = {};
+    try {
+      configResult = await this.env.MAINDB.prepare("UPDATE `CONFIG` SET `chatId` = ? WHERE `tgId` = ?;").bind(this.tg[clientIndex].chatId, this.tg[clientIndex].clientId).run();
+    } catch (e) {
+      //console.log("updateConfig出错 : " + e);
+      this.sendLog(clientIndex, "updateConfig", "出错 : " + JSON.stringify(e), null, true);
+      await this.updateConfigError(clientIndex, tryCount);
+      return;
+    }
+    //console.log(configResult);  //测试
+    if (configResult.success === true) {
+      //console.log("更新config数据成功");
+      this.sendLog(clientIndex, "updateConfig", "更新config数据成功", null, false);
+    } else {
+      //console.log("更新config数据失败");
+      this.sendLog(clientIndex, "updateConfig", "更新config数据失败", null, true);
+      await this.updateConfigError(clientIndex, tryCount);
     }
   }
 
@@ -982,28 +1021,6 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
-  async updateConfig(clientIndex, tryCount) {
-    this.apiCount += 1;
-    let configResult = {};
-    try {
-      configResult = await this.env.MAINDB.prepare("UPDATE `CONFIG` SET `chatId` = ? WHERE `tgId` = ?;").bind(this.tg[clientIndex].chatId, this.tg[clientIndex].clientId).run();
-    } catch (e) {
-      //console.log("updateConfig出错 : " + e);
-      this.sendLog(clientIndex, "updateConfig", "出错 : " + JSON.stringify(e), null, true);
-      await this.updateConfigError(clientIndex, tryCount);
-      return;
-    }
-    //console.log(configResult);  //测试
-    if (configResult.success === true) {
-      //console.log("更新config数据成功");
-      this.sendLog(clientIndex, "updateConfig", "更新config数据成功", null, false);
-    } else {
-      //console.log("更新config数据失败");
-      this.sendLog(clientIndex, "updateConfig", "更新config数据失败", null, true);
-      await this.updateConfigError(clientIndex, tryCount);
-    }
-  }
-
   async getMessage(clientIndex, tryCount) {
     try {
       let count = 0;
@@ -1104,7 +1121,7 @@ export class WebSocketServer extends DurableObject {
       if (this.tg[clientIndex].fromPeer) {
         if (this.tg[clientIndex].chatId != this.tg[clientIndex].lastChat) {
           if (this.tg[clientIndex].lastChat != 0) {
-            await this.updateConfig(clientIndex);
+            await this.updateConfig(clientIndex, 1);
           }
           this.tg[clientIndex].lastChat = this.tg[clientIndex].chatId;
         }
@@ -1135,7 +1152,7 @@ export class WebSocketServer extends DurableObject {
       const time = this.waitTime - (new Date().getTime() - this.tg[clientIndex].time);
       if (time > 0) {
         //console.log("(" + this.currentStep + ") 还需等待" + (time / 1000) + "秒");
-        this.sendGrid(clientIndex, "forwardMessage", "还需等待" + Math.ceil(time / 1000) + "秒", "wait", false);
+        this.sendForward(clientIndex, 0, "还需等待" + Math.ceil(time / 1000) + "秒", "wait", false);
         // const pingInterval = setInterval(function () {
         //   // this.ws.ping();
         //   this.ws.send("ping");
@@ -1180,47 +1197,35 @@ export class WebSocketServer extends DurableObject {
         if (e.errorMessage === "CHAT_FORWARDS_RESTRICTED" || e.code === 400) {
           this.tg[clientIndex].offsetId += this.tg[clientIndex].limit;
           //console.log("(" + this.currentStep + ") 消息不允许转发" + e);
-          this.sendGrid(clientIndex, "forwardMessage", "消息不允许转发 : " + JSON.stringify(e), "error", true);
+          this.sendForward(clientIndex, 0, "消息不允许转发 : " + JSON.stringify(e), "error", true);
           await this.getNext(clientIndex);
         } else if (e.errorMessage === "FLOOD" || e.code === 420) {
           this.waitTime += 120000;
           //console.log("(" + this.currentStep + ") 触发了洪水警告，请求太频繁" + e);
-          this.sendGrid(clientIndex, "forwardMessage", "触发了洪水警告，请求太频繁 : " + JSON.stringify(e), "error", true);
+          this.sendForward(clientIndex, 0, "触发了洪水警告，请求太频繁 : " + JSON.stringify(e), "error", true);
         } else {
           //console.log("(" + this.currentStep + ") 转发消息时发生错误" + e);
-          this.sendGrid(clientIndex, "forwardMessage", "转发消息时发生错误 : " + JSON.stringify(e), "error", true);
+          this.sendForward(clientIndex, 0, "转发消息时发生错误 : " + JSON.stringify(e), "error", true);
         }
         return;
       }
       this.tg[clientIndex].offsetId += this.tg[clientIndex].limit;
       await this.updateChat(clientIndex, 1);
       //console.log("(" + this.currentStep + ") 成功转发了" + length + "条消息");
-      this.broadcast({
-        "clientIndex": clientIndex,
-        "clientId": this.tg[clientIndex].clientId,
-        "chatId": this.tg[clientIndex].chatId,
-        "offsetId": this.tg[clientIndex].offsetId,
-        "operate": "forwardMessage",
-        "step": this.currentStep,
-        "clientCount": this.clientCount,
-        "messageLength": messageLength,
-        "message": "成功转发了" + messageLength + "条消息",
-        "status": "update",
-        "date": new Date().getTime(),
-      });
+      this.sendForward(clientIndex, messageLength, "成功转发了" + messageLength + "条消息", "update", false);
     } else {
       this.tg[clientIndex].offsetId += this.tg[clientIndex].limit;
       await this.updateChat(clientIndex, 1);
       this.tg[clientIndex].errorCount += 1;
-      if (this.tg[clientIndex].errorCount >= 3) {
+      if (this.tg[clientIndex].errorCount >= 2) {
         // await this.ctx.storage.put(this.tg[clientIndex].chatId, 0);
-        //console.log("(" + this.currentStep + ") 连续3轮的消息无需转发");
-        this.sendGrid(clientIndex, "forwardMessage", "连续3轮的消息无需转发", "error", true);
+        //console.log("(" + this.currentStep + ") 连续2轮的消息无需转发");
+        this.sendForward(clientIndex, 0, "连续2轮的消息无需转发", "error", true);
         await this.getNext(clientIndex);
       } else {
         await this.ctx.storage.put(this.tg[clientIndex].chatId, this.tg[clientIndex].errorCount);
         //console.log("(" + this.currentStep + ") 第" + this.tg[clientIndex].errorCount + "轮消息无需转发");
-        this.sendGrid(clientIndex, "forwardMessage", "第" + this.tg[clientIndex].errorCount + "轮消息无需转发", "error", true);
+        this.sendForward(clientIndex, 0, "第" + this.tg[clientIndex].errorCount + "轮消息无需转发", "error", true);
       }
     }
     this.tg[clientIndex].time = new Date().getTime();
@@ -1309,7 +1314,7 @@ export class WebSocketServer extends DurableObject {
                 if (this.tg[clientIndex].fromPeer) {
                   if (this.tg[clientIndex].chatId != this.tg[clientIndex].lastChat) {
                     if (this.tg[clientIndex].lastChat != 0) {
-                      await this.updateConfig(clientIndex);
+                      await this.updateConfig(clientIndex, 1);
                     }
                     this.tg[clientIndex].lastChat = this.tg[clientIndex].chatId;
                   }
@@ -1436,7 +1441,7 @@ export class WebSocketServer extends DurableObject {
         if (this.tg[clientIndex].fromPeer) {
           if (this.tg[clientIndex].chatId != this.tg[clientIndex].lastChat) {
             if (this.tg[clientIndex].lastChat != 0) {
-              await this.updateConfig(clientIndex);
+              await this.updateConfig(clientIndex, 1);
             }
             this.tg[clientIndex].lastChat = this.tg[clientIndex].chatId;
           }
@@ -1509,7 +1514,7 @@ export class WebSocketServer extends DurableObject {
                 if (this.tg[clientIndex].fromPeer) {
                   if (this.tg[clientIndex].chatId != this.tg[clientIndex].lastChat) {
                     if (this.tg[clientIndex].lastChat != 0) {
-                      await this.updateConfig(clientIndex);
+                      await this.updateConfig(clientIndex, 1);
                     }
                     this.tg[clientIndex].lastChat = this.tg[clientIndex].chatId;
                   }
@@ -1857,15 +1862,39 @@ export class WebSocketServer extends DurableObject {
       this.batch = false;
     } else if (command === "chatId") {
       if (data.chatId && data.chatId >= 0 && this.tg[clientIndex].chatId !== data.chatId) {
-        this.tg[clientIndex].chatId = data.chatId;
+        for (let clientIndex = 0; clientIndex < this.clientCount; clientIndex++) {
+          if (this.tg[clientIndex].clientId == data.chatId) {
+            this.tg[clientIndex].chatId = data.chatId;
+            break;
+          }
+        }
       }
     } else if (command === "offsetId") {
       if (data.offsetId && data.offsetId >= 0 && this.tg[clientIndex].offsetId !== data.offsetId) {
-        this.tg[clientIndex].offsetId = data.offsetId;
+        for (let clientIndex = 0; clientIndex < this.clientCount; clientIndex++) {
+          if (this.tg[clientIndex].clientId == data.chatId) {
+            this.tg[clientIndex].offsetId = data.offsetId;
+            break;
+          }
+        }
       }
     } else if (command === "endChat") {
       if (data.endChat && data.endChat > 0 && this.tg[clientIndex].endChat !== data.endChat) {
-        this.tg[clientIndex].endChat = data.endChat;
+        for (let clientIndex = 0; clientIndex < this.clientCount; clientIndex++) {
+          if (this.tg[clientIndex].clientId == data.chatId) {
+            this.tg[clientIndex].endChat = data.endChat;
+            break;
+          }
+        }
+      }
+    } else if (command === "setChat") {
+      if (data.clientId && data.clientId >= 0 && data.chatId && data.chatId > 0) {
+        for (let clientIndex = 0; clientIndex < this.clientCount; clientIndex++) {
+          if (this.tg[clientIndex].clientId == data.chatId) {
+            await this.getNext(clientIndex);
+            break;
+          }
+        }
       }
     } else {
       this.broadcast({
