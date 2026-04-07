@@ -516,7 +516,7 @@ export class WebSocketServer extends DurableObject {
     this.broadcast({
       "step": this.currentStep,
       "clientCount": this.clientCount,
-      "clientIndex": clientIndex,
+      "clientIndex": clientIndex + 1,
       "clientId": this.tg[clientIndex].clientId,
       "chatId": this.tg[clientIndex].chatId,
       "offsetId": this.tg[clientIndex].offsetId,
@@ -1069,18 +1069,18 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
-  async updateChatError(clientIndex, tryCount) {
+  async updateChatError(clientIndex, tryCount, messageLength) {
     if (tryCount === 20) {
       //console.log("(" + this.currentStep + ")updateChat超出tryCount限制");
       this.sendLog(clientIndex, "updateChat", "超出tryCount限制", null, true);
       await this.close(clientIndex);
     } else {
       await scheduler.wait(10000);
-      await this.updateChat(clientIndex, tryCount + 1);
+      await this.updateChat(clientIndex, tryCount + 1, messageLength);
     }
   }
 
-  async updateChat(clientIndex, tryCount) {
+  async updateChat(clientIndex, tryCount, messageLength) {
     this.apiCount += 1;
     let chatResult = {};
     try {
@@ -1098,17 +1098,17 @@ export class WebSocketServer extends DurableObject {
     } catch (e) {
       //console.log("(" + this.currentStep + ")updateChat出错 : " + e);
       this.sendLog(clientIndex, "updateChat", "出错 : " + JSON.stringify(e), null, true);
-      await this.updateChatError(clientIndex, tryCount);
+      await this.updateChatError(clientIndex, tryCount, messageLength);
       return;
     }
     //console.log(chatResult);  //测试
     if (chatResult.success === true) {
-      //console.log("(" + this.currentStep + ")更新chat数据成功");
-      this.sendLog(clientIndex, "updateChat", "更新chat数据成功", null, false);
+      //console.log("(" + this.currentStep + ")更新chat数据成功 - " + messageLength);
+      this.sendLog(clientIndex, "updateChat", "更新chat数据成功 - " + messageLength, null, false);
     } else {
-      //console.log("(" + this.currentStep + ")更新chat数据失败");
-      this.sendLog(clientIndex, "updateChat", "更新chat数据失败", null, true);
-      await this.updateChatError(clientIndex, tryCount);
+      //console.log("(" + this.currentStep + ")更新chat数据失败 - " + messageLength);
+      this.sendLog(clientIndex, "updateChat", "更新chat数据失败 - " + messageLength, null, true);
+      await this.updateChatError(clientIndex, tryCount, messageLength);
     }
   }
 
@@ -1210,12 +1210,12 @@ export class WebSocketServer extends DurableObject {
         return;
       }
       this.tg[clientIndex].offsetId += this.tg[clientIndex].limit;
-      await this.updateChat(clientIndex, 1);
+      await this.updateChat(clientIndex, 1, messageLength);
       //console.log("(" + this.currentStep + ") 成功转发了" + length + "条消息");
       this.sendForward(clientIndex, messageLength, "成功转发了" + messageLength + "条消息", "update", false);
     } else {
       this.tg[clientIndex].offsetId += this.tg[clientIndex].limit;
-      await this.updateChat(clientIndex, 1);
+      await this.updateChat(clientIndex, 1, 0);
       this.tg[clientIndex].errorCount += 1;
       if (this.tg[clientIndex].errorCount >= 2) {
         // await this.ctx.storage.put(this.tg[clientIndex].chatId, 0);
@@ -1292,7 +1292,7 @@ export class WebSocketServer extends DurableObject {
               //console.log("(" + this.currentStep + ")messageCount : " + messageCount);
               this.sendLog(clientIndex, "nextStep", "messageCount : " + messageCount, null, true);
               this.tg[clientIndex].offsetId += this.tg[clientIndex].limit;
-              await this.updateChat(clientIndex, 1);
+              await this.updateChat(clientIndex, 1, 0);
               if (this.stop === 2) {
                 this.broadcast({
                   "result": "pause",
@@ -1300,7 +1300,7 @@ export class WebSocketServer extends DurableObject {
                 await this.close();
               }
             } else {
-              await this.updateChat(clientIndex, 1);
+              await this.updateChat(clientIndex, 1, 0);
               this.tg[clientIndex].fromPeer = null;
               //console.log("(" + this.currentStep + ")" + this.tg[clientIndex].chatId + " : 当前chat采集完毕");
               this.sendLog(clientIndex, "nextStep", "当前chat采集完毕", null, false);
@@ -1492,7 +1492,7 @@ export class WebSocketServer extends DurableObject {
               //console.log("(" + this.currentStep + ")messageCount : " + messageCount");
               this.sendLog(clientIndex, "start", "messageCount : " + messageCount, null, true);
               this.tg[clientIndex].offsetId += this.tg[clientIndex].limit;
-              await this.updateChat(clientIndex, 1);
+              await this.updateChat(clientIndex, 1, 0);
               if (this.stop === 2) {
                 this.broadcast({
                   "result": "pause",
@@ -1500,7 +1500,7 @@ export class WebSocketServer extends DurableObject {
                 await this.close();
               }
             } else {
-              await this.updateChat(clientIndex, 1);
+              await this.updateChat(clientIndex, 1, 0);
               this.tg[clientIndex].fromPeer = null;
               //console.log("(" + this.currentStep + ")" + this.tg[clientIndex].chatId + " : 当前chat采集完毕");
               this.sendLog(clientIndex, "start", "当前chat采集完毕", null, false);
