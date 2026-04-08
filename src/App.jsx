@@ -350,14 +350,16 @@ const App = () => {
       let found = false;
       // gridRef.current.api.forEachNodeAfterFilterAndSort((rowNode, index) => {
       gridRef.current.api.forEachNode((rowNode, index) => {
-        if (rowNode.data.chatId === chatId) {
-          // if (items.clientCount && items.clientCount > 0 && index >= items.clientCount) {
-          //   deleteItems(rowNode);
-          //   addItems(rowNode);
-          // }
-          updateRow(rowNode, items);
-          found = true;
-          return;
+        if (rowNode.level === 1) {
+          if (rowNode.data.chatId === chatId) {
+            // if (items.clientCount && items.clientCount > 0 && index >= items.clientCount) {
+            //   deleteItems(rowNode);
+            //   addItems(rowNode);
+            // }
+            updateRow(rowNode, items);
+            found = true;
+            return;
+          }
         }
       });
       if (found === false) {
