@@ -122,7 +122,7 @@ export const apiString = [
   {
     "id": 12,
     "pc": 15,
-    "dc": 2,
+    "dc": 1,
     "name": "zjm2062",
     "phone": "+15802031686",
     "apiId": 9995085,
@@ -132,7 +132,7 @@ export const apiString = [
   {
     "id": 13,
     "pc": 15,
-    "dc": 2,
+    "dc": 1,
     "name": "zjm2063",
     "phone": "+15802054841",
     "apiId": 9611230,
@@ -172,7 +172,7 @@ export const apiString = [
   {
     "id": 17,
     "pc": 20,
-    "dc": 2,
+    "dc": 1,
     "name": "zjm2078",
     "phone": "+31616465309",
     "apiId": 18712270,
@@ -182,7 +182,7 @@ export const apiString = [
   {
     "id": 18,
     "pc": 21,
-    "dc": 2,
+    "dc": 1,
     "name": "zjm2080",
     "phone": "+67074109681",
     "apiId": 11206629,
@@ -232,7 +232,7 @@ export const apiString = [
   {
     "id": 23,
     "pc": 27,
-    "dc": 2,
+    "dc": 1,
     "name": "zjm2099",
     "phone": "+13528903059",
     "apiId": 15753848,
@@ -242,7 +242,7 @@ export const apiString = [
   {
     "id": 24,
     "pc": 27,
-    "dc": 2,
+    "dc": 1,
     "name": "zjm2100",
     "phone": "+12026296056",
     "apiId": 16177121,
@@ -252,7 +252,7 @@ export const apiString = [
   {
     "id": 25,
     "pc": 29,
-    "dc": 2,
+    "dc": 1,
     "name": "zjm2105",
     "phone": "+12023788637",
     "apiId": 14267011,
@@ -292,7 +292,7 @@ export const apiString = [
   {
     "id": 29,
     "pc": 44,
-    "dc": 2,
+    "dc": 1,
     "name": "zjm2152",
     "phone": "+436703061883",
     "apiId": 15381367,
@@ -302,7 +302,7 @@ export const apiString = [
   {
     "id": 30,
     "pc": 45,
-    "dc": 2,
+    "dc": 1,
     "name": "zjm2154",
     "phone": "+13525301285",
     "apiId": 12604929,
@@ -312,7 +312,7 @@ export const apiString = [
   {
     "id": 31,
     "pc": 46,
-    "dc": 2,
+    "dc": 1,
     "name": "zjm2157",
     "phone": "+16149291798",
     "apiId": 10018955,
@@ -382,7 +382,7 @@ export const apiString = [
   {
     "id": 38,
     "pc": 74,
-    "dc": 2,
+    "dc": 1,
     "name": "zjm2241",
     "phone": "+13522179773",
     "apiId": 11529789,
@@ -422,7 +422,7 @@ export const apiString = [
   {
     "id": 42,
     "pc": 133,
-    "dc": 2,
+    "dc": 1,
     "name": "zjm2419",
     "phone": "+14706523433",
     "apiId": 11785576,
@@ -432,7 +432,7 @@ export const apiString = [
   {
     "id": 43,
     "pc": 133,
-    "dc": 2,
+    "dc": 1,
     "name": "zjm2420",
     "phone": "+16505377616",
     "apiId": 17764563,
@@ -442,7 +442,7 @@ export const apiString = [
   {
     "id": 44,
     "pc": 148,
-    "dc": 2,
+    "dc": 1,
     "name": "zjm2463",
     "phone": "+16502106659",
     "apiId": 22995669,
@@ -452,7 +452,7 @@ export const apiString = [
   {
     "id": 45,
     "pc": 149,
-    "dc": 2,
+    "dc": 1,
     "name": "zjm2466",
     "phone": "+12023527104",
     "apiId": 25102839,
@@ -462,7 +462,7 @@ export const apiString = [
   {
     "id": 46,
     "pc": 171,
-    "dc": 2,
+    "dc": 4,
     "name": "zjm2589",
     "phone": "+447406613751",
     "apiId": 26611861,
@@ -472,7 +472,7 @@ export const apiString = [
   {
     "id": 47,
     "pc": 171,
-    "dc": 2,
+    "dc": 4,
     "name": "zjm2590",
     "phone": "+447406613754",
     "apiId": 21979386,
