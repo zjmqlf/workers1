@@ -53,6 +53,7 @@ const App = () => {
   // const paginationPageSizeSelector = [50, 150, 200];
   const rowArray = useRef({});
   const lastId = useRef({});
+  const lastClient = useRef(0);
   const ws = useRef(null);
   const stop = useRef(false);
   const over = useRef(false);
@@ -246,12 +247,15 @@ const App = () => {
   }, [setLogData, key]);
 
   const addItems = useCallback((items) => {
-    if (gridRef.current.api.getDisplayedRowCount() >= 200) {
-      rowArray.current = {};
-      setRowData([]);
-      setClearGridBtnDisabled(true);
-      console.log("删除grid成功");  //测试
+    if (items.clientId) {
+      lastClient.current = items.clientId;
     }
+    // if (gridRef.current.api.getDisplayedRowCount() >= 200) {
+    //   rowArray.current = {};
+    //   setRowData([]);
+    //   setClearGridBtnDisabled(true);
+    //   console.log("删除grid成功");  //测试
+    // }
     //console.log(items);  //测试
     if (rowArray.current[items.chatId]) {
       //console.log(items.chatId + " : 已添加过该row了");
@@ -344,6 +348,9 @@ const App = () => {
 
   const updateItems = useCallback((data) => {
     const {chatId, ...items} = data;
+    if (items.clientId) {
+      lastClient.current = items.clientId;
+    }
     if (rowArray.current[chatId]) {
       updateRow(rowArray.current[chatId], items);
     } else {
@@ -575,6 +582,7 @@ const App = () => {
       }
     // }, time);
     }, 60000);
+//  }, [addNewEvent, renderTime, documentValue]);
  }, [addNewEvent, renderTime]);
 
   const collectWS = useCallback((command) => {
@@ -690,6 +698,12 @@ const App = () => {
       handlerClose();
       if (over.current === false) {
         // console.log(documentValue);  //测试
+        if (lastClient.current > 0) {
+          waitTime.current = 180000 - (lastClient.current * 3000);
+        }
+        if (lastClient.current < 30000) {
+          waitTime.current = 30000;
+        }
         waitReconnect(JSON.stringify({
           "command": "start",
           "filterType": documentValue,

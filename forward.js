@@ -541,16 +541,15 @@ export class WebSocketServer extends DurableObject {
   async open(clientIndex, tryCount) {
     try {
       this.tg[clientIndex].client = await new TelegramClient(new sessions.StringSession(this.api[clientIndex].sessionString), this.api[clientIndex].apiId, this.api[clientIndex].apiHash, {
-        connectionRetries: Number.MAX_VALUE,
+        timeout: 5,
+        retryDelay: 1000,
+        connectionRetries: 5,
         autoReconnect: true,
         deviceModel: "Desktop",
         systemVersion: "Windows 10",
         appVersion: "5.12.3 x64",
         langCode: "en",
         systemLangCode: "en-US",
-        //downloadRetries: 1,
-        //retryDelay: 0,
-        //useWSS: false,
       })
       if (this.api[clientIndex].dc === 5) {
         await this.tg[clientIndex].client.session.setDC(5, "91.108.56.128", 80);
@@ -869,6 +868,7 @@ export class WebSocketServer extends DurableObject {
             this.tg[clientIndex].fromPeer = result.chats[0];
             if (this.tg[clientIndex].fromPeer) {
               this.setOffsetId(clientIndex, chatResult);
+              this.tg[clientIndex].errorCount = await this.ctx.storage.get(this.tg[clientIndex].chatId) || 0;
               this.sendGrid(clientIndex, "checkChat", this.tg[clientIndex].chatId + " : " + chatResult.title, "add", false);
             } else {
               await this.noExistChat(clientIndex, 1, chatResult.Cindex);
@@ -941,6 +941,7 @@ export class WebSocketServer extends DurableObject {
           await this.checkChat(clientIndex, 1, chatResult.results[0]);
         } else {
           this.tg[clientIndex].chatId = chatResult.results[0].Cindex;
+          this.tg[clientIndex].errorCount = await this.ctx.storage.get(this.tg[clientIndex].chatId) || 0;
           this.sendGrid(clientIndex, "nextChat", this.tg[clientIndex].chatId + " : " + chatResult.results[0].title, "add", false);
         }
       } else {
@@ -1116,7 +1117,6 @@ export class WebSocketServer extends DurableObject {
     this.tg[clientIndex].fromPeer = null;
     this.tg[clientIndex].chatId += 1;
     if (this.contrastChat(clientIndex)) {
-      this.tg[clientIndex].errorCount = await this.ctx.storage.get(this.tg[clientIndex].chatId) || 0;
       await this.getChat(clientIndex);
       if (this.tg[clientIndex].fromPeer) {
         if (this.tg[clientIndex].chatId != this.tg[clientIndex].lastChat) {
@@ -1150,7 +1150,7 @@ export class WebSocketServer extends DurableObject {
     //console.log(length);
     if (this.tg[clientIndex].time && this.tg[clientIndex].time > 0) {
       const time = this.waitTime - (new Date().getTime() - this.tg[clientIndex].time);
-      if (time > 0) {
+      if (time > 0 && time < 5000) {
         //console.log("(" + this.currentStep + ") 还需等待" + (time / 1000) + "秒");
         this.sendForward(clientIndex, 0, "还需等待" + Math.ceil(time / 1000) + "秒", "wait", false);
         // const pingInterval = setInterval(function () {
@@ -1217,8 +1217,8 @@ export class WebSocketServer extends DurableObject {
       this.tg[clientIndex].offsetId += this.tg[clientIndex].limit;
       await this.updateChat(clientIndex, 1, 0);
       this.tg[clientIndex].errorCount += 1;
-      if (this.tg[clientIndex].errorCount >= 2) {
-        // await this.ctx.storage.put(this.tg[clientIndex].chatId, 0);
+      if (this.tg[clientIndex].errorCount >= 3) {
+        await this.ctx.storage.put(this.tg[clientIndex].chatId, 0);
         //console.log("(" + this.currentStep + ") 连续2轮的消息无需转发");
         this.sendForward(clientIndex, 0, "连续2轮的消息无需转发", "error", true);
         await this.getNext(clientIndex);
@@ -1262,6 +1262,19 @@ export class WebSocketServer extends DurableObject {
                       if (messageArray[messageIndex].media) {
                         if (messageArray[messageIndex].media.photo) {
                           fileId = messageArray[messageIndex].media.photo.id;
+                        }
+                      }
+                    } else if (this.filterType === 3) {
+                      if (messageArray[messageIndex].media) {
+                        if (messageArray[messageIndex].media.document) {
+                          const mimeType = messageArray[messageIndex].media.document.mimeType;
+                          if (mimeType.startsWith("video/")) {
+                            fileId = messageArray[messageIndex].media.document.id;
+                          } else if (mimeType.startsWith("image/")) {
+                            fileId = messageArray[messageIndex].media.document.id;
+                          // } else if (mimeType.startsWith("application/")) {
+                          // } else {
+                          }
                         }
                       }
                     } else if (this.filterType === 0) {
@@ -1309,7 +1322,6 @@ export class WebSocketServer extends DurableObject {
               });
               this.tg[clientIndex].chatId += 1;
               if (this.contrastChat(clientIndex)) {
-                this.tg[clientIndex].errorCount = await this.ctx.storage.get(this.tg[clientIndex].chatId) || 0;
                 await this.getChat(clientIndex);
                 if (this.tg[clientIndex].fromPeer) {
                   if (this.tg[clientIndex].chatId != this.tg[clientIndex].lastChat) {
@@ -1507,7 +1519,6 @@ export class WebSocketServer extends DurableObject {
               this.broadcast({
                 "result": "end",
               });
-              this.tg[clientIndex].errorCount = await this.ctx.storage.get(this.tg[clientIndex].chatId) || 0;
               this.tg[clientIndex].chatId += 1;
               if (this.contrastChat(clientIndex)) {
                 await this.getChat(clientIndex);
