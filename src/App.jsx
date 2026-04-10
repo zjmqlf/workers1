@@ -63,7 +63,7 @@ const App = () => {
   const waitTime = useRef(30000);
   const containerStyle = useMemo(() => ({ width: "100%", height: "100%" }), []);
   const gridStyle = useMemo(() => ({ width: "65%", height: "95%" }), []);
-  const [documentValue, setDocumentValue] = useState(2);
+  const [documentValue, setDocumentValue] = useState(-1);
   const [isCloseBtnDisabled, setCloseBtnDisabled] = useState(true);
   const [isCollectBtnDisabled, setCollectBtnDisabled] = useState(true);
   const [isNextBtnDisabled, setNextBtnDisabled] = useState(true);
@@ -247,7 +247,7 @@ const App = () => {
   }, [setLogData, key]);
 
   const addItems = useCallback((items) => {
-    if (items.clientId) {
+    if (items.clientId && items.clientId > 0) {
       lastClient.current = items.clientId;
     }
     // if (gridRef.current.api.getDisplayedRowCount() >= 200) {
@@ -348,7 +348,7 @@ const App = () => {
 
   const updateItems = useCallback((data) => {
     const {chatId, ...items} = data;
-    if (items.clientId) {
+    if (items.clientId && items.clientId > 0) {
       lastClient.current = items.clientId;
     }
     if (rowArray.current[chatId]) {
@@ -699,7 +699,7 @@ const App = () => {
       if (over.current === false) {
         // console.log(documentValue);  //测试
         if (lastClient.current > 0) {
-          waitTime.current = 180000 - (lastClient.current * 3000);
+          waitTime.current = 180000 - (lastClient.current * 2000);
         }
         if (lastClient.current < 30000) {
           waitTime.current = 30000;

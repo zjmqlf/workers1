@@ -19,9 +19,8 @@ export class WebSocketServer extends DurableObject {
   tg = [];
   waitTime = 180000;
   pingTime = 20000;
-  filterType = 0;
-  filter = Api.InputMessagesFilterVideo;
-  //filterTitle = "媒体";
+  filterType = -1;
+  limit = 0;
   messageArray = [];
   cacheMessage = null;
   batchMessage = [];
@@ -116,10 +115,14 @@ export class WebSocketServer extends DurableObject {
         if (option.filterType) {
           this.filterType = option.filterType;
         }
+        if (option.limit && option.limit > 0) {
+          this.limit = option.limit;
+        }
       } else {
         this.compress = true;
         this.batch = false;
         this.filterType = 0;
+        this.limit = 0;
       }
       // this.ws = null;
       // this.stop = 0;
@@ -132,8 +135,6 @@ export class WebSocketServer extends DurableObject {
       this.waitTime = 180000;
       this.pingTime = 20000;
       this.messageArray = [];
-      this.filter = Api.InputMessagesFilterVideo;
-      //this.filterTitle = "媒体";
       this.cacheMessage = null;
       this.batchMessage = [];
       this.dialogArray = [];
@@ -364,38 +365,6 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
-  initChat(clientIndex, option) {
-    if (!this.tg[clientIndex].client || !this.stop || this.stop === 0) {
-    // if (!this.stop || this.stop === 0) {
-      if (option) {
-        if (option.chatId && option.chatId > 0) {
-          this.tg[clientIndex].chatId = option.chatId;
-        }
-        if (option.endChat && option.endChat > 0) {
-          this.tg[clientIndex].endChat = option.endChat;
-        }
-        if (option.reverse) {
-          this.tg[clientIndex].reverse = option.reverse;
-        }
-        if (option.limit && option.limit > 0) {
-          this.tg[clientIndex].limit = option.limit;
-        }
-        if (option.offsetId && option.offsetId > 0) {
-          this.tg[clientIndex].offsetId = option.offsetId;
-        }
-      } else {
-        this.tg[clientIndex].chatId = 0;
-        this.tg[clientIndex].endChat = 0;
-        this.tg[clientIndex].reverse = true;
-        this.tg[clientIndex].limit = 100;
-        this.tg[clientIndex].offsetId = 0;
-      }
-      // this.tg[clientIndex].client = null;
-      this.tg[clientIndex].lastChat = 0;
-      this.tg[clientIndex].fromPeer = null;
-    }
-  }
-
   broadcast(message) {
     if (message === "ping") {
       this.ctx.getWebSockets().forEach((ws) => {
@@ -595,6 +564,47 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
+  async switchType(clientIndex) {
+    switch (this.tg[clientIndex].filterType) {
+      case 0:
+        this.tg[clientIndex].filter = Api.InputMessagesFilterPhotoVideo;
+        break;
+      case 1:
+        //this.tg[clientIndex].filterTitle = "图片";
+        this.tg[clientIndex].filter = Api.InputMessagesFilterPhotos;
+        break;
+      case 2:
+        //this.tg[clientIndex].filterTitle = "视频";
+        this.tg[clientIndex].filter = Api.InputMessagesFilterVideo;
+        break;
+      case 3:
+        //this.tg[clientIndex].filterTitle = "文档";
+        this.tg[clientIndex].filter = Api.InputMessagesFilterDocument;
+        break;
+      case 4:
+        //this.tg[clientIndex].filterTitle = "动图";
+        this.tg[clientIndex].filter = Api.InputMessagesFilterGif;
+        break;
+      case 5:
+        this.tg[clientIndex].filter = Api.InputMessagesFilterVoice;
+        break;
+      case 6:
+        this.tg[clientIndex].filter = Api.InputMessagesFilterMusic;
+        break;
+      case 7:
+        this.tg[clientIndex].filter = Api.InputMessagesFilterChatPhotos;
+        break;
+      case 8:
+        this.tg[clientIndex].filter = Api.InputMessagesFilterRoundVoice;
+        break;
+      case 9:
+        this.tg[clientIndex].filter = Api.InputMessagesFilterRoundVideo;
+        break;
+      default:
+        this.tg[clientIndex].filter = Api.InputMessagesFilterPhotoVideo;
+    }
+  }
+
   async insertConfig(clientIndex, tryCount) {
     this.apiCount += 1;
     let configResult = {};
@@ -643,18 +653,30 @@ export class WebSocketServer extends DurableObject {
     if (configResult.success === true) {
       if (configResult.results && configResult.results.length > 0) {
         const result = configResult.results[0];
-        if (!option || !option.chatId) {
+        if (this.filterType >= 0) {
+          this.tg[clientIndex].filterType = this.filterType;
+          if (result.filterType && this.filterType === result.filterType) {
+            if (result.chatId && result.chatId > 0) {
+              this.tg[clientIndex].chatId = result.chatId;
+              this.tg[clientIndex].lastChat = this.tg[clientIndex].chatId;
+            }
+          }
+        } else {
+          if (result.filterType && result.filterType >= 0) {
+            this.tg[clientIndex].filterType = result.filterType;
+          }
           if (result.chatId && result.chatId > 0) {
             this.tg[clientIndex].chatId = result.chatId;
             this.tg[clientIndex].lastChat = this.tg[clientIndex].chatId;
           }
         }
-        if (!option || !option.reverse) {
-          if (result.reverse) {
-            this.tg[clientIndex].reverse = Boolean(result.reverse);
-          }
+        this.switchType(clientIndex);
+        if (result.reverse) {
+          this.tg[clientIndex].reverse = Boolean(result.reverse);
         }
-        if (!option || !option.limited) {
+        if (this.limit > 0) {
+          this.tg[clientIndex].limit = this.limit;
+        } else {
           if (result.limited && result.limited > 0) {
             this.tg[clientIndex].limit = result.limited;
           }
@@ -664,8 +686,10 @@ export class WebSocketServer extends DurableObject {
         // this.sendLog(clientIndex, "getConfig", "没有预设config", null, false);
         this.tg[clientIndex].chatId = 1;
         this.tg[clientIndex].lastChat = this.tg[clientIndex].chatId;
+        this.tg[clientIndex].filterType = 1;
         this.tg[clientIndex].reverse = true;
         this.tg[clientIndex].limit = 100;
+        this.switchType(clientIndex);
         await this.insertConfig(clientIndex, 1);
       }
     } else {
@@ -675,11 +699,22 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
+  async updateConfigError(clientIndex, tryCount) {
+    if (tryCount === 20) {
+      //console.log("(" + this.currentStep + ")updateConfig超出tryCount限制");
+      this.sendLog(clientIndex, "updateConfig", "超出tryCount限制", null, true);
+      await this.close(clientIndex);
+    } else {
+      await scheduler.wait(10000);
+      await this.updateConfig(clientIndex, tryCount + 1);
+    }
+  }
+
   async updateConfig(clientIndex, tryCount) {
     this.apiCount += 1;
     let configResult = {};
     try {
-      configResult = await this.env.MAINDB.prepare("UPDATE `CONFIG` SET `chatId` = ? WHERE `tgId` = ?;").bind(this.tg[clientIndex].chatId, this.tg[clientIndex].clientId).run();
+      configResult = await this.env.MAINDB.prepare("UPDATE `CONFIG` SET `chatId` = ?, `filterType` = ? WHERE `tgId` = ?;").bind(this.tg[clientIndex].chatId, this.tg[clientIndex].filterType, this.tg[clientIndex].clientId).run();
     } catch (e) {
       //console.log("updateConfig出错 : " + e);
       this.sendLog(clientIndex, "updateConfig", "出错 : " + JSON.stringify(e), null, true);
@@ -697,57 +732,16 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
-  async switchType() {
-    switch (this.filterType) {
-      case 0:
-        this.filter = Api.InputMessagesFilterPhotoVideo;
-        break;
-      case 1:
-        //this.filterTitle = "图片";
-        this.filter = Api.InputMessagesFilterPhotos;
-        break;
-      case 2:
-        //this.filterTitle = "视频";
-        this.filter = Api.InputMessagesFilterVideo;
-        break;
-      case 3:
-        //this.filterTitle = "文档";
-        this.filter = Api.InputMessagesFilterDocument;
-        break;
-      case 4:
-        //this.filterTitle = "动图";
-        this.filter = Api.InputMessagesFilterGif;
-        break;
-      case 5:
-        this.filter = Api.InputMessagesFilterVoice;
-        break;
-      case 6:
-        this.filter = Api.InputMessagesFilterMusic;
-        break;
-      case 7:
-        this.filter = Api.InputMessagesFilterChatPhotos;
-        break;
-      case 8:
-        this.filter = Api.InputMessagesFilterRoundVoice;
-        break;
-      case 9:
-        this.filter = Api.InputMessagesFilterRoundVideo;
-        break;
-      default:
-        this.filter = Api.InputMessagesFilterPhotoVideo;
-    }
-  }
-
   async setOffsetId(clientIndex, chatResult) {
-    if (this.filterType === 0) {
+    if (this.tg[clientIndex].filterType === 0) {
       this.tg[clientIndex].offsetId = chatResult.current;
-    } else if (this.filterType === 1) {
+    } else if (this.tg[clientIndex].filterType === 1) {
       this.tg[clientIndex].offsetId = chatResult.photo;
-    } else if (this.filterType === 2) {
+    } else if (this.tg[clientIndex].filterType === 2) {
       this.tg[clientIndex].offsetId = chatResult.video;
-    } else if (this.filterType === 3) {
+    } else if (this.tg[clientIndex].filterType === 3) {
       this.tg[clientIndex].offsetId = chatResult.document;
-    } else if (this.filterType === 4) {
+    } else if (this.tg[clientIndex].filterType === 4) {
       this.tg[clientIndex].offsetId = chatResult.gif;
     }
   }
@@ -822,6 +816,14 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
+  async nextFilter(clientIndex) {
+    if (this.tg[clientIndex].filterType < 5) {
+      this.tg[clientIndex].filterType += 1;
+      this.tg[clientIndex].chatId = 0;
+      await this.nextChat(clientIndex, 1, true);
+    }
+  }
+
   async checkChat(clientIndex, tryCount, chatResult) {
     if (chatResult.channelId && chatResult.accessHash) {
       let result = null;
@@ -863,6 +865,7 @@ export class WebSocketServer extends DurableObject {
             } else {
               //console.log(this.tg[clientIndex].endChat + " : 超过最大chat了");  //测试
               this.sendLog(clientIndex, "checkChat", this.tg[clientIndex].endChat + " : 超过最大chat了", null, true);
+              await this.nextFilter(clientIndex);
             }
           } else {
             this.tg[clientIndex].fromPeer = result.chats[0];
@@ -880,12 +883,14 @@ export class WebSocketServer extends DurableObject {
               } else {
                 //console.log(this.tg[clientIndex].endChat + " : 超过最大chat了");  //测试
                 this.sendLog(clientIndex, "checkChat", this.tg[clientIndex].endChat + " : 超过最大chat了", null, true);
+                await this.nextFilter(clientIndex);
               }
             }
           }
         } else {
           //console.log(this.tg[clientIndex].endChat + " : 超过最大chat了");  //测试
           this.sendLog(clientIndex, "checkChat", this.tg[clientIndex].endChat + " : 超过最大chat了", null, true);
+          await this.nextFilter(clientIndex);
         }
       } else {
         await this.noExistChat(clientIndex, 1, chatResult.Cindex);
@@ -897,6 +902,7 @@ export class WebSocketServer extends DurableObject {
         } else {
           //console.log(this.tg[clientIndex].endChat + " : 超过最大chat了");  //测试
           this.sendLog(clientIndex, "checkChat", this.tg[clientIndex].endChat + " : 超过最大chat了", null, true);
+          await this.nextFilter(clientIndex);
         }
       }
     } else {
@@ -908,6 +914,7 @@ export class WebSocketServer extends DurableObject {
       } else {
         //console.log(this.tg[clientIndex].endChat + " : 超过最大chat了");  //测试
         this.sendLog(clientIndex, "checkChat", this.tg[clientIndex].endChat + " : 超过最大chat了", null, true);
+        await this.nextFilter(clientIndex);
       }
     }
   }
@@ -963,6 +970,7 @@ export class WebSocketServer extends DurableObject {
       } else {
         //console.log(this.tg[clientIndex].endChat + " : 超过最大chat了");  //测试
         this.sendLog(clientIndex, "getChat", this.tg[clientIndex].endChat + " : 超过最大chat了", null, true);
+        await this.nextFilter(clientIndex);
       }
     } else {
       if (this.contrastChat(clientIndex)) {
@@ -971,15 +979,15 @@ export class WebSocketServer extends DurableObject {
           this.apiCount += 1;
           let chatResult = {};
           try {
-            if (this.filterType === 0) {
+            if (this.tg[clientIndex].filterType === 0) {
               chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = ? AND `Cindex` > ? AND `noforwards` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").bind(this.tg[clientIndex].clientId, this.tg[clientIndex].chatId).run();
-            } else if (this.filterType === 1) {
+            } else if (this.tg[clientIndex].filterType === 1) {
               chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = ? AND `Cindex` > ? AND `noforwards` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").bind(this.tg[clientIndex].clientId, this.tg[clientIndex].chatId).run();
-            } else if (this.filterType === 2) {
+            } else if (this.tg[clientIndex].filterType === 2) {
               chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = ? AND `Cindex` > ? AND `noforwards` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").bind(this.tg[clientIndex].clientId, this.tg[clientIndex].chatId).run();
-            } else if (this.filterType === 3) {
+            } else if (this.tg[clientIndex].filterType === 3) {
               chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = ? AND `Cindex` > ? AND `noforwards` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").bind(this.tg[clientIndex].clientId, this.tg[clientIndex].chatId).run();
-            } else if (this.filterType === 4) {
+            } else if (this.tg[clientIndex].filterType === 4) {
               chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = ? AND `Cindex` > ? AND `noforwards` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").bind(this.tg[clientIndex].clientId, this.tg[clientIndex].chatId).run();
             }
           } catch (e) {
@@ -1007,18 +1015,8 @@ export class WebSocketServer extends DurableObject {
       } else {
         //console.log(this.tg[clientIndex].endChat + " : 超过最大chat了");  //测试
         this.sendLog(clientIndex, "getChat", this.tg[clientIndex].endChat + " : 超过最大chat了", null, true);
+        await this.nextFilter(clientIndex);
       }
-    }
-  }
-
-  async updateConfigError(clientIndex, tryCount) {
-    if (tryCount === 20) {
-      //console.log("(" + this.currentStep + ")updateConfig超出tryCount限制");
-      this.sendLog(clientIndex, "updateConfig", "超出tryCount限制", null, true);
-      await this.close(clientIndex);
-    } else {
-      await scheduler.wait(10000);
-      await this.updateConfig(clientIndex, tryCount + 1);
     }
   }
 
@@ -1035,7 +1033,7 @@ export class WebSocketServer extends DurableObject {
           //reverse: false,  //测试
           addOffset: this.tg[clientIndex].reverse ? -this.tg[clientIndex].offsetId : this.tg[clientIndex].offsetId,
           //addOffset: 0,  //测试
-          filter: this.filter,
+          filter: this.tg[clientIndex].filter,
           //filter: Api.InputMessagesFilterVideo,  //测试
           waitTime: 60,
         })
@@ -1085,15 +1083,15 @@ export class WebSocketServer extends DurableObject {
     this.apiCount += 1;
     let chatResult = {};
     try {
-      if (this.filterType === 0) {
+      if (this.tg[clientIndex].filterType === 0) {
         chatResult = await this.env.MAINDB.prepare("UPDATE `FORWARDCHAT` SET `current` = ?, `updated` = ? WHERE `Cindex` = ?;").bind(this.tg[clientIndex].offsetId, new Date().getTime(), this.tg[clientIndex].chatId).run();
-      } else if (this.filterType === 1) {
+      } else if (this.tg[clientIndex].filterType === 1) {
         chatResult = await this.env.MAINDB.prepare("UPDATE `FORWARDCHAT` SET `photo` = ?, `updated` = ? WHERE `Cindex` = ?;").bind(this.tg[clientIndex].offsetId, new Date().getTime(), this.tg[clientIndex].chatId).run();
-      } else if (this.filterType === 2) {
+      } else if (this.tg[clientIndex].filterType === 2) {
         chatResult = await this.env.MAINDB.prepare("UPDATE `FORWARDCHAT` SET `video` = ?, `updated` = ? WHERE `Cindex` = ?;").bind(this.tg[clientIndex].offsetId, new Date().getTime(), this.tg[clientIndex].chatId).run();
-      } else if (this.filterType === 3) {
+      } else if (this.tg[clientIndex].filterType === 3) {
         chatResult = await this.env.MAINDB.prepare("UPDATE `FORWARDCHAT` SET `document` = ?, `updated` = ? WHERE `Cindex` = ?;").bind(this.tg[clientIndex].offsetId, new Date().getTime(), this.tg[clientIndex].chatId).run();
-      } else if (this.filterType === 4) {
+      } else if (this.tg[clientIndex].filterType === 4) {
         chatResult = await this.env.MAINDB.prepare("UPDATE `FORWARDCHAT` SET `gif` = ?, `updated` = ? WHERE `Cindex` = ?;").bind(this.tg[clientIndex].offsetId, new Date().getTime(), this.tg[clientIndex].chatId).run();
       }
     } catch (e) {
@@ -1129,19 +1127,38 @@ export class WebSocketServer extends DurableObject {
         if (this.clientCount === 1) {
           //console.log("(" + this.currentStep + ")全部client的chat采集完毕");
           this.sendLog(clientIndex, "getNext", "全部client的chat采集完毕", null, false);
-          this.broadcast({
-            "result": "over",
-          });
+          if (this.tg[clientIndex].filterType < 5) {
+            this.tg[clientIndex].filterType += 1;
+            this.tg[clientIndex].chatId = 0;
+            await this.getNext(clientIndex);
+          } else {
+            this.broadcast({
+              "result": "over",
+            });
+            await this.close(clientIndex);
+          }
         } else {
           //console.log("(" + this.currentStep + ")当前client的全部chat采集完毕");
           this.sendLog(clientIndex, "getNext", "当前client的全部chat采集完毕", null, false);
+          if (this.tg[clientIndex].filterType < 5) {
+            this.tg[clientIndex].filterType += 1;
+            this.tg[clientIndex].chatId = 0;
+            await this.getNext(clientIndex);
+          } else {
+            await this.close(clientIndex);
+          }
         }
-        await this.close(clientIndex);
       }
     } else {
       //console.log(this.tg[clientIndex].endChat + " : 超过最大chat了");  //测试
       this.sendLog(clientIndex, "getNext", this.tg[clientIndex].endChat + " : 超过最大chat了", null, true);
-      await this.close(clientIndex);
+      if (this.tg[clientIndex].filterType < 5) {
+        this.tg[clientIndex].filterType += 1;
+        this.tg[clientIndex].chatId = 0;
+        await this.getNext(clientIndex);
+      } else {
+        await this.close(clientIndex);
+      }
     }
   }
 
@@ -1252,19 +1269,19 @@ export class WebSocketServer extends DurableObject {
                   if (!messageArray[messageIndex].noforwards || messageArray[messageIndex].noforwards === false) {
                     let fileId = null;
                     const id = messageArray[messageIndex].id;
-                    if (this.filterType === 2) {
+                    if (this.tg[clientIndex].filterType === 2) {
                       if (messageArray[messageIndex].media) {
                         if (messageArray[messageIndex].media.document) {
                           fileId = messageArray[messageIndex].media.document.id;
                         }
                       }
-                    } else if (this.filterType === 1) {
+                    } else if (this.tg[clientIndex]) {
                       if (messageArray[messageIndex].media) {
                         if (messageArray[messageIndex].media.photo) {
                           fileId = messageArray[messageIndex].media.photo.id;
                         }
                       }
-                    } else if (this.filterType === 3) {
+                    } else if (this.tg[clientIndex].filterType === 3) {
                       if (messageArray[messageIndex].media) {
                         if (messageArray[messageIndex].media.document) {
                           const mimeType = messageArray[messageIndex].media.document.mimeType;
@@ -1277,7 +1294,7 @@ export class WebSocketServer extends DurableObject {
                           }
                         }
                       }
-                    } else if (this.filterType === 0) {
+                    } else if (this.tg[clientIndex].filterType === 0) {
                       if (messageArray[messageIndex].media) {
                         if (messageArray[messageIndex].media.document) {
                           fileId = messageArray[messageIndex].media.document.id;
@@ -1340,27 +1357,50 @@ export class WebSocketServer extends DurableObject {
                   if (this.clientCount === 1) {
                     //console.log("(" + this.currentStep + ")全部client的chat采集完毕");
                     this.sendLog(clientIndex, "nextStep", "全部client的chat采集完毕", null, false);
-                    this.broadcast({
-                      "result": "over",
-                    });
+                    if (this.tg[clientIndex].filterType < 5) {
+                      this.tg[clientIndex].filterType += 1;
+                      this.tg[clientIndex].chatId = 0;
+                      await this.getChat(clientIndex);
+                    } else {
+                      this.broadcast({
+                        "result": "over",
+                      });
+                      await this.close(clientIndex);
+                      this.api.splice(clientIndex, 1);
+                      this.tg.splice(clientIndex, 1);
+                      this.clientCount--;
+                      clientIndex--;
+                    }
                   } else {
                     //console.log("(" + this.currentStep + ")当前client的全部chat采集完毕");
                     this.sendLog(clientIndex, "nextStep", "当前client的全部chat采集完毕", null, false);
+                    if (this.tg[clientIndex].filterType < 5) {
+                      this.tg[clientIndex].filterType += 1;
+                      this.tg[clientIndex].chatId = 0;
+                      await this.getChat(clientIndex);
+                    } else {
+                      await this.close(clientIndex);
+                      this.api.splice(clientIndex, 1);
+                      this.tg.splice(clientIndex, 1);
+                      this.clientCount--;
+                      clientIndex--;
+                    }
                   }
+                }
+              } else {
+                //console.log(this.tg[clientIndex].endChat + " : 超过最大chat了");  //测试
+                this.sendLog(clientIndex, "nextStep", this.tg[clientIndex].endChat + " : 超过最大chat了", null, true);
+                if (this.tg[clientIndex].filterType < 5) {
+                  this.tg[clientIndex].filterType += 1;
+                  this.tg[clientIndex].chatId = 0;
+                  await this.getChat(clientIndex);
+                } else {
                   await this.close(clientIndex);
                   this.api.splice(clientIndex, 1);
                   this.tg.splice(clientIndex, 1);
                   this.clientCount--;
                   clientIndex--;
                 }
-              } else {
-                //console.log(this.tg[clientIndex].endChat + " : 超过最大chat了");  //测试
-                this.sendLog(clientIndex, "nextStep", this.tg[clientIndex].endChat + " : 超过最大chat了", null, true);
-                await this.close(clientIndex);
-                this.api.splice(clientIndex, 1);
-                this.tg.splice(clientIndex, 1);
-                this.clientCount--;
-                clientIndex--;
               }
             }
           } else {
@@ -1426,7 +1466,6 @@ export class WebSocketServer extends DurableObject {
     }
     this.init(option);
     this.stop = 1;
-    this.switchType();
     this.currentStep += 1;
     for (let clientIndex = 0; clientIndex < this.clientCount; clientIndex++) {
       this.tg[clientIndex] = {
@@ -1435,6 +1474,9 @@ export class WebSocketServer extends DurableObject {
         "chatId": 0,
         "endChat": 0,
         "lastChat": 0,
+        "filterType": 2,
+        "filter": Api.InputMessagesFilterVideo,
+        // "filterTitle": "媒体",
         "reverse": true,
         "limit": 100,
         "offsetId": 0,
@@ -1443,12 +1485,9 @@ export class WebSocketServer extends DurableObject {
         "time": 0,
       };
       this.tg[clientIndex].clientId = this.api[clientIndex].id;
-      this.initChat(clientIndex, option);
       await this.open(clientIndex, 1);
       if (this.tg[clientIndex].client) {
-        if (!option || !option.chatId || !option.reverse || !option.limited) {
-          await this.getConfig(clientIndex, 1, option);
-        }
+        await this.getConfig(clientIndex, 1, option);
         await this.getChat(clientIndex);
         if (this.tg[clientIndex].fromPeer) {
           if (this.tg[clientIndex].chatId != this.tg[clientIndex].lastChat) {
@@ -1470,19 +1509,19 @@ export class WebSocketServer extends DurableObject {
                 if (!messageArray[messageIndex].noforwards || messageArray[messageIndex].noforwards === false) {
                   let fileId = null;
                   const id = messageArray[messageIndex].id;
-                  if (this.filterType === 2) {
+                  if (this.tg[clientIndex].filterType === 2) {
                     if (messageArray[messageIndex].media) {
                       if (messageArray[messageIndex].media.document) {
                         fileId = messageArray[messageIndex].media.document.id;
                       }
                     }
-                  } else if (this.filterType === 1) {
+                  } else if (this.tg[clientIndex].filterType === 1) {
                     if (messageArray[messageIndex].media) {
                       if (messageArray[messageIndex].media.photo) {
                         fileId = messageArray[messageIndex].media.photo.id;
                       }
                     }
-                  } else if (this.filterType === 0) {
+                  } else if (this.tg[clientIndex].filterType === 0) {
                     if (messageArray[messageIndex].media) {
                       if (messageArray[messageIndex].media.document) {
                         fileId = messageArray[messageIndex].media.document.id;
@@ -1539,27 +1578,50 @@ export class WebSocketServer extends DurableObject {
                   if (this.clientCount === 1) {
                     //console.log("(" + this.currentStep + ")全部client的chat采集完毕");
                     this.sendLog(clientIndex, "start", "全部client的chat采集完毕", null, false);
-                    this.broadcast({
-                      "result": "over",
-                    });
+                    if (this.tg[clientIndex].filterType < 5) {
+                      this.tg[clientIndex].filterType += 1;
+                      this.tg[clientIndex].chatId = 0;
+                      await this.getChat(clientIndex);
+                    } else {
+                      this.broadcast({
+                        "result": "over",
+                      });
+                      await this.close(clientIndex);
+                      this.api.splice(clientIndex, 1);
+                      this.tg.splice(clientIndex, 1);
+                      this.clientCount--;
+                      clientIndex--;
+                    }
                   } else {
                     //console.log("(" + this.currentStep + ")当前client的全部chat采集完毕");
                     this.sendLog(clientIndex, "start", "当前client的全部chat采集完毕", null, false);
+                    if (this.tg[clientIndex].filterType < 5) {
+                      this.tg[clientIndex].filterType += 1;
+                      this.tg[clientIndex].chatId = 0;
+                      await this.getChat(clientIndex);
+                    } else {
+                      await this.close(clientIndex);
+                      this.api.splice(clientIndex, 1);
+                      this.tg.splice(clientIndex, 1);
+                      this.clientCount--;
+                      clientIndex--;
+                    }
                   }
+                }
+              } else {
+                //console.log(this.tg[clientIndex].endChat + " : 超过最大chat了");  //测试
+                this.sendLog(clientIndex, "start", this.tg[clientIndex].endChat + " : 超过最大chat了", null, true);
+                if (this.tg[clientIndex].filterType < 5) {
+                  this.tg[clientIndex].filterType += 1;
+                  this.tg[clientIndex].chatId = 0;
+                  await this.getChat(clientIndex);
+                } else {
                   await this.close(clientIndex);
                   this.api.splice(clientIndex, 1);
                   this.tg.splice(clientIndex, 1);
                   this.clientCount--;
                   clientIndex--;
                 }
-              } else {
-                //console.log(this.tg[clientIndex].endChat + " : 超过最大chat了");  //测试
-                this.sendLog(clientIndex, "start", this.tg[clientIndex].endChat + " : 超过最大chat了", null, true);
-                await this.close(clientIndex);
-                this.api.splice(clientIndex, 1);
-                this.tg.splice(clientIndex, 1);
-                this.clientCount--;
-                clientIndex--;
               }
             }
           } else if (this.stop === 2) {
@@ -1579,11 +1641,17 @@ export class WebSocketServer extends DurableObject {
             //console.log("(" + this.currentStep + ")当前client的全部chat采集完毕");
             this.sendLog(clientIndex, "start", "当前client的全部chat采集完毕", null, false);
           }
-          await this.close(clientIndex);
-          this.api.splice(clientIndex, 1);
-          this.tg.splice(clientIndex, 1);
-          this.clientCount--;
-          clientIndex--;
+          if (this.tg[clientIndex].filterType < 5) {
+            this.tg[clientIndex].filterType += 1;
+            this.tg[clientIndex].chatId = 0;
+            await this.getChat(clientIndex);
+          } else {
+            await this.close(clientIndex);
+            this.api.splice(clientIndex, 1);
+            this.tg.splice(clientIndex, 1);
+            this.clientCount--;
+            clientIndex--;
+          }
         }
       } else {
         //console.log("连接TG服务" + clientIndex + "失败");
@@ -1716,14 +1784,6 @@ export class WebSocketServer extends DurableObject {
           this.tg[clientIndex] = {
             "clientId": 0,
             "client": null,
-            "chatId": 0,
-            "endChat": 0,
-            "lastChat": 0,
-            "reverse": true,
-            "limit": 100,
-            "offsetId": 0,
-            "fromPeer": null,
-            "time": 0,
           };
           this.tg[clientIndex].clientId = this.api[clientIndex].id;
           await this.open(clientIndex, 1);
