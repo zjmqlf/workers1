@@ -1054,6 +1054,14 @@ export class WebSocketServer extends DurableObject {
       this.sendLog(clientIndex, "getMessage", "出错 : " + JSON.stringify(e), null, true);
       if (e.errorMessage === "CHANNEL_INVALID" || e.errorMessage === "CHANNEL_PRIVATE" || e.code === 400) {
         await this.noExistChat(clientIndex, 1, chatResult.Cindex);
+      } else if (e.errorMessage === "FLOOD" || e.code === 420) {
+        // this.waitTime += 120000;
+        if (e.seconds && e.seconds > 0) {
+          this.tg[clientIndex].flood = new Date().getTime() + e.seconds * 1000;
+          await this.ctx.storage.put("client" + this.tg[clientIndex].clientId, this.tg[clientIndex].flood);
+        }
+        //console.log("(" + this.currentStep + ") 触发了洪水警告，请求太频繁" + e);
+        this.sendLog(clientIndex, "getMessage", "触发了洪水警告，请求太频繁 : " + JSON.stringify(e), "flood", true);
       } else {
         if (tryCount === 20) {
           //console.log("(" + this.currentStep + ")getMessage超出tryCount限制");
@@ -1164,31 +1172,42 @@ export class WebSocketServer extends DurableObject {
 
   async forwardMessage(clientIndex, idArray, fileIdArray) {
     const messageLength = idArray.length;
-    //console.log(length);
-    if (this.tg[clientIndex].time && this.tg[clientIndex].time > 0) {
-      const time = this.waitTime - (new Date().getTime() - this.tg[clientIndex].time);
-      if (time > 0 && time < 5000) {
-        //console.log("(" + this.currentStep + ") 还需等待" + (time / 1000) + "秒");
-        this.sendForward(clientIndex, 0, "还需等待" + Math.ceil(time / 1000) + "秒", "wait", false);
-        // const pingInterval = setInterval(function () {
-        //   // this.ws.ping();
-        //   this.ws.send("ping");
-        // }, 30000);
-        // await this.ctx.storage.setAlarm(30000);
-        // await scheduler.wait(time);
-        // clearInterval(pingInterval);
-        // await this.ctx.storage.deleteAlarm();
-        if (time > this.pingTime) {
-          // const timeLength = Math.floor(time / 60000);
-          const timeLength = Math.ceil(time / this.pingTime);
-          for (let i = 0; i < timeLength; i++) {
-            await scheduler.wait(this.pingTime);
-            // this.ws.ping();
-            // this.ws.send("ping");
-            this.broadcast("ping");
+    //console.log(length);  //测试
+    if (this.tg[clientIndex].flood && this.tg[clientIndex].flood > 0) {
+      if (this.tg[clientIndex].flood > new Date().getTime()) {
+        //console.log("(" + this.currentStep + ") 还需等待" + ((this.tg[clientIndex].flood - new Date().getTime()) / 1000) + "秒的洪水警告时间");
+        this.sendForward(clientIndex, 0, "还需等待" + Math.ceil((this.tg[clientIndex].flood - new Date().getTime()) / 1000) + "秒的洪水警告时间", "flood", true);
+        return;
+      } else {
+        this.tg[clientIndex].flood = 0;
+        await this.ctx.storage.put("client" + this.tg[clientIndex].clientId, 0);
+      }
+    } else {
+      if (this.tg[clientIndex].time && this.tg[clientIndex].time > 0) {
+        const time = this.waitTime - (new Date().getTime() - this.tg[clientIndex].time);
+        if (time > 0 && time < 5000) {
+          //console.log("(" + this.currentStep + ") 还需等待" + (time / 1000) + "秒");
+          this.sendForward(clientIndex, 0, "还需等待" + Math.ceil(time / 1000) + "秒", "wait", true);
+          // const pingInterval = setInterval(function () {
+          //   // this.ws.ping();
+          //   this.ws.send("ping");
+          // }, 30000);
+          // await this.ctx.storage.setAlarm(30000);
+          // await scheduler.wait(time);
+          // clearInterval(pingInterval);
+          // await this.ctx.storage.deleteAlarm();
+          if (time > this.pingTime) {
+            // const timeLength = Math.floor(time / 60000);
+            const timeLength = Math.ceil(time / this.pingTime);
+            for (let i = 0; i < timeLength; i++) {
+              await scheduler.wait(this.pingTime);
+              // this.ws.ping();
+              // this.ws.send("ping");
+              this.broadcast("ping");
+            }
+          } else {
+            await scheduler.wait(time);
           }
-        } else {
-          await scheduler.wait(time);
         }
       }
     }
@@ -1217,9 +1236,13 @@ export class WebSocketServer extends DurableObject {
           this.sendForward(clientIndex, 0, "消息不允许转发 : " + JSON.stringify(e), "error", true);
           await this.getNext(clientIndex);
         } else if (e.errorMessage === "FLOOD" || e.code === 420) {
-          this.waitTime += 120000;
+          // this.waitTime += 120000;
+          if (e.seconds && e.seconds > 0) {
+            this.tg[clientIndex].flood = new Date().getTime() + e.seconds * 1000;
+            await this.ctx.storage.put("client" + this.tg[clientIndex].clientId, this.tg[clientIndex].flood);
+          }
           //console.log("(" + this.currentStep + ") 触发了洪水警告，请求太频繁" + e);
-          this.sendForward(clientIndex, 0, "触发了洪水警告，请求太频繁 : " + JSON.stringify(e), "error", true);
+          this.sendForward(clientIndex, 0, "触发了洪水警告，请求太频繁 : " + JSON.stringify(e), "flood", true);
         } else {
           //console.log("(" + this.currentStep + ") 转发消息时发生错误" + e);
           this.sendForward(clientIndex, 0, "转发消息时发生错误 : " + JSON.stringify(e), "error", true);
@@ -1255,6 +1278,16 @@ export class WebSocketServer extends DurableObject {
         await scheduler.wait(3000);
         for (let clientIndex = 0; clientIndex < this.clientCount; clientIndex++) {
           if (this.tg[clientIndex].client) {
+            if (this.tg[clientIndex].flood && this.tg[clientIndex].flood > 0) {
+              if (this.tg[clientIndex].flood > new Date().getTime()) {
+                //console.log("(" + this.currentStep + ") 还需等待" + ((this.tg[clientIndex].flood - new Date().getTime()) / 1000) + "秒的洪水警告时间");
+                this.sendLog(clientIndex, "nextStep", "还需等待" + Math.ceil((this.tg[clientIndex].flood - new Date().getTime()) / 1000) + "秒的洪水警告时间", "flood", true);
+                continue;
+              } else {
+                this.tg[clientIndex].flood = 0;
+                await this.ctx.storage.put("client" + this.tg[clientIndex].clientId, 0);
+              }
+            }
             const messageCount = await this.getMessage(clientIndex, 1);
             const messageArray = this.messageArray.slice();
             const messageLength = messageArray.length;
@@ -1404,8 +1437,27 @@ export class WebSocketServer extends DurableObject {
               }
             }
           } else {
-            //console.log("连接TG服务" + clientIndex + "失败");
-            this.sendLog(clientIndex, "nextStep", "连接TG服务" + clientIndex + "失败", null, true);
+            if (this.tg[clientIndex].flood && this.tg[clientIndex].flood > 0) {
+              if (this.tg[clientIndex].flood > new Date().getTime()) {
+                //console.log("(" + this.currentStep + ") 还需等待" + ((this.tg[clientIndex].flood - new Date().getTime()) / 1000) + "秒的洪水警告时间");
+                this.sendLog(clientIndex, "nextStep", "还需等待" + Math.ceil((this.tg[clientIndex].flood - new Date().getTime()) / 1000) + "秒的洪水警告时间", "flood", true);
+                continue;
+              } else {
+                this.tg[clientIndex].flood = 0;
+                await this.ctx.storage.put("client" + this.tg[clientIndex].clientId, 0);
+                await this.open(clientIndex, 1);
+                if (this.tg[clientIndex].client) {
+                  await this.getConfig(clientIndex, 1, option);
+                  await this.getNext(clientIndex);
+                } else {
+                  //console.log("连接TG服务" + clientIndex + "失败");
+                  this.sendLog(clientIndex, "nextStep", "连接TG服务" + clientIndex + "失败", null, true);
+                }
+              }
+            } else {
+              //console.log("连接TG服务" + clientIndex + "失败");
+              this.sendLog(clientIndex, "nextStep", "连接TG服务" + clientIndex + "失败", null, true);
+            }
           }
         }
         if (this.stop === 1) {
@@ -1482,9 +1534,21 @@ export class WebSocketServer extends DurableObject {
         "offsetId": 0,
         "fromPeer": null,
         "errorCount": 0,
+        "flood": 0,
         "time": 0,
       };
       this.tg[clientIndex].clientId = this.api[clientIndex].id;
+      this.tg[clientIndex].flood = await this.ctx.storage.get("client" + this.tg[clientIndex].clientId) || 0;
+      if (this.tg[clientIndex].flood > 0) {
+        if (this.tg[clientIndex].flood > new Date().getTime()) {
+          //console.log("(" + this.currentStep + ") 还需等待" + ((this.tg[clientIndex].flood - new Date().getTime()) / 1000) + "秒的洪水警告时间");
+          this.sendLog(clientIndex, "start", "还需等待" + Math.ceil((this.tg[clientIndex].flood - new Date().getTime()) / 1000) + "秒的洪水警告时间", "flood", true);
+          continue;
+        } else {
+          this.tg[clientIndex].flood = 0;
+          await this.ctx.storage.put("client" + this.tg[clientIndex].clientId, 0);
+        }
+      }
       await this.open(clientIndex, 1);
       if (this.tg[clientIndex].client) {
         await this.getConfig(clientIndex, 1, option);

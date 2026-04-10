@@ -481,6 +481,11 @@ const App = () => {
                 ...temp
               } = message;
               updateItems(temp);
+            } else if (message.status === "flood") {
+              addNewEvent({
+                "error": true,
+                "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientIndex + "-" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
+              });
             } else if (message.status === "error") {
               updateItems({
                 "chatId": message.chatId,
@@ -503,14 +508,12 @@ const App = () => {
               });
             }
             break;
-          case "checkChat":
-            if (message.status === "add") {
-              const {
-                operate,
-                status,
-                ...temp
-              } = message;
-              addItems(temp);
+          case "getMessage":
+            if (message.status === "flood") {
+              addNewEvent({
+                "error": true,
+                "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientIndex + "-" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
+              });
             } else {
               //console.log("未知消息");
               addNewEvent({
@@ -519,7 +522,9 @@ const App = () => {
               });
             }
             break;
+          case "getChat":
           case "nextChat":
+          case "checkChat":
             if (message.status === "add") {
               const {
                 operate,
