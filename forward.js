@@ -17,7 +17,7 @@ export class WebSocketServer extends DurableObject {
   api = apiString.slice();
   clientCount = 0;
   tg = [];
-  waitTime = 240000;
+  waitTime = 180000;
   pingTime = 20000;
   filterType = -1;
   limit = 0;
@@ -132,7 +132,7 @@ export class WebSocketServer extends DurableObject {
       this.api = apiString.slice();
       this.clientCount = this.api.length;
       this.tg = Array(this.clientCount).fill(null);
-      this.waitTime = 240000;
+      this.waitTime = 180000;
       this.pingTime = 20000;
       this.messageArray = [];
       this.cacheMessage = null;

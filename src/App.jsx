@@ -736,9 +736,9 @@ const App = () => {
       if (over.current === false) {
         // console.log(documentValue);  //测试
         if (lastClient.current > 0) {
-          waitTime.current = 240000 - (lastClient.current * 2000);
+          waitTime.current = 180000 - (lastClient.current * 2000);
         }
-        if (lastClient.current < 30000) {
+        if (waitTime.current < 30000) {
           waitTime.current = 30000;
         }
         waitReconnect(JSON.stringify({
