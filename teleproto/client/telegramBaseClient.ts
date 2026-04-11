@@ -1,10 +1,10 @@
-import { Connection } from "../network";
-import { TelegramClient } from "./";
-import { sleep } from "../Helpers";
 import {
+    Connection,
     ConnectionTCPFull,
     ConnectionTCPObfuscated,
 } from "../network";
+import { TelegramClient } from "./";
+import { sleep } from "../Helpers";
 import { Session, StoreSession } from "../sessions";
 import { Logger, PromisedNetSockets } from "../extensions";
 import { Api } from "../tl";
@@ -69,6 +69,7 @@ const clientParamsDefault = {
 
 export abstract class TelegramBaseClient {
     _config?: Api.Config;
+    _appConfig?: { [key: string]: any };
     public _log: Logger;
     public _floodSleepThreshold: number;
     public session: Session;
@@ -101,6 +102,14 @@ export abstract class TelegramBaseClient {
     >();
     public _exportedSenderPromises = new Map<number, Promise<MTProtoSender>>();
     _updateState?: { pts: number; qts: number; date: number; seq: number };
+    _channelPts: Map<string, number>;
+    _fetchingDifference: boolean;
+    _fetchingChannelDifference: Set<string>;
+    _pendingPtsUpdates: Array<{ update: any; pts: number; ptsCount: number; others: any; entities?: any; bufferedAt: number }>;
+    _pendingSeqUpdates: Array<{ update: any; seqStart: number; seq: number; bufferedAt: number }>;
+    _pendingQtsUpdates: Array<{ update: any; qts: number; others: any; entities?: any; bufferedAt: number }>;
+    _pendingChannelUpdates: Map<string, Array<{ update: any; pts: number; ptsCount: number; others: any; entities?: any; bufferedAt: number }>>;
+    _lastUpdateTime: number;
     _reconnecting: boolean;
     _destroyed: boolean;
     _isSwitchingDc: boolean;
@@ -173,6 +182,14 @@ export abstract class TelegramBaseClient {
         this._securityChecks = !!clientParams.securityChecks;
         this._entityCache = new EntityCache();
         this._config = undefined;
+        this._channelPts = new Map();
+        this._fetchingDifference = false;
+        this._fetchingChannelDifference = new Set();
+        this._pendingPtsUpdates = [];
+        this._pendingSeqUpdates = [];
+        this._pendingQtsUpdates = [];
+        this._pendingChannelUpdates = new Map();
+        this._lastUpdateTime = Date.now();
         this._reconnecting = false;
         this._destroyed = false;
         this._isSwitchingDc = false;

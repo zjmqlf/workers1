@@ -1,6 +1,6 @@
 import bigInt from "big-integer";
 import type { AuthKey } from "../crypto/AuthKey";
-import * as helpers from "../Helpers";
+import { generateRandomLong, generateRandomBytes, mod, readBufferFromBigInt, readBigIntFromBuffer } from "../Helpers";
 import { Api } from "../tl";
 import { sha256, toSignedLittleBuffer } from "../Helpers";
 import { GZIPPacked, TLMessage } from "../tl/core";
@@ -34,7 +34,7 @@ export class MTProtoState {
     }
 
     reset() {
-        this.id = helpers.generateRandomLong(true);
+        this.id = generateRandomLong(true);
         this._sequence = 0;
         this._lastMsgId = bigInt.zero;
         this.msgIds = [];
@@ -112,15 +112,15 @@ export class MTProtoState {
         const s = toSignedLittleBuffer(this.salt, 8);
         const i = toSignedLittleBuffer(this.id, 8);
         data = Buffer.concat([Buffer.concat([s, i]), data]);
-        const padding = helpers.generateRandomBytes(
-            helpers.mod(-(data.length + 12), 16) + 12
+        const padding = generateRandomBytes(
+            mod(-(data.length + 12), 16) + 12
         );
         const msgKeyLarge = await sha256(
             Buffer.concat([authKey.slice(88, 88 + 32), data, padding])
         );
         const msgKey = msgKeyLarge.slice(8, 24);
         const { iv, key } = await this._calcKey(authKey, msgKey, true);
-        const keyId = helpers.readBufferFromBigInt(this.authKey.keyId, 8);
+        const keyId = readBufferFromBigInt(this.authKey.keyId, 8);
         return Buffer.concat([
             keyId,
             msgKey,
@@ -135,7 +135,7 @@ export class MTProtoState {
         if (body.length < 8) {
             throw new InvalidBufferError(body);
         }
-        const keyId = helpers.readBigIntFromBuffer(body.slice(0, 8));
+        const keyId = readBigIntFromBuffer(body.slice(0, 8));
         if (!this.authKey.keyId || keyId.neq(this.authKey.keyId)) {
             throw new SecurityError("Server replied with an invalid auth key");
         }

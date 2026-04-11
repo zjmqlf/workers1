@@ -20,7 +20,7 @@ import type { TelegramClient } from "./";
 import * as utils from "../Utils";
 import { _parseMessageText } from "./messageParse";
 import { _getPeer } from "./users";
-import bigInt from "big-integer";
+import bigInt, { BigInteger } from "big-integer";
 
 const _MAX_CHUNK_SIZE = 100;
 
@@ -424,6 +424,10 @@ export interface ForwardMessagesParams {
     dropAuthor?: boolean;
     noforwards?: boolean;
     topMsgId?: number | Api.Message;
+    sendAs?: EntityLike;
+    effect?: BigInteger;
+    dropMediaCaptions?: boolean;
+    withMyScore?: boolean;
 }
 
 export function iterMessages(
@@ -499,6 +503,10 @@ export async function forwardMessages(
         noforwards,
         dropAuthor,
         topMsgId,
+        sendAs,
+        effect,
+        dropMediaCaptions,
+        withMyScore,
     }: ForwardMessagesParams & { topMsgId?: number | Api.Message }
 ) {
     if (!isArrayLike(messages)) {
@@ -551,6 +559,12 @@ export async function forwardMessages(
             noforwards: noforwards,
             dropAuthor: dropAuthor,
             topMsgId: topMsgId ? getMessageId(topMsgId) : undefined,
+            sendAs: sendAs
+                ? await client.getInputEntity(sendAs)
+                : undefined,
+            effect: effect,
+            dropMediaCaptions: dropMediaCaptions,
+            withMyScore: withMyScore,
         });
 
         const result = await client.invoke(request);

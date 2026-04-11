@@ -311,6 +311,10 @@ export class CustomMessage extends SenderGetter {
         return this._forward;
     }
 
+    async _refetchSender() {
+        await this._reloadMessage();
+    }
+
     get file() {
         if (!this._file) {
             const media = this.photo || this.document;

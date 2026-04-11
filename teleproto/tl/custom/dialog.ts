@@ -42,7 +42,7 @@ export class Dialog {
         this.entity = entities.get(getPeerId(dialog.peer));
         this.inputEntity = getInputPeer(this.entity);
         if (this.entity) {
-            this.id = returnBigInt(getPeerId(this.entity)); // ^ May be InputPeerSelf();
+            this.id = returnBigInt(getPeerId(this.entity));
             this.name = this.title = getDisplayName(this.entity);
         }
 

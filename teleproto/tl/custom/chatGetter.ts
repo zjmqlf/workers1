@@ -1,6 +1,6 @@
 import type { Entity, EntityLike } from "../../define";
 import type { TelegramClient } from "../../client";
-import * as utils from "../../Utils";
+import { getPeerId } from "../../Utils";
 import { Api } from "../";
 import { returnBigInt } from "../../Helpers";
 
@@ -53,7 +53,7 @@ export class ChatGetter {
         if (!this._inputChat && this._chatPeer && this._client) {
             try {
                 this._inputChat = this._client._entityCache.get(
-                    utils.getPeerId(this._chatPeer)
+                    getPeerId(this._chatPeer)
                 );
             } catch (e) {}
         }
@@ -82,7 +82,7 @@ export class ChatGetter {
 
     get chatId() {
         return this._chatPeer
-            ? returnBigInt(utils.getPeerId(this._chatPeer))
+            ? returnBigInt(getPeerId(this._chatPeer))
             : undefined;
     }
 

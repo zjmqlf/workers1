@@ -365,7 +365,7 @@ export class WebSocketServer extends DurableObject {
     const apiHash = "2bb9a1bfd8f598da6cb5c511f0e5fbdf";
     const sessionString = "1BQAWZmxvcmEud2ViLnRlbGVncmFtLm9yZwG7be+PddSzlPTzgS/mbCsxeZYLhE9ohnesT10Ntv+pdypA3wfrAUdXGXBLb2uturgLlkO49XMxAsIoELAdi8OprHkYfeEWZrQPF9RqjucdgWviAVd3oy/JIHk6lbB6NCS06US2CMdLZMxAsLFLu2JTgWiI07Xm2tpCIaaYED9mmH7NiROvqBx+jpB2GoFM4xzqaoB3y43BURo/ZYPEM3uUB4AVsS7IwdK0/j8pJL/ChB3buNnNtyVADe8wFvEAcbMn/385Xz53T21BdYqanzMuZX2O9cv4UNCpA9P6HoEYRn0D9XsljY6xJFNdR/RRKGHBqlVLK/Xt6PagRm321YBAvw==";
     try {
-      this.client = await new TelegramClient(new sessions.StringSession(sessionString), apiId, apiHash, {
+      this.client = new TelegramClient(new sessions.StringSession(sessionString), apiId, apiHash, {
         connectionRetries: Number.MAX_VALUE,
         autoReconnect: true,
         deviceModel: "Desktop",
@@ -376,9 +376,9 @@ export class WebSocketServer extends DurableObject {
         //downloadRetries: 1,
         //retryDelay: 0,
         //useWSS: false,
-      })
-      await this.client.session.setDC(5, "91.108.56.128", 80);
-      await this.client.setLogLevel(LogLevel.ERROR);
+      });
+      this.client.session.setDC(5, "91.108.56.128", 80);
+      this.client.setLogLevel(LogLevel.ERROR);
       await this.client.connect();
     } catch (e) {
       //console.log("login出错 : " + e);

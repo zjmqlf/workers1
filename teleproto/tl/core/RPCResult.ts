@@ -1,6 +1,6 @@
 import { Api } from "../";
 import type { BinaryReader } from "../../extensions";
-import { GZIPPacked } from ".";
+import { GZIPPacked } from "./GZIPPacked";
 import bigInt from "big-integer";
 import { Buffer } from "node:buffer";
 
@@ -42,9 +42,6 @@ export class RPCResult {
             );
         }
         reader.seek(-4);
-        // This reader.read() will read more than necessary, but it's okay.
-        // We could make use of MessageContainer's length here, but since
-        // it's not necessary we don't need to care about it.
         return new RPCResult(msgId, reader.read(), undefined);
     }
 }

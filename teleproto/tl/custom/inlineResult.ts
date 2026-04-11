@@ -1,7 +1,6 @@
 import type { TelegramClient } from "../../client";
 import type { EntityLike, MessageIDLike } from "../../define";
 import { Api } from "../";
-import * as utils from "../../Utils";
 import { getMessageId } from "../../Utils";
 
 export class InlineResult {

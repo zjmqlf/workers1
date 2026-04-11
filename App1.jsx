@@ -54,8 +54,8 @@ const App = () => {
   const gridRef = useRef(null);
   const errorCount = useRef(0);
   const waitTime = useRef(30000);
-  const containerStyle = useMemo(() => ({ width: "100%", height: "100%", margin: "1px" }), []);
-  const gridStyle = useMemo(() => ({ width: "100%", height: "100%", margin: "1px" }), []);
+  const containerStyle = useMemo(() => ({ width: "100%", height: "100%" }), []);
+  const gridStyle = useMemo(() => ({ width: "100%", height: "100%" }), []);
   const [isCloseBtnDisabled, setCloseBtnDisabled] = useState(true);
   const [isCollectBtnDisabled, setCollectBtnDisabled] = useState(true);
   const [isNextBtnDisabled, setNextBtnDisabled] = useState(true);
@@ -79,7 +79,7 @@ const App = () => {
         <span className="missionSpan">
           {<img alt="" src="icons/cross-in-circle.png" className="missionIcon"/>}
         </span> :
-        ""
+        "";
   }, []);
 
   const renderTime = useCallback((timestamp ) => {
@@ -457,16 +457,16 @@ const App = () => {
       // setClearLogBtnDisabled(true);
       //console.log("当前chat采集完毕");  //测试
       addNewEvent({
-        // "message": renderTime(Date.now()) + "  >>>当前chat采集完毕",
-        "message": renderTime(message.date) + "  " + message.operate + " - " + message.message,
+        "message": renderTime(Date.now()) + "  >>>当前chat采集完毕",
+        // "message": renderTime(message.date) + "  " + message.operate + " - " + message.message,
       });
     } else if (message.result === "over") {
       over.current = true;
-      //console.log("全部chat采集完毕");  //测试
       clearTimeout(timeOut.current);
+      //console.log("全部chat采集完毕");  //测试
       addNewEvent({
-        // "message": renderTime(Date.now()) + "  >>>全部chat采集完毕",
-        "message": renderTime(message.date) + "  " + message.operate + " - " + message.message,
+        "message": renderTime(Date.now()) + "  >>>全部chat采集完毕",
+        // "message": renderTime(message.date) + "  " + message.operate + " - " + message.message,
       });
     } else {
       if (message.offsetId && message.offsetId >= 0) {
@@ -989,7 +989,7 @@ const App = () => {
 
   return (
     <div style={containerStyle}>
-      <div style={{ height: "100%", margin: "1px", display: "flex", flexDirection: "column" }}>
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
         <div style={gridStyle}>
           <AgGridReact
             ref={gridRef}
@@ -1004,13 +1004,13 @@ const App = () => {
             paginationPageSizeSelector={paginationPageSizeSelector}
           />
         </div>
-        <div style={{ margin: "1px" }}>
+        <div style={{ width: "100%" }}>
           <button onClick={handlerPauseBtnClick}>{pauseBtnText}</button>
           <button onClick={handlerCollectBtnClick} disabled={isCollectBtnDisabled}>断开</button>
           <button onClick={handlerCloseBtnClick} disabled={isCloseBtnDisabled}>强制关闭</button>
           <button onClick={handlerNextBtnClick} disabled={isNextBtnDisabled}>不再继续</button>
           <button onClick={handlerChatBtnClick}>chat</button>
-          <button onClick={cacheBtnClickHandler}>cache</button>
+          {/* <button onClick={cacheBtnClickHandler}>cache</button> */}
           <button onClick={handlerClearCacheBtnClick}>清空cache</button>
           <button onClick={handlerClearGridBtnClick} disabled={isClearGridBtnDisabled}>清空grid</button>
           <button onClick={handlerClearLogBtnClick} disabled={isClearLogBtnDisabled}>清空log</button>
@@ -1025,7 +1025,7 @@ const App = () => {
           <input type="text" value={inputValue} onChange={inputHandleChange} />
           <button onClick={handlerSendBtnClick} disabled={isSendBtnDisabled}>发送</button>
         </div>
-        <div style={{ height: "20%", margin: "1px",  }}>
+        <div style={{ width: "100%", height: "20%", minHeight: 0, flexGrow: 1, overflow: "auto" }}>
           <h4>日志</h4>
             <ul>
               {logData.map((item) => (

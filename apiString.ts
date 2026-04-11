@@ -74,7 +74,7 @@ export const apiString = [
     "pc": 7,
     "dc": 4,
     "name": "zjm2039",
-    "phone": +351920491460,
+    "phone": "+351920491460",
     "apiId": 14936309,
     "apiHash": "02bc2490824d8ae6e111dc8d9f5730cc",
     "sessionString": "1BAAOMTQ5LjE1NC4xNjcuOTEBuz33uycB9StxhcngNZmaBbf/IfRL2ZPTbs5BYc5BWGKeJSp/AbCJYl+FF4pbO+WhU84XMHhmVsxFIsR7b1AYaH+LYmdV+6n0C6PJrUOXrjBiEV9172SXftw+ZFF0SQo3fbbpy51K5LPCM34vysT4kmoAgX/Y2klLhcouhMPJZpy8XNaX6nIG9b1JedDR5a94IULPFue98sUs3Hi6SEt9blMPnKwyyeVDL2YbWJh1D70SxLaIPi0eThI/NZ/Y5iDSlpA9KReUm+ImDi243g3i17YNbZOyL9jnh7PoSI/FNyymIEzA/2s2605x7qXuOjfaQasAAfjHAtj7MbSLZC1VXpM=",

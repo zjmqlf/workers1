@@ -12,6 +12,7 @@ export class RequestState {
     public result: undefined;
     public finished: Deferred;
     public promise: Promise<unknown> | undefined;
+    public acknowledged: boolean;
     // @ts-ignore
     public resolve: (value?: any) => void;
     // @ts-ignore
@@ -24,6 +25,7 @@ export class RequestState {
         this.data = request.getBytes();
         this.after = undefined;
         this.result = undefined;
+        this.acknowledged = false;
         this.finished = new Deferred();
         this.resetPromise();
     }

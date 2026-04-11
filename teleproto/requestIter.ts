@@ -1,6 +1,5 @@
 import type { TelegramClient } from "./client";
-import { sleep } from "./Helpers";
-import * as helpers from "./Helpers";
+import { sleep, TotalList } from "./Helpers";
 
 interface BaseRequestIterInterface {
     reverse?: boolean;
@@ -98,7 +97,7 @@ export class RequestIter implements AsyncIterable<any> {
     }
 
     async collect() {
-        const result = new helpers.TotalList();
+        const result = new TotalList();
         for await (const message of this) {
             result.push(message);
         }

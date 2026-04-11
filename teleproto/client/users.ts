@@ -121,9 +121,13 @@ export async function invoke<R extends Api.AnyRequest>(
                     throw e;
                 }
             } else if (e.message === "CONNECTION_NOT_INITED") {
-                await client.disconnect();
-                await sleep(2000);
-                await client.connect();
+                const targetSender = sender || client._sender;
+                if (targetSender) {
+                    targetSender._needsInitConnection = true;
+                }
+                client._log.warn(
+                    "CONNECTION_NOT_INITED, will re-wrap next request with initConnection"
+                );
             } else {
                 state.finished.resolve();
                 throw e;
@@ -247,6 +251,7 @@ export async function getInputEntity(
 ): Promise<Api.TypeInputPeer> {
     try {
         return utils.getInputPeer(peer);
+        // eslint-disable-next-line no-empty
     } catch (e) {}
     try {
         if (typeof peer == "string") {
@@ -278,6 +283,7 @@ export async function getInputEntity(
                 return res;
             }
         }
+        // eslint-disable-next-line no-empty
     } catch (e) {}
     if (typeof peer == "string") {
         if (["me", "this", "self"].includes(peer)) {
@@ -288,6 +294,7 @@ export async function getInputEntity(
         if (peer != undefined) {
             return client.session.getInputEntity(peer);
         }
+        // eslint-disable-next-line no-empty
     } catch (e) {}
     if (typeof peer === "string") {
         return utils.getInputPeer(await _getEntityFromString(client, peer));

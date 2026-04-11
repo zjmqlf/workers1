@@ -2,6 +2,7 @@ import {
     RPCError,
     InvalidDCError,
     FloodError,
+    FrozenError,
     BadRequestError,
 } from "./RPCBaseErrors";
 
@@ -136,6 +137,7 @@ export class EmailUnconfirmedError extends BadRequestError {
             args.request,
             400
         );
+        // eslint-disable-next-line max-len
         this.message = `Email unconfirmed, the length of the code must be ${codeLength}${RPCError._fmtRequest(
             args.request
         )}`;
@@ -155,11 +157,35 @@ export class MsgWaitError extends FloodError {
     }
 }
 
+export class FrozenMethodError extends FrozenError {
+    constructor(args: any) {
+        super(
+            `This method cannot be used by a frozen account${RPCError._fmtRequest(args.request)}`,
+            args.request,
+            420
+        );
+        this.message = `This method cannot be used by a frozen account${RPCError._fmtRequest(args.request)}`;
+    }
+}
+
+export class FrozenParticipantError extends BadRequestError {
+    constructor(args: any) {
+        super(
+            `This peer cannot be accessed by a frozen account${RPCError._fmtRequest(args.request)}`,
+            args.request,
+            400
+        );
+        this.message = `This peer cannot be accessed by a frozen account${RPCError._fmtRequest(args.request)}`;
+    }
+}
+
 export const rpcErrorRe = new Map<RegExp, any>([
     [/FILE_MIGRATE_(\d+)/, FileMigrateError],
     [/FLOOD_TEST_PHONE_WAIT_(\d+)/, FloodTestPhoneWaitError],
     [/FLOOD_WAIT_(\d+)/, FloodWaitError],
     [/FLOOD_PREMIUM_WAIT_(\d+)/, FloodWaitError],
+    [/FROZEN_METHOD_INVALID/, FrozenMethodError],
+    [/FROZEN_PARTICIPANT_MISSING/, FrozenParticipantError],
     [/MSG_WAIT_(.*)/, MsgWaitError],
     [/PHONE_MIGRATE_(\d+)/, PhoneMigrateError],
     [/SLOWMODE_WAIT_(\d+)/, SlowModeWaitError],

@@ -1,6 +1,6 @@
 import { Api } from "../tl";
 import { RequestIter } from "../requestIter";
-import { TelegramClient } from "./";
+import type { TelegramClient } from "./";
 import * as utils from "../Utils";
 import { Dialog } from "../tl/custom/dialog";
 import { DateLike, EntityLike } from "../define";
@@ -213,4 +213,11 @@ export function iterDialogs(
             folder,
         }
     );
+}
+
+export async function getDialogs(
+    client: TelegramClient,
+    params: IterDialogsParams
+): Promise<TotalList<Dialog>> {
+    return (await client.iterDialogs(params).collect()) as TotalList<Dialog>;
 }

@@ -24,6 +24,7 @@ class ObfuscatedIO {
             Buffer.from("eeeeeeee", "hex"),
         ];
         let random;
+        // eslint-disable-next-line no-constant-condition
         while (true) {
             random = generateRandomBytes(64);
             if (

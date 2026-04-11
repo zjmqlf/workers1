@@ -10,7 +10,6 @@ import { MTProtoSender } from "../network";
 import { LAYER } from "../tl/runtime/registry";
 import { Session } from "../sessions";
 import { LogLevel } from "../extensions";
-import { inspect } from "node:util";
 
 export class TelegramClient extends TelegramBaseClient {
     constructor(

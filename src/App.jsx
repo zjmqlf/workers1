@@ -95,6 +95,32 @@ const App = () => {
     }
   }, []);
 
+  const renderFilter = useCallback((params) => {
+    if (params.node.level === 1) {
+      if (params.value && params.value > 0) {
+      // const filterArray = {
+      //   0: "媒体",
+      //   1: "图片",
+      //   2: "视频",
+      //   3: "文件",
+      //   4: "动图",
+      // };
+      const filterArray = {
+        0: "media",
+        1: "photo",
+        2: "video",
+        3: "document",
+        4: "gif",
+      };
+        return filterArray[params.value] ? filterArray[params.value] : "未知";
+      } else {
+        return "未知";
+      }
+    } else {
+      return "";
+    }
+  }, []);
+
   const getColumnDefs = () => {
     return [
       {
@@ -120,6 +146,12 @@ const App = () => {
             hide: true,
             // minWidth: 20,
             // maxWidth: 20,
+          },
+          {
+            field: "filterType",
+            headerName:"filterType",
+            columnGroupShow: "open",
+            cellRenderer: renderFilter,
           },
           {
             field: "chatId",
@@ -296,7 +328,7 @@ const App = () => {
         setClearGridBtnDisabled(false);
       }
     }
-  }, [addNewEvent, renderTime, setRowData, setClearGridBtnDisabled]);
+  }, [addNewEvent, renderTime, setClearGridBtnDisabled]);
 
   // const deleteItems = useCallback((items) => {
   //   const res = gridRef.current.api.applyTransaction({
@@ -379,12 +411,12 @@ const App = () => {
         addItems(data);
       }
     }
-  }, [addNewEvent, renderTime, addItems, updateRow]);
+  }, [addItems, updateRow]);
 
-  // const handleBeforeUnload = useCallback((event) => {
-  //   event.preventDefault();
-  //   event.returnValue = '程序正在运行中，确定要关闭吗？';
-  // }, []);
+  const handleBeforeUnload = useCallback((event) => {
+    event.preventDefault();
+    event.returnValue = '程序正在运行中，确定要关闭吗？';
+  }, []);
 
   const handlerBtn = useCallback((status) => {
     setCollectBtnDisabled(status);
@@ -417,8 +449,8 @@ const App = () => {
     if (errorCount.current === 10) {
       waitTime.current = 300000;
     }
-    // window.removeEventListener('beforeunload', handleBeforeUnload);
-    // window.removeEventListener('popstate', handleBeforeUnload);
+    window.removeEventListener('beforeunload', handleBeforeUnload);
+    window.removeEventListener('popstate', handleBeforeUnload);
     // let rowNode = null;
     // gridRef.current.api.forEachNode(function (node) {
     //   rowNode = node;
@@ -438,7 +470,7 @@ const App = () => {
       "error": true,
       "message": renderTime(Date.now()) + "  >>> 远程websocket连续" + errorCount.current + "次断开了连接",
     });
-  }, [addNewEvent, renderTime, handlerBtnUnable]);
+  }, [addNewEvent, renderTime, handleBeforeUnload, handlerBtnUnable]);
 
   const parseMessage = useCallback((message) => {
     if (message.result === "pause") {
@@ -617,8 +649,8 @@ const App = () => {
           waitTime.current = 30000;
         }
       }
-      // window.addEventListener('beforeunload', handleBeforeUnload);
-      // window.addEventListener('popstate', handleBeforeUnload);
+      window.addEventListener('beforeunload', handleBeforeUnload);
+      window.addEventListener('popstate', handleBeforeUnload);
       // let rowNode = null;
       // gridRef.current.api.forEachNode(function (node) {
       //   rowNode = node;
@@ -704,7 +736,7 @@ const App = () => {
       if (over.current === false) {
         // console.log(documentValue);  //测试
         if (lastClient.current > 0) {
-          waitTime.current = 180000 - (lastClient.current * 2000);
+          waitTime.current = 240000 - (lastClient.current * 2000);
         }
         if (lastClient.current < 30000) {
           waitTime.current = 30000;
@@ -716,7 +748,7 @@ const App = () => {
       }
     })
 
-  }, [addNewEvent, renderTime, parseMessage, setTime, handlerClose, waitReconnect, documentValue]);
+  }, [addNewEvent, renderTime, handleBeforeUnload, parseMessage, setTime, handlerClose, waitReconnect, documentValue]);
 
   waitReconnect = useCallback((command, time) => {
     setTimeout(function() {
@@ -1045,7 +1077,7 @@ const App = () => {
             </label>
             <label>
               <input type="radio" name="filterType" value="3" checked={documentValue === 3} onChange={handlerRadioChange} />
-              文档
+              文件
             </label>
             <label>
               <input type="radio" name="filterType" value="4" checked={documentValue === 4} onChange={handlerRadioChange} />

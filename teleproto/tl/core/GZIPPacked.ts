@@ -1,4 +1,4 @@
-import { serializeBytes } from "..";
+import { serializeBytes } from "../runtime/helpers";
 import { unzipSync } from "zlib";
 import type { BinaryReader } from "../../extensions";
 import { Buffer } from "node:buffer";
@@ -28,8 +28,6 @@ export class GZIPPacked {
 
     static gzip(input: Buffer) {
         return Buffer.from(input);
-        // TODO this usually makes it faster for large requests
-        //return Buffer.from(deflate(input, { level: 9, gzip: true }))
     }
 
     static ungzip(input: Buffer) {

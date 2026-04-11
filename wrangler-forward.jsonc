@@ -11,6 +11,14 @@
     "binding": "ASSETS",
     "directory": "./build"
   },
+  "routes": [
+    {
+      "pattern": "forward.19420.xyz/*",
+      "zone_name": "19420.xyz"
+    }
+  ],
+  "preview_urls": false,
+  "workers_dev": false,
   "d1_databases": [
     {
       "binding": "MAINDB",
@@ -36,11 +44,11 @@
   ],
   "observability": {
     "logs": {
-      "enabled": true,
-      "invocation_logs": true
+      "enabled": false,
+      "invocation_logs": false
     },
     "traces": {
-      "enabled": true
+      "enabled": false
     }
   },
   "placement": {

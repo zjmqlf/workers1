@@ -16,8 +16,10 @@ import {
     SecurityError,
     TypeNotFoundError,
 } from "../errors";
-import { Connection, UpdateConnectionState } from ".";
-import type { TelegramClient } from "../client";
+import { Connection } from "./connection";
+import { UpdateConnectionState } from "./UpdateConnectionState";
+import type { TelegramClient } from "../client/TelegramClient";
+import { LAYER } from "../tl/runtime/registry";
 import { LogLevel } from "../extensions/Logger";
 import { Mutex } from "async-mutex";
 import { PendingState } from "../extensions/PendingState";
@@ -94,6 +96,7 @@ export class MTProtoSender {
     userDisconnected: boolean;
     isConnecting: boolean;
     _authenticated: boolean;
+    _needsInitConnection: boolean = true;
     private _securityChecks: boolean;
     private _connectMutex: Mutex;
     private _cancelSend: boolean;
@@ -252,10 +255,36 @@ export class MTProtoSender {
     }
 
     send(request: Api.AnyRequest) {
+        if (this._needsInitConnection && this._isApiRequest(request)) {
+            const initConnection = new Api.InitConnection({
+                apiId: this._client.apiId,
+                deviceModel: this._client._initRequest.deviceModel,
+                systemVersion: this._client._initRequest.systemVersion,
+                appVersion: this._client._initRequest.appVersion,
+                langCode: this._client._initRequest.langCode,
+                langPack: this._client._initRequest.langPack,
+                systemLangCode: this._client._initRequest.systemLangCode,
+                proxy: this._client._initRequest.proxy,
+                query: request,
+            });
+            request = new Api.InvokeWithLayer({
+                layer: LAYER,
+                query: initConnection,
+            }) as unknown as Api.AnyRequest;
+            this._needsInitConnection = false;
+            this._log.debug("Wrapping request with initConnection");
+        }
         const state = new RequestState(request);
         this._log.debug(`Send ${request.className}`);
         this._sendQueue.append(state);
         return state.promise;
+    }
+
+    private _isApiRequest(request: Api.AnyRequest): boolean {
+        return (
+            typeof (request as any).readResult === "function" &&
+            !(request instanceof Api.InvokeWithLayer)
+        );
     }
 
     addStateToQueue(state: RequestState) {
@@ -329,8 +358,6 @@ export class MTProtoSender {
     }
 
     async _sendLoop() {
-        this._sendQueue.prepend(this._pendingState.values());
-        this._pendingState.clear();
         while (this._userConnected && !this.isReconnecting) {
             const appendAcks = () => {
                 if (this._pendingAck.size) {
@@ -445,6 +472,9 @@ export class MTProtoSender {
             }
             try {
                 message = await this._state.decryptMessageData(body);
+                this._log.debug(
+                    `[RECV] Decrypted msgId=${message.msgId} type=${message.obj?.className || "unknown"} bodyLen=${body.length}`
+                );
             } catch (e) {
                 this._log.debug(
                     `Error while receiving items from the network ${e}`
@@ -494,6 +524,10 @@ export class MTProtoSender {
                     ) {
                         this._handleBadAuthKey(true);
                     }
+                } else if (e instanceof TypeNotFoundError) {
+                    this._log.info(
+                        `Unknown constructor ${e.invalidConstructorId} in update, skipping (remaining: ${e.remaining.length} bytes)`
+                    );
                 } else {
                     this._log.error("Unhandled error while receiving data");
                     if (this._client._errorHandler) {
@@ -529,6 +563,9 @@ export class MTProtoSender {
     async _processMessage(message: TLMessage) {
         this._pendingAck.add(message.msgId);
         message.obj = await message.obj;
+        this._log.debug(
+            `[MSG] Processing msgId=${message.msgId} type=${message.obj.className} constructorId=${message.obj.CONSTRUCTOR_ID}`
+        );
         let handler = this._handlers[message.obj.CONSTRUCTOR_ID.toString()];
         if (!handler) {
             handler = this._handleUpdate.bind(this);
@@ -585,6 +622,7 @@ export class MTProtoSender {
             return;
         }
         if (result.error) {
+            // eslint-disable-next-line new-cap
             const error = RPCMessageToError(result.error, state.request);
             this._sendQueue.append(
                 new RequestState(new MsgsAck({ msgIds: [state.msgId!] }))
@@ -605,7 +643,9 @@ export class MTProtoSender {
     }
 
     async _handleContainer(message: TLMessage) {
-        this._log.debug("Handling container");
+        this._log.debug(
+            `[CONTAINER] msgId=${message.msgId} contains ${message.obj.messages.length} messages`
+        );
         for (const innerMessage of message.obj.messages) {
             await this._processMessage(innerMessage);
         }
@@ -625,7 +665,12 @@ export class MTProtoSender {
             );
             return;
         }
-        this._log.debug("Handling update " + message.obj.className);
+        this._log.debug(
+            `[UPDATE] msgId=${message.msgId} type=${message.obj.className}` +
+            (message.obj.updates
+                ? ` innerUpdates=${message.obj.updates.length}:[${message.obj.updates.map((u: any) => u.className).join(",")}]`
+                : "")
+        );
         if (this._updateCallback) {
             this._updateCallback(this._client, message.obj);
         }
@@ -691,9 +736,19 @@ export class MTProtoSender {
     async _handleNewSessionCreated(message: TLMessage) {
         this._log.debug("Handling new session created");
         this._state.salt = message.obj.serverSalt;
+        this._needsInitConnection = true;
     }
 
-    _handleAck() {}
+    _handleAck(message: TLMessage) {
+        if (message.obj.msgIds) {
+            for (const msgId of message.obj.msgIds) {
+                const state = this._pendingState.get(msgId);
+                if (state) {
+                    state.acknowledged = true;
+                }
+            }
+        }
+    }
 
     async _handleFutureSalts(message: TLMessage) {
         this._log.debug(`Handling future salts for message ${message.msgId}`);
@@ -769,6 +824,7 @@ export class MTProtoSender {
         }
         this._sendQueue.clear();
         this._state.reset();
+        this._needsInitConnection = true;
         const connection = this._connection!;
         // @ts-ignore
         const newConnection = new connection.constructor({
@@ -780,8 +836,34 @@ export class MTProtoSender {
         });
         await this.connect(newConnection, true);
         this.isReconnecting = false;
-        this._sendQueue.prepend(this._pendingState.values());
-        this._pendingState.clear();
+
+        const toResend: RequestState[] = [];
+        const toQueryStatus: RequestState[] = [];
+        for (const state of this._pendingState.values()) {
+            if (state.acknowledged) {
+                toQueryStatus.push(state);
+            } else {
+                toResend.push(state);
+            }
+        }
+        this._sendQueue.prepend(toResend);
+
+        if (toQueryStatus.length > 0) {
+            const msgIds = toQueryStatus
+                .filter((s) => s.msgId != undefined)
+                .map((s) => s.msgId!);
+            if (msgIds.length > 0) {
+                this._log.debug(
+                    `Querying status of ${msgIds.length} acknowledged requests`
+                );
+                this.send(
+                    new Api.MsgsStateReq({ msgIds }) as unknown as Api.AnyRequest
+                );
+            }
+        } else {
+            this._pendingState.clear();
+        }
+
         if (this._autoReconnectCallback) {
             await this._autoReconnectCallback();
         }

@@ -11,6 +11,14 @@
     "binding": "ASSETS",
     "directory": "./build"
   },
+  "routes": [
+    {
+      "pattern": "workers1.19420.xyz/*",
+      "zone_name": "19420.xyz"
+    }
+  ],
+  "preview_urls": false,
+  "workers_dev": false,
   "d1_databases": [
     {
       "binding": "MAINDB",
@@ -43,11 +51,16 @@
       "database_name": "pansou6",
       "database_id": "43209852-2723-47cd-b52d-44fddea94558"
     },
-    */
     {
       "binding": "PANSOUDB",
       "database_name": "pansou7",
       "database_id": "61bfab17-17e0-4c7a-bd3c-27bb2bdc5981"
+    },
+    */
+    {
+      "binding": "PANSOUDB",
+      "database_name": "pansou8",
+      "database_id": "50b51529-89e0-4cba-b7ec-7485552a81c1"
     }
   ],
   "durable_objects": {
@@ -67,7 +80,13 @@
     }
   ],
   "observability": {
-    "enabled": true
+    "logs": {
+      "enabled": false,
+      "invocation_logs": false
+    },
+    "traces": {
+      "enabled": false
+    }
   },
   "placement": {
     "mode": "smart"

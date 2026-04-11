@@ -154,6 +154,7 @@ async function computeCheck(request: Api.account.Password, password: string) {
     const kgX = bigIntMod(k.multiply(gX), p);
     const generateAndCheckRandom = async () => {
         const randomSize = 256;
+        // eslint-disable-next-line no-constant-condition
         while (true) {
             const random = generateRandomBytes(randomSize);
             const a = readBigIntFromBuffer(random, false);
