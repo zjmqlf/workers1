@@ -540,10 +540,28 @@ const App = () => {
           }
         }
       } else {
-        addNewEvent({
-          "error": message.error,
-          "message": renderTime(message.date) + (message.step ? "  (" + message.step + ")" : " ") + message.operate + " - " + message.message,
-        });
+        switch (message.operate) {
+          case "nextStep":
+          case "start":
+          case "checkChat":
+            if (message.status === "limit") {
+              addNewEvent({
+                "error": true,
+                "message": renderTime(message.date) + "  " + message.operate + " - " + message.message,
+              });
+            } else {
+              addNewEvent({
+                "message": renderTime(message.date) + "  " + message.operate + " - " + message.message,
+              });
+            }
+            break;
+          default:
+            // console.log("未知消息");
+            addNewEvent({
+              "error": message.error,
+              "message": renderTime(message.date) + (message.step ? "  (" + message.step + ")" : " ") + message.operate + " - " + message.message,
+            });
+        }
       }
     }
   }, [addNewEvent, renderTime, setRowData, setClearGridBtnDisabled, addItems, updateInsert, updateItems, updateSelect, isCompressChecked]);

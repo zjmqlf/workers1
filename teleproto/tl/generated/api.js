@@ -1,4 +1,3 @@
-const { createApiFromDefinitions } = require("../runtime/createApi");
-const definitions = require("./api-definitions.js");
-const Api = createApiFromDefinitions(definitions);
-module.exports = { Api };
+import { createApiFromDefinitions } from "../runtime/createApi";
+import { definitions } from "./api-definitions.js";
+export const Api = createApiFromDefinitions(definitions);

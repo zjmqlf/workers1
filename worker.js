@@ -529,7 +529,7 @@ export class WebSocketServer extends DurableObject {
           this.fromPeer = result.chats[0];
           if (this.fromPeer) {
             this.offsetId = chatResult.current;
-            this.sendGrid("checkChat", this.chatId + " : " + chatResult.title, "add", false);
+            this.sendLog("checkChat", this.chatId + " : " + chatResult.title, "add", false);
           } else {
             await this.noExistChat(1, chatResult.Cindex);
             this.chatId = chatResult.Cindex + 1;

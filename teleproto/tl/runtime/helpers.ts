@@ -1,4 +1,5 @@
 import type { DateLike } from "../../define";
+import { Buffer } from "node:buffer";
 
 export function serializeBytes(data: Buffer | string): Buffer {
     if (!(data instanceof Buffer)) {

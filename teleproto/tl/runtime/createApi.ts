@@ -1,4 +1,5 @@
 import bigInt, { BigInteger } from "big-integer";
+import { Buffer } from "node:buffer";
 
 import {
     generateRandomBytes,

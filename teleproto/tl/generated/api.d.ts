@@ -3,7 +3,7 @@
 import { BigInteger } from 'big-integer';
 import {EntityLike,MessageIDLike} from "../../define";
 import { CustomMessage } from "../custom/message";
-
+import { Buffer } from "node:buffer";
 
 export namespace Api {
   type AnyLiteral = Record<string, any> | void;

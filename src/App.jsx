@@ -490,16 +490,16 @@ const App = () => {
       // });
       // setClearLogBtnDisabled(true);
       //console.log("当前chat采集完毕");  //测试
-      addNewEvent({
-        "message": renderTime(Date.now()) + "  >>>当前chat采集完毕",
-      });
+      // addNewEvent({
+      //   "message": renderTime(Date.now()) + "  >>>当前chat采集完毕",
+      // });
     } else if (message.result === "over") {
       over.current = true;
       clearTimeout(timeOut.current);
       //console.log("全部chat采集完毕");  //测试
-      addNewEvent({
-        "message": renderTime(Date.now()) + "  >>>全部chat采集完毕",
-      });
+      // addNewEvent({
+      //   "message": renderTime(Date.now()) + "  >>>全部chat采集完毕",
+      // });
     } else {
       if (message.clientId && message.clientId > 0 && message.chatId && message.chatId >= 0) {
         switch (message.operate) {
@@ -736,7 +736,7 @@ const App = () => {
       if (over.current === false) {
         // console.log(documentValue);  //测试
         if (lastClient.current > 0) {
-          waitTime.current = 180000 - (lastClient.current * 2000);
+          waitTime.current = 240000 - (lastClient.current * 2000);
         }
         if (waitTime.current < 30000) {
           waitTime.current = 30000;
