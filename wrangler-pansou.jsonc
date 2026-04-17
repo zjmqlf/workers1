@@ -1,0 +1,94 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "pansou",
+  "main": "pansou.js",
+  "compatibility_date": "2025-05-05",
+  "compatibility_flags": [
+    "nodejs_compat",
+    "nodejs_als"
+  ],
+  "assets": {
+    "binding": "ASSETS",
+    "directory": "./pansou/build"
+  },
+  "routes": [
+    {
+      "pattern": "pansou.19420.xyz/*",
+      "zone_name": "19420.xyz"
+    }
+  ],
+  "preview_urls": false,
+  "workers_dev": false,
+  "d1_databases": [
+    {
+      "binding": "MAINDB",
+      "database_name": "maindb",
+      "database_id": "52bec4a2-a12a-484d-8f58-4f254b8cffd0"
+    },
+    /**
+    {
+      "binding": "PANSOUDB",
+      "database_name": "pansou2",
+      "database_id": "4e48fcd0-a8fa-4dca-a8f9-021184e57753"
+    },
+    {
+      "binding": "PANSOUDB",
+      "database_name": "pansou3",
+      "database_id": "b6e33f0e-061e-4ff9-8ac6-6f80f86b7d4d"
+    },
+    {
+      "binding": "PANSOUDB",
+      "database_name": "pansou4",
+      "database_id": "0bce0745-a204-4382-b16f-c03e827a33f2"
+    },
+    {
+      "binding": "PANSOUDB",
+      "database_name": "pansou5",
+      "database_id": "cd5d8762-0272-451c-b0d4-f4881016b6ad"
+    },
+    {
+      "binding": "PANSOUDB",
+      "database_name": "pansou6",
+      "database_id": "43209852-2723-47cd-b52d-44fddea94558"
+    },
+    {
+      "binding": "PANSOUDB",
+      "database_name": "pansou7",
+      "database_id": "61bfab17-17e0-4c7a-bd3c-27bb2bdc5981"
+    },
+    */
+    {
+      "binding": "PANSOUDB",
+      "database_name": "pansou8",
+      "database_id": "50b51529-89e0-4cba-b7ec-7485552a81c1"
+    }
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "WEBSOCKET_SERVER",
+        "class_name": "WebSocketServer"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": [
+        "WebSocketServer"
+      ]
+    }
+  ],
+  "observability": {
+    "logs": {
+      "enabled": false,
+      "invocation_logs": false
+    },
+    "traces": {
+      "enabled": false
+    }
+  },
+  "placement": {
+    "mode": "smart"
+  }
+}

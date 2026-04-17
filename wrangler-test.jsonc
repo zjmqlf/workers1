@@ -1,0 +1,72 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "test",
+  "main": "test.js",
+  "compatibility_date": "2025-05-05",
+  "compatibility_flags": [
+    "nodejs_compat",
+    "nodejs_als"
+  ],
+  "routes": [
+    {
+      "pattern": "test.19425.xyz/*",
+      "zone_name": "19425.xyz"
+    }
+  ],
+  "preview_urls": false,
+  "workers_dev": true,
+  "d1_databases": [
+    {
+      "binding": "MAINDB",
+      "database_name": "maindb",
+      "database_id": "97d41e14-a9b6-45a9-b5cc-f60eb29acc02"
+    },
+    {
+      "binding": "MEDIADB13",
+      "database_name": "media13",
+      "database_id": "c07fa6f5-7b86-459c-ba80-a9870051aa7c"
+    },
+    {
+      "binding": "MEDIADB14",
+      "database_name": "media14",
+      "database_id": "0344b9cc-b450-4ec7-896b-dfc560d32adf"
+    },
+    {
+      "binding": "MEDIADB15",
+      "database_name": "media15",
+      "database_id": "f4468c64-0c40-4aa6-b1e2-973793dba2e1"
+    },
+    {
+      "binding": "MEDIADB16",
+      "database_name": "media16",
+      "database_id": "1880990b-930b-4e33-bcc4-38b4c4556359"
+    },
+    {
+      "binding": "MEDIADB17",
+      "database_name": "media17",
+      "database_id": "b42806c0-a55e-4c70-a1c8-24ceb0f5455f"
+    },
+    {
+      "binding": "MEDIADB18",
+      "database_name": "media18",
+      "database_id": "19e58183-593c-493a-bb09-34c6172fc804"
+    },
+    {
+      "binding": "MEDIADB19",
+      "database_name": "media19",
+      "database_id": "9afe975b-2ec7-4d9b-99f2-6d93f28d1939"
+    }
+  ],
+  "observability": {
+    "logs": {
+      "enabled": true,
+      "invocation_logs": true
+    },
+    "traces": {
+      "enabled": true
+    }
+  },
+  "placement": {
+    "mode": "smart"
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "favorites",
+  "main": "favorites.js",
+  "compatibility_date": "2025-05-05",
+  "compatibility_flags": [
+    "nodejs_compat",
+    "nodejs_als"
+  ],
+  "assets": {
+    "binding": "ASSETS",
+    "directory": "./favorites/build"
+  },
+  "routes": [
+    {
+      "pattern": "favorites.19420.xyz/*",
+      "zone_name": "19420.xyz"
+    }
+  ],
+  "preview_urls": false,
+  "workers_dev": false,
+  "d1_databases": [
+    {
+      "binding": "MAINDB",
+      "database_name": "maindb",
+      "database_id": "52bec4a2-a12a-484d-8f58-4f254b8cffd0"
+    }
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "WEBSOCKET_SERVER",
+        "class_name": "WebSocketServer"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": [
+        "WebSocketServer"
+      ]
+    }
+  ],
+  "observability": {
+    "logs": {
+      "enabled": false,
+      "invocation_logs": false
+    },
+    "traces": {
+      "enabled": false
+    }
+  },
+  "placement": {
+    "mode": "smart"
+  }
+}

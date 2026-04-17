@@ -1,0 +1,40 @@
+{
+  "name": "favorites",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "scripts": {
+    "start": "react-scripts start",
+    "dev": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "react": "19",
+    "react-dom": "19",
+    "react-scripts": "5.0.1",
+    "@types/react": "19",
+    "@types/react-dom": "19",
+    "ag-grid-react": "35.2.1",
+    "ag-grid-community": "35.2.1",
+    "ag-grid-enterprise": "35.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "^25"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

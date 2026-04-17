@@ -1,0 +1,71 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "hash",
+  "main": "hash.js",
+  "vars": {
+    "MEDIA_DB_INDEX": 19,
+    "PHOTO_DB_INDEX": 1,
+  },
+  "compatibility_date": "2025-05-05",
+  "compatibility_flags": [
+    "nodejs_compat",
+    "nodejs_als"
+  ],
+  "assets": {
+    "binding": "ASSETS",
+    "directory": "./hash/build"
+  },
+  "routes": [
+    {
+      "pattern": "hash.19425.xyz/*",
+      "zone_name": "19425.xyz"
+    }
+  ],
+  "preview_urls": false,
+  "workers_dev": false,
+  "d1_databases": [
+    {
+      "binding": "MAINDB",
+      "database_name": "maindb",
+      "database_id": "97d41e14-a9b6-45a9-b5cc-f60eb29acc02"
+    },
+    {
+      "binding": "MEDIADB",
+      "database_name": "media19",
+      "database_id": "9afe975b-2ec7-4d9b-99f2-6d93f28d1939"
+    },
+    {
+      "binding": "PHOTODB",
+      "database_name": "photo1",
+      "database_id": "828beee3-372e-4921-8007-f1e928fe78f6"
+    }
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "WEBSOCKET_SERVER",
+        "class_name": "WebSocketServer"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": [
+        "WebSocketServer"
+      ]
+    }
+  ],
+  "observability": {
+    "logs": {
+      "enabled": false,
+      "invocation_logs": false
+    },
+    "traces": {
+      "enabled": false
+    }
+  },
+  "placement": {
+    "mode": "smart"
+  }
+}
