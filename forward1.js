@@ -838,38 +838,35 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
-  async waitNext(waitTime, flood) {
-    if (waitTime && waitTime > 0) {
-      const time = this.waitTime - (new Date().getTime() - waitTime);
-      if (time > 0) {
-        if (flood === false) {
-          //console.log("(" + this.currentStep + ") 还需等待" + (time / 1000) + "秒");
-          this.sendForward("waitNext", "还需等待" + Math.ceil(time / 1000) + "秒", 0, "wait", true);
+  async waitNext(time, flood) {
+    if (time && time > 0) {
+      if (flood === false) {
+        //console.log("(" + this.currentStep + ") 还需等待" + (time / 1000) + "秒");
+        this.sendForward("waitNext", "还需等待" + Math.ceil(time / 1000) + "秒", 0, "wait", true);
+      }
+      // const pingInterval = setInterval(function () {
+      //   // this.ws.ping();
+      //   this.ws.send("ping");
+      // }, 30000);
+      // await this.ctx.storage.setAlarm(30000);
+      // await scheduler.wait(time);
+      // clearInterval(pingInterval);
+      // await this.ctx.storage.deleteAlarm();
+      if (time > this.pingTime) {
+        // const timeLength = Math.floor(time / 60000);
+        const timeLength = Math.ceil(time / this.pingTime);
+        for (let i = 0; i < timeLength; i++) {
+          await scheduler.wait(this.pingTime);
+          // this.ws.ping();
+          // this.ws.send({
+          //   "result": "ping",
+          // });
+          this.broadcast({
+            "result": "ping",
+          });
         }
-        // const pingInterval = setInterval(function () {
-        //   // this.ws.ping();
-        //   this.ws.send("ping");
-        // }, 30000);
-        // await this.ctx.storage.setAlarm(30000);
-        // await scheduler.wait(time);
-        // clearInterval(pingInterval);
-        // await this.ctx.storage.deleteAlarm();
-        if (time > this.pingTime) {
-          // const timeLength = Math.floor(time / 60000);
-          const timeLength = Math.ceil(time / this.pingTime);
-          for (let i = 0; i < timeLength; i++) {
-            await scheduler.wait(this.pingTime);
-            // this.ws.ping();
-            // this.ws.send({
-            //   "result": "ping",
-            // });
-            this.broadcast({
-              "result": "ping",
-            });
-          }
-        } else {
-          await scheduler.wait(time);
-        }
+      } else {
+        await scheduler.wait(time);
       }
     }
   }
@@ -926,7 +923,8 @@ export class WebSocketServer extends DurableObject {
         await this.ctx.storage.put("client", 0);
       }
     } else {
-      await this.waitNext(this.time, false);
+      const time = this.waitTime - (new Date().getTime() - this.time);
+      await this.waitNext(time, false);
     }
     if (messageLength > 0) {
       try {

@@ -15,7 +15,6 @@ export class WebSocketServer extends DurableObject {
   api = apiString.slice();
   clientCount = 0;
   tg = [];
-  toPeer = null;
   waitTime = 30000;
   pingTime = 5000;
   filterType = -1;
@@ -129,7 +128,6 @@ export class WebSocketServer extends DurableObject {
       this.apiCount = 0;
       this.currentStep = 0;
       this.api = apiString.slice();
-      this.toPeer = null;
       this.clientCount = this.api.length;
       this.tg = Array(this.clientCount).fill(null);
       this.waitTime = 30000;
@@ -1261,7 +1259,7 @@ export class WebSocketServer extends DurableObject {
           fromPeer: this.tg[clientIndex].fromPeer,
           id: idArray,
           randomId: fileIdArray,
-          toPeer: this.toPeer,
+          toPeer: this.tg[clientIndex].toPeer,
           silent: true,
           background: true,
           withMyScore: true,
@@ -1574,8 +1572,8 @@ export class WebSocketServer extends DurableObject {
     });
   }
 
-  async getUser() {
-    const users = await this.client.invoke(
+  async getUser(clientIndex) {
+    const users = await this.tg[clientIndex].client.invoke(
       new Api.users.GetUsers({
         id: [
           new Api.InputUser({
@@ -1589,8 +1587,8 @@ export class WebSocketServer extends DurableObject {
     // console.log(users);  //测试
     // console.log(users.length);  //测试
     if (users.length && !(users[0] instanceof Api.UserEmpty)) {
-      this.toPeer = utils.getInputPeer(users[0]);
-      // console.log(toPeer);  //测试
+      this.tg[clientIndex].toPeer = utils.getInputPeer(users[0]);
+      // console.log(this.tg[clientIndex].toPeer);  //测试
     }
   }
 
@@ -1609,43 +1607,43 @@ export class WebSocketServer extends DurableObject {
     }
     this.init(option);
     this.stop = 1;
-    await this.getUser();
-    if (this.toPeer) {
-      if (this.stop === 1) {
-        this.currentStep += 1;
-        for (let clientIndex = 0; clientIndex < this.clientCount; clientIndex++) {
-          this.tg[clientIndex] = {
-            "clientId": 0,
-            "client": null,
-            "chatId": 0,
-            "endChat": 0,
-            "lastChat": 0,
-            "filterType": 2,
-            "filter": Api.InputMessagesFilterVideo,
-            // "filterTitle": "媒体",
-            "reverse": true,
-            "count": 0,
-            "limit": 100,
-            "offsetId": 0,
-            "fromPeer": null,
-            "errorCount": 0,
-            "flood": 0,
-            "time": 0,
-          };
-          this.tg[clientIndex].clientId = this.api[clientIndex].id;
-          this.tg[clientIndex].flood = await this.ctx.storage.get("client" + this.tg[clientIndex].clientId) || 0;
-          if (this.tg[clientIndex].flood > 0) {
-            if (this.tg[clientIndex].flood > new Date().getTime()) {
-              //console.log("(" + this.currentStep + ") 还需等待" + ((this.tg[clientIndex].flood - new Date().getTime()) / 1000) + "秒的洪水警告时间");
-              this.sendLog(clientIndex, "start", "还需等待" + Math.ceil((this.tg[clientIndex].flood - new Date().getTime()) / 1000) + "秒的洪水警告时间", "flood", true);
-              continue;
-            } else {
-              this.tg[clientIndex].flood = 0;
-              await this.ctx.storage.put("client" + this.tg[clientIndex].clientId, 0);
-            }
+    if (this.stop === 1) {
+      this.currentStep += 1;
+      for (let clientIndex = 0; clientIndex < this.clientCount; clientIndex++) {
+        this.tg[clientIndex] = {
+          "clientId": 0,
+          "client": null,
+          "chatId": 0,
+          "endChat": 0,
+          "lastChat": 0,
+          "filterType": 2,
+          "filter": Api.InputMessagesFilterVideo,
+          // "filterTitle": "媒体",
+          "reverse": true,
+          "count": 0,
+          "limit": 100,
+          "offsetId": 0,
+          "fromPeer": null,
+          "errorCount": 0,
+          "flood": 0,
+          "time": 0,
+        };
+        this.tg[clientIndex].clientId = this.api[clientIndex].id;
+        this.tg[clientIndex].flood = await this.ctx.storage.get("client" + this.tg[clientIndex].clientId) || 0;
+        if (this.tg[clientIndex].flood > 0) {
+          if (this.tg[clientIndex].flood > new Date().getTime()) {
+            //console.log("(" + this.currentStep + ") 还需等待" + ((this.tg[clientIndex].flood - new Date().getTime()) / 1000) + "秒的洪水警告时间");
+            this.sendLog(clientIndex, "start", "还需等待" + Math.ceil((this.tg[clientIndex].flood - new Date().getTime()) / 1000) + "秒的洪水警告时间", "flood", true);
+            continue;
+          } else {
+            this.tg[clientIndex].flood = 0;
+            await this.ctx.storage.put("client" + this.tg[clientIndex].clientId, 0);
           }
-          await this.open(clientIndex, 1);
-          if (this.tg[clientIndex].client) {
+        }
+        await this.open(clientIndex, 1);
+        if (this.tg[clientIndex].client) {
+          await this.getUser(clientIndex);
+          if (this.tg[clientIndex].toPeer) {
             await this.getConfig(clientIndex, 1, option);
             await this.getChat(clientIndex);
             if (this.tg[clientIndex].fromPeer) {
@@ -1836,25 +1834,23 @@ export class WebSocketServer extends DurableObject {
               await this.getChat(clientIndex);
             }
           } else {
-            //console.log("连接TG服务" + clientIndex + "失败");
-            this.sendLog(clientIndex, "start", "连接TG服务" + clientIndex + "失败", null, true);
+            //console.log("获取toPeer出错");
+            this.sendLog(clientIndex, "start", "获取toPeer出错", "error", true);
           }
+        } else {
+          //console.log("连接TG服务" + clientIndex + "失败");
+          this.sendLog(clientIndex, "start", "连接TG服务" + clientIndex + "失败", null, true);
         }
-        if (this.stop === 1) {
-          if (this.apiCount < 900) {
-            await this.nextStep();
-          } else {
-            this.stop = 2;
-            //console.log("(" + this.currentStep + ")start超出apiCount限制");
-            this.sendLog(clientIndex, "start", "超出apiCount限制", "limit", true);
-            await this.closeAll();
-            // this.ctx.abort("reset");
-          }
-        } else if (this.stop === 2) {
-          this.broadcast({
-            "result": "pause",
-          });
+      }
+      if (this.stop === 1) {
+        if (this.apiCount < 900) {
+          await this.nextStep();
+        } else {
+          this.stop = 2;
+          //console.log("(" + this.currentStep + ")start超出apiCount限制");
+          this.sendLog(clientIndex, "start", "超出apiCount限制", "limit", true);
           await this.closeAll();
+          // this.ctx.abort("reset");
         }
       } else if (this.stop === 2) {
         this.broadcast({
@@ -1862,9 +1858,11 @@ export class WebSocketServer extends DurableObject {
         });
         await this.closeAll();
       }
-    } else {
-      //console.log("获取toPeer出错");
-      this.sendLog(clientIndex, "start", "获取toPeer出错", "error", true);
+    } else if (this.stop === 2) {
+      this.broadcast({
+        "result": "pause",
+      });
+      await this.closeAll();
     }
   }
 

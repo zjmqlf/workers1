@@ -611,7 +611,7 @@ export class WebSocketServer extends DurableObject {
     this.apiCount += 1;
     let configResult = {};
     try {
-      configResult = await this.env.MAINDB.prepare("INSERT INTO `CONFIG` (tgId, name, chatId, reverse, limited) VALUES (?, ?, ?, ?, ?);").bind(this.tg[clientIndex].clientId, 'forward', this.tg[clientIndex].chatId, this.tg[clientIndex].reverse, this.tg[clientIndex].limit).run();
+      configResult = await this.env.MAINDB.prepare("INSERT INTO `CONFIG` (tgId, name, chatId, reverse, limited) VALUES (?, ?, ?, ?, ?);").bind(this.tg[clientIndex].clientId, 'favorites', this.tg[clientIndex].chatId, this.tg[clientIndex].reverse, this.tg[clientIndex].limit).run();
     } catch (e) {
       //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] insertConfig出错 : " + e);;
       this.sendLog(clientIndex, "insertConfig", "出错 : " + JSON.stringify(e), "try", true);
@@ -644,7 +644,7 @@ export class WebSocketServer extends DurableObject {
     this.apiCount += 1;
     let configResult = {};
     try {
-      configResult = await this.env.MAINDB.prepare("SELECT * FROM `CONFIG` WHERE `tgId` = ? AND `name` = 'forward' LIMIT 1;").bind(this.tg[clientIndex].clientId).run();
+      configResult = await this.env.MAINDB.prepare("SELECT * FROM `CONFIG` WHERE `tgId` = ? AND `name` = 'favorites' LIMIT 1;").bind(this.tg[clientIndex].clientId).run();
     } catch (e) {
       //console.log("getConfig出错 : " + e);
       this.sendLog(clientIndex, "getConfig", "出错 : " + JSON.stringify(e), null, true);
@@ -2164,7 +2164,7 @@ export default {
           status: 426,
         });
       }
-      const id = env.WEBSOCKET_SERVER.idFromName("forward");
+      const id = env.WEBSOCKET_SERVER.idFromName("favorites");
       const stub = env.WEBSOCKET_SERVER.get(id);
       return stub.fetch(request);
     }
