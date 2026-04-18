@@ -21,7 +21,11 @@ import {
   PaginationModule,
   HighlightChangesModule,
   ValidationModule,
+  ScrollApiModule,
 } from "ag-grid-community";
+import {
+  RowGroupingModule,
+} from "ag-grid-enterprise";
 //import "./App.css"
 
 //ModuleRegistry.registerModules([AllCommunityModule]);
@@ -37,16 +41,19 @@ ModuleRegistry.registerModules([
   PaginationModule,
   HighlightChangesModule,
   ValidationModule,
+  RowGroupingModule,
+  ScrollApiModule,
 ]);
 
 const App = () => {
   let key = 0;
   let waitReconnect = null;
-  const pagination = true;
-  const paginationPageSize = 50;
-  const paginationPageSizeSelector = [50, 150, 200];
-  const lastId = useRef(-1);
-  const lastRow = useRef(null);
+  // const pagination = true;
+  // const paginationPageSize = 50;
+  // const paginationPageSizeSelector = [50, 150, 200];
+  const rowArray = useRef({});
+  const lastId = useRef({});
+  const lastClient = useRef(0);
   const ws = useRef(null);
   const stop = useRef(false);
   const over = useRef(false);
@@ -56,7 +63,7 @@ const App = () => {
   const waitTime = useRef(30000);
   const containerStyle = useMemo(() => ({ width: "100%", height: "100%" }), []);
   const gridStyle = useMemo(() => ({ width: "65%", height: "95%" }), []);
-  const [documentValue, setDocumentValue] = useState(2);
+  const [documentValue, setDocumentValue] = useState(-1);
   const [isCloseBtnDisabled, setCloseBtnDisabled] = useState(true);
   const [isCollectBtnDisabled, setCollectBtnDisabled] = useState(true);
   const [isNextBtnDisabled, setNextBtnDisabled] = useState(true);
@@ -88,6 +95,32 @@ const App = () => {
     }
   }, []);
 
+  const renderFilter = useCallback((params) => {
+    if (params.node.level === 1) {
+      if (params.value && params.value > 0) {
+      // const filterArray = {
+      //   0: "媒体",
+      //   1: "图片",
+      //   2: "视频",
+      //   3: "文件",
+      //   4: "动图",
+      // };
+      const filterArray = {
+        0: "media",
+        1: "photo",
+        2: "video",
+        3: "document",
+        4: "gif",
+      };
+        return filterArray[params.value] ? filterArray[params.value] : "未知";
+      } else {
+        return "未知";
+      }
+    } else {
+      return "";
+    }
+  }, []);
+
   const getColumnDefs = () => {
     return [
       {
@@ -99,6 +132,26 @@ const App = () => {
             field: "step",
             headerName: "step",
             columnGroupShow: "open",
+          },
+          // {
+          //   field: "clientIndex",
+          //   headerName: "clientIndex",
+          //   columnGroupShow: "open",
+          // },
+          {
+            field: "clientId",
+            headerName: "clientId",
+            columnGroupShow: "open",
+            rowGroup: true,
+            hide: true,
+            // minWidth: 20,
+            // maxWidth: 20,
+          },
+          {
+            field: "filterType",
+            headerName:"filterType",
+            columnGroupShow: "open",
+            cellRenderer: renderFilter,
           },
           {
             field: "chatId",
@@ -161,9 +214,15 @@ const App = () => {
       flex: 1,
       //filter: true,
       width: "100%",
-      height: "70%",
+      height: "40%",
       editable: false,
       enableCellChangeFlash: true,
+    };
+  }, []);
+
+  const autoGroupColumnDef = useMemo(() => {
+    return {
+      minWidth: 40,
     };
   }, []);
 
@@ -179,7 +238,7 @@ const App = () => {
 
   const rowClassRules = useMemo(() => {
     return {
-      "rag-red": params => stop.current === true && params.node.data.chatId === lastRow.current.data.chatId,
+      "rag-red": params => params.node.level === 1 && params.node.data.chatId === lastId.current[params.node.data.clientId] && (!params.node.data.messageLength || params.node.data.messageLength < 100),
     };
   }, []);
 
@@ -220,104 +279,139 @@ const App = () => {
   }, [setLogData, key]);
 
   const addItems = useCallback((items) => {
-    if (gridRef.current.api.getDisplayedRowCount() >= 200) {
-      setRowData([]);
-      setClearGridBtnDisabled(true);
-      console.log("删除grid成功");  //测试
+    if (items.clientId && items.clientId > 0) {
+      lastClient.current = items.clientId;
     }
-    if (lastId.current > 0) {
-      if (items.chatId <= lastId.current) {
-        return;
-      }
-    }
-    const res = gridRef.current.api.applyTransaction({
-      add: [items],
-      addIndex: 0,
-    });
-    // console.log(res);  //测试
-    if (res.add && res.add.length > 0) {
-      lastRow.current = res.add[0];
-      //console.log(lastRow.current);  //测试
-      lastId.current = lastRow.current.data.chatId;
+    // if (gridRef.current.api.getDisplayedRowCount() >= 200) {
+    //   rowArray.current = {};
+    //   setRowData([]);
+    //   setClearGridBtnDisabled(true);
+    //   console.log("删除grid成功");  //测试
+    // }
+    //console.log(items);  //测试
+    if (rowArray.current[items.chatId]) {
+      //console.log(items.chatId + " : 已添加过该row了");
+      // addNewEvent({
+      //   "message": renderTime(Date.now()) + "  >>> " + items.chatId + "已添加过该row了",
+      // });
     } else {
-      lastRow.current = null;
-      lastId.current = -1;
-      console.log("添加row失败");
-      addNewEvent({
-        "message": renderTime(Date.now()) + "  >>> 添加row失败",
+      const res = gridRef.current.api.applyTransaction({
+        add: [items],
+        addIndex: 0,
       });
-      //console.log(items);  //测试
+      //console.log(res);  //测试
+      if (res.add && res.add.length > 0) {
+        rowArray.current[items.chatId] = res.add[0];
+        if (lastId.current[items.clientId]) {
+          if (lastId.current[items.clientId] < items.chatId) {
+            lastId.current[items.clientId] = items.chatId;
+          }
+        } else {
+          lastId.current[items.clientId] = items.chatId;
+        }
+        gridRef.current.api.ensureNodeVisible(rowArray.current[items.chatId], 'middle');
+        // gridRef.current.api.ensureIndexVisible(rowArray.current[items.chatId].rowIndex, 'middle');
+        // console.log(items.chatId + " : 添加row成功");
+        // addNewEvent({
+        //   "message": renderTime(Date.now()) + "  >>> " + items.chatId + " : 添加row成功",
+        // });
+      } else {
+        console.log(items.chatId + " : 添加row失败");
+        addNewEvent({
+          "message": renderTime(Date.now()) + "  >>> " + items.chatId + " : 添加row失败",
+        });
+        //console.log(items);  //测试
+      }
+      if (gridRef.current.api.getDisplayedRowCount() === 0) {
+        setClearGridBtnDisabled(true);
+      } else {
+        setClearGridBtnDisabled(false);
+      }
     }
-    if (gridRef.current.api.getDisplayedRowCount() === 0) {
-      setClearGridBtnDisabled(true);
-    } else {
-      setClearGridBtnDisabled(false);
-    }
-  }, [addNewEvent, renderTime, setRowData, setClearGridBtnDisabled]);
+  }, [addNewEvent, renderTime, setClearGridBtnDisabled]);
 
-  const updateLastRow = useCallback((items) => {
-    if (lastRow.current.data.forward && lastRow.current.data.forward > 0) {
+  // const deleteItems = useCallback((items) => {
+  //   const res = gridRef.current.api.applyTransaction({
+  //     remove: [items],
+  //   });
+  //   //console.log(res);  //测试
+  //   if (res.remove && res.add.remove > 0) {
+  //     delete rowArray.current[items.chatId];
+  //     //console.log("删除row成功");
+  //     // addNewEvent({
+  //     //   "message": renderTime(Date.now()) + "  >>> " + items.chatId + " : 删除row成功",
+  //     // });
+  //   } else {
+  //     console.log(items.chatId + " : 删除row失败");
+  //     addNewEvent({
+  //       "message": renderTime(Date.now()) + "  >>> " + items.chatId + " : 删除row失败",
+  //     });
+  //   }
+  // }, [addNewEvent, renderTime]);
+
+  const updateRow = useCallback((rowNode, items) => {
+    if (rowNode.data.forward && rowNode.data.forward > 0) {
       if (items.messageLength && items.messageLength > 0) {
-        lastRow.current.data.forward += items.messageLength;
+        rowNode.data.forward += items.messageLength;
       }
     } else {
       if (items.messageLength && items.messageLength > 0) {
-        lastRow.current.data.forward = items.messageLength;
+        rowNode.data.forward = items.messageLength;
       }
     }
     for (const name in items) {
       //console.log(name);  //测试
       //console.log(items[name]);  //测试
-      if (name === "error") {
-        if (items[name] === true) {
-          if (lastRow.current.data.error > 0) {
-            lastRow.current.setDataValue("error", lastRow.current.data.error + 1);
-          } else {
-            lastRow.current.setDataValue("error", 1);
-          }
-        }
-      } else {
-        lastRow.current.setDataValue(name, items[name]);
-      }
+      // if (name === "error") {
+      //   if (items[name] === true) {
+      //     if (rowNode.data.error > 0) {
+      //       rowNode.setDataValue("error", rowNode.data.error + 1);
+      //     } else {
+      //       rowNode.setDataValue("error", 1);
+      //     }
+      //   }
+      // } else {
+        rowNode.setDataValue(name, items[name]);
+        gridRef.current.api.ensureNodeVisible(rowNode, 'middle');
+        // gridRef.current.api.ensureIndexVisible(rowNode.rowIndex, 'middle');
+      // }
     }
   }, []);
 
-  const getLastRow = useCallback((chatId, items) => {
-    let found = false;
-    gridRef.current.api.forEachNode((rowNode) => {
-      if (rowNode.data.chatId === chatId) {
-        lastRow.current = rowNode;
-        lastId.current = lastRow.current.data.chatId;
-        updateLastRow(items);
-        found = true;
-        return;
-      }
-    });
-    if (found === false) {
-      // console.log("lastRow错误");
-      // addNewEvent({
-      //   "error": true,
-      //   "message": renderTime(Date.now()) + "  >>> lastRow错误",
-      // });
-      addItems({chatId, ...items});
-    }
-  }, [updateLastRow, addItems]);
-
   const updateItems = useCallback((data) => {
-    //console.log(lastRow.current);  //测试
     const {chatId, ...items} = data;
-    if (lastRow.current) {
-      //console.log(chatId);  //测试
-      //console.log(items);  //测试
-      if (lastId.current === chatId) {
-        updateLastRow(items);
-      } else {
-        getLastRow(chatId, items);
-      }
-    } else {
-      getLastRow(chatId, items);
+    if (items.clientId && items.clientId > 0) {
+      lastClient.current = items.clientId;
     }
-  }, [updateLastRow, getLastRow]);
+    if (rowArray.current[chatId]) {
+      updateRow(rowArray.current[chatId], items);
+    } else {
+      let found = false;
+      // gridRef.current.api.forEachNodeAfterFilterAndSort((rowNode, index) => {
+      gridRef.current.api.forEachNode((rowNode, index) => {
+        if (rowNode.level === 1) {
+          if (rowNode.data.chatId === chatId) {
+            // if (items.clientCount && items.clientCount > 0 && index >= items.clientCount) {
+            //   deleteItems(rowNode);
+            //   addItems(rowNode);
+            // }
+            updateRow(rowNode, items);
+            found = true;
+            return;
+          }
+        }
+      });
+      if (found === false) {
+        //console.log(chatId + " : 查找row失败");
+        // addNewEvent({
+        //   "error": true,
+        //   "message": renderTime(Date.now()) + "  >>> " + chatId + " : 查找row失败",
+        // });
+        data.forward = data.messageLength;
+        addItems(data);
+      }
+    }
+  }, [addItems, updateRow]);
 
   const handleBeforeUnload = useCallback((event) => {
     event.preventDefault();
@@ -357,11 +451,16 @@ const App = () => {
     }
     window.removeEventListener('beforeunload', handleBeforeUnload);
     window.removeEventListener('popstate', handleBeforeUnload);
-    if (lastRow.current) {
-      gridRef.current.api.redrawRows({
-        rowNodes: [lastRow.current],
-      });
-    }
+    // let rowNode = null;
+    // gridRef.current.api.forEachNode(function (node) {
+    //   rowNode = node;
+    //   return;
+    // });
+    // if (rowNode) {
+    //   gridRef.current.api.redrawRows({
+    //     rowNodes: [rowNode],
+    //   });
+    // }
     handlerBtnUnable();
     // setLogData(() => {
     //   return [];
@@ -385,8 +484,7 @@ const App = () => {
       ws.current.close();
       // handlerClose();
     } else if (message.result === "end") {
-      lastId.current = -1;
-      lastRow.current = null;
+      // rowArray.current = {};
       // setRowData([]);
       // setClearGridBtnDisabled(true);
       // setLogData(() => {
@@ -394,82 +492,99 @@ const App = () => {
       // });
       // setClearLogBtnDisabled(true);
       //console.log("当前chat采集完毕");  //测试
-      addNewEvent({
-        "message": renderTime(Date.now()) + "  >>>当前chat采集完毕",
-        // "message": renderTime(message.date) + "  " + message.operate + " - " + message.message,
-      });
+      // addNewEvent({
+      //   "message": renderTime(Date.now()) + "  >>>当前chat采集完毕",
+      // });
     } else if (message.result === "over") {
       over.current = true;
       clearTimeout(timeOut.current);
       //console.log("全部chat采集完毕");  //测试
-      addNewEvent({
-        "message": renderTime(Date.now()) + "  >>>全部chat采集完毕",
-        // "message": renderTime(message.date) + "  " + message.operate + " - " + message.message,
-      });
+      // addNewEvent({
+      //   "message": renderTime(Date.now()) + "  >>>全部chat采集完毕",
+      // });
     } else {
-      if (message.chatId >= 0) {
-        if (message.chatId < lastId.current) {
-          console.log("消息chatId小了");
-          addNewEvent({
-            "error": true,
-            "message": renderTime(message.date) + " " + message.chatId + " : " + message.operate + " 消息chatId小了" + (message.message ? " - " + message.message  : " "),
-          });
-        } else {
-          switch (message.operate) {
-            case "forwardMessage":
-              if (message.status === "update") {
-                // delete message.operate;
-                // delete message.status;
-                const {
-                  operate,
-                  status,
-                  ...temp
-                } = message;
-                updateItems(temp);
-              // } else if (message.status === "flood") {
-              // } else if (message.status === "error") {
-              // } else if (message.status === "wait") {
-              } else {
-                //console.log("未知消息");
-                addNewEvent({
-                  "error": message.error,
-                  "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + message.operate + " - " + message.message,
-                });
-              }
-              break;
-            case "getChat":
-            case "nextChat":
-            case "checkChat":
-              if (message.status === "add") {
-                const {
-                  operate,
-                  status,
-                  ...temp
-                } = message;
-                addItems(temp);
-              } else {
-                //console.log("未知消息");
-                addNewEvent({
-                  "error": message.error,
-                  "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientIndex + "-" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
-                });
-              }
-              break;
-            default:
+      if (message.clientId && message.clientId > 0 && message.chatId && message.chatId >= 0) {
+        switch (message.operate) {
+          case "forwardMessage":
+            if (message.status === "update") {
+              //delete message.operate;
+              //delete message.status;
+              const {
+                operate,
+                status,
+                ...temp
+              } = message;
+              updateItems(temp);
+            } else if (message.status === "flood") {
+              addNewEvent({
+                "error": true,
+                "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientIndex + "-" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
+              });
+            } else if (message.status === "error") {
+              updateItems({
+                "chatId": message.chatId,
+                "date": message.date,
+              });
+              addNewEvent({
+                "error": true,
+                "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientIndex + "-" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
+              });
+            } else if (message.status === "wait") {
+              addNewEvent({
+                "error": true,
+                "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientIndex + "-" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
+              });
+            } else {
               //console.log("未知消息");
               addNewEvent({
                 "error": message.error,
-                "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + message.operate + " - " + message.message,
+                "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientIndex + "-" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
               });
-          }
+            }
+            break;
+          case "getMessage":
+            if (message.status === "flood") {
+              addNewEvent({
+                "error": true,
+                "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientIndex + "-" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
+              });
+            } else {
+              //console.log("未知消息");
+              addNewEvent({
+                "error": message.error,
+                "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientIndex + "-" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
+              });
+            }
+            break;
+          case "getChat":
+          case "nextChat":
+          case "checkChat":
+            if (message.status === "add") {
+              const {
+                operate,
+                status,
+                ...temp
+              } = message;
+              addItems(temp);
+            } else {
+              //console.log("未知消息");
+              addNewEvent({
+                "error": message.error,
+                "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientIndex + "-" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
+              });
+            }
+            break;
+          default:
+            //console.log("未知消息");
+            addNewEvent({
+              "error": message.error,
+              "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientIndex + "-" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
+            });
         }
       } else {
-        if (!message.date) {
-          console.log(message);
-        }
         addNewEvent({
           "error": message.error,
-          "message": renderTime(message.date) + (message.step ? "  (" + message.step + ")" : " ") + message.operate + " - " + message.message,
+          "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientIndex + "-" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
         });
       }
     }
@@ -511,7 +626,7 @@ const App = () => {
 
   const collectWS = useCallback((command) => {
     // console.log("documentValue : " + documentValue);  //测试
-    //const url = "wss://forward.19425.xyz/ws";  //测试
+    //const url = "wss://forward.19420.xyz/ws";  //测试
     const url = new URL(window.location);
     url.protocol = "wss";
     url.pathname = "/ws";
@@ -538,11 +653,16 @@ const App = () => {
       }
       window.addEventListener('beforeunload', handleBeforeUnload);
       window.addEventListener('popstate', handleBeforeUnload);
-      if (lastRow.current) {
-        gridRef.current.api.redrawRows({
-          rowNodes: [lastRow.current],
-        });
-      }
+      // let rowNode = null;
+      // gridRef.current.api.forEachNode(function (node) {
+      //   rowNode = node;
+      //   return;
+      // });
+      // if (rowNode) {
+      //   gridRef.current.api.redrawRows({
+      //     rowNodes: [rowNode],
+      //   });
+      // }
       if (ws.current && ws.current.readyState === WebSocket.OPEN) {
         try {
           ws.current.send(command);
@@ -613,10 +733,12 @@ const App = () => {
       handlerClose();
       if (over.current === false) {
         // console.log(documentValue);  //测试
-        // if (waitTime.current < 30000) {
-        //   waitTime.current = 30000;
-        // }
-        // waitTime.current = 120000;
+        if (lastClient.current > 0) {
+          waitTime.current = 240000 - (lastClient.current * 3000);
+        }
+        if (waitTime.current < 30000) {
+          waitTime.current = 30000;
+        }
         waitReconnect(JSON.stringify({
           "command": "start",
           "filterType": documentValue,
@@ -786,8 +908,7 @@ const App = () => {
   }, [handlerMessageError]);
 
   const handlerClearGridBtnClick = useCallback(() => {
-    lastId.current = -1;
-    lastRow.current = null;
+    rowArray.current = {};
     setRowData([]);
     setClearGridBtnDisabled(true);
   }, [setRowData, setClearGridBtnDisabled]);
@@ -933,9 +1054,11 @@ const App = () => {
             rowClassRules={rowClassRules}
             rowSelection={rowSelection}
             // onRowDataUpdated={onRowDataUpdated}
-            pagination={pagination}
-            paginationPageSize={paginationPageSize}
-            paginationPageSizeSelector={paginationPageSizeSelector}
+            // pagination={pagination}
+            // paginationPageSize={paginationPageSize}
+            // paginationPageSizeSelector={paginationPageSizeSelector}
+            autoGroupColumnDef={autoGroupColumnDef}
+            groupDefaultExpanded={1}
           />
           <div style={{ width: "100%", height: "5%" }}>
             <label>

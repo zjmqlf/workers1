@@ -270,16 +270,6 @@ export const apiString = [
     "sessionString": "1BQANOTEuMTA4LjU2LjEyOABQqFZlkxggG9g8nQjTsU1Yu23Xrfr9SY4hR+UbLS3vRm1L1A7n+miDT6/y9VztIzcuj7ZXY2sRCQ0dFnb2CJuriFa7H3v6TMmiXQ/Ul/Rma8bX0228pyWLxP5d0ucASWr3lPl1zZqAfKBuV2e/iF6y8Zhaqx4fTwruuR05ZVkF4LzZRcIMtd9pzhj2ofMMLQXgnUCSJ8d2hhI8pMfAPuC28VYQfLpPCjTUL6oDWx2DXEXCQFcZLOObG5jjfGMlwdL33+KxiBMq0npEYh63J5hSJVE3+2AvzcZncnawaEDmIwKf0oMKyvjBACE+PbTCopE69Wbs8v9iFWNgsompxSAcww==",
   },
   {
-    "id": 27,
-    "pc": 43,
-    "dc": 5,
-    "name": "zjm2149",
-    "phone": "+12407158869",
-    "apiId": 16593781,
-    "apiHash": "4a6eedd1198bf7f817999216d453fa96",
-    "sessionString": "1BQANOTEuMTA4LjU2LjEyOABQZWLvkrDpy3IJxHXO49AeGzKb5OYlTb0hB1EZGDo/0SB1/YEFkIe1B4ewwQJQXuVx0Y1FLdFDQV72+Ld6GVWrlTQaB1bCSr91rju7UHxUnSl4sXwQYYJSRCWckIxiHuzqkVt6wI2W4D2f4Qbn5Eh2+nXdynStoniEd21jsuWDEj7kgLsBU7E6YSMMM1M7jwfKMTC//x0TlnbN8I7vwmTRVmWzXllRGt/awV3A7HngZZ8YbxF6nlEokCA5YIsGWWRFj0IsxIxc2bS+SXT8x43w7KFMvNP66VN6bJtD1QJSz4udN6O1B68sINhD4ygZ39j5rq9kVVvAusFX9FdlSpStFw==",
-  },
-  {
     "id": 28,
     "pc": 44,
     "dc": 5,

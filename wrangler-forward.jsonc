@@ -2,7 +2,7 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "forward",
   "main": "forward.js",
-  "compatibility_date": "2025-05-05",
+  "compatibility_date": "2026-04-07",
   "compatibility_flags": [
     "nodejs_compat",
     "nodejs_als"
@@ -13,8 +13,8 @@
   },
   "routes": [
     {
-      "pattern": "forward.19420.xyz/*",
-      "zone_name": "19420.xyz"
+      "pattern": "forward.19425.xyz/*",
+      "zone_name": "19425.xyz"
     }
   ],
   "preview_urls": false,
@@ -23,7 +23,7 @@
     {
       "binding": "MAINDB",
       "database_name": "maindb",
-      "database_id": "52bec4a2-a12a-484d-8f58-4f254b8cffd0"
+      "database_id": "97d41e14-a9b6-45a9-b5cc-f60eb29acc02"
     }
   ],
   "durable_objects": {

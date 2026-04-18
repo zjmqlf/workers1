@@ -7,14 +7,16 @@
   "scripts": {
     "dist-hash": "wrangler deploy -c ./wrangler-hash.jsonc --dry-run --outdir=./hash/dist",
     "deploy-hash": "wrangler deploy -c ./wrangler-hash.jsonc",
-    "dist-forward1": "wrangler deploy -c ./wrangler-forward1.jsonc --dry-run --outdir=./forward1/dist",
-    "deploy-forward1": "wrangler deploy -c ./wrangler-forward1.jsonc",
+    "dist-forward": "wrangler deploy -c ./wrangler-forward.jsonc --dry-run --outdir=./forward/dist",
+    "deploy-forward": "wrangler deploy -c ./wrangler-forward.jsonc",
     "dist-pansou": "wrangler deploy -c ./wrangler-pansou.jsonc --dry-run --outdir=./pansou/dist",
     "deploy-pansou": "wrangler deploy -c ./wrangler-pansou.jsonc",
     "dist-favorites": "wrangler deploy -c ./wrangler-favorites.jsonc --dry-run --outdir=./favorites/dist",
     "deploy-favorites": "wrangler deploy -c ./wrangler-favorites.jsonc",
-    "dist-forward": "wrangler deploy -c ./wrangler-forward.jsonc --dry-run --outdir=./forward/dist",
-    "deploy-forward": "wrangler deploy -c ./wrangler-forward.jsonc",
+    "dist-forward1": "wrangler deploy -c ./wrangler-forward1.jsonc --dry-run --outdir=./forward1/dist",
+    "deploy-forward1": "wrangler deploy -c ./wrangler-forward1.jsonc",
+    "dist-forward2": "wrangler deploy -c ./wrangler-forward2.jsonc --dry-run --outdir=./forward1/dist",
+    "deploy-forward2": "wrangler deploy -c ./wrangler-forward2.jsonc",
     "dist-test": "wrangler deploy -c ./wrangler-test.jsonc --dry-run --outdir=dist",
     "deploy-test": "wrangler deploy -c ./wrangler-test.jsonc"
   },
@@ -23,10 +25,8 @@
   "devDependencies": {
     "@types/mime": "^4.0.0",
     "@types/node": "^25.6.0",
-    "@types/node-localstorage": "^1.3.3",
     "@types/pako": "^2.0.4",
     "ts-node": "^10.9.2",
-    "typedoc": "^0.28.19",
     "typescript": "^6.0.3",
     "wrangler": "4.83.0"
   },
