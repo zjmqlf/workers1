@@ -295,8 +295,8 @@ export class WebSocketServer extends DurableObject {
         connectionRetries: 5,
         autoReconnect: true,
         deviceModel: "Desktop",
-        systemVersion: "Windows 10",
-        appVersion: "5.12.3 x64",
+        systemVersion: "Windows 11",
+        appVersion: "6.7.6 x64",
         langCode: "en",
         systemLangCode: "en-US",
       });
@@ -340,7 +340,7 @@ export class WebSocketServer extends DurableObject {
     this.apiCount += 1;
     let configResult = {};
     try {
-      configResult = await this.env.MAINDB.prepare("SELECT * FROM `CONFIG` WHERE `name` = 'forward' LIMIT 1;").run();
+      configResult = await this.env.MAINDB.prepare("SELECT * FROM `CONFIG` WHERE `name` = 'forward' AND `tgId` = 0 LIMIT 1;").run();
     } catch (e) {
       //console.log("getConfig出错 : " + e);
       this.sendLog("getConfig", "出错 : " + JSON.stringify(e), null, true);
@@ -473,21 +473,70 @@ export class WebSocketServer extends DurableObject {
   }
 
   async checkChat(tryCount, chatResult) {
-    if (chatResult.channelId && chatResult.accessHash) {
-      let result = null;
-      try {
-        result = await this.client.invoke(new Api.channels.GetChannels({
-          id: [new Api.InputChannel({
-            channelId: bigInt(chatResult.channelId),
-            accessHash: bigInt(chatResult.accessHash),
-          })],
-        }));
-      } catch (e) {
-        //console.log("(" + this.currentStep + ")出错 : " + e);
-        this.sendLog("checkChat", "出错 : " + JSON.stringify(e), null, true);
-        if (e.errorMessage === "CHANNEL_INVALID" || e.errorMessage === "CHANNEL_PRIVATE" || e.code === 400) {
-          await this.noExistChat(1, chatResult.Cindex);
-          this.chatId += 1;
+    if (chatResult.chatType === 1) {
+      if (chatResult.channelId && chatResult.accessHash) {
+        let result = null;
+        try {
+          result = await this.client.invoke(new Api.channels.GetChannels({
+            id: [new Api.InputChannel({
+              channelId: bigInt(chatResult.channelId),
+              accessHash: bigInt(chatResult.accessHash),
+            })],
+          }));
+        } catch (e) {
+          //console.log("(" + this.currentStep + ")出错 : " + e);
+          this.sendLog("checkChat", "出错 : " + JSON.stringify(e), null, true);
+          if (e.errorMessage === "CHANNEL_INVALID" || e.errorMessage === "CHANNEL_PRIVATE" || e.code === 400) {
+            await this.noExistChat(1, chatResult.Cindex);
+            this.chatId += 1;
+            if (!this.endChat || this.endChat === 0 || (this.endChat > 0 && this.chatId <= this.endChat)) {
+              //console.log(chatResult.title + " : chat已不存在了");  //测试
+              this.sendLog("checkChat", chatResult.title + " : chat已不存在了", null, true);
+              await this.nextChat(1, true);
+            } else {
+              //console.log(this.endChat + " : 超过最大chat了");  //测试
+              this.sendLog("checkChat", this.endChat + " : 超过最大chat了", null, true);
+            }
+          } else {
+            if (tryCount === 20) {
+              this.stop = 2;
+              //console.log("(" + this.currentStep + ")checkChat超出tryCount限制");
+              this.sendLog("checkChat", "超出tryCount限制", null, true);
+              await this.close();
+            } else {
+              await scheduler.wait(10000);
+              await this.checkChat(tryCount + 1, chatResult);
+            }
+          }
+          return;
+        }
+        // console.log(this.fromPeer);  //测试
+        if (result && result.chats && result.chats.length > 0) {
+          this.chatId = chatResult.Cindex;
+          if (!this.endChat || this.endChat === 0 || (this.endChat > 0 && this.chatId <= this.endChat)) {
+            this.fromPeer = result.chats[0];
+            if (this.fromPeer) {
+              this.setOffsetId(chatResult);
+              // this.errorCount = await this.ctx.storage.get(this.chatId) || 0;
+              this.sendGrid("checkChat", this.chatId + " : " + chatResult.title, "add", false);
+            } else {
+              await this.noExistChat(1, chatResult.Cindex);
+              this.chatId = chatResult.Cindex + 1;
+              if (!this.endChat || this.endChat === 0 || (this.endChat > 0 && this.chatId <= this.endChat)) {
+                //console.log(chatResult.title + " : chat已不存在了");  //测试
+                this.sendLog("checkChat", chatResult.title + " : chat已不存在了", null, true);
+                await this.nextChat(1, true);
+              } else {
+                //console.log(this.endChat + " : 超过最大chat了");  //测试
+                this.sendLog("checkChat", this.endChat + " : 超过最大chat了", null, true);
+              }
+            }
+          } else {
+            //console.log(this.endChat + " : 超过最大chat了");  //测试
+            this.sendLog("checkChat", this.endChat + " : 超过最大chat了", null, true);
+          }
+        } else {
+          this.chatId = chatResult.Cindex + 1;
           if (!this.endChat || this.endChat === 0 || (this.endChat > 0 && this.chatId <= this.endChat)) {
             //console.log(chatResult.title + " : chat已不存在了");  //测试
             this.sendLog("checkChat", chatResult.title + " : chat已不存在了", null, true);
@@ -496,7 +545,36 @@ export class WebSocketServer extends DurableObject {
             //console.log(this.endChat + " : 超过最大chat了");  //测试
             this.sendLog("checkChat", this.endChat + " : 超过最大chat了", null, true);
           }
+        }
+      } else {
+        await this.noExistChat(1, chatResult.Cindex);
+        this.chatId = chatResult.Cindex + 1;
+        if (!this.endChat || this.endChat === 0 || (this.endChat > 0 && this.chatId <= this.endChat)) {
+          //console.log(chatResult.title + " : channelId或accessHash出错");  //测试
+          this.sendLog("checkChat", chatResult.title + " : channelId或accessHash出错", null, true);
+          await this.nextChat(1, true);
         } else {
+          //console.log(this.endChat + " : 超过最大chat了");  //测试
+          this.sendLog("checkChat", this.endChat + " : 超过最大chat了", null, true);
+        }
+      }
+    } else if (chatResult.chatType === 2) {
+      if (chatResult.channelId) {
+        let users = null;
+        try {
+          users = await this.client.invoke(
+            new Api.users.GetUsers({
+              id: [
+                new Api.InputUser({
+                  userId: bigInt(chatResult.channelId),
+                  accessHash: chatResult.accessHash ? bigInt(chatResult.accessHash) : bigInt.zero,
+                }),
+              ],
+            })
+          );
+        } catch (e) {
+          //console.log("(" + this.currentStep + ")出错 : " + e);
+          this.sendLog("checkChat", "出错 : " + JSON.stringify(e), null, true);
           if (tryCount === 20) {
             this.stop = 2;
             //console.log("(" + this.currentStep + ")checkChat超出tryCount限制");
@@ -506,55 +584,54 @@ export class WebSocketServer extends DurableObject {
             await scheduler.wait(10000);
             await this.checkChat(tryCount + 1, chatResult);
           }
+          return;
         }
-        return;
-      }
-      // console.log(this.fromPeer);  //测试
-      if (result && result.chats && result.chats.length > 0) {
-        this.chatId = chatResult.Cindex;
-        if (!this.endChat || this.endChat === 0 || (this.endChat > 0 && this.chatId <= this.endChat)) {
-          this.fromPeer = result.chats[0];
-          if (this.fromPeer) {
-            this.setOffsetId(chatResult);
-            // this.errorCount = await this.ctx.storage.get(this.chatId) || 0;
-            this.sendGrid("checkChat", this.chatId + " : " + chatResult.title, "add", false);
-          } else {
-            await this.noExistChat(1, chatResult.Cindex);
-            this.chatId = chatResult.Cindex + 1;
-            if (!this.endChat || this.endChat === 0 || (this.endChat > 0 && this.chatId <= this.endChat)) {
-              //console.log(chatResult.title + " : chat已不存在了");  //测试
-              this.sendLog("checkChat", chatResult.title + " : chat已不存在了", null, true);
-              await this.nextChat(1, true);
+        if (users.length && !(users[0] instanceof Api.UserEmpty)) {
+          if (!this.endChat || this.endChat === 0 || (this.endChat > 0 && this.chatId <= this.endChat)) {
+            this.chatId = chatResult.Cindex;
+            this.fromPeer = utils.getInputPeer(users[0]);
+            if (this.fromPeer) {
+              this.setOffsetId(chatResult);
+              // this.errorCount = await this.ctx.storage.get(this.chatId) || 0;
+              this.sendGrid("checkChat", this.chatId + " : " + chatResult.title, "add", false);
             } else {
-              //console.log(this.endChat + " : 超过最大chat了");  //测试
-              this.sendLog("checkChat", this.endChat + " : 超过最大chat了", null, true);
+              await this.noExistChat(1, chatResult.Cindex);
+              this.chatId = chatResult.Cindex + 1;
+              if (!this.endChat || this.endChat === 0 || (this.endChat > 0 && this.chatId <= this.endChat)) {
+                //console.log(chatResult.title + " : chat已不存在了");  //测试
+                this.sendLog("checkChat", chatResult.title + " : chat已不存在了", null, true);
+                await this.nextChat(1, true);
+              } else {
+                //console.log(this.endChat + " : 超过最大chat了");  //测试
+                this.sendLog("checkChat", this.endChat + " : 超过最大chat了", null, true);
+              }
             }
+          } else {
+            //console.log(this.endChat + " : 超过最大chat了");  //测试
+            this.sendLog("checkChat", this.endChat + " : 超过最大chat了", null, true);
           }
         } else {
-          //console.log(this.endChat + " : 超过最大chat了");  //测试
-          this.sendLog("checkChat", this.endChat + " : 超过最大chat了", null, true);
+          this.chatId = chatResult.Cindex + 1;
+          if (!this.endChat || this.endChat === 0 || (this.endChat > 0 && this.chatId <= this.endChat)) {
+            //console.log(chatResult.title + " : chat已不存在了");  //测试
+            this.sendLog("checkChat", chatResult.title + " : chat已不存在了", null, true);
+            await this.nextChat(1, true);
+          } else {
+            //console.log(this.endChat + " : 超过最大chat了");  //测试
+            this.sendLog("checkChat", this.endChat + " : 超过最大chat了", null, true);
+          }
         }
       } else {
+        await this.noExistChat(1, chatResult.Cindex);
         this.chatId = chatResult.Cindex + 1;
         if (!this.endChat || this.endChat === 0 || (this.endChat > 0 && this.chatId <= this.endChat)) {
-          //console.log(chatResult.title + " : chat已不存在了");  //测试
-          this.sendLog("checkChat", chatResult.title + " : chat已不存在了", null, true);
+          //console.log(chatResult.title + " : channelId出错");  //测试
+          this.sendLog("checkChat", chatResult.title + " : channelId出错", null, true);
           await this.nextChat(1, true);
         } else {
           //console.log(this.endChat + " : 超过最大chat了");  //测试
           this.sendLog("checkChat", this.endChat + " : 超过最大chat了", null, true);
         }
-      }
-    } else {
-      await this.noExistChat(1, chatResult.Cindex);
-      this.chatId = chatResult.Cindex + 1;
-      if (!this.endChat || this.endChat === 0 || (this.endChat > 0 && this.chatId <= this.endChat)) {
-        //console.log(chatResult.title + " : channelId或accessHash出错");  //测试
-        this.sendLog("checkChat", chatResult.title + " : channelId或accessHash出错", null, true);
-        await this.nextChat(1, true);
-      } else {
-        //console.log(this.endChat + " : 超过最大chat了");  //测试
-        this.sendLog("checkChat", this.endChat + " : 超过最大chat了", null, true);
       }
     }
   }
@@ -575,7 +652,7 @@ export class WebSocketServer extends DurableObject {
     this.apiCount += 1;
     let chatResult = {};
     try {
-      chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `Cindex` >= ? AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").bind(this.chatId).run();
+      chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = 0 AND `Cindex` >= ? AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").bind(this.chatId).run();
     } catch (e) {
       //console.log("(" + this.currentStep + ")出错 : " + e);
       this.sendLog("nextChat", "出错 : " + JSON.stringify(e), null, true);
@@ -612,7 +689,7 @@ export class WebSocketServer extends DurableObject {
         this.apiCount += 1;
         let chatResult = {};
         try {
-          chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `Cindex` = 0 LIMIT 1;").run();
+          chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = 0 AND `Cindex` = 0 LIMIT 1;").run();
         } catch (e) {
           tryCount += 1;
           //console.log("(" + this.currentStep + ")getChat出错 : " + e);
@@ -645,17 +722,18 @@ export class WebSocketServer extends DurableObject {
           this.apiCount += 1;
           let chatResult = {};
           try {
-            if (this.filterType === 0) {
-              chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `current` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").run();
-            } else if (this.filterType === 1) {
-              chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `photo` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").run();
-            } else if (this.filterType === 2) {
-              chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `video` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").run();
-            } else if (this.filterType === 3) {
-              chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `document` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").run();
-            } else if (this.filterType === 4) {
-              chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `gif` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").run();
-            }
+            // if (this.filterType === 0) {
+            //   chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = 0 AND `current` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").run();
+            // } else if (this.filterType === 1) {
+            //   chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = 0 AND `photo` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").run();
+            // } else if (this.filterType === 2) {
+            //   chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = 0 AND `video` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").run();
+            // } else if (this.filterType === 3) {
+            //   chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = 0 AND `document` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").run();
+            // } else if (this.filterType === 4) {
+            //   chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = 0 AND `gif` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").run();
+            // }
+            chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = 0 AND `Cindex` > ? AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").run(this.chatId);
           } catch (e) {
             tryCount += 1;
             //console.log("(" + this.currentStep + ")getChat出错 : " + e);
@@ -701,7 +779,7 @@ export class WebSocketServer extends DurableObject {
     this.apiCount += 1;
     let configResult = {};
     try {
-      configResult = await this.env.MAINDB.prepare("UPDATE `CONFIG` SET `chatId` = ? WHERE `name` = 'collect';").bind(this.chatId).run();
+      configResult = await this.env.MAINDB.prepare("UPDATE `CONFIG` SET `chatId` = ? WHERE `name` = 'collect' AND `tgId` = 0;").bind(this.chatId).run();
     } catch (e) {
       //console.log("updateConfig出错 : " + e);
       this.sendLog("updateConfig", "出错 : " + JSON.stringify(e), null, true);
@@ -741,11 +819,13 @@ export class WebSocketServer extends DurableObject {
       ) {
         // count += 1;
         this.count += 1;
-        if (message.media) {
-          if (message.media.document) {
-            this.messageArray.push(message);
-          } else if (message.media.photo) {
-            this.messageArray.push(message);
+        if (message.noforwards === false) {
+          if (message.media) {
+            if (message.media.document) {
+              this.messageArray.push(message);
+            } else if (message.media.photo) {
+              this.messageArray.push(message);
+            }
           }
         }
       }
@@ -1085,7 +1165,7 @@ export class WebSocketServer extends DurableObject {
                 this.stop = 2;
                 //console.log("(" + this.currentStep + ")nextStep超出apiCount限制");
                 this.sendLog("nextStep", "超出apiCount限制", "limit", true);
-                await this.closeAll();
+                await this.close();
                 // this.ctx.abort("reset");
               }
             } else if (this.stop === 2) {
@@ -1122,7 +1202,7 @@ export class WebSocketServer extends DurableObject {
               this.stop = 2;
               //console.log("(" + this.currentStep + ")nextStep超出apiCount限制");
               this.sendLog("nextStep", "超出apiCount限制", "limit", true);
-              await this.closeAll();
+              await this.close();
               // this.ctx.abort("reset");
             }
           } else if (this.stop === 2) {
@@ -1319,7 +1399,7 @@ export class WebSocketServer extends DurableObject {
                 this.stop = 2;
                 //console.log("(" + this.currentStep + ")nextStep超出apiCount限制");
                 this.sendLog("nextStep", "超出apiCount限制", "limit", true);
-                await this.closeAll();
+                await this.close();
                 // this.ctx.abort("reset");
               }
             } else if (this.stop === 2) {
@@ -1350,7 +1430,7 @@ export class WebSocketServer extends DurableObject {
                 this.stop = 2;
                 //console.log("(" + this.currentStep + ")nextStep超出apiCount限制");
                 this.sendLog("nextStep", "超出apiCount限制", "limit", true);
-                await this.closeAll();
+                await this.close();
                 // this.ctx.abort("reset");
               }
             } else if (this.stop === 2) {
@@ -1387,6 +1467,185 @@ export class WebSocketServer extends DurableObject {
       });
       await this.close();
     }
+  }
+
+  async getDialog(tryCount) {
+    try {
+      for await (const dialog of this.client.iterDialogs({})) {
+        // if (dialog.isChannel === true) {
+          this.dialogArray.push(dialog);
+        // }
+      }
+    } catch (e) {
+      this.dialogArray = [];
+      //console.log("(" + this.currentStep + ")getDialog出错 : " + e);
+      this.sendLog("getDialog", "出错 : " + JSON.stringify(e), null, true);
+      if (tryCount === 20) {
+        this.stop = 2;
+        //console.log("(" + this.currentStep + ")getDialog超出tryCount限制");
+        this.sendLog("getDialog", "超出tryCount限制", null, true);
+        await this.close();
+      } else {
+        await scheduler.wait(10000);
+        await this.getDialog(tryCount + 1);
+      }
+      return;
+    }
+  }
+
+  async selectChatError(tryCount, channelId, accessHash) {
+    if (tryCount === 20) {
+      this.stop = 2;
+      //console.log("selectChat超出tryCount限制");
+      this.sendLog("selectChat", "超出tryCount限制", null, true);
+      await this.close();
+    } else {
+      await scheduler.wait(10000);
+      await this.selectChat(tryCount + 1, channelId, accessHash);
+    }
+  }
+
+  async selectChat(tryCount, channelId, accessHash) {
+    this.apiCount += 1;
+    let chatResult = {};
+    try {
+      chatResult = await this.env.MAINDB.prepare("SELECT COUNT(Cindex) FROM `FORWARDCHAT` WHERE `tgId` = 0 AND `channelId` = ? AND `accessHash` = ? LIMIT 1;").bind(channelId, accessHash).run();
+    } catch (e) {
+      //console.log("selectChat出错 : " + e);
+      this.sendLog("selectChat", "出错 : " + JSON.stringify(e), "try", true);
+      await this.selectChatError(tryCount, channelId, accessHash);
+      return;
+    }
+    //console.log("chatResult : " + chatResult["COUNT(Cindex)"]);  //测试
+    if (chatResult.success === true) {
+      if (chatResult.results && chatResult.results.length > 0) {
+        return chatResult.results[0]["COUNT(Cindex)"];
+      }
+    } else {
+      await this.selectChatError(tryCount, channelId, accessHash);
+    }
+  }
+
+  async insertChatError(tryCount, channelId, accessHash, chatType, username, title, noforwards) {
+    if (tryCount === 20) {
+      this.stop = 2;
+      //console.log("insertChat超出tryCount限制");
+      this.sendLog("insertChat", "超出tryCount限制", null, true);
+      await this.close();
+    } else {
+      await scheduler.wait(10000);
+      await this.insertChat(tryCount + 1, channelId, accessHash, chatType, username, title, noforwards);
+    }
+  }
+
+  async insertChat(tryCount, channelId, accessHash, chatType, username, title, noforwards) {
+    this.apiCount += 1;
+    let chatResult = {};
+    try {
+      chatResult = await this.env.MAINDB.prepare("INSERT INTO `FORWARDCHAT` (tgId, channelId, accessHash, chatType, username, title, noforwards, current, photo, video, document, gif, currentForward, photoForward, videoForward, documentForward, gifForward, exist) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);").bind(0, channelId, accessHash, chatType, username, title, noforwards, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1).run();
+    } catch (e) {
+      //console.log("insertChat出错 : " + e);;
+      this.sendLog("insertChat", "出错 : " + JSON.stringify(e), "try", true);
+      await this.insertChatError(tryCount, channelId, accessHash, chatType, username, title, noforwards);
+      return;
+    }
+    //console.log(chatResult);  //测试
+    if (chatResult.success === true) {
+      //console.log("插入chat数据成功");
+      this.sendLog("insertChat", "插入chat数据成功", "success", false);
+    } else {
+      //console.log("插入chat数据失败");
+      this.sendLog("insertChat", "插入chat数据失败", "error", true);
+      await this.insertChatError(tryCount, channelId, accessHash, chatType, username, title, noforwards);
+    }
+  }
+
+  async chat() {
+    // if (this.client || this.stop === 1) {
+    // // if (this.stop === 1) {
+    //   this.ws.send(JSON.stringify({
+    //     "step": this.currentStep,
+    //     "operate": "chat",
+    //     "message": "服务已经运行过了",
+    //     "error": true,
+    //     "date": new Date().getTime(),
+    //   }));
+    //   return;
+    // }
+    // this.stop = 1;
+    if (!this.client) {
+      await this.open(1);
+    }
+    let count = 0;
+    await this.getDialog(1);
+    const dialogArray = this.dialogArray;
+    // const dialogLength = dialogArray.length;
+    this.dialogArray = [];
+    // for (let dialogIndex = 0; dialogIndex < dialogLength; dialogIndex++) {
+    for await (const dialog of dialogArray) {
+      if (this.stop === 1) {
+        if (this.apiCount < 900) {
+          if (dialog.title === "test110") {
+          } else {
+            let channelId = "";
+            let accessHash = "";
+            let chatType = 0;
+            if (dialog.isChannel === true) {
+              chatType = 1;
+              channelId = dialog.inputEntity.channelId.toString();
+              accessHash = dialog.inputEntity.accessHash.toString();
+            } else if (dialog.isUser === true) {
+              chatType = 2;
+              // if (dialog.draft._entity.bot === true && dialog.draft._entity.deleted === false) {
+              // if (dialog.entity.bot === true && dialog.entity.deleted === false) {
+              // if (dialog.draft._entity.bot === true) {
+              if (dialog.entity.bot === true) {
+                channelId = dialog.inputEntity.userId.toString();
+                accessHash = dialog.inputEntity.accessHash.toString();
+              }
+            } else {
+              // channelId = dialog.id.toString();
+              continue;
+            }
+            //console.log(channelId + " : " + accessHash);  //测试
+            if (channelId && accessHash) {
+              const chatCount = await this.selectChat(1, channelId, accessHash);
+              //console.log("chatCount : " + chatCount);  //测试
+              if (parseInt(chatCount) === 0) {
+                count += 1;
+                const username = dialog.entity.username || dialog.draft._entity.username || "";
+                const noforwards = (dialog.entity.noforwards === true || dialog.draft._entity.noforwards === true) ? 1 : 0;
+                await this.insertChat(1, channelId, accessHash, chatType, username, dialog.title, noforwards);
+                //console.log("chat - 新插入chat了 : " + dialog.title);
+                this.sendLog("chat", "新插入chat了 : " + dialog.title, null, false);
+              } else {
+                //console.log("chat - " + count + " : chat已在数据库中 - " + dialog.title);
+                this.sendLog("chat", "chat已在数据库中 - " + dialog.title, null, false);
+              }
+            } else {
+              //console.log("chat - channelId或accessHash错误 : " + dialog.title);
+              this.sendLog("chat", "channelId或accessHash错误 : " + dialog.title, null, true);
+            }
+          }
+        } else {
+          this.stop = 2;
+          //console.log("chat - 超出apiCount限制");
+          this.sendLog("chat", "超出apiCount限制", "limit", true);
+          await this.close();
+          // this.ctx.abort("reset");
+        }
+      } else if (this.stop === 2) {
+        this.broadcast({
+          "result": "pause",
+        });
+        await this.close();
+      }
+    }
+    if (count > 0) {
+      //console.log("chat - 新插入了" + count + "条chat数据");
+      this.sendLog("chat", "新插入了" + count + "条chat数据", null, false);
+    }
+    await this.close();
   }
 
   async webSocketMessage(ws, data) {

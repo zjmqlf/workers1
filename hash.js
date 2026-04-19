@@ -490,8 +490,8 @@ export class WebSocketServer extends DurableObject {
         connectionRetries: Number.MAX_VALUE,
         autoReconnect: true,
         deviceModel: "Desktop",
-        systemVersion: "Windows 10",
-        appVersion: "5.12.3 x64",
+        systemVersion: "Windows 11",
+        appVersion: "6.7.6 x64",
         langCode: "en",
         systemLangCode: "en-US",
         //downloadRetries: 1,
@@ -538,7 +538,7 @@ export class WebSocketServer extends DurableObject {
     this.apiCount += 1;
     let configResult = {};
     try {
-      configResult = await this.env.MAINDB.prepare("SELECT * FROM `CONFIG` WHERE `name` = 'collect' LIMIT 1;").run();
+      configResult = await this.env.MAINDB.prepare("SELECT * FROM `CONFIG` WHERE `name` = 'collect' AND `tgId` = 0 LIMIT 1;").run();
     } catch (e) {
       //console.log("getConfig出错 : " + e);
       this.sendLog("getConfig", "出错 : " + JSON.stringify(e), null, true);
@@ -772,7 +772,7 @@ export class WebSocketServer extends DurableObject {
     this.apiCount += 1;
     let chatResult = {};
     try {
-      chatResult = await this.env.MAINDB.prepare("SELECT * FROM `CHAT` WHERE `Cindex` >= ? AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").bind(this.chatId).run();
+      chatResult = await this.env.MAINDB.prepare("SELECT * FROM `CHAT` WHERE `tgId` = 0 AND `Cindex` >= ? AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").bind(this.chatId).run();
     } catch (e) {
       //console.log("(" + this.currentStep + ")出错 : " + e);
       this.sendLog("nextChat", "出错 : " + JSON.stringify(e), null, true);
@@ -807,7 +807,7 @@ export class WebSocketServer extends DurableObject {
         this.apiCount += 1;
         let chatResult = {};
         try {
-          chatResult = await this.env.MAINDB.prepare("SELECT * FROM `CHAT` WHERE `Cindex` = 0 LIMIT 1;").run();
+          chatResult = await this.env.MAINDB.prepare("SELECT * FROM `CHAT` WHERE `tgId` = 0 AND `Cindex` = 0 LIMIT 1;").run();
         } catch (e) {
           tryCount += 1;
           //console.log("(" + this.currentStep + ")getChat出错 : " + e);
@@ -839,17 +839,18 @@ export class WebSocketServer extends DurableObject {
           this.apiCount += 1;
           let chatResult = {};
           try {
-            if (this.filterType === 0) {
-              chatResult = await this.env.MAINDB.prepare("SELECT * FROM `CHAT` WHERE `current` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").run();
-            } else if (this.filterType === 1) {
-              chatResult = await this.env.MAINDB.prepare("SELECT * FROM `CHAT` WHERE `photo` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").run();
-            } else if (this.filterType === 2) {
-              chatResult = await this.env.MAINDB.prepare("SELECT * FROM `CHAT` WHERE `video` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").run();
-            } else if (this.filterType === 3) {
-              chatResult = await this.env.MAINDB.prepare("SELECT * FROM `CHAT` WHERE `document` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").run();
-            } else if (this.filterType === 4) {
-              chatResult = await this.env.MAINDB.prepare("SELECT * FROM `CHAT` WHERE `gif` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").run();
-            }
+            // if (this.filterType === 0) {
+            //   chatResult = await this.env.MAINDB.prepare("SELECT * FROM `CHAT` WHERE `tgId` = 0 AND `current` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").run();
+            // } else if (this.filterType === 1) {
+            //   chatResult = await this.env.MAINDB.prepare("SELECT * FROM `CHAT` WHERE `tgId` = 0 AND `photo` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").run();
+            // } else if (this.filterType === 2) {
+            //   chatResult = await this.env.MAINDB.prepare("SELECT * FROM `CHAT` WHERE `tgId` = 0 AND `video` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").run();
+            // } else if (this.filterType === 3) {
+            //   chatResult = await this.env.MAINDB.prepare("SELECT * FROM `CHAT` WHERE `tgId` = 0 AND `document` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").run();
+            // } else if (this.filterType === 4) {
+            //   chatResult = await this.env.MAINDB.prepare("SELECT * FROM `CHAT` WHERE `tgId` = 0 AND `gif` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").run();
+            // }
+            chatResult = await this.env.MAINDB.prepare("SELECT * FROM `CHAT` WHERE `tgId` = 0 AND `Cindex` > ? AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").run(this.chatId);
           } catch (e) {
             tryCount += 1;
             //console.log("(" + this.currentStep + ")getChat出错 : " + e);
@@ -895,7 +896,7 @@ export class WebSocketServer extends DurableObject {
     this.apiCount += 1;
     let configResult = {};
     try {
-      configResult = await this.env.MAINDB.prepare("UPDATE `CONFIG` SET `chatId` = ? WHERE `name` = 'collect';").bind(this.chatId).run();
+      configResult = await this.env.MAINDB.prepare("UPDATE `CONFIG` SET `chatId` = ? WHERE `name` = 'collect' AND `tgId` = 0;").bind(this.chatId).run();
     } catch (e) {
       //console.log("updateConfig出错 : " + e);
       this.sendLog("updateConfig", "出错 : " + JSON.stringify(e), null, true);
@@ -2317,7 +2318,7 @@ export class WebSocketServer extends DurableObject {
     this.apiCount += 1;
     let chatResult = {};
     try {
-      chatResult = await this.env.MAINDB.prepare("SELECT COUNT(Cindex) FROM `CHAT` WHERE `channelId` = ? AND `accessHash` = ? LIMIT 1;").bind(channelId, accessHash).run();
+      chatResult = await this.env.MAINDB.prepare("SELECT COUNT(Cindex) FROM `CHAT` WHERE `tgId` = 0 AND `channelId` = ? AND `accessHash` = ? LIMIT 1;").bind(channelId, accessHash).run();
     } catch (e) {
       //console.log("selectChat出错 : " + e);
       this.sendLog("selectChat", "出错 : " + JSON.stringify(e), "try", true);
@@ -2395,13 +2396,12 @@ export class WebSocketServer extends DurableObject {
         if (this.apiCount < 900) {
           let channelId = "";
           let accessHash = "";
-          const isChannel = dialog.isChannel;
-          // console.log("isChannel : " + isChannel);  //测试
-          if (isChannel === true) {
+          if (dialog.isChannel === true) {
             channelId = dialog.inputEntity.channelId.toString();
             accessHash = dialog.inputEntity.accessHash.toString();
           } else {
-            channelId = dialog.id.toString();
+            // channelId = dialog.id.toString();
+            continue;
           }
           //console.log(channelId + " : " + accessHash);  //测试
           if (channelId && accessHash) {

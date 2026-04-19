@@ -367,8 +367,8 @@ export class WebSocketServer extends DurableObject {
         connectionRetries: Number.MAX_VALUE,
         autoReconnect: true,
         deviceModel: "Desktop",
-        systemVersion: "Windows 10",
-        appVersion: "5.12.3 x64",
+        systemVersion: "Windows 11",
+        appVersion: "6.7.6 x64",
         langCode: "en",
         systemLangCode: "en-US",
         //downloadRetries: 1,
@@ -1359,13 +1359,12 @@ export class WebSocketServer extends DurableObject {
         if (this.apiCount < 900) {
           let channelId = "";
           let accessHash = "";
-          const isChannel = dialog.isChannel;
-          // console.log("isChannel : " + isChannel);  //测试
-          if (isChannel === true) {
+          if (dialog.isChannel === true) {
             channelId = dialog.inputEntity.channelId.toString();
             accessHash = dialog.inputEntity.accessHash.toString();
           } else {
-            channelId = dialog.id.toString();
+            // channelId = dialog.id.toString();
+            continue;
           }
           //console.log(channelId + " : " + accessHash);  //测试
           if (channelId && accessHash) {

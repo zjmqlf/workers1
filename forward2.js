@@ -517,8 +517,8 @@ export class WebSocketServer extends DurableObject {
         connectionRetries: 5,
         autoReconnect: true,
         deviceModel: "Desktop",
-        systemVersion: "Windows 10",
-        appVersion: "5.12.3 x64",
+        systemVersion: "Windows 11",
+        appVersion: "6.7.6 x64",
         langCode: "en",
         systemLangCode: "en-US",
       });
@@ -992,17 +992,18 @@ export class WebSocketServer extends DurableObject {
           this.apiCount += 1;
           let chatResult = {};
           try {
-            if (this.tg[clientIndex].filterType === 0) {
-              chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = ? AND `Cindex` > ? AND `noforwards` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").bind(this.tg[clientIndex].clientId, this.tg[clientIndex].chatId).run();
-            } else if (this.tg[clientIndex].filterType === 1) {
-              chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = ? AND `Cindex` > ? AND `noforwards` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").bind(this.tg[clientIndex].clientId, this.tg[clientIndex].chatId).run();
-            } else if (this.tg[clientIndex].filterType === 2) {
-              chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = ? AND `Cindex` > ? AND `noforwards` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").bind(this.tg[clientIndex].clientId, this.tg[clientIndex].chatId).run();
-            } else if (this.tg[clientIndex].filterType === 3) {
-              chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = ? AND `Cindex` > ? AND `noforwards` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").bind(this.tg[clientIndex].clientId, this.tg[clientIndex].chatId).run();
-            } else if (this.tg[clientIndex].filterType === 4) {
-              chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = ? AND `Cindex` > ? AND `noforwards` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").bind(this.tg[clientIndex].clientId, this.tg[clientIndex].chatId).run();
-            }
+            // if (this.tg[clientIndex].filterType === 0) {
+            //   chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = ? AND `current` = 0 AND `noforwards` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").bind(this.tg[clientIndex].clientId).run();
+            // } else if (this.tg[clientIndex].filterType === 1) {
+            //   chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = ? AND `photo` = 0 AND `noforwards` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").bind(this.tg[clientIndex].clientId).run();
+            // } else if (this.tg[clientIndex].filterType === 2) {
+            //   chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = ? AND `video` = 0 AND `noforwards` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").bind(this.tg[clientIndex].clientId).run();
+            // } else if (this.tg[clientIndex].filterType === 3) {
+            //   chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = ? AND `document` = 0 AND `noforwards` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").bind(this.tg[clientIndex].clientId).run();
+            // } else if (this.tg[clientIndex].filterType === 4) {
+            //   chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = ? AND `gif` = 0 AND `noforwards` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").bind(this.tg[clientIndex].clientId).run();
+            // }
+            chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = ? AND `Cindex` > ? AND `noforwards` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").bind(this.tg[clientIndex].clientId, this.tg[clientIndex].chatId).run();
           } catch (e) {
             tryCount += 1;
             //console.log("(" + this.currentStep + ")getChat出错 : " + e);
@@ -1055,11 +1056,13 @@ export class WebSocketServer extends DurableObject {
       ) {
         // count += 1;
         this.tg[clientIndex].count += 1;
-        if (message.media) {
-          if (message.media.document) {
-            this.messageArray.push(message);
-          } else if (message.media.photo) {
-            this.messageArray.push(message);
+        if (message.noforwards === false) {
+          if (message.media) {
+            if (message.media.document) {
+              this.messageArray.push(message);
+            } else if (message.media.photo) {
+              this.messageArray.push(message);
+            }
           }
         }
       }
@@ -2020,13 +2023,12 @@ export class WebSocketServer extends DurableObject {
                   } else {
                     let channelId = "";
                     let accessHash = "";
-                    const isChannel = dialog.isChannel;
-                    // console.log("isChannel : " + isChannel);  //测试
-                    if (isChannel === true) {
+                    if (dialog.isChannel === true) {
                       channelId = dialog.inputEntity.channelId.toString();
                       accessHash = dialog.inputEntity.accessHash.toString();
                     } else {
-                      channelId = dialog.id.toString();
+                      // channelId = dialog.id.toString();
+                      continue;
                     }
                     //console.log(channelId + " : " + accessHash);  //测试
                     if (channelId && accessHash) {

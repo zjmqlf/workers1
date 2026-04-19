@@ -18,12 +18,14 @@
 backup
 build
 browser
+code
 dist
 node_modules
 node_modules1
 lib
 lib-types
 server
+source
 sql
 tmp
 

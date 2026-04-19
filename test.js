@@ -13,7 +13,7 @@ export default {
     let id = "";
     let accessHash = "";
     let fileReference = "";
-    const clientIndex = 2;
+    const clientIndex = 0;
     const client = [null, null, null];
     const apiIdArray = [
       1334621,   //zjm1985
@@ -27,7 +27,7 @@ export default {
     ];
     const sessionStringArray = [
       "1BQAWZmxvcmEud2ViLnRlbGVncmFtLm9yZwG7VxdGmdW/SYRusjfTnUHfhQfqLFA+A30Jios20XKnGGsRB58mFR33Lnpz966333yugE0ysMX/XMP8Urbbm3ADQ/mCq/fdQqA/qUoeG9L2Wy0Y8WcOlikGkNJ2e/nO9pT9nl1YePq5DD/hJ8+eKNL4BvUY70GAth/N/fv7dA4joQzwWhHdA8wdOUaxDQhnSAk9H62zG4fX5zipV+g2qp2WCT6CWCwUtsgZs8FZ9g9/TMmyfLagFmnMe7MhlZdkMfgCtKCXI8MVrGaHq5SpPRqMMCR4SkFrwV+9Eo6NyehH7bzWl1zyyAr6wP8j0jtduckdvkUcmyoDOP2M3AkNgd+ZcQ==",
-      "1BQAWZmxvcmEud2ViLnRlbGVncmFtLm9yZwG7MFhLSZ0gGHyL7Qbuxizzc+mW8bnmTfSKFMletIh9p1CWZwFAAE7KQ+i2L/WZGkiS3V2KNPjhIo9xMm4Ko9KJSetwU7X0XlxZ9QQmM2qNfl7WWpzv/Yd/F1blJDTtz8m6CSJIV7PgT7+JTWdyYajFkg+JqDLIhcrG6tqqkzT/WrKhQp7Qoi1ULuKV4/KwWOx1rH/7vb1TrdeBTZgR77qfawyRErfezIC4WG/dMjr/u918sKFSKVAbVe0BAaToKAlUXJRNIuijAN2rHF+1ITiQZP9lLEK55lpNXTf3ZnsEy+cxlJHFgvbFTq4yKBnYFfnbSs+DFHRR/mjryJhOVyH59g==",
+      "1BQANOTEuMTA4LjU2LjEyOABQLHDMD4nttp5nlyYavCPWP5Mu6WVqx7EprUCty5ZofNENdyWJn6FsczIjIQ95L/qNm5v3Z/pCBJ7kC25NdWudkeIAKXQBrE37b16VObxHq+0oXQk/ySOspHUPJSFy3E1UDPQjFdWS0lbKiAs4Fhd1/P7FYFNpXeGobfi9lfWY8TZlbS0m5+7s2L6bxj/JGWbNFtPL+0B+F0QbhGW9pFdmpdw/eEAiw7ZENCZxY0hJ74KNiPRqunDHXQRiXLPlXU/NoxygvOizxKFsCduCKrcloIrjZTLnbeF26SmNR3EdC8MmC1emxoPyfxd1KpQyWUPRmx+nZBV4NRDZPS3Y8JetHw==",
       "1BQAWZmxvcmEud2ViLnRlbGVncmFtLm9yZwG7be+PddSzlPTzgS/mbCsxeZYLhE9ohnesT10Ntv+pdypA3wfrAUdXGXBLb2uturgLlkO49XMxAsIoELAdi8OprHkYfeEWZrQPF9RqjucdgWviAVd3oy/JIHk6lbB6NCS06US2CMdLZMxAsLFLu2JTgWiI07Xm2tpCIaaYED9mmH7NiROvqBx+jpB2GoFM4xzqaoB3y43BURo/ZYPEM3uUB4AVsS7IwdK0/j8pJL/ChB3buNnNtyVADe8wFvEAcbMn/385Xz53T21BdYqanzMuZX2O9cv4UNCpA9P6HoEYRn0D9XsljY6xJFNdR/RRKGHBqlVLK/Xt6PagRm321YBAvw=="
     ];
 
@@ -40,7 +40,7 @@ export default {
         autoReconnect: true,
         deviceModel: "Desktop",
         systemVersion: "Windows 10",
-        appVersion: "5.12.3 x64",
+        appVersion: "6.7.6 x64",
         langCode: "en",
         systemLangCode: "en-US",
       });
@@ -158,365 +158,435 @@ export default {
     await open(clientIndex);
     // let id = 0;
     if (client[clientIndex]) {
-    // let id = 0;
-    // let channelId = 0;
-    // let accessHash = 0;
-    let index = 0;
-    for await (const dialog of client[clientIndex].iterDialogs({})) {
-      index += 1;
-      if (index === 5) {
-      //   const cache = [];
-      //   const json_str = JSON.stringify(dialog, function(key, value) {
-      //     if (typeof value === 'object' && value !== null) {
-      //       if (cache.indexOf(value) !== -1) {
-      //         return;
+      // let id = 0;
+      // let channelId = 0;
+      // let accessHash = 0;
+      // let index = 0;
+      // for await (const dialog of client[clientIndex].iterDialogs({})) {
+      //   // index += 1;
+      //   // if (index === 5) {
+      //   // //   const cache = [];
+      //   // //   const json_str = JSON.stringify(dialog, function(key, value) {
+      //   // //     if (typeof value === 'object' && value !== null) {
+      //   // //       if (cache.indexOf(value) !== -1) {
+      //   // //         return;
+      //   // //       }
+      //   // //       cache.push(value);
+      //   // //     }
+      //   // //     return value;
+      //   // //   });
+      //   // //   console.log(json_str);  //测试
+      //   // //   break;  //测试
+      //   //   if (dialog.isChannel === true) {
+      //   //     console.log(dialog.entity.username);  //测试
+      //   //     console.log(dialog.draft._entity.username);  //测试
+      //   //     break;  //测试
+      //   //   }
+      //   // }
+      //   // if (dialog.isUser === true) {
+      //   if (dialog.draft._entity.bot === true) {
+      //   // if (dialog.entity.deleted === true || ) {
+      //   // if (dialog.entity.deleted === true || dialog.draft._entity.bot === true) {
+      //     const cache = [];
+      //     const json_str = JSON.stringify(dialog, function(key, value) {
+      //       if (typeof value === 'object' && value !== null) {
+      //         if (cache.indexOf(value) !== -1) {
+      //           return;
+      //         }
+      //         cache.push(value);
       //       }
-      //       cache.push(value);
-      //     }
-      //     return value;
-      //   });
-      //   console.log(json_str);  //测试
-      //   break;  //测试
-        if (dialog.isChannel === true) {
-          console.log(dialog.entity.username);  //测试
-          console.log(dialog.draft._entity.username);  //测试
-          break;  //测试
-        }
+      //       return value;
+      //     });
+      //     console.log(json_str);  //测试
+      //   }
+      //   // console.log(dialog);  //测试
+      //   // console.log(dialog.username);  //测试
+      //   // console.log(JSON.stringify(dialog));  //测试
+      //   //id = dialog.id;
+      //   //console.log(id);  //测试
+      //   // channelId = dialog.inputEntity.channelId;
+      //   // // channelId = dialog.draft._peer.channelId;
+      //   // // channelId = dialog.draft._entity.id;
+      //   // // channelId = dialog.entity.id;
+      //   // accessHash = dialog.inputEntity.accessHash;
+      //   // // accessHash = dialog.draft._entity.accessHash;
+      //   // // accessHash = dialog.entity.accessHash;
+      //   // console.log({"channelId1" : channelId});  //测试
+      //   // console.log({"accessHash2" : accessHash});  //测试
+      //   // break;  //测试
+      // }
+      // return;  //测试
+
+      // const fromPeer = await client[clientIndex].getInputEntity("me");
+      // // console.log(fromPeer);  //测试
+      // console.log(JSON.stringify(fromPeer));  //测试
+      let fromPeer = null;
+      const users = await client[clientIndex].invoke(
+          new Api.users.GetUsers({
+              id: [
+                  new Api.InputUser({
+                      // userId: 7585811878,
+                      // accessHash: bigInt.zero,
+                      // userId: bigInt("8258162826"),
+                      // accessHash: bigInt("-506346121795861663"),
+                      // userId: bigInt("7838817685"),
+                      // accessHash: bigInt("3354545848867173609"),
+                      // userId: bigInt("8468381207"),
+                      // accessHash: bigInt("-4943370949432707555"),
+                      userId: bigInt("8554859780"),
+                      accessHash: bigInt("-6753499946272396397"),
+                  }),
+              ],
+          })
+      );
+      if (users.length && !(users[0] instanceof Api.UserEmpty)) {
+        fromPeer = utils.getInputPeer(users[0]);
       }
-      // console.log(dialog);  //测试
-      // console.log(dialog.username);  //测试
-      // console.log(JSON.stringify(dialog));  //测试
-      //id = dialog.id;
-      //console.log(id);  //测试
-      // channelId = dialog.inputEntity.channelId;
-      // // channelId = dialog.draft._peer.channelId;
-      // // channelId = dialog.draft._entity.id;
-      // // channelId = dialog.entity.id;
-      // accessHash = dialog.inputEntity.accessHash;
-      // // accessHash = dialog.draft._entity.accessHash;
-      // // accessHash = dialog.entity.accessHash;
-      // console.log({"channelId1" : channelId});  //测试
-      // console.log({"accessHash2" : accessHash});  //测试
-      // break;  //测试
-    }
-    // const fromPeer = await client[clientIndex].getInputEntity("me");
-    // // console.log(fromPeer);  //测试
-    // console.log(JSON.stringify(fromPeer));  //测试
-    // const toPeer = await client[clientIndex].invoke(
-    //     new Api.users.GetUsers({
-    //         id: [
-    //             new Api.InputUser({
-    //                 userId: 7585811878,
-    //                 accessHash: bigInt.zero,
-    //             }),
-    //         ],
-    //     })
-    // );
-    // console.log(JSON.stringify(toPeer));  //测试
+      // console.log(JSON.stringify(fromPeer));  //测试
 
-    // const timeOut = new Promise((resolve, reject) => {
-    //   setTimeout(() => {
-    //     return resolve();
-    //     // return reject(new Error("error"));
-    //   }, 5000);
-    // });
-    // // await Promise.race([
-    // //   client[clientIndex].getInputEntity(8349419657),
-    // //   timeOut
-    // // ]).then((value) => {
-    // //   console.log(value);  //测试
-    // //   console.log({"value" : "111"});  //测试
-    // // });
-    // const value = await Promise.race([
-    //   // client[clientIndex].getInputEntity(8349419657),
-    //   client[clientIndex].invoke(
-    //       new Api.users.GetUsers({
-    //           id: [
-    //               new Api.InputUser({
-    //                   userId: 7585811878,
-    //                   accessHash: bigInt.zero,
-    //               }),
-    //           ],
-    //       })
-    //   ),
-    //   timeOut
-    // ]);
-    // console.log(value);  //测试
-    // console.log({"value" : "111"});  //测试
+      // const timeOut = new Promise((resolve, reject) => {
+      //   setTimeout(() => {
+      //     return resolve();
+      //     // return reject(new Error("error"));
+      //   }, 5000);
+      // });
+      // // await Promise.race([
+      // //   client[clientIndex].getInputEntity(8349419657),
+      // //   timeOut
+      // // ]).then((value) => {
+      // //   console.log(value);  //测试
+      // //   console.log({"value" : "111"});  //测试
+      // // });
+      // const value = await Promise.race([
+      //   // client[clientIndex].getInputEntity(8349419657),
+      //   client[clientIndex].invoke(
+      //       new Api.users.GetUsers({
+      //           id: [
+      //               new Api.InputUser({
+      //                   userId: 7585811878,
+      //                   accessHash: bigInt.zero,
+      //               }),
+      //           ],
+      //       })
+      //   ),
+      //   timeOut
+      // ]);
+      // console.log(value);  //测试
+      // console.log({"value" : "111"});  //测试
 
-    // let toPeer = null;
-    // const users = await client[clientIndex].invoke(
-    //   new Api.users.GetUsers({
-    //     id: [
-    //       new Api.InputUser({
-    //         userId: 2029656369,
-    //         accessHash: bigInt.zero,
-    //       }),
-    //     ],
-    //   })
-    // );
-    // // console.log(users);  //测试
-    // // console.log(users.length);  //测试
-    // if (users.length && !(users[0] instanceof Api.UserEmpty)) {
-    //   toPeer = utils.getInputPeer(users[0]);
-    // }
-    // console.log(toPeer);  //测试
-    // console.log(JSON.stringify(toPeer));  //测试
+      let toPeer = null;
+      const toUsers = await client[clientIndex].invoke(
+        new Api.users.GetUsers({
+          id: [
+            new Api.InputUser({
+              userId: 2029656369,   //zjm4038
+              accessHash: bigInt.zero,
+            }),
+          ],
+        })
+      );
+      // console.log(toUsers);  //测试
+      // console.log(toUsers.length);  //测试
+      if (toUsers.length && !(toUsers[0] instanceof Api.UserEmpty)) {
+        toPeer = utils.getInputPeer(toUsers[0]);
+      }
+      // console.log(toPeer);  //测试
+      // console.log(JSON.stringify(toPeer));  //测试
 
-    // channelId = bigInt(channelId.toString());
-    // accessHash = bigInt(accessHash.toString());
-    // const result = await client[clientIndex].invoke(new Api.channels.GetChannels({
-    //   id: [new Api.InputChannel({
-    //     channelId: channelId,
-    //     accessHash: accessHash,
-    //   })],
-    // }));
-    // //console.log(result);  //测试
-    // console.log(result.chats.length);  //测试
-    // console.log(result.chats[0]);  //测试
+      // channelId = bigInt(channelId.toString());
+      // accessHash = bigInt(accessHash.toString());
+      // const result = await client[clientIndex].invoke(new Api.channels.GetChannels({
+      //   id: [new Api.InputChannel({
+      //     channelId: channelId,
+      //     accessHash: accessHash,
+      //   })],
+      // }));
+      // //console.log(result);  //测试
+      // console.log(result.chats.length);  //测试
+      // console.log(result.chats[0]);  //测试
 
-    // await open(2);
-    // for await (const dialog of client[2].iterDialogs({})) {
-    //   // console.log(dialog);  //测试
-    //   //id = dialog.id;
-    //   //console.log(id);  //测试
-    //   channelId = dialog.inputEntity.channelId;
-    //   accessHash = dialog.inputEntity.accessHash;
-    //   console.log({"channelId2" : channelId});  //测试
-    //   console.log({"accessHash2" : accessHash});  //测试
-    //   // console.log(JSON.stringify(dialog));  //测试
-    //   break;
-    // }
+      // await open(2);
+      // for await (const dialog of client[2].iterDialogs({})) {
+      //   // console.log(dialog);  //测试
+      //   //id = dialog.id;
+      //   //console.log(id);  //测试
+      //   channelId = dialog.inputEntity.channelId;
+      //   accessHash = dialog.inputEntity.accessHash;
+      //   console.log({"channelId2" : channelId});  //测试
+      //   console.log({"accessHash2" : accessHash});  //测试
+      //   // console.log(JSON.stringify(dialog));  //测试
+      //   break;
+      // }
 
-    // const idArray = [];
-    // const fileIdArray = [];
-    // for await (const message of client[clientIndex].iterMessages(
-    //     "me",
-    //     {
-    //       limit: 20,
-    //       // reverse: false,
-    //       reverse: true,
-    //       // addOffset: 10000,
-    //       addOffset: -1,
-    //       filter: Api.InputMessagesFilterVideo,
-    //       waitTime: 60,
-    //     })
-    //   ) {
-    //     // const forwardResult = await client[clientIndex].invoke(new Api.messages.ForwardMessages({
-    //     //   silent: true,
-    //     //   background: true,
-    //     //   withMyScore: true,
-    //     //   fromPeer: fromPeer,
-    //     //   toPeer: toPeer,
-    //     //   id: [message.id],
-    //     //   randomId: [message.id],
-    //     //   //scheduleDate: 0,
-    //     // }));
-    //     // // console.log(JSON.stringify(forwardResult));  //测试
-    //     // console.log("-------------------------------------------------------------");  //测试
-    //     // break;
-    //     //console.log(forwardResult);  //测试
-    //     if (message.media) {
-    //       if (message.media.document) {
-    //         const result = await client[clientIndex].invoke(new Api.messages.SendMedia({
-    //           // peer: "me",
-    //           peer: toPeer,
-    //           media: message.media,
-    //           message: message.message,
-    //           // entities: msgEntities,
-    //           // replyTo: replyObject,
-    //           // replyMarkup: markup,
-    //           // silent: silent,
-    //           // scheduleDate: scheduleDate,
-    //           // clearDraft: clearDraft,
-    //           // noforwards: false,
-    //           // sendAs: sendAs,
-    //           // effect: effect,
-    //           // invertMedia: invertMedia,
-    //         }));
-    //         const messageId = message.id;
-    //         console.log("messageId : " + messageId);  //测试
-    //         if (messageId > 0) {
-    //           const messageResult = await selectMessage(messageId);
-    //           // console.log(messageResult);  //测试
-    //           const dbIndex = messageResult.dbIndex;
-    //           const ids = JSON.parse(messageResult.ids);
-    //           const length = ids.length;
-    //           if (dbIndex > 0 && length > 0) {
-    //             const mediaResult = await selectMedia(dbIndex, ids[0]);
-    //             const hash = JSON.parse(mediaResult.hash);
-    //             console.log("hash : " + hash[0]);  //测试
-    //             const hashLength = hash.length;
-    //             const size = parseInt(message.media.document.size);
-    //             const count = Math.ceil(size / 131072);
-    //             if (count === hashLength) {
-    //               const fileArray = [];
-    //               const info = utils.getFileInfo(message.media);
-    //               let sender = await client[clientIndex].getSender(info.dcId);
-    //               for (let currentPart = 0; currentPart < count; currentPart++) {
-    //                 let result = undefined;
-    //                 try {
-    //                   result = await client[clientIndex].invokeWithSender(
-    //                     new Api.upload.GetFile({
-    //                       location: info.location,
-    //                       offset: currentPart * 131072,
-    //                       limit: 131072,
-    //                     }),
-    //                     sender
-    //                   );
-    //                 } catch (e) {
-    //                 }
-    //                 if (result) {
-    //                   const buffer = result.bytes;
-    //                   console.log("buffer length : " + buffer.length);  //测试
-    //                   const md5 = crypto.createHash("md5");
-    //                   md5.update(buffer);
-    //                   const md5Result = md5.digest("hex");
-    //                   console.log("md5 : " + md5Result);  //测试
-    //                   const sha1 = crypto.createHash("sha1");
-    //                   const sha1Result = sha1.update(buffer).digest("hex");
-    //                   console.log("sha1 : " + sha1Result);  //测试
-    //                   const sha2 = crypto.createHash("sha256");
-    //                   const sha2Result = sha2.update(buffer).digest("hex");
-    //                   console.log("sha2 : " + sha2Result);  //测试
-    //                   if (sha2Result === hash[0]) {
-    //                     const key = Buffer.from(sha2Result.substring(0, 32), "utf8");
-    //                     const iv = Buffer.from(md5Result.substring(8, 24), "utf8");
-    //                     const cipher = crypto.createCipheriv("aes-256-cbc", key, iv);
-    //                     let sign = [];
-    //                     sign.push(cipher.update(buffer));
-    //                     sign.push(cipher.final());
-    //                     sign = Buffer.concat(sign);
-    //                     // console.log("sign type : " + typeof sign);  //测试
-    //                     // console.log("sign : " + sign);  //测试
-    //                     console.log("sign length : " + sign.length);  //测试
-    //                     const newMd5 = crypto.createHash("md5");
-    //                     newMd5.update(sign);
-    //                     const filename = newMd5.digest("hex");
-    //                     console.log("filename : " + filename);  //测试
-    //                     fileArray.push(filename);
-    //                     // const accessToken = await getCurrentToken(driveIndex, i);
-    //                     // await uploadFile(accessToken, drive, filename, sign, currentPart);
-    //                   } else {
-    //                     console.log("!hash");  //测试
-    //                   }
-    //                 } else {
-    //                   console.log("!result");  //测试
-    //                 }
-    //                 break;  //测试
-    //               }
-    //             } else {
-    //               console.log("!=");  //测试
-    //             }
-    //           }
-    //         }
-    //         break;  //测试
-    //         // // console.log(message);  //测试
-    //         // // console.log(JSON.stringify(message));  //测试
-    //         // dcId = message.media.document.dcId;
-    //         // id = message.media.document.id.toString();
-    //         // accessHash = message.media.document.accessHash.toString();
-    //         // fileReference = message.media.document.fileReference.toString("base64");
-    //         // // fileReference = message.media.document.fileReference.toString("utf8");
-    //         // // const decoder = new TextDecoder('utf-8');
-    //         // // const decoder = new TextDecoder();
-    //         // // fileReference = decoder.decode(message.media.document.fileReference);
-    //         // // console.log(id);  //测试   6102674127003320582
-    //         // // console.log(Number(message.media.document.id));  //测试   6102674127003320000
-    //         // // console.log(dcId);  //测试
-    //         // // console.log(id);  //测试
-    //         // // console.log(accessHash);  //测试
-    //         // // console.log(fileReference);  //测试
-    //         // // const mediaInfo = await env.DB.prepare("INSERT INTO `MEDIA` (id, accessHash, dcId, fileReference) VALUES (?, ?, ?, ?);").bind(id, accessHash, dcId, fileReference).run();
-    //         // // //console.log(mediaInfo);  //测试
-    //         // // if (mediaInfo.success === true) {
-    //         // //   console.log("插入media数据成功");
-    //         // // } else {
-    //         // //   console.log("插入media数据失败");
-    //         // // }
-    //         // //console.log(JSON.stringify(message));  //测试
-    //         // // id = message.id;
-    //         // // channelId = message.savedPeerId.channelId.toString();
-    //         // // if (message.savedPeerId.accessHash) {
-    //         // //   channelAccessHash = message.savedPeerId.accessHash.toString();
-    //         // // }
-    //         // // console.log(id);  //测试
-    //         // // const result = await client[clientIndex].invoke(new Api.messages.GetMessages({
-    //         // //   id: [new Api.InputMessageID({ id: id })],
-    //         // // }));
-    //         // // console.log(result);  //测试
-    //         // // //console.log(result.chats.length);  //测试
-    //         // // //console.log(result.chats[0]);  //测试
-    //         // // console.log(result.messages.length);  //测试
-    //         // // console.log(result.messages[0]);  //测试
-    //         // const info = utils.getFileInfo(message.media);
-    //         // let sender = await client[clientIndex].getSender(info.dcId);
-    //         // let hashes = await client[clientIndex].invokeWithSender(
-    //         //   new Api.upload.GetFileHashes({
-    //         //     location: info.location,
-    //         //     offset: 0,
-    //         //   }),
-    //         //   sender
-    //         // );
-    //         // let hash = [];
-    //         // let length = hashes.length;
-    //         // if (length > 0) {
-    //         //   for (let i = 0; i < length; i++) {
-    //         //     hash.push(hashes[i].hash.toString("hex"));
-    //         //   }
-    //         // }
-    //         // //console.log(hash);  //测试
-    //         // console.log(JSON.stringify(hash));  //测试
+      // const idArray = [];
+      // const fileIdArray = [];
+      for await (const message of client[clientIndex].iterMessages(
+          // "me",
+          fromPeer,
+          {
+            limit: 10,
+            // reverse: false,
+            reverse: true,
+            // addOffset: 10000,
+            addOffset: -1,
+            filter: Api.InputMessagesFilterVideo,
+            waitTime: 60,
+          })
+        ) {
+          // const forwardResult = await client[clientIndex].invoke(new Api.messages.ForwardMessages({
+          //   silent: true,
+          //   background: true,
+          //   withMyScore: true,
+          //   fromPeer: fromPeer,
+          //   toPeer: toPeer,
+          //   id: [message.id],
+          //   randomId: [message.id],
+          //   //scheduleDate: 0,
+          // }));
+          // // console.log(JSON.stringify(forwardResult));  //测试
+          // console.log("-------------------------------------------------------------");  //测试
+          // break;
+          //console.log(forwardResult);  //测试
+          console.log(message);  //测试
+          if (message.media) {
+            if (message.media.document) {
+              try {
+                // let media = message.media;
+                // if (media instanceof Api.InputMediaUploadedDocument) {
+                //   const r = await client[clientIndex].invoke(
+                //       new Api.messages.UploadMedia({
+                //           peer: toPeer,
+                //           media: media,
+                //       })
+                //   );
+                //   console.log(r);  //测试
+                //   if (r instanceof Api.MessageMediaDocument) {
+                //       media = utils.getInputMedia(r.document);
+                //   }
+                // }
+                // console.log(media);  //测试
+                const result = await client[clientIndex].invoke(new Api.messages.SendMedia({
+                  // peer: "me",
+                  peer: toPeer,
+                  media: message.media,
+                  message: message.message,
+                  // entities: msgEntities,
+                  // replyTo: replyObject,
+                  // replyMarkup: markup,
+                  // silent: silent,
+                  // scheduleDate: scheduleDate,
+                  // clearDraft: clearDraft,
+                  // noforwards: false,
+                  // sendAs: sendAs,
+                  // effect: effect,
+                  // invertMedia: invertMedia,
+                }));
+                console.log(result);  //测试
+              } catch (e) {
+                console.log(e);  //测试
+              }
+              // try {
+              //   const forwardResult = await client[clientIndex].invoke(new Api.messages.ForwardMessages({
+              //     fromPeer: fromPeer,
+              //     id: [message.id],
+              //     randomId: [message.media.document.id],
+              //     toPeer: toPeer,
+              //     silent: true,
+              //     background: true,
+              //     withMyScore: true,
+              //     dropAuthor: true,
+              //     dropMediaCaptions: true,
+              //     // noforwards: true,
+              //     // scheduleDate: 0,
+              //     // sendAs: "username",
+              //   }));
+              //   console.log(forwardResult);  //测试
+              // } catch (e) {
+              //   console.log(e);  //测试
+              // }
+              // const messageId = message.id;
+              // console.log("messageId : " + messageId);  //测试
+              // if (messageId > 0) {
+              //   const messageResult = await selectMessage(messageId);
+              //   // console.log(messageResult);  //测试
+              //   const dbIndex = messageResult.dbIndex;
+              //   const ids = JSON.parse(messageResult.ids);
+              //   const length = ids.length;
+              //   if (dbIndex > 0 && length > 0) {
+              //     const mediaResult = await selectMedia(dbIndex, ids[0]);
+              //     const hash = JSON.parse(mediaResult.hash);
+              //     console.log("hash : " + hash[0]);  //测试
+              //     const hashLength = hash.length;
+              //     const size = parseInt(message.media.document.size);
+              //     const count = Math.ceil(size / 131072);
+              //     if (count === hashLength) {
+              //       const fileArray = [];
+              //       const info = utils.getFileInfo(message.media);
+              //       let sender = await client[clientIndex].getSender(info.dcId);
+              //       for (let currentPart = 0; currentPart < count; currentPart++) {
+              //         let result = undefined;
+              //         try {
+              //           result = await client[clientIndex].invokeWithSender(
+              //             new Api.upload.GetFile({
+              //               location: info.location,
+              //               offset: currentPart * 131072,
+              //               limit: 131072,
+              //             }),
+              //             sender
+              //           );
+              //         } catch (e) {
+              //         }
+              //         if (result) {
+              //           const buffer = result.bytes;
+              //           console.log("buffer length : " + buffer.length);  //测试
+              //           const md5 = crypto.createHash("md5");
+              //           md5.update(buffer);
+              //           const md5Result = md5.digest("hex");
+              //           console.log("md5 : " + md5Result);  //测试
+              //           const sha1 = crypto.createHash("sha1");
+              //           const sha1Result = sha1.update(buffer).digest("hex");
+              //           console.log("sha1 : " + sha1Result);  //测试
+              //           const sha2 = crypto.createHash("sha256");
+              //           const sha2Result = sha2.update(buffer).digest("hex");
+              //           console.log("sha2 : " + sha2Result);  //测试
+              //           if (sha2Result === hash[0]) {
+              //             const key = Buffer.from(sha2Result.substring(0, 32), "utf8");
+              //             const iv = Buffer.from(md5Result.substring(8, 24), "utf8");
+              //             const cipher = crypto.createCipheriv("aes-256-cbc", key, iv);
+              //             let sign = [];
+              //             sign.push(cipher.update(buffer));
+              //             sign.push(cipher.final());
+              //             sign = Buffer.concat(sign);
+              //             // console.log("sign type : " + typeof sign);  //测试
+              //             // console.log("sign : " + sign);  //测试
+              //             console.log("sign length : " + sign.length);  //测试
+              //             const newMd5 = crypto.createHash("md5");
+              //             newMd5.update(sign);
+              //             const filename = newMd5.digest("hex");
+              //             console.log("filename : " + filename);  //测试
+              //             fileArray.push(filename);
+              //             // const accessToken = await getCurrentToken(driveIndex, i);
+              //             // await uploadFile(accessToken, drive, filename, sign, currentPart);
+              //           } else {
+              //             console.log("!hash");  //测试
+              //           }
+              //         } else {
+              //           console.log("!result");  //测试
+              //         }
+              //         break;  //测试
+              //       }
+              //     } else {
+              //       console.log("!=");  //测试
+              //     }
+              //   }
+              // }
+              // break;  //测试
+              // // console.log(message);  //测试
+              // // console.log(JSON.stringify(message));  //测试
+              // dcId = message.media.document.dcId;
+              // id = message.media.document.id.toString();
+              // accessHash = message.media.document.accessHash.toString();
+              // fileReference = message.media.document.fileReference.toString("base64");
+              // // fileReference = message.media.document.fileReference.toString("utf8");
+              // // const decoder = new TextDecoder('utf-8');
+              // // const decoder = new TextDecoder();
+              // // fileReference = decoder.decode(message.media.document.fileReference);
+              // // console.log(id);  //测试   6102674127003320582
+              // // console.log(Number(message.media.document.id));  //测试   6102674127003320000
+              // // console.log(dcId);  //测试
+              // // console.log(id);  //测试
+              // // console.log(accessHash);  //测试
+              // // console.log(fileReference);  //测试
+              // // const mediaInfo = await env.DB.prepare("INSERT INTO `MEDIA` (id, accessHash, dcId, fileReference) VALUES (?, ?, ?, ?);").bind(id, accessHash, dcId, fileReference).run();
+              // // //console.log(mediaInfo);  //测试
+              // // if (mediaInfo.success === true) {
+              // //   console.log("插入media数据成功");
+              // // } else {
+              // //   console.log("插入media数据失败");
+              // // }
+              // //console.log(JSON.stringify(message));  //测试
+              // // id = message.id;
+              // // channelId = message.savedPeerId.channelId.toString();
+              // // if (message.savedPeerId.accessHash) {
+              // //   channelAccessHash = message.savedPeerId.accessHash.toString();
+              // // }
+              // // console.log(id);  //测试
+              // // const result = await client[clientIndex].invoke(new Api.messages.GetMessages({
+              // //   id: [new Api.InputMessageID({ id: id })],
+              // // }));
+              // // console.log(result);  //测试
+              // // //console.log(result.chats.length);  //测试
+              // // //console.log(result.chats[0]);  //测试
+              // // console.log(result.messages.length);  //测试
+              // // console.log(result.messages[0]);  //测试
+              // const info = utils.getFileInfo(message.media);
+              // let sender = await client[clientIndex].getSender(info.dcId);
+              // let hashes = await client[clientIndex].invokeWithSender(
+              //   new Api.upload.GetFileHashes({
+              //     location: info.location,
+              //     offset: 0,
+              //   }),
+              //   sender
+              // );
+              // let hash = [];
+              // let length = hashes.length;
+              // if (length > 0) {
+              //   for (let i = 0; i < length; i++) {
+              //     hash.push(hashes[i].hash.toString("hex"));
+              //   }
+              // }
+              // //console.log(hash);  //测试
+              // console.log(JSON.stringify(hash));  //测试
 
-    //     //     // const mediaResult = await env.DB.prepare("SELECT * FROM `MEDIA` WHERE `id` = ? AND `accessHash` = ?;").bind(id, accessHash).first();
-    //     //     // //console.log(mediaResult);  //测试
-    //     //     // if (mediaResult) {
-    //     //     //   dcId = mediaResult.dcId;
-    //     //     //   id = mediaResult.id;
-    //     //     //   accessHash = mediaResult.accessHash;
-    //     //     //   fileReference = Buffer.from(mediaResult.fileReference);
-    //     //     //   // console.log(dcId);  //测试
-    //     //     //   // console.log(id);  //测试
-    //     //     //   // console.log(accessHash);  //测试
-    //     //     //   // console.log(fileReference);  //测试
-    //     //     //   id = bigInt(id);
-    //     //     //   accessHash = bigInt(accessHash);
-    //     //     //   sender = await client[clientIndex].getSender(dcId);
-    //     //     //   const location = await new Api.InputDocumentFileLocation({
-    //     //     //     id: id,
-    //     //     //     accessHash: accessHash,
-    //     //     //     fileReference: fileReference,
-    //     //     //     thumbSize: "",
-    //     //     //   });
-    //     //     //   hashes = await client[clientIndex].invokeWithSender(
-    //     //     //     new Api.upload.GetFileHashes({
-    //     //     //       location: location,
-    //     //     //       offset: 0,
-    //     //     //     }),
-    //     //     //     sender
-    //     //     //   );
-    //     //     //   hash = [];
-    //     //     //   length = hashes.length;
-    //     //     //   if (length > 0) {
-    //     //     //     for (let i = 0; i < length; i++) {
-    //     //     //       hash.push(hashes[i].hash.toString("hex"));
-    //     //     //     }
-    //     //     //   }
-    //     //     //   //console.log(hash);  //测试
-    //     //     //   console.log(JSON.stringify(hash));  //测试
-    //     //     // }
-    //         // console.log("-------------------------------------------------------------");  //测试
-    //         // break;  //测试
-    //       }
-    //     // } else {
-    //     //   console.log(message);  //测试
-    //     //   idArray.push(message.id);  //测试
-    //     //   fileIdArray.push(message.id);  //测试
-    //     }
-    //     // break;  //测试
-    //   }
-      // console.log(idArray);  //测试
-      // console.log(idArray.length);  //测试
+              // const mediaResult = await env.DB.prepare("SELECT * FROM `MEDIA` WHERE `id` = ? AND `accessHash` = ?;").bind(id, accessHash).first();
+              // //console.log(mediaResult);  //测试
+              // if (mediaResult) {
+              //   dcId = mediaResult.dcId;
+              //   id = mediaResult.id;
+              //   accessHash = mediaResult.accessHash;
+              //   fileReference = Buffer.from(mediaResult.fileReference);
+              //   // console.log(dcId);  //测试
+              //   // console.log(id);  //测试
+              //   // console.log(accessHash);  //测试
+              //   // console.log(fileReference);  //测试
+              //   id = bigInt(id);
+              //   accessHash = bigInt(accessHash);
+              //   sender = await client[clientIndex].getSender(dcId);
+              //   const location = await new Api.InputDocumentFileLocation({
+              //     id: id,
+              //     accessHash: accessHash,
+              //     fileReference: fileReference,
+              //     thumbSize: "",
+              //   });
+              //   hashes = await client[clientIndex].invokeWithSender(
+              //     new Api.upload.GetFileHashes({
+              //       location: location,
+              //       offset: 0,
+              //     }),
+              //     sender
+              //   );
+              //   hash = [];
+              //   length = hashes.length;
+              //   if (length > 0) {
+              //     for (let i = 0; i < length; i++) {
+              //       hash.push(hashes[i].hash.toString("hex"));
+              //     }
+              //   }
+              //   //console.log(hash);  //测试
+              //   console.log(JSON.stringify(hash));  //测试
+              // }
+              // console.log("-------------------------------------------------------------");  //测试
+              break;  //测试
+            }
+          // } else {
+          //   console.log(message);  //测试
+          //   idArray.push(message.id);  //测试
+          //   fileIdArray.push(message.id);  //测试
+          }
+          // break;  //测试
+        }
+        // console.log(idArray);  //测试
+        // console.log(idArray.length);  //测试
       
       // const forwardResult = await client[clientIndex].invoke(new Api.messages.ForwardMessages({
       //   fromPeer: "me",
