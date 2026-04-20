@@ -228,16 +228,10 @@ export default {
             new Api.InputUser({
               // userId: 7585811878,
               // accessHash: bigInt.zero,
-              // userId: bigInt("8258162826"),
-              // accessHash: bigInt("-506346121795861663"),
-              // userId: bigInt("7838817685"),
-              // accessHash: bigInt("3354545848867173609"),
-              userId: bigInt("8468381207"),
-              accessHash: bigInt("-4943370949432707555"),
-              // userId: bigInt("8554859780"),
-              // accessHash: bigInt("-6753499946272396397"),
-              // userId: bigInt("8275455186"),  //showcode1bot
-              // accessHash: bigInt("1860594240230276449"),
+              // userId: bigInt("7964900739"),  //lockhive_bot
+              // accessHash: bigInt("-5856254949516087696"),
+              userId: bigInt("8644136882"),  //nnfilebot
+              accessHash: bigInt("-1388224743701786177"),
             }),
           ],
         })
@@ -245,7 +239,7 @@ export default {
       if (users.length && !(users[0] instanceof Api.UserEmpty)) {
         fromPeer = utils.getInputPeer(users[0]);
       }
-      console.log(JSON.stringify(fromPeer));  //测试
+      // console.log(JSON.stringify(fromPeer));  //测试
 
       // const peer = new Api.InputPeerSelf();
       // const message = "showfilesbot_4P_2V_U127T6s5B982l8i9R0k6";
@@ -341,10 +335,11 @@ export default {
           fromPeer,
           {
             limit: 10,
-            // reverse: false,
-            reverse: true,
+            reverse: false,
+            // reverse: true,
             // addOffset: 10000,
-            addOffset: -1,
+            // addOffset: -1,
+            addOffset: 1,
             filter: Api.InputMessagesFilterVideo,
             waitTime: 60,
           })
@@ -362,45 +357,65 @@ export default {
           // // console.log(JSON.stringify(forwardResult));  //测试
           // console.log("-------------------------------------------------------------");  //测试
           // break;
-          //console.log(forwardResult);  //测试
+          // //console.log(forwardResult);  //测试
           console.log(message);  //测试
+          // if (message.replyMarkup) {
+          //   if (message.replyMarkup.rows) {
+          //     // console.log(message);  //测试
+          //     for (const row of message.replyMarkup.rows) {
+          //       // console.log(row);  //测试
+          //       for (let button of row.buttons) {
+          //         // console.log(button);  //测试
+          //         await client[clientIndex].invoke(new Api.messages.GetBotCallbackAnswer({
+          //           peer: fromPeer,
+          //           msgId: message.id,
+          //           data: button.data,
+          //           // password: encryptedPassword,
+          //         }));
+          //       }
+          //     }
+          //   }
+          // }
           if (message.media) {
             if (message.media.document) {
-              // try {
-              //   // let media = message.media;
-              //   // if (media instanceof Api.InputMediaUploadedDocument) {
-              //   //   const r = await client[clientIndex].invoke(
-              //   //       new Api.messages.UploadMedia({
-              //   //           peer: toPeer,
-              //   //           media: media,
-              //   //       })
-              //   //   );
-              //   //   console.log(r);  //测试
-              //   //   if (r instanceof Api.MessageMediaDocument) {
-              //   //       media = utils.getInputMedia(r.document);
-              //   //   }
-              //   // }
-              //   // console.log(media);  //测试
-              //   const result = await client[clientIndex].invoke(new Api.messages.SendMedia({
-              //     // peer: "me",
-              //     peer: toPeer,
-              //     media: message.media,
-              //     message: message.message,
-              //     // entities: msgEntities,
-              //     // replyTo: replyObject,
-              //     // replyMarkup: markup,
-              //     // silent: silent,
-              //     // scheduleDate: scheduleDate,
-              //     // clearDraft: clearDraft,
-              //     // noforwards: false,
-              //     // sendAs: sendAs,
-              //     // effect: effect,
-              //     // invertMedia: invertMedia,
-              //   }));
-              //   console.log(result);  //测试
-              // } catch (e) {
-              //   console.log(e);  //测试
-              // }
+              try {
+                // let media = message.media;
+                // if (media instanceof Api.InputMediaUploadedDocument) {
+                //   const r = await client[clientIndex].invoke(
+                //     new Api.messages.UploadMedia({
+                //       peer: toPeer,
+                //       media: media,
+                //     })
+                //   );
+                //   console.log(r);  //测试
+                //   if (r instanceof Api.MessageMediaDocument) {
+                //     media = utils.getInputMedia(r.document);
+                //   }
+                // }
+                // console.log(media);  //测试
+                message.noforwards = false;
+                message.media.document.id = "0000000000000000000";
+                message.media.document.accessHash = "0000000000000000000";
+                const result = await client[clientIndex].invoke(new Api.messages.SendMedia({
+                  // peer: "me",
+                  peer: toPeer,
+                  media: message.media,
+                  message: message.message,
+                  // entities: msgEntities,
+                  // replyTo: replyObject,
+                  // replyMarkup: markup,
+                  // silent: silent,
+                  // scheduleDate: scheduleDate,
+                  // clearDraft: clearDraft,
+                  // noforwards: false,
+                  // sendAs: sendAs,
+                  // effect: effect,
+                  // invertMedia: invertMedia,
+                }));
+                console.log(result);  //测试
+              } catch (e) {
+                console.log(e);  //测试
+              }
               // try {
               //   const forwardResult = await client[clientIndex].invoke(new Api.messages.ForwardMessages({
               //     fromPeer: fromPeer,

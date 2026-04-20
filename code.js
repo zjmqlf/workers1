@@ -11,11 +11,12 @@ const atfileslinksbot = [];
 const lockHivebot = [];
 const ntmjmqbot = [];
 const newjmqbot = [];
-const mtfxqbot = [];
+const filepanbot = [];
 // const QQfilebot = [];
 // const messengercode = [];
 const myseseXBot = [];
 const save2BoxBot = [];
+const mtfxqbot = [];
 const mediaBK2Bot = [];
 const mouseFilebot = [];
 const dataPanBot = [];
@@ -33,6 +34,7 @@ const atfileslinksbotRegexp = /(atfileslinksbot_\d*p*_*\d*v*_*\d*d*_[A-Za-z0-9]{
 const lockHivebotRegexp = /(LockHivebot_[A-Za-z0-9]{16})/gi;   //lockHivebot
 const ntmjmqbotRegexp = /(ntmjmqbot_\d+p_\d+v_\d+d_[A-Za-z0-9]{13})/gi;   //ntmjmqbot
 const newjmqbotRegexp = /(newjmqbot_\d+p_\d+v_\d+d_[A-Za-z0-9]{13})/gi;   //newjmqbot
+const filepanbotRegexp = /(@filepan_bot:_\d*P*_*\d*V*_*\d*D*_[A-Za-z0-9]{12})/gi;   //filepanbot
 const myseseXBotRegexp = /(myseseXBot_\d+p_\d+v_\d+d_[A-Za-z0-9]{13})/gi;   //myseseXBot
 const save2BoxBotRegexp = /(Save2BoxBot_\d+p_\d+v_\d+d_[A-Za-z0-9]{13})/gi;   //save2BoxBot
 const mtfxqbotRegexp = /(mtfxqbot_[0-9PVD_]*_[A-Za-z0-9]{20})/gi;   //mtfxqbot
@@ -48,6 +50,7 @@ const D_DataPanBotRegexp = /(D_DataPanBot_[A-Za-z0-9_\-]*)/gi;   //p_FilesPan1Bo
 const p_FilesPan1BotRegexp = /(p_FilesPan1Bot_[A-Za-z0-9_\-]*)/gi;   //p_FilesPan1Bot
 const v_FilesPan1BotRegexp = /(v_FilesPan1Bot_[A-Za-z0-9_\-]*)/gi;   //v_FilesPan1Bot
 // const str = "炼铜基地原创媒体组分此条媒体分此条媒体分享newjmqbot_0p_32v_4d_uaBpSUCc8NAEd载下来慢慢看这个有人有更多吗结尾 [主要推";
+let all = 0;
 let data = [];
 try {
   // data = fs.readFileSync("./source/ntmssqbot.txt", "utf-8");
@@ -108,8 +111,59 @@ try {
   // data = fs.readFileSync("./source/3月整合.txt", "utf-8");
   // data = fs.readFileSync("./source/FilesDriveRobot.txt", "utf-8");
   // data = fs.readFileSync("./source/newjmqbot自整理资源3.0.txt", "utf-8");
+  // data = fs.readFileSync("./source/newjmqbot自整理资源3.5.txt", "utf-8");
   // data = fs.readFileSync("./source/代码合集去重2 java10.txt", "utf-8");
-  data = fs.readFileSync("./source/ntmssqbot2.txt", "utf-8");
+  // data = fs.readFileSync("./source/ntmssqbot2.txt", "utf-8");
+  // data = fs.readFileSync("./source/文件码总结1761491151718.txt", "utf-8");
+  // data = fs.readFileSync("./source/新.txt", "utf-8");
+  // data = fs.readFileSync("./source/新2.txt", "utf-8");
+  // data = fs.readFileSync("./source/一万个代码，采集的.txt", "utf-8");
+  // data = fs.readFileSync("./source/正能量代码.txt", "utf-8");
+  // data = fs.readFileSync("./source/正能量基地-3.29.txt", "utf-8");
+  // data = fs.readFileSync("./source/新建文本文档.txt", "utf-8");
+  // data = fs.readFileSync("./source/资源 (2).txt", "utf-8");
+  // data = fs.readFileSync("./source/资源 (3).txt", "utf-8");
+  // data = fs.readFileSync("./source/4.26更新资源.txt", "utf-8");
+  // data = fs.readFileSync("./source/资源.txt", "utf-8");
+  // data = fs.readFileSync("./source/资源1.txt", "utf-8");
+  // data = fs.readFileSync("./source/5.txt", "utf-8");
+  // data = fs.readFileSync("./source/7.txt", "utf-8");
+  // data = fs.readFileSync("./source/bgyc.txt", "utf-8");
+  // data = fs.readFileSync("./source/cha.txt", "utf-8");
+  // data = fs.readFileSync("./source/douyin.txt", "utf-8");
+  // data = fs.readFileSync("./source/luoli3.txt", "utf-8");
+  // data = fs.readFileSync("./source/luoli4.txt", "utf-8");
+  // data = fs.readFileSync("./source/luoli6.txt", "utf-8");
+  // data = fs.readFileSync("./source/telegram_消息.txt", "utf-8");
+  // data = fs.readFileSync("./source/xiao马.txt", "utf-8");
+  // data = fs.readFileSync("./source/白丝.txt", "utf-8");
+  // data = fs.readFileSync("./source/处中.txt", "utf-8");
+  // data = fs.readFileSync("./source/二院.txt", "utf-8");
+  // data = fs.readFileSync("./source/高中.txt", "utf-8");
+  // data = fs.readFileSync("./source/集合.txt", "utf-8");
+  // data = fs.readFileSync("./source/快手.txt", "utf-8");
+  // data = fs.readFileSync("./source/乱伦.txt", "utf-8");
+  // data = fs.readFileSync("./source/萝莉1.txt", "utf-8");
+  // data = fs.readFileSync("./source/萝莉2.txt", "utf-8");
+  // data = fs.readFileSync("./source/萝莉5.txt", "utf-8");
+  // data = fs.readFileSync("./source/哪吒头.txt", "utf-8");
+  // data = fs.readFileSync("./source/去衣.txt", "utf-8");
+  // data = fs.readFileSync("./source/日本.txt", "utf-8");
+  // data = fs.readFileSync("./source/射.txt", "utf-8");
+  // data = fs.readFileSync("./source/偷拍.txt", "utf-8");
+  // data = fs.readFileSync("./source/我从一堆东西里翻出来的代码整合（4w＋）原名：output.txt", "utf-8");
+  // data = fs.readFileSync("./source/舞蹈.txt", "utf-8");
+  // data = fs.readFileSync("./source/新3.txt", "utf-8");
+  // data = fs.readFileSync("./source/新4.txt", "utf-8");
+  // data = fs.readFileSync("./source/新5.txt", "utf-8");
+  // data = fs.readFileSync("./source/呦钕.txt", "utf-8");
+  // data = fs.readFileSync("./source/新建文本文档 (2).txt", "utf-8");
+  // data = fs.readFileSync("./source/整合【教程，代码都在里面】.txt", "utf-8");
+  // data = fs.readFileSync("./source/正太.txt", "utf-8");
+  // data = fs.readFileSync("./source/种资源.txt", "utf-8");
+  // data = fs.readFileSync("./source/资源10.txt", "utf-8");
+  // data = fs.readFileSync("./source/足.txt", "utf-8");
+  data = fs.readFileSync("./source/1.txt", "utf-8");
   const array = data.split("\n");
   const length = array.length;
   console.log("length : " + length);  //测试
@@ -295,6 +349,20 @@ try {
             for (let j = 0; j < newjmqbotMatchesLength; j++) {
               if (newjmqbotMatches[j]) {
                 newjmqbot.push(newjmqbotMatches[j]);
+              }
+            }
+          }
+        }
+
+        const filepanbotMatches = str.match(filepanbotRegexp);
+        // console.log(filepanbotMatches);  //测试
+        if (filepanbotMatches) {
+          const filepanbotMatchesLength = filepanbotMatches.length;
+          // console.log("filepanbotMatchesLength : " + filepanbotMatchesLength);  //测试
+          if (filepanbotMatchesLength > 0) {
+            for (let j = 0; j < filepanbotMatchesLength; j++) {
+              if (filepanbotMatches[j]) {
+                filepanbot.push(filepanbotMatches[j]);
               }
             }
           }
@@ -503,6 +571,7 @@ try {
     console.log("split错误");
   }
 
+  all += showfilesbot.length;
   console.log("showfilesbot : " + showfilesbot.length);  //测试
   if (showfilesbot.length > 0) {
     const data = fs.readFileSync("./code/showfilesbot.txt", "utf-8");
@@ -520,23 +589,7 @@ try {
     }
   }
 
-  console.log("showfiles3bot : " + showfiles3bot.length);  //测试
-  if (showfiles3bot.length > 0) {
-    const data = fs.readFileSync("./code/showfilesbot.txt", "utf-8");
-    try {
-      let uniqueArr = JSON.parse(data);
-      uniqueArr = [...uniqueArr, ...showfiles3bot];
-      uniqueArr = [...new Set(uniqueArr)];
-      fs.writeFile("./code/showfilesbot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
-        if (err) {
-          console.log(err);
-        }
-      });
-    } catch (e) {
-      console.log(e);
-    }
-  }
-
+  all += tgjmqbot.length;
   console.log("tgjmqbot : " + tgjmqbot.length);  //测试
   if (tgjmqbot.length > 0) {
     const data = fs.readFileSync("./code/tgjmqbot.txt", "utf-8");
@@ -554,6 +607,7 @@ try {
     }
   }
 
+  all += blgjlqbot.length;
   console.log("blgjlqbot : " + blgjlqbot.length);  //测试
   if (blgjlqbot.length > 0) {
     const data = fs.readFileSync("./code/blgjlqbot.txt", "utf-8");
@@ -571,6 +625,7 @@ try {
     }
   }
 
+  all += fileLeakBot.length;
   console.log("fileLeakBot : " + fileLeakBot.length);  //测试
   if (fileLeakBot.length > 0) {
     const data = fs.readFileSync("./code/fileLeakBot.txt", "utf-8");
@@ -588,6 +643,7 @@ try {
     }
   }
 
+  all += nnfilebot.length;
   console.log("nnfilebot : " + nnfilebot.length);  //测试
   if (nnfilebot.length > 0) {
     const data = fs.readFileSync("./code/nnfilebot.txt", "utf-8");
@@ -605,6 +661,7 @@ try {
     }
   }
 
+  all += teestpanbot.length;
   console.log("teestpanbot : " + teestpanbot.length);  //测试
   if (teestpanbot.length > 0) {
     const data = fs.readFileSync("./code/teestpanbot.txt", "utf-8");
@@ -622,6 +679,7 @@ try {
     }
   }
 
+  all += atfileslinksbot.length;
   console.log("atfileslinksbot : " + atfileslinksbot.length);  //测试
   if (atfileslinksbot.length > 0) {
     const data = fs.readFileSync("./code/atfileslinksbot.txt", "utf-8");
@@ -639,6 +697,7 @@ try {
     }
   }
 
+  all += lockHivebot.length;
   console.log("lockHivebot : " + lockHivebot.length);  //测试
   if (lockHivebot.length > 0) {
     const data = fs.readFileSync("./code/lockHivebot.txt", "utf-8");
@@ -656,6 +715,7 @@ try {
     }
   }
 
+  all += ntmjmqbot.length;
   console.log("ntmjmqbot : " + ntmjmqbot.length);  //测试
   if (ntmjmqbot.length > 0) {
     const data = fs.readFileSync("./code/ntmjmqbot.txt", "utf-8");
@@ -673,6 +733,7 @@ try {
     }
   }
 
+  all += newjmqbot.length;
   console.log("newjmqbot : " + newjmqbot.length);  //测试
   if (newjmqbot.length > 0) {
     const data = fs.readFileSync("./code/newjmqbot.txt", "utf-8");
@@ -690,6 +751,25 @@ try {
     }
   }
 
+  all += filepanbot.length;
+  console.log("filepanbot : " + filepanbot.length);  //测试
+  if (filepanbot.length > 0) {
+    const data = fs.readFileSync("./code/filepanbot.txt", "utf-8");
+    try {
+      let uniqueArr = JSON.parse(data);
+      uniqueArr = [...uniqueArr, ...filepanbot];
+      uniqueArr = [...new Set(uniqueArr)];
+      fs.writeFile("./code/filepanbot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+        if (err) {
+          console.log(err);
+        }
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  all += myseseXBot.length;
   console.log("myseseXBot : " + myseseXBot.length);  //测试
   if (myseseXBot.length > 0) {
     const data = fs.readFileSync("./code/myseseXBot.txt", "utf-8");
@@ -707,6 +787,7 @@ try {
     }
   }
 
+  all += save2BoxBot.length;
   console.log("save2BoxBot : " + save2BoxBot.length);  //测试
   if (save2BoxBot.length > 0) {
     const data = fs.readFileSync("./code/save2BoxBot.txt", "utf-8");
@@ -724,6 +805,7 @@ try {
     }
   }
 
+  all += mtfxqbot.length;
   console.log("mtfxqbot : " + mtfxqbot.length);  //测试
   if (mtfxqbot.length > 0) {
     const data = fs.readFileSync("./code/mtfxqbot.txt", "utf-8");
@@ -741,6 +823,7 @@ try {
     }
   }
 
+  all += mediaBK2Bot.length;
   console.log("mediaBK2Bot : " + mediaBK2Bot.length);  //测试
   if (mediaBK2Bot.length > 0) {
     const data = fs.readFileSync("./code/mediaBK2Bot.txt", "utf-8");
@@ -758,6 +841,7 @@ try {
     }
   }
 
+  all += mouseFilebot.length;
   console.log("mouseFilebot : " + mouseFilebot.length);  //测试
   if (mouseFilebot.length > 0) {
     const data = fs.readFileSync("./code/mouseFilebot.txt", "utf-8");
@@ -775,6 +859,7 @@ try {
     }
   }
 
+  all += dataPanBot.length;
   console.log("dataPanBot : " + dataPanBot.length);  //测试
   if (dataPanBot.length > 0) {
     const data = fs.readFileSync("./code/dataPanBot.txt", "utf-8");
@@ -792,6 +877,7 @@ try {
     }
   }
 
+  all += filesPan1Bot.length;
   console.log("filesPan1Bot : " + filesPan1Bot.length);  //测试
   if (filesPan1Bot.length > 0) {
     const data = fs.readFileSync("./code/filesPan1Bot.txt", "utf-8");
@@ -808,6 +894,8 @@ try {
       console.log(e);
     }
   }
+
+  console.log("all : " + all);  //测试
 } catch (e) {
   console.log(e);
 }
