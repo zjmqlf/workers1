@@ -39,45 +39,6 @@ npm run deploy-forward2
 
 
 
-
-
-zjmqlf2021:
-npx wrangler d1 export media19 --remote --output=./MEDIA19.sql
-npx wrangler d1 export photo1 --remote --output=./PHOTO1.sql
-npx wrangler d1 export maindb --remote --output=./MAINDB1.sql
-
-zjmqlf2022:
-npx wrangler d1 export pansou7 --remote --output=./PANSOU7.sql
-npx wrangler d1 export maindb --remote --output=./MAINDB2.sql
-
-
-npx wrangler d1 execute pansou2 --remote --file=./sql/PANSOU2.sql
-
-
-
-
-
-SELECT * FROM `FORWARDCHAT` WHERE `title` = "test110";
-
-UPDATE `FORWARDCHAT` SET `exist` = 0 WHERE `title` = "test110";
-UPDATE `FORWARDCHAT` SET `video` = 0 WHERE 1;
-
-
-
-{
-  "command": "chat",
-  "beginIndex": 14
-}
-
-
-{
-  "command": "setChat",
-  "clientId": 1,
-  "chatId": 1
-}
-
-
-
 "assert"
 "buffer"
 "crypto"

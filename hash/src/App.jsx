@@ -597,12 +597,12 @@ const App = () => {
     } else if (message.result === "end") {
       lastId.current = 0;
       lastRow.current = null;
-      setRowData([]);
-      setClearGridBtnDisabled(true);
-      setLogData(() => {
-        return [];
-      });
-      setClearLogBtnDisabled(true);
+      // setRowData([]);
+      // setClearGridBtnDisabled(true);
+      // setLogData(() => {
+      //   return [];
+      // });
+      // setClearLogBtnDisabled(true);
       //console.log("当前chat采集完毕");  //测试
       // addNewEvent({
       //   "message": renderTime(Date.now()) + "  >>>当前chat采集完毕",

@@ -184,9 +184,9 @@ export default {
       //   //   }
       //   // }
       //   // if (dialog.isUser === true) {
-      //   if (dialog.draft._entity.bot === true) {
-      //   // if (dialog.entity.deleted === true || ) {
-      //   // if (dialog.entity.deleted === true || dialog.draft._entity.bot === true) {
+      //   // if (dialog.draft._entity.bot === true) {
+      //   if (dialog.entity.deleted === true) {
+      //   // if (dialog.draft._entity.bot === true && dialog.entity.deleted === true) {
       //     const cache = [];
       //     const json_str = JSON.stringify(dialog, function(key, value) {
       //       if (typeof value === 'object' && value !== null) {
@@ -215,6 +215,7 @@ export default {
       //   // console.log({"accessHash2" : accessHash});  //测试
       //   // break;  //测试
       // }
+      // await close(clientIndex);  //测试
       // return;  //测试
 
       // const fromPeer = await client[clientIndex].getInputEntity("me");
@@ -222,27 +223,42 @@ export default {
       // console.log(JSON.stringify(fromPeer));  //测试
       let fromPeer = null;
       const users = await client[clientIndex].invoke(
-          new Api.users.GetUsers({
-              id: [
-                  new Api.InputUser({
-                      // userId: 7585811878,
-                      // accessHash: bigInt.zero,
-                      // userId: bigInt("8258162826"),
-                      // accessHash: bigInt("-506346121795861663"),
-                      // userId: bigInt("7838817685"),
-                      // accessHash: bigInt("3354545848867173609"),
-                      // userId: bigInt("8468381207"),
-                      // accessHash: bigInt("-4943370949432707555"),
-                      userId: bigInt("8554859780"),
-                      accessHash: bigInt("-6753499946272396397"),
-                  }),
-              ],
-          })
+        new Api.users.GetUsers({
+          id: [
+            new Api.InputUser({
+              // userId: 7585811878,
+              // accessHash: bigInt.zero,
+              // userId: bigInt("8258162826"),
+              // accessHash: bigInt("-506346121795861663"),
+              // userId: bigInt("7838817685"),
+              // accessHash: bigInt("3354545848867173609"),
+              userId: bigInt("8468381207"),
+              accessHash: bigInt("-4943370949432707555"),
+              // userId: bigInt("8554859780"),
+              // accessHash: bigInt("-6753499946272396397"),
+              // userId: bigInt("8275455186"),  //showcode1bot
+              // accessHash: bigInt("1860594240230276449"),
+            }),
+          ],
+        })
       );
       if (users.length && !(users[0] instanceof Api.UserEmpty)) {
         fromPeer = utils.getInputPeer(users[0]);
       }
-      // console.log(JSON.stringify(fromPeer));  //测试
+      console.log(JSON.stringify(fromPeer));  //测试
+
+      // const peer = new Api.InputPeerSelf();
+      // const message = "showfilesbot_4P_2V_U127T6s5B982l8i9R0k6";
+      // const result = await client[clientIndex].invoke(
+      //   new Api.messages.SendMessage({
+      //     peer: fromPeer,
+      //     message: message,
+      //     silent: true,
+      //   })
+      // );
+      // console.log(result);  //测试
+      // await close(clientIndex);  //测试
+      // return;  //测试
 
       // const timeOut = new Promise((resolve, reject) => {
       //   setTimeout(() => {
@@ -260,14 +276,14 @@ export default {
       // const value = await Promise.race([
       //   // client[clientIndex].getInputEntity(8349419657),
       //   client[clientIndex].invoke(
-      //       new Api.users.GetUsers({
-      //           id: [
-      //               new Api.InputUser({
-      //                   userId: 7585811878,
-      //                   accessHash: bigInt.zero,
-      //               }),
-      //           ],
-      //       })
+      //     new Api.users.GetUsers({
+      //       id: [
+      //         new Api.InputUser({
+      //           userId: 7585811878,
+      //           accessHash: bigInt.zero,
+      //         }),
+      //       ],
+      //     })
       //   ),
       //   timeOut
       // ]);
@@ -350,41 +366,41 @@ export default {
           console.log(message);  //测试
           if (message.media) {
             if (message.media.document) {
-              try {
-                // let media = message.media;
-                // if (media instanceof Api.InputMediaUploadedDocument) {
-                //   const r = await client[clientIndex].invoke(
-                //       new Api.messages.UploadMedia({
-                //           peer: toPeer,
-                //           media: media,
-                //       })
-                //   );
-                //   console.log(r);  //测试
-                //   if (r instanceof Api.MessageMediaDocument) {
-                //       media = utils.getInputMedia(r.document);
-                //   }
-                // }
-                // console.log(media);  //测试
-                const result = await client[clientIndex].invoke(new Api.messages.SendMedia({
-                  // peer: "me",
-                  peer: toPeer,
-                  media: message.media,
-                  message: message.message,
-                  // entities: msgEntities,
-                  // replyTo: replyObject,
-                  // replyMarkup: markup,
-                  // silent: silent,
-                  // scheduleDate: scheduleDate,
-                  // clearDraft: clearDraft,
-                  // noforwards: false,
-                  // sendAs: sendAs,
-                  // effect: effect,
-                  // invertMedia: invertMedia,
-                }));
-                console.log(result);  //测试
-              } catch (e) {
-                console.log(e);  //测试
-              }
+              // try {
+              //   // let media = message.media;
+              //   // if (media instanceof Api.InputMediaUploadedDocument) {
+              //   //   const r = await client[clientIndex].invoke(
+              //   //       new Api.messages.UploadMedia({
+              //   //           peer: toPeer,
+              //   //           media: media,
+              //   //       })
+              //   //   );
+              //   //   console.log(r);  //测试
+              //   //   if (r instanceof Api.MessageMediaDocument) {
+              //   //       media = utils.getInputMedia(r.document);
+              //   //   }
+              //   // }
+              //   // console.log(media);  //测试
+              //   const result = await client[clientIndex].invoke(new Api.messages.SendMedia({
+              //     // peer: "me",
+              //     peer: toPeer,
+              //     media: message.media,
+              //     message: message.message,
+              //     // entities: msgEntities,
+              //     // replyTo: replyObject,
+              //     // replyMarkup: markup,
+              //     // silent: silent,
+              //     // scheduleDate: scheduleDate,
+              //     // clearDraft: clearDraft,
+              //     // noforwards: false,
+              //     // sendAs: sendAs,
+              //     // effect: effect,
+              //     // invertMedia: invertMedia,
+              //   }));
+              //   console.log(result);  //测试
+              // } catch (e) {
+              //   console.log(e);  //测试
+              // }
               // try {
               //   const forwardResult = await client[clientIndex].invoke(new Api.messages.ForwardMessages({
               //     fromPeer: fromPeer,
@@ -576,14 +592,14 @@ export default {
               //   console.log(JSON.stringify(hash));  //测试
               // }
               // console.log("-------------------------------------------------------------");  //测试
-              break;  //测试
+              // break;  //测试
             }
           // } else {
           //   console.log(message);  //测试
           //   idArray.push(message.id);  //测试
           //   fileIdArray.push(message.id);  //测试
           }
-          // break;  //测试
+          break;  //测试
         }
         // console.log(idArray);  //测试
         // console.log(idArray.length);  //测试

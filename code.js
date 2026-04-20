@@ -1,14 +1,41 @@
 const fs = require("fs");
 // import fs from "fs";
 
-const ntmjmqbot = [];
 const showfilesbot = [];
+const tgjmqbot = [];
+const blgjlqbot = [];
+const fileLeakBot = [];
+const nnfilebot = [];
+const teestpanbot = [];
+const atfileslinksbot = [];
+const lockHivebot = [];
+const ntmjmqbot = [];
+const newjmqbot = [];
+const mtfxqbot = [];
+// const QQfilebot = [];
+// const messengercode = [];
+const myseseXBot = [];
+const save2BoxBot = [];
 const mediaBK2Bot = [];
 const mouseFilebot = [];
 const dataPanBot = [];
 const filesPan1Bot = [];
-const ntmjmqbotRegexp = /(ntmjmqbot_\d+p_\d+v_\d+d_[A-Za-z0-9]{13})/gi;   //ntmjmqbot
 const showfilesbotRegexp = /(showfilesbot_\d*p*_*\d*v*_*\d*d*_[A-Za-z0-9]{20})/gi;   //showfilesbot
+const showfiles3botRegexp = /(showfiles3bot_\d*p*_*\d*v*_*\d*d*_[A-Za-z0-9]{20})/gi;   //showfiles3bot
+const tgjmq1botRegexp = /(tgjmq1bot_\d*p*\d*v*\d*d*_[A-Za-z0-9]{16})/gi;   //tgjmq1bot
+const tgjmq3botRegexp = /(tgjmq3bot_\d*p*\d*v*\d*d*_[A-Za-z0-9]{16})/gi;   //tgjmq3bot
+const tgjmq5botRegexp = /(tgjmq5bot_\d*p*\d*v*\d*d*_[A-Za-z0-9]{16})/gi;   //tgjmq5bot
+const blgjlqbotRegexp = /(blgjlqbot_\d+p\d+v\d+d_[A-Za-z0-9]{16})/gi;   //blgjlqbot
+const fileLeakBotRegexp = /(fileLeakBot_\d+p_\d+v_\d+d_[A-Za-z0-9]{13})/gi;   //fileLeakBot
+const nnfilebotRegexp = /(nnfilebot_[A-Za-z0-9]*_[A-Za-z0-9]*_[A-Za-z0-9]*_[A-Za-z0-9]{12})/gi;   //nnfilebot
+const teestpanbotRegexp = /(@Teestpanbot:_\d*P*_*\d*V*_*\d*D*_[A-Za-z0-9]{12})/gi;   //teestpanbot
+const atfileslinksbotRegexp = /(atfileslinksbot_\d*p*_*\d*v*_*\d*d*_[A-Za-z0-9]{20})/gi;   //atfileslinksbot
+const lockHivebotRegexp = /(LockHivebot_[A-Za-z0-9]{16})/gi;   //lockHivebot
+const ntmjmqbotRegexp = /(ntmjmqbot_\d+p_\d+v_\d+d_[A-Za-z0-9]{13})/gi;   //ntmjmqbot
+const newjmqbotRegexp = /(newjmqbot_\d+p_\d+v_\d+d_[A-Za-z0-9]{13})/gi;   //newjmqbot
+const myseseXBotRegexp = /(myseseXBot_\d+p_\d+v_\d+d_[A-Za-z0-9]{13})/gi;   //myseseXBot
+const save2BoxBotRegexp = /(Save2BoxBot_\d+p_\d+v_\d+d_[A-Za-z0-9]{13})/gi;   //save2BoxBot
+const mtfxqbotRegexp = /(mtfxqbot_[0-9PVD_]*_[A-Za-z0-9]{20})/gi;   //mtfxqbot
 const grpRegexp = /([A-Za-z0-9]{12}_[A-Za-z0-9]{11}=_grp)/gi;   //grp
 const mdaRegexp = /([A-Za-z0-9-\+]*=_mda)/gi;   //mda
 const v_Regexp = /(v_BAACAg[A-Za-z0-9_\-]*)/gi;   //v_
@@ -20,7 +47,7 @@ const V_DataPanBotRegexp = /(V_DataPanBot_[A-Za-z0-9_\-]*)/gi;   //v_FilesPan1Bo
 const D_DataPanBotRegexp = /(D_DataPanBot_[A-Za-z0-9_\-]*)/gi;   //p_FilesPan1Bot
 const p_FilesPan1BotRegexp = /(p_FilesPan1Bot_[A-Za-z0-9_\-]*)/gi;   //p_FilesPan1Bot
 const v_FilesPan1BotRegexp = /(v_FilesPan1Bot_[A-Za-z0-9_\-]*)/gi;   //v_FilesPan1Bot
-// const str = "炼铜基地原创媒体组分此条媒体分此条媒体分享link: vid+vzvd6B8vvTd3FtY+y88B6w8AApA=_mda载下来慢慢看这个有人有更多吗结尾 [主要推";
+// const str = "炼铜基地原创媒体组分此条媒体分此条媒体分享newjmqbot_0p_32v_4d_uaBpSUCc8NAEd载下来慢慢看这个有人有更多吗结尾 [主要推";
 let data = [];
 try {
   // data = fs.readFileSync("./source/ntmssqbot.txt", "utf-8");
@@ -76,7 +103,13 @@ try {
   // data = fs.readFileSync("./source/去重代码合集.txt", "utf-8");
   // data = fs.readFileSync("./source/软件源码合集.txt", "utf-8");
   // data = fs.readFileSync("./source/投稿群2.txt", "utf-8");
-  data = fs.readFileSync("./source/文件代码合集.txt", "utf-8");
+  // data = fs.readFileSync("./source/文件代码合集.txt", "utf-8");
+  // data = fs.readFileSync("./source/2月整合.txt", "utf-8");
+  // data = fs.readFileSync("./source/3月整合.txt", "utf-8");
+  // data = fs.readFileSync("./source/FilesDriveRobot.txt", "utf-8");
+  // data = fs.readFileSync("./source/newjmqbot自整理资源3.0.txt", "utf-8");
+  // data = fs.readFileSync("./source/代码合集去重2 java10.txt", "utf-8");
+  data = fs.readFileSync("./source/ntmssqbot2.txt", "utf-8");
   const array = data.split("\n");
   const length = array.length;
   console.log("length : " + length);  //测试
@@ -85,6 +118,160 @@ try {
       const str = array[i].trim();
       // console.log("str : " + str);  //测试
       if (str) {
+        const showfilesbotMatches = str.match(showfilesbotRegexp);
+        // console.log(showfilesbotMatches);  //测试
+        if (showfilesbotMatches) {
+          const showfilesbotMatchesLength = showfilesbotMatches.length;
+          // console.log("showfilesbotMatchesLength : " + showfilesbotMatchesLength);  //测试
+          if (showfilesbotMatchesLength > 0) {
+            for (let j = 0; j < showfilesbotMatchesLength; j++) {
+              if (showfilesbotMatches[j]) {
+                showfilesbot.push(showfilesbotMatches[j]);
+              }
+            }
+          }
+        }
+
+        const showfiles3botMatches = str.match(showfiles3botRegexp);
+        // console.log(showfiles3botMatches);  //测试
+        if (showfiles3botMatches) {
+          const showfiles3botMatchesLength = showfiles3botMatches.length;
+          // console.log("showfiles3botMatchesLength : " + showfiles3botMatchesLength);  //测试
+          if (showfiles3botMatchesLength > 0) {
+            for (let j = 0; j < showfiles3botMatchesLength; j++) {
+              if (showfiles3botMatches[j]) {
+                showfilesbot.push(showfiles3botMatches[j]);
+              }
+            }
+          }
+        }
+
+        const tgjmq1botMatches = str.match(tgjmq1botRegexp);
+        // console.log(tgjmq1botMatches);  //测试
+        if (tgjmq1botMatches) {
+          const tgjmq1botMatchesLength = tgjmq1botMatches.length;
+          // console.log("tgjmq1botMatchesLength : " + tgjmq1botMatchesLength);  //测试
+          if (tgjmq1botMatchesLength > 0) {
+            for (let j = 0; j < tgjmq1botMatchesLength; j++) {
+              if (tgjmq1botMatches[j]) {
+                tgjmqbot.push(tgjmq1botMatches[j]);
+              }
+            }
+          }
+        }
+
+        const tgjmq3botMatches = str.match(tgjmq3botRegexp);
+        // console.log(tgjmq3botMatches);  //测试
+        if (tgjmq3botMatches) {
+          const tgjmq3botMatchesLength = tgjmq3botMatches.length;
+          // console.log("tgjmq3botMatchesLength : " + tgjmq3botMatchesLength);  //测试
+          if (tgjmq3botMatchesLength > 0) {
+            for (let j = 0; j < tgjmq3botMatchesLength; j++) {
+              if (tgjmq3botMatches[j]) {
+                tgjmqbot.push(tgjmq3botMatches[j]);
+              }
+            }
+          }
+        }
+
+        const tgjmq5botMatches = str.match(tgjmq5botRegexp);
+        // console.log(tgjmq5botMatches);  //测试
+        if (tgjmq5botMatches) {
+          const tgjmq5botMatchesLength = tgjmq5botMatches.length;
+          // console.log("tgjmq5botMatchesLength : " + tgjmq5botMatchesLength);  //测试
+          if (tgjmq5botMatchesLength > 0) {
+            for (let j = 0; j < tgjmq5botMatchesLength; j++) {
+              if (tgjmq5botMatches[j]) {
+                tgjmqbot.push(tgjmq5botMatches[j]);
+              }
+            }
+          }
+        }
+
+        const blgjlqbotMatches = str.match(blgjlqbotRegexp);
+        // console.log(blgjlqbotMatches);  //测试
+        if (blgjlqbotMatches) {
+          const blgjlqbotMatchesLength = blgjlqbotMatches.length;
+          // console.log("blgjlqbotMatchesLength : " + blgjlqbotMatchesLength);  //测试
+          if (blgjlqbotMatchesLength > 0) {
+            for (let j = 0; j < blgjlqbotMatchesLength; j++) {
+              if (blgjlqbotMatches[j]) {
+                blgjlqbot.push(blgjlqbotMatches[j]);
+              }
+            }
+          }
+        }
+
+        const fileLeakBotMatches = str.match(fileLeakBotRegexp);
+        // console.log(fileLeakBotMatches);  //测试
+        if (fileLeakBotMatches) {
+          const fileLeakBotMatchesLength = fileLeakBotMatches.length;
+          // console.log("fileLeakBotMatchesLength : " + fileLeakBotMatchesLength);  //测试
+          if (fileLeakBotMatchesLength > 0) {
+            for (let j = 0; j < fileLeakBotMatchesLength; j++) {
+              if (fileLeakBotMatches[j]) {
+                fileLeakBot.push(fileLeakBotMatches[j]);
+              }
+            }
+          }
+        }
+
+        const nnfilebotMatches = str.match(nnfilebotRegexp);
+        // console.log(nnfilebotMatches);  //测试
+        if (nnfilebotMatches) {
+          const nnfilebotMatchesLength = nnfilebotMatches.length;
+          // console.log("nnfilebotMatchesLength : " + nnfilebotMatchesLength);  //测试
+          if (nnfilebotMatchesLength > 0) {
+            for (let j = 0; j < nnfilebotMatchesLength; j++) {
+              if (nnfilebotMatches[j]) {
+                nnfilebot.push(nnfilebotMatches[j]);
+              }
+            }
+          }
+        }
+
+        const teestpanbotMatches = str.match(teestpanbotRegexp);
+        // console.log(teestpanbotMatches);  //测试
+        if (teestpanbotMatches) {
+          const teestpanbotMatchesLength = teestpanbotMatches.length;
+          // console.log("teestpanbotMatchesLength : " + teestpanbotMatchesLength);  //测试
+          if (teestpanbotMatchesLength > 0) {
+            for (let j = 0; j < teestpanbotMatchesLength; j++) {
+              if (teestpanbotMatches[j]) {
+                teestpanbot.push(teestpanbotMatches[j]);
+              }
+            }
+          }
+        }
+
+        const atfileslinksbotMatches = str.match(atfileslinksbotRegexp);
+        // console.log(atfileslinksbotMatches);  //测试
+        if (atfileslinksbotMatches) {
+          const atfileslinksbotMatchesLength = atfileslinksbotMatches.length;
+          // console.log("atfileslinksbotMatchesLength : " + atfileslinksbotMatchesLength);  //测试
+          if (atfileslinksbotMatchesLength > 0) {
+            for (let j = 0; j < atfileslinksbotMatchesLength; j++) {
+              if (atfileslinksbotMatches[j]) {
+                atfileslinksbot.push(atfileslinksbotMatches[j]);
+              }
+            }
+          }
+        }
+
+        const lockHivebotMatches = str.match(lockHivebotRegexp);
+        // console.log(lockHivebotMatches);  //测试
+        if (lockHivebotMatches) {
+          const lockHivebotMatchesLength = lockHivebotMatches.length;
+          // console.log("lockHivebotMatchesLength : " + lockHivebotMatchesLength);  //测试
+          if (lockHivebotMatchesLength > 0) {
+            for (let j = 0; j < lockHivebotMatchesLength; j++) {
+              if (lockHivebotMatches[j]) {
+                lockHivebot.push(lockHivebotMatches[j]);
+              }
+            }
+          }
+        }
+
         const ntmjmqbotMatches = str.match(ntmjmqbotRegexp);
         // console.log(ntmjmqbotMatches);  //测试
         if (ntmjmqbotMatches) {
@@ -99,15 +286,57 @@ try {
           }
         }
 
-        const showfilesbotMatches = str.match(showfilesbotRegexp);
-        // console.log(showfilesbotMatches);  //测试
-        if (showfilesbotMatches) {
-          const showfilesbotMatchesLength = showfilesbotMatches.length;
-          // console.log("showfilesbotMatchesLength : " + showfilesbotMatchesLength);  //测试
-          if (showfilesbotMatchesLength > 0) {
-            for (let j = 0; j < showfilesbotMatchesLength; j++) {
-              if (showfilesbotMatches[j]) {
-                showfilesbot.push(showfilesbotMatches[j]);
+        const newjmqbotMatches = str.match(newjmqbotRegexp);
+        // console.log(newjmqbotMatches);  //测试
+        if (newjmqbotMatches) {
+          const newjmqbotMatchesLength = newjmqbotMatches.length;
+          // console.log("newjmqbotMatchesLength : " + newjmqbotMatchesLength);  //测试
+          if (newjmqbotMatchesLength > 0) {
+            for (let j = 0; j < newjmqbotMatchesLength; j++) {
+              if (newjmqbotMatches[j]) {
+                newjmqbot.push(newjmqbotMatches[j]);
+              }
+            }
+          }
+        }
+
+        const myseseXBotMatches = str.match(myseseXBotRegexp);
+        // console.log(myseseXBotMatches);  //测试
+        if (myseseXBotMatches) {
+          const myseseXBotMatchesLength = myseseXBotMatches.length;
+          // console.log("myseseXBotMatchesLength : " + myseseXBotMatchesLength);  //测试
+          if (myseseXBotMatchesLength > 0) {
+            for (let j = 0; j < myseseXBotMatchesLength; j++) {
+              if (myseseXBotMatches[j]) {
+                myseseXBot.push(myseseXBotMatches[j]);
+              }
+            }
+          }
+        }
+
+        const save2BoxBotMatches = str.match(save2BoxBotRegexp);
+        // console.log(save2BoxBotMatches);  //测试
+        if (save2BoxBotMatches) {
+          const save2BoxBotMatchesLength = save2BoxBotMatches.length;
+          // console.log("save2BoxBotMatchesLength : " + save2BoxBotMatchesLength);  //测试
+          if (save2BoxBotMatchesLength > 0) {
+            for (let j = 0; j < save2BoxBotMatchesLength; j++) {
+              if (save2BoxBotMatches[j]) {
+                save2BoxBot.push(save2BoxBotMatches[j]);
+              }
+            }
+          }
+        }
+
+        const mtfxqbotMatches = str.match(mtfxqbotRegexp);
+        // console.log(mtfxqbotMatches);  //测试
+        if (mtfxqbotMatches) {
+          const mtfxqbotMatchesLength = mtfxqbotMatches.length;
+          // console.log("mtfxqbotMatchesLength : " + mtfxqbotMatchesLength);  //测试
+          if (mtfxqbotMatchesLength > 0) {
+            for (let j = 0; j < mtfxqbotMatchesLength; j++) {
+              if (mtfxqbotMatches[j]) {
+                mtfxqbot.push(mtfxqbotMatches[j]);
               }
             }
           }
@@ -274,6 +503,159 @@ try {
     console.log("split错误");
   }
 
+  console.log("showfilesbot : " + showfilesbot.length);  //测试
+  if (showfilesbot.length > 0) {
+    const data = fs.readFileSync("./code/showfilesbot.txt", "utf-8");
+    try {
+      let uniqueArr = JSON.parse(data);
+      uniqueArr = [...uniqueArr, ...showfilesbot];
+      uniqueArr = [...new Set(uniqueArr)];
+      fs.writeFile("./code/showfilesbot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+        if (err) {
+          console.log(err);
+        }
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  console.log("showfiles3bot : " + showfiles3bot.length);  //测试
+  if (showfiles3bot.length > 0) {
+    const data = fs.readFileSync("./code/showfilesbot.txt", "utf-8");
+    try {
+      let uniqueArr = JSON.parse(data);
+      uniqueArr = [...uniqueArr, ...showfiles3bot];
+      uniqueArr = [...new Set(uniqueArr)];
+      fs.writeFile("./code/showfilesbot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+        if (err) {
+          console.log(err);
+        }
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  console.log("tgjmqbot : " + tgjmqbot.length);  //测试
+  if (tgjmqbot.length > 0) {
+    const data = fs.readFileSync("./code/tgjmqbot.txt", "utf-8");
+    try {
+      let uniqueArr = JSON.parse(data);
+      uniqueArr = [...uniqueArr, ...tgjmqbot];
+      uniqueArr = [...new Set(uniqueArr)];
+      fs.writeFile("./code/tgjmqbot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+        if (err) {
+          console.log(err);
+        }
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  console.log("blgjlqbot : " + blgjlqbot.length);  //测试
+  if (blgjlqbot.length > 0) {
+    const data = fs.readFileSync("./code/blgjlqbot.txt", "utf-8");
+    try {
+      let uniqueArr = JSON.parse(data);
+      uniqueArr = [...uniqueArr, ...blgjlqbot];
+      uniqueArr = [...new Set(uniqueArr)];
+      fs.writeFile("./code/blgjlqbot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+        if (err) {
+          console.log(err);
+        }
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  console.log("fileLeakBot : " + fileLeakBot.length);  //测试
+  if (fileLeakBot.length > 0) {
+    const data = fs.readFileSync("./code/fileLeakBot.txt", "utf-8");
+    try {
+      let uniqueArr = JSON.parse(data);
+      uniqueArr = [...uniqueArr, ...fileLeakBot];
+      uniqueArr = [...new Set(uniqueArr)];
+      fs.writeFile("./code/fileLeakBot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+        if (err) {
+          console.log(err);
+        }
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  console.log("nnfilebot : " + nnfilebot.length);  //测试
+  if (nnfilebot.length > 0) {
+    const data = fs.readFileSync("./code/nnfilebot.txt", "utf-8");
+    try {
+      let uniqueArr = JSON.parse(data);
+      uniqueArr = [...uniqueArr, ...nnfilebot];
+      uniqueArr = [...new Set(uniqueArr)];
+      fs.writeFile("./code/nnfilebot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+        if (err) {
+          console.log(err);
+        }
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  console.log("teestpanbot : " + teestpanbot.length);  //测试
+  if (teestpanbot.length > 0) {
+    const data = fs.readFileSync("./code/teestpanbot.txt", "utf-8");
+    try {
+      let uniqueArr = JSON.parse(data);
+      uniqueArr = [...uniqueArr, ...teestpanbot];
+      uniqueArr = [...new Set(uniqueArr)];
+      fs.writeFile("./code/teestpanbot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+        if (err) {
+          console.log(err);
+        }
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  console.log("atfileslinksbot : " + atfileslinksbot.length);  //测试
+  if (atfileslinksbot.length > 0) {
+    const data = fs.readFileSync("./code/atfileslinksbot.txt", "utf-8");
+    try {
+      let uniqueArr = JSON.parse(data);
+      uniqueArr = [...uniqueArr, ...atfileslinksbot];
+      uniqueArr = [...new Set(uniqueArr)];
+      fs.writeFile("./code/atfileslinksbot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+        if (err) {
+          console.log(err);
+        }
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  console.log("lockHivebot : " + lockHivebot.length);  //测试
+  if (lockHivebot.length > 0) {
+    const data = fs.readFileSync("./code/lockHivebot.txt", "utf-8");
+    try {
+      let uniqueArr = JSON.parse(data);
+      uniqueArr = [...uniqueArr, ...lockHivebot];
+      uniqueArr = [...new Set(uniqueArr)];
+      fs.writeFile("./code/lockHivebot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+        if (err) {
+          console.log(err);
+        }
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
   console.log("ntmjmqbot : " + ntmjmqbot.length);  //测试
   if (ntmjmqbot.length > 0) {
     const data = fs.readFileSync("./code/ntmjmqbot.txt", "utf-8");
@@ -291,14 +673,65 @@ try {
     }
   }
 
-  console.log("showfilesbot : " + showfilesbot.length);  //测试
-  if (showfilesbot.length > 0) {
-    const data = fs.readFileSync("./code/showfilesbot.txt", "utf-8");
+  console.log("newjmqbot : " + newjmqbot.length);  //测试
+  if (newjmqbot.length > 0) {
+    const data = fs.readFileSync("./code/newjmqbot.txt", "utf-8");
     try {
       let uniqueArr = JSON.parse(data);
-      uniqueArr = [...uniqueArr, ...showfilesbot];
+      uniqueArr = [...uniqueArr, ...newjmqbot];
       uniqueArr = [...new Set(uniqueArr)];
-      fs.writeFile("./code/showfilesbot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+      fs.writeFile("./code/newjmqbot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+        if (err) {
+          console.log(err);
+        }
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  console.log("myseseXBot : " + myseseXBot.length);  //测试
+  if (myseseXBot.length > 0) {
+    const data = fs.readFileSync("./code/myseseXBot.txt", "utf-8");
+    try {
+      let uniqueArr = JSON.parse(data);
+      uniqueArr = [...uniqueArr, ...myseseXBot];
+      uniqueArr = [...new Set(uniqueArr)];
+      fs.writeFile("./code/myseseXBot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+        if (err) {
+          console.log(err);
+        }
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  console.log("save2BoxBot : " + save2BoxBot.length);  //测试
+  if (save2BoxBot.length > 0) {
+    const data = fs.readFileSync("./code/save2BoxBot.txt", "utf-8");
+    try {
+      let uniqueArr = JSON.parse(data);
+      uniqueArr = [...uniqueArr, ...save2BoxBot];
+      uniqueArr = [...new Set(uniqueArr)];
+      fs.writeFile("./code/save2BoxBot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+        if (err) {
+          console.log(err);
+        }
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  console.log("mtfxqbot : " + mtfxqbot.length);  //测试
+  if (mtfxqbot.length > 0) {
+    const data = fs.readFileSync("./code/mtfxqbot.txt", "utf-8");
+    try {
+      let uniqueArr = JSON.parse(data);
+      uniqueArr = [...uniqueArr, ...mtfxqbot];
+      uniqueArr = [...new Set(uniqueArr)];
+      fs.writeFile("./code/mtfxqbot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
         if (err) {
           console.log(err);
         }
