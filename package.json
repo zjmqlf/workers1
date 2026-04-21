@@ -9,6 +9,8 @@
     "deploy-hash": "wrangler deploy -c ./wrangler-hash.jsonc",
     "dist-forward": "wrangler deploy -c ./wrangler-forward.jsonc --dry-run --outdir=./forward/dist",
     "deploy-forward": "wrangler deploy -c ./wrangler-forward.jsonc",
+    "dist-bot": "wrangler deploy -c ./wrangler-bot.jsonc --dry-run --outdir=./bot/dist",
+    "deploy-bot": "wrangler deploy -c ./wrangler-bot.jsonc",
     "dist-pansou": "wrangler deploy -c ./wrangler-pansou.jsonc --dry-run --outdir=./pansou/dist",
     "deploy-pansou": "wrangler deploy -c ./wrangler-pansou.jsonc",
     "dist-favorites": "wrangler deploy -c ./wrangler-favorites.jsonc --dry-run --outdir=./favorites/dist",

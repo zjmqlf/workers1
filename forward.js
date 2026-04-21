@@ -1027,7 +1027,7 @@ export class WebSocketServer extends DurableObject {
       } catch (e) {
         if (e.errorMessage === "RANDOM_ID_DUPLICATE" || e.code === 500) {
           //console.log("(" + this.currentStep + ") " + e);
-          this.sendForward(clientIndex, "forwardMessage", JSON.stringify(e), 0, "error", true);
+          this.sendForward("forwardMessage", JSON.stringify(e), 0, "error", true);
         } else if (e.errorMessage === "CHAT_FORWARDS_RESTRICTED" || e.code === 400) {
           this.offsetId += this.count;
           this.count = 0;
@@ -1264,23 +1264,42 @@ export class WebSocketServer extends DurableObject {
     });
   }
 
-  async getUser() {
-    const users = await this.client.invoke(
-      new Api.users.GetUsers({
-        id: [
-          new Api.InputUser({
-            // userId: 2029656369,   //zjm2023
-            userId: 7585811878,   //zjm4038
-            accessHash: bigInt.zero,
-          }),
-        ],
-      })
-    );
+  async getUserError(tryCount) {
+    if (tryCount === 20) {
+      //console.log("(" + this.currentStep + ")getUser超出tryCount限制");
+      this.sendLog("getUser", "超出tryCount限制", null, true);
+      await this.close();
+    } else {
+      await scheduler.wait(10000);
+      await this.getUser(tryCount + 1);
+    }
+  }
+
+  async getUser(tryCount) {
+    let users = {};
+    try {
+      users = await this.client.invoke(
+        new Api.users.GetUsers({
+          id: [
+            new Api.InputUser({
+              // userId: 2029656369,   //zjm2023
+              userId: 7585811878,   //zjm4038
+              accessHash: bigInt.zero,
+            }),
+          ],
+        })
+      );
+    } catch (e) {
+      //console.log("getUser出错 : " + e);
+      this.sendLog("getUser", "出错 : " + JSON.stringify(e), null, true);
+      await this.getUserError(tryCount);
+      return;
+    }
     // console.log(users);  //测试
     // console.log(users.length);  //测试
     if (users.length && !(users[0] instanceof Api.UserEmpty)) {
       this.toPeer = utils.getInputPeer(users[0]);
-      // console.log(toPeer);  //测试
+      // console.log(this.toPeer);  //测试
     }
   }
 
@@ -1311,7 +1330,7 @@ export class WebSocketServer extends DurableObject {
         }
         this.lastChat = this.chatId;
       }
-      await this.getUser();
+      await this.getUser(1);
       if (this.toPeer) {
         if (this.stop === 1) {
           this.currentStep += 1;
@@ -1688,6 +1707,8 @@ export class WebSocketServer extends DurableObject {
         "error": true,
         "date": new Date().getTime(),
       });
+    } else if (command === "chat") {
+      await this.chat(option);
     } else if (command === "compress") {
       this.compress = true;
     } else if (command === "noCompress") {

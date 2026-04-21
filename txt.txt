@@ -14,6 +14,10 @@ npm run deploy-hash
 npm run dist-forward
 npm run deploy-forward
 
+npm run dist-bot
+npm run deploy-bot
+
+
 npm run dist-test
 npm run deploy-test
 
