@@ -30,6 +30,8 @@ export class WebSocketServer extends DurableObject {
   messageArray = [];
   cacheMessage = null;
   batchMessage = [];
+  idArray = [];
+  fileIdArray = [];
 
   constructor(ctx, env) {
     super(ctx, env);
@@ -113,6 +115,18 @@ export class WebSocketServer extends DurableObject {
       this.messageArray = [];
       this.cacheMessage = null;
       this.batchMessage = [];
+      let temp = await this.ctx.storage.get("idArray");
+      if (!temp || temp === "[]") {
+        this.idArray = [];
+      } else {
+        this.idArray = JSON.parse(temp);
+      }
+      temp = await this.ctx.storage.get("fileIdArray");
+      if (!temp || temp === "[]") {
+        this.fileIdArray = [];
+      } else {
+        this.fileIdArray = JSON.parse(temp);
+      }
     }
   }
 
@@ -442,9 +456,10 @@ export class WebSocketServer extends DurableObject {
           //console.log("(" + this.currentStep + ") " + e);
           this.sendForward("forwardMessage", JSON.stringify(e), 0, "error", true);
         } else if (e.errorMessage === "CHAT_FORWARDS_RESTRICTED" || e.code === 400) {
-          this.offsetId += this.count;
-          this.count = 0;
-          //console.log("(" + this.currentStep + ") 消息不允许转发" + e);
+          // this.offsetId += this.count;
+          // this.count = 0;
+          // await this.ctx.storage.put("offsetId", this.offsetId);
+          // //console.log("(" + this.currentStep + ") 消息不允许转发" + e);
           this.sendForward("forwardMessage", "消息不允许转发 : " + JSON.stringify(e), 0, "error", true);
           return;
         } else if (e.errorMessage === "FLOOD" || e.code === 420) {
@@ -464,15 +479,15 @@ export class WebSocketServer extends DurableObject {
           return;
         }
       }
-      this.offsetId += this.count;
-      this.count = 0;
-      await this.ctx.storage.put("offsetId", this.offsetId);
+      // this.offsetId += this.count;
+      // this.count = 0;
+      // await this.ctx.storage.put("offsetId", this.offsetId);
       //console.log("(" + this.currentStep + ") 成功转发了" + length + "条消息");
       this.sendForward("forwardMessage", "成功转发了" + messageLength + "条消息", messageLength, "update", false);
     } else {
-      this.offsetId += this.count;
-      this.count = 0;
-      await this.ctx.storage.put("offsetId", this.offsetId);
+      // this.offsetId += this.count;
+      // this.count = 0;
+      // await this.ctx.storage.put("offsetId", this.offsetId);
       //console.log("(" + this.currentStep + ") 消息无需转发");
       this.sendForward("forwardMessage", "消息无需转发", 0, "error", true);
     }
@@ -495,7 +510,17 @@ export class WebSocketServer extends DurableObject {
         }
       }
       await this.getMessage(1);
-      await scheduler.wait(5000);
+      // await scheduler.wait(5000);
+      for (let i = 0; i < 5; i++) {
+        await scheduler.wait(5000);
+        // this.ws.ping();
+        // this.ws.send({
+        //   "result": "ping",
+        // });
+        this.broadcast({
+          "result": "ping",
+        });
+      }
       const messageArray = this.messageArray.slice();
       const messageLength = messageArray.length;
       this.messageArray = [];
@@ -508,13 +533,11 @@ export class WebSocketServer extends DurableObject {
       if (messageLength && messageLength > 0) {
         if (this.stop === 1) {
           let temp = null;
-          const idArray = [];
-          const fileIdArray = [];
           for (let messageIndex = 0; messageIndex < messageLength; messageIndex++) {
             if (!messageArray[messageIndex].noforwards || messageArray[messageIndex].noforwards === false) {
-              let fileId = null;
               const id = messageArray[messageIndex].id;
               if (messageArray[messageIndex].media) {
+                let fileId = null;
                 if (messageArray[messageIndex].media.document) {
                   // const mimeType = messageArray[messageIndex].media.document.mimeType;
                   // if (mimeType.startsWith("video/")) {
@@ -529,8 +552,8 @@ export class WebSocketServer extends DurableObject {
                   fileId = messageArray[messageIndex].media.photo.id;
                 }
                 if (id && fileId) {
-                  idArray.push(id);
-                  fileIdArray.push(fileId);
+                  this.idArray.push(id);
+                  this.fileIdArray.push(fileId);
                 }
               } else if (messageArray[messageIndex].replyMarkup) {
                 if (messageArray[messageIndex].replyMarkup.rows) {
@@ -540,7 +563,10 @@ export class WebSocketServer extends DurableObject {
                     for (let button of row.buttons) {
                       // console.log(button);  //测试
                       if (button.text === "加入队列全部推送") {
-                        temp = {button, id};
+                        temp = {
+                          id: id,
+                          data: button.data,
+                        };
                       }
                     }
                   }
@@ -553,6 +579,8 @@ export class WebSocketServer extends DurableObject {
                   temp = null;
                   this.queue = false;
                   await this.ctx.storage.put("queue", false);
+                  //console.log("(" + this.currentStep + ") 所有媒体已发送完毕");  //测试
+                  this.sendLog("nextStep", "所有媒体已发送完毕", null, false);  //测试
                 } else {
                   const regexp = /这是第 \d+ 页 \/ 共 \d+ 页/gi;
                   if (regexp.test(message)) {
@@ -564,6 +592,8 @@ export class WebSocketServer extends DurableObject {
                         temp = null;
                         this.queue = false;
                         await this.ctx.storage.put("queue", false);
+                        //console.log("(" + this.currentStep + ") 所有媒体已发送完毕");  //测试
+                        this.sendLog("nextStep", "所有媒体已发送完毕", null, false);  //测试
                       }
                     }
                   }
@@ -572,21 +602,28 @@ export class WebSocketServer extends DurableObject {
             }
           }
           if (this.queue === false) {
-            this.queue = true;
-            await this.ctx.storage.put("queue", true);
             if (temp) {
+              this.queue = true;
+              await this.ctx.storage.put("queue", true);
               await this.client.invoke(
                 new Api.messages.GetBotCallbackAnswer({
-                  peer: fromPeer,
+                  peer: this.fromPeer,
                   msgId: temp.id,
                   data: temp.data,
                 })
               );
+              //console.log("(" + this.currentStep + ") 加入队列全部推送");  //测试
+              this.sendLog("nextStep", "加入队列全部推送", null, false);  //测试
             } else {
               await this.sendQuery(1);
             }
           }
-          await this.forwardMessage(idArray, fileIdArray);
+          await this.checkMessage();
+          this.offsetId += this.count;
+          this.count = 0;
+          await this.ctx.storage.put("offsetId", this.offsetId);
+          //console.log("(" + this.currentStep + ") idArrayLength : " + this.idArray.length);  //测试
+          this.sendLog("nextStep", "idArrayLength : " + this.idArray.length, null, false);  //测试
           if (this.stop === 1) {
             await this.nextStep();
           } else if (this.stop === 2) {
@@ -601,8 +638,13 @@ export class WebSocketServer extends DurableObject {
           });
           await this.close();
         }
-      } else if ((this.endCode && this.codeIndex > this.endCode) && this.codeIndex > this.codeLength) {
+      } else if (this.codeIndex > this.endCode || this.codeIndex > this.codeLength) {
         await this.ctx.storage.put("offsetId", this.offsetId);
+        await this.ctx.storage.put("idArray", "[]");
+        await this.ctx.storage.put("fileIdArray", "[]");
+        await this.forwardMessage(this.idArray, this.fileIdArray);
+        this.idArray = [];
+        this.fileIdArray = [];
         //console.log("(" + this.currentStep + ") 当前bot采集完毕");
         this.sendLog("nextStep", "当前bot采集完毕", null, false);
         this.broadcast({
@@ -659,17 +701,36 @@ export class WebSocketServer extends DurableObject {
     });
   }
 
-  async getBot() {
-    const users = await this.client.invoke(
-      new Api.users.GetUsers({
-        id: [
-          new Api.InputUser({
-            userId: bigInt("8633923875"),  //blgjlqbot
-            accessHash: bigInt("3740805468883295251"),
-          }),
-        ],
-      })
-    );
+  async getBotrError(tryCount) {
+    if (tryCount === 20) {
+      //console.log("(" + this.currentStep + ")getBotr超出tryCount限制");
+      this.sendLog("getBotr", "超出tryCount限制", null, true);
+      await this.close();
+    } else {
+      await scheduler.wait(10000);
+      await this.getBotr(tryCount + 1);
+    }
+  }
+
+  async getBot(tryCount) {
+    let users = {};
+    try {
+      users = await this.client.invoke(
+        new Api.users.GetUsers({
+          id: [
+            new Api.InputUser({
+              userId: bigInt("8633923875"),  //blgjlqbot
+              accessHash: bigInt("3740805468883295251"),
+            }),
+          ],
+        })
+      );
+    } catch (e) {
+      //console.log("getBotr出错 : " + e);
+      this.sendLog("getBotr", "出错 : " + JSON.stringify(e), null, true);
+      await this.getBotrError(tryCount);
+      return;
+    }
     // console.log(users);  //测试
     // console.log(users.length);  //测试
     if (users.length && !(users[0] instanceof Api.UserEmpty)) {
@@ -754,7 +815,7 @@ export class WebSocketServer extends DurableObject {
           return;
         }
         //console.log("(" + this.currentStep + ") code : " + code);  //测试
-        this.sendLog("sendQuery", "code : " + code, "error", true);  //测试
+        this.sendLog("sendQuery", code, "error", false);  //测试
       } else {
         //console.log("(" + this.currentStep + ") code为空");
         this.sendLog("sendQuery", "code为空", "error", true);
@@ -762,6 +823,30 @@ export class WebSocketServer extends DurableObject {
     } else {
       //console.log("(" + this.currentStep + ") 已经没有code了");
       this.sendLog("sendQuery", "已经没有code了", "error", true);
+    }
+  }
+
+  async checkMessage() {
+    const idLength = this.idArray.length;
+    if (idLength === 100) {
+      const idArray = this.idArray.slice();
+      const fileIdArray = this.fileIdArray.slice();
+      this.idArray = [];
+      this.fileIdArray = [];
+      await this.ctx.storage.put("idArray", "[]");
+      await this.ctx.storage.put("fileIdArray", "[]");
+      await this.forwardMessage(idArray, fileIdArray);
+    } else if (idLength > 100) {
+      const idArray = this.idArray.slice(0, 100);
+      const fileIdArray = this.fileIdArray.slice(0, 100);
+      this.idArray = this.idArray.slice(100, idLength);
+      this.fileIdArray = this.fileIdArray.slice(100, idLength);
+      await this.ctx.storage.put("idArray", JSON.stringify(this.idArray));
+      await this.ctx.storage.put("fileIdArray", JSON.stringify(this.fileIdArray));
+      await this.forwardMessage(idArray, fileIdArray);
+    } else {
+      await this.ctx.storage.put("idArray", JSON.stringify(this.idArray));
+      await this.ctx.storage.put("fileIdArray", JSON.stringify(this.fileIdArray));
     }
   }
 
@@ -780,7 +865,7 @@ export class WebSocketServer extends DurableObject {
     await this.init(option);
     // this.stop = 1;
     await this.open(1);
-    await this.getBot();
+    await this.getBot(1);
     if (this.fromPeer) {
       await this.getUser(1);
       if (this.toPeer) {
@@ -811,13 +896,11 @@ export class WebSocketServer extends DurableObject {
           // }
           if (messageLength && messageLength > 0) {
             let temp = null;
-            const idArray = [];
-            const fileIdArray = [];
             for (let messageIndex = 0; messageIndex < messageLength; messageIndex++) {
               if (!messageArray[messageIndex].noforwards || messageArray[messageIndex].noforwards === false) {
-                let fileId = null;
                 const id = messageArray[messageIndex].id;
                 if (messageArray[messageIndex].media) {
+                  let fileId = null;
                   if (messageArray[messageIndex].media.document) {
                     // const mimeType = messageArray[messageIndex].media.document.mimeType;
                     // if (mimeType.startsWith("video/")) {
@@ -832,8 +915,8 @@ export class WebSocketServer extends DurableObject {
                     fileId = messageArray[messageIndex].media.photo.id;
                   }
                   if (id && fileId) {
-                    idArray.push(id);
-                    fileIdArray.push(fileId);
+                    this.idArray.push(id);
+                    this.fileIdArray.push(fileId);
                   }
                 } else if (messageArray[messageIndex].replyMarkup) {
                   if (messageArray[messageIndex].replyMarkup.rows) {
@@ -843,7 +926,10 @@ export class WebSocketServer extends DurableObject {
                       for (let button of row.buttons) {
                         // console.log(button);  //测试
                         if (button.text === "加入队列全部推送") {
-                          temp = {button, id};
+                          temp = {
+                            id: id,
+                            data: button.data,
+                          };
                         }
                       }
                     }
@@ -856,6 +942,8 @@ export class WebSocketServer extends DurableObject {
                     temp = null;
                     this.queue = false;
                     await this.ctx.storage.put("queue", false);
+                    //console.log("(" + this.currentStep + ") 所有媒体已发送完毕");  //测试
+                    this.sendLog("start", "所有媒体已发送完毕", null, false);  //测试
                   } else {
                     const regexp = /这是第 \d+ 页 \/ 共 \d+ 页/gi;
                     if (regexp.test(message)) {
@@ -867,6 +955,8 @@ export class WebSocketServer extends DurableObject {
                           temp = null;
                           this.queue = false;
                           await this.ctx.storage.put("queue", false);
+                          //console.log("(" + this.currentStep + ") 所有媒体已发送完毕");  //测试
+                          this.sendLog("start", "所有媒体已发送完毕", null, false);  //测试
                         }
                       }
                     }
@@ -875,21 +965,28 @@ export class WebSocketServer extends DurableObject {
               }
             }
             if (this.queue === false) {
-              this.queue = true;
-              await this.ctx.storage.put("queue", true);
               if (temp) {
+                this.queue = true;
+                await this.ctx.storage.put("queue", true);
                 await this.client.invoke(
                   new Api.messages.GetBotCallbackAnswer({
-                    peer: fromPeer,
+                    peer: this.fromPeer,
                     msgId: temp.id,
                     data: temp.data,
                   })
                 );
+                //console.log("(" + this.currentStep + ") 加入队列全部推送");  //测试
+                this.sendLog("start", "加入队列全部推送", null, false);  //测试
               } else {
                 await this.sendQuery(1);
               }
             }
-            await this.forwardMessage(idArray, fileIdArray);
+            //console.log("(" + this.currentStep + ") idArrayLength : " + this.idArray.length);  //测试
+            this.sendLog("nextStep", "idArrayLength : " + this.idArray.length, null, false);  //测试
+            await this.checkMessage();
+            this.offsetId += this.count;
+            this.count = 0;
+            await this.ctx.storage.put("offsetId", this.offsetId);
             if (this.stop === 1) {
               await this.nextStep();
             } else if (this.stop === 2) {
@@ -898,8 +995,13 @@ export class WebSocketServer extends DurableObject {
               });
               await this.close();
             }
-          } else if ((this.endCode && this.codeIndex > this.endCode) && this.codeIndex > this.codeLength) {
+          } else if (this.codeIndex > this.endCode || this.codeIndex > this.codeLength) {
             await this.ctx.storage.put("offsetId", this.offsetId);
+            await this.ctx.storage.put("idArray", "[]");
+            await this.ctx.storage.put("fileIdArray", "[]");
+            await this.forwardMessage(this.idArray, this.fileIdArray);
+            this.idArray = [];
+            this.fileIdArray = [];
             //console.log("(" + this.currentStep + ") 当前bot采集完毕");
             this.sendLog("start", "当前bot采集完毕", null, false);
             this.broadcast({
