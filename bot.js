@@ -720,7 +720,7 @@ export class WebSocketServer extends DurableObject {
                 const str = message.substr(0, 10);
                 if (str === "tgjmq1bot_" || str === "tgjmq3bot_" || str === "tgjmq5bot_") {
                   await this.ctx.storage.put(message, 1);
-                  // //console.log("(" + this.currentStep + ") 代码入库完毕");
+                  //console.log("(" + this.currentStep + ") 代码入库完毕");
                   this.sendForward("nextStep", "代码入库完毕", "", "add", false);
                 } else {
                   const regexp = /📄 第\d+页\/共\d+页/gi;
@@ -1027,7 +1027,7 @@ export class WebSocketServer extends DurableObject {
                   const str = message.substr(0, 10);
                   if (str === "tgjmq1bot_" || str === "tgjmq3bot_" || str === "tgjmq5bot_") {
                     await this.ctx.storage.put(message, 1);
-                    // //console.log("(" + this.currentStep + ") 代码入库完毕");  //测试
+                    //console.log("(" + this.currentStep + ") 代码入库完毕");  //测试
                     this.sendForward("start", "代码入库完毕", "", "add", false);
                   } else {
                     const regexp = /📄 第\d+页\/共\d+页/gi;
