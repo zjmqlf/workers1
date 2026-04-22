@@ -26,7 +26,7 @@ export default {
       "2bb9a1bfd8f598da6cb5c511f0e5fbdf"
     ];
     const sessionStringArray = [
-      "1BQAWZmxvcmEud2ViLnRlbGVncmFtLm9yZwG7VxdGmdW/SYRusjfTnUHfhQfqLFA+A30Jios20XKnGGsRB58mFR33Lnpz966333yugE0ysMX/XMP8Urbbm3ADQ/mCq/fdQqA/qUoeG9L2Wy0Y8WcOlikGkNJ2e/nO9pT9nl1YePq5DD/hJ8+eKNL4BvUY70GAth/N/fv7dA4joQzwWhHdA8wdOUaxDQhnSAk9H62zG4fX5zipV+g2qp2WCT6CWCwUtsgZs8FZ9g9/TMmyfLagFmnMe7MhlZdkMfgCtKCXI8MVrGaHq5SpPRqMMCR4SkFrwV+9Eo6NyehH7bzWl1zyyAr6wP8j0jtduckdvkUcmyoDOP2M3AkNgd+ZcQ==",
+      "1BQANOTEuMTA4LjU2LjEyOABQwxstTR81Nfcm/tmh20SrKp82pdQJkrsiHhc/NHJn7pPYiybHbL/NnfIYWriQF5lJz8o8FvlEVtQq8+GxCMp+jiyYGBeisN7TKouCRbIFg5XCfqHypd0UDY1hiKvTs73oeSn3mMZP3hKEEW92dC2dLsmZqXS09PYd28pRmKznCYwkoJlM2Puf+R9jQuIvr16MJUhxb3Nlug4QxoCq1MyjWWxgQSOiMpJdigxd57rNd/edeCyC67YMQu8fSXQF44EAkIDB0jVIg2VCTu3Wk36WE8aRA1IX1dtHEpso9+5b0efC/Ks/I+VWCCMQCtMrnzF36aBZKTj4YcPhzHijWdJhvQ==",
       "1BQANOTEuMTA4LjU2LjEyOABQLHDMD4nttp5nlyYavCPWP5Mu6WVqx7EprUCty5ZofNENdyWJn6FsczIjIQ95L/qNm5v3Z/pCBJ7kC25NdWudkeIAKXQBrE37b16VObxHq+0oXQk/ySOspHUPJSFy3E1UDPQjFdWS0lbKiAs4Fhd1/P7FYFNpXeGobfi9lfWY8TZlbS0m5+7s2L6bxj/JGWbNFtPL+0B+F0QbhGW9pFdmpdw/eEAiw7ZENCZxY0hJ74KNiPRqunDHXQRiXLPlXU/NoxygvOizxKFsCduCKrcloIrjZTLnbeF26SmNR3EdC8MmC1emxoPyfxd1KpQyWUPRmx+nZBV4NRDZPS3Y8JetHw==",
       "1BQAWZmxvcmEud2ViLnRlbGVncmFtLm9yZwG7be+PddSzlPTzgS/mbCsxeZYLhE9ohnesT10Ntv+pdypA3wfrAUdXGXBLb2uturgLlkO49XMxAsIoELAdi8OprHkYfeEWZrQPF9RqjucdgWviAVd3oy/JIHk6lbB6NCS06US2CMdLZMxAsLFLu2JTgWiI07Xm2tpCIaaYED9mmH7NiROvqBx+jpB2GoFM4xzqaoB3y43BURo/ZYPEM3uUB4AVsS7IwdK0/j8pJL/ChB3buNnNtyVADe8wFvEAcbMn/385Xz53T21BdYqanzMuZX2O9cv4UNCpA9P6HoEYRn0D9XsljY6xJFNdR/RRKGHBqlVLK/Xt6PagRm321YBAvw=="
     ];
@@ -184,8 +184,8 @@ export default {
       //   //   }
       //   // }
       //   // if (dialog.isUser === true) {
-      //   // if (dialog.draft._entity.bot === true) {
-      //   if (dialog.entity.deleted === true) {
+      //   if (dialog.draft._entity.bot === true) {
+      //   // if (dialog.entity.deleted === true) {
       //   // if (dialog.draft._entity.bot === true && dialog.entity.deleted === true) {
       //     const cache = [];
       //     const json_str = JSON.stringify(dialog, function(key, value) {
@@ -232,8 +232,10 @@ export default {
               // accessHash: bigInt("-5856254949516087696"),
               // userId: bigInt("8644136882"),  //nnfilebot
               // accessHash: bigInt("-1388224743701786177"),
-              userId: bigInt("8633923875"),  //blgjlqbot
-              accessHash: bigInt("3740805468883295251"),
+              // userId: bigInt("8633923875"),  //blgjlqbot
+              // accessHash: bigInt("3740805468883295251"),
+              userId: bigInt("8739054943"),  //tgjmq5bot
+              accessHash: bigInt("-5019818591313862931"),
             }),
           ],
         })
@@ -336,7 +338,7 @@ export default {
           // "me",
           fromPeer,
           {
-            limit: 10,
+            limit: 20,
             reverse: false,
             // reverse: true,
             // addOffset: 10000,
@@ -360,15 +362,16 @@ export default {
           // console.log("-------------------------------------------------------------");  //测试
           // break;
           // //console.log(forwardResult);  //测试
-          console.log(message);  //测试
+          // console.log(message);  //测试
           if (message.replyMarkup) {
             if (message.replyMarkup.rows) {
-              // console.log(message);  //测试
+              console.log(message);  //测试
               for (const row of message.replyMarkup.rows) {
                 // console.log(row);  //测试
                 for (let button of row.buttons) {
                   // console.log(button);  //测试
-                  if (button.text === "加入队列全部推送") {
+                  // if (button.text === "加入队列全部推送") {
+                  if (button.text === "下一页 ➡️") {
                     await client[clientIndex].invoke(new Api.messages.GetBotCallbackAnswer({
                       peer: fromPeer,
                       msgId: message.id,

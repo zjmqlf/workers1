@@ -17,6 +17,11 @@ npm run deploy-forward
 npm run dist-bot
 npm run deploy-bot
 
+npm run dist-blgjlq
+npm run deploy-blgjlq
+
+npm run dist-tgjmq
+npm run deploy-tgjmq
 
 npm run dist-test
 npm run deploy-test

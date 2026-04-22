@@ -1,7 +1,7 @@
 import { DurableObject } from "cloudflare:workers";
 import { TelegramClient, Api, sessions, utils } from "./teleproto";
 import { LogLevel } from "./teleproto/extensions";
-import { codeString } from "./tgjmqString";
+import { codeString } from "./blgjlqString";
 import bigInt from "big-integer";
 
 export class WebSocketServer extends DurableObject {
@@ -582,7 +582,20 @@ export class WebSocketServer extends DurableObject {
       });
       await this.close()
     } else {
-      await scheduler.wait(5000);
+      if (this.queue === true) {
+        for (let i = 0; i < 6; i++) {
+          await scheduler.wait(5000);
+          // this.ws.ping();
+          // this.ws.send({
+          //   "result": "ping",
+          // });
+          this.broadcast({
+            "result": "ping",
+          });
+        }
+      } else {
+        await scheduler.wait(5000);
+      }
       await this.nextStep();
     }
   }
@@ -615,6 +628,7 @@ export class WebSocketServer extends DurableObject {
       // }
       if (messageLength && messageLength > 0) {
         if (this.stop === 1) {
+          let temp = null;
           let status = false;
           for (let messageIndex = 0; messageIndex < messageLength; messageIndex++) {
             if (!messageArray[messageIndex].noforwards || messageArray[messageIndex].noforwards === false) {
@@ -646,41 +660,25 @@ export class WebSocketServer extends DurableObject {
                     // console.log(row);  //测试
                     for (let button of row.buttons) {
                       // console.log(button);  //测试
-                      if (button.text === "下一页 ➡️") {
-                        if (this.queue === false) {
-                          this.queue = true;
-                          await this.ctx.storage.put("queue", true);
-                        }
-                        await this.client.invoke(
-                          new Api.messages.GetBotCallbackAnswer({
-                            peer: this.fromPeer,
-                            msgId: id,
-                            data: button.data,
-                          })
-                        );
-                        //console.log("(" + this.currentStep + ") 下一页");  //测试
-                        this.sendLog("nextStep", "下一页", null, false);  //测试
-                      // } else if (button.text === "⬅️ 上一页") {
-                      //   if (this.queue === true) {
-                      //     this.queue = false;
-                      //     await this.ctx.storage.put("queue", false);
-                      //     //console.log("(" + this.currentStep + ") 所有媒体已获取完毕");  //测试
-                      //     this.sendLog("start", "所有媒体已获取完毕", null, false);  //测试
-                      //   }
+                      if (button.text === "加入队列全部推送") {
+                        temp = {
+                          id: id,
+                          data: button.data,
+                        };
                       } else {
-                        const regexp = /📄 \d+\/\d+/gi;
-                        if (regexp.test(button.text)) {
-                          const regexp = /(\d+?)/gi;
-                          const matches = button.text.match(regexp);
+                        const message = messageArray[messageIndex].message;
+                        const regexp = /这是第 \d+ 页 \/ 共 \d+ 页/gi;
+                        if (regexp.test(message)) {
+                          const regexp = / (\d+?) /gi;
+                          const matches = message.match(regexp);
                           // console.log(matches);  //测试
                           if (matches && matches.length === 2) {
                             if (matches[0] === matches[1]) {
-                              if (this.queue === true) {
-                                this.queue = false;
-                                await this.ctx.storage.put("queue", false);
-                                //console.log("(" + this.currentStep + ") 所有媒体已获取完毕");  //测试
-                                this.sendLog("nextStep", "所有媒体已获取完毕", null, false);  //测试
-                              }
+                              temp = null;
+                              this.queue = false;
+                              await this.ctx.storage.put("queue", false);
+                              //console.log("(" + this.currentStep + ") 所有媒体已发送完毕");  //测试
+                              this.sendLog("nextStep", "所有媒体已发送完毕", null, false);  //测试
                             }
                           }
                         }
@@ -690,35 +688,37 @@ export class WebSocketServer extends DurableObject {
                 }
               } else {
                 const message = messageArray[messageIndex].message;
-                const str = message.substr(0, 10);
-                if (str === "tgjmq1bot_" || str === "tgjmq3bot_" || str === "tgjmq5bot_") {
+                if (message.substr(0, 10) === "blgjlqbot_") {
                   await this.ctx.storage.put(message, 1);
                   // //console.log("(" + this.currentStep + ") 代码入库完毕");  //测试
                   // this.sendLog("nextStep", "代码入库完毕", null, false);  //测试
-                } else {
-                  const regexp = /📄 第\d+页\/共\d+页/gi;
-                  if (regexp.test(message)) {
-                    const regexp = /(\d+?)/gi;
-                    const matches = message.match(regexp);
-                    // console.log(matches);  //测试
-                    if (matches && matches.length === 2) {
-                      if (matches[0] === matches[1]) {
-                        if (this.queue === true) {
-                          this.queue = false;
-                          await this.ctx.storage.put("queue", false);
-                          //console.log("(" + this.currentStep + ") 所有媒体已获取完毕");  //测试
-                          this.sendLog("nextStep", "所有媒体已获取完毕", null, false);  //测试
-                        }
-                      }
-                    }
-                  }
+                } else if (message === "所有媒体已发送完毕。") {
+                  temp = null;
+                  this.queue = false;
+                  await this.ctx.storage.put("queue", false);
+                  //console.log("(" + this.currentStep + ") 所有媒体已发送完毕");  //测试
+                  this.sendLog("nextStep", "所有媒体已发送完毕", null, false);  //测试
                 }
               }
             }
           }
           if (this.queue === false) {
-            if (status === true) {
-              await this.sendQuery(1);
+            if (temp) {
+              this.queue = true;
+              await this.ctx.storage.put("queue", true);
+              await this.client.invoke(
+                new Api.messages.GetBotCallbackAnswer({
+                  peer: this.fromPeer,
+                  msgId: temp.id,
+                  data: temp.data,
+                })
+              );
+              //console.log("(" + this.currentStep + ") 加入队列全部推送");  //测试
+              this.sendLog("nextStep", "加入队列全部推送", null, false);  //测试
+            } else {
+              if (status === true) {
+                await this.sendQuery(1);
+              }
             }
           }
           await this.checkMessage(status);
@@ -760,10 +760,7 @@ export class WebSocketServer extends DurableObject {
         if (this.stop === 1) {
           if (this.queue === false) {
             await this.sendQuery(1);
-          } else if (this.queue === true) {
-            this.offsetId -= 1;
           }
-          await scheduler.wait(5000);
           await this.endStep("nextStep");
         } else if (this.stop === 2) {
           this.broadcast({
@@ -811,8 +808,8 @@ export class WebSocketServer extends DurableObject {
         new Api.users.GetUsers({
           id: [
             new Api.InputUser({
-              userId: bigInt("8739054943"),
-              accessHash: bigInt("-5019818591313862931"),
+              userId: bigInt("8633923875"),
+              accessHash: bigInt("3740805468883295251"),
             }),
           ],
         })
@@ -915,6 +912,7 @@ export class WebSocketServer extends DurableObject {
           //   this.sendLog("start", "messageLength比limit大", null, true);
           // }
           if (messageLength && messageLength > 0) {
+            let temp = null;
             let status = false;
             for (let messageIndex = 0; messageIndex < messageLength; messageIndex++) {
               if (!messageArray[messageIndex].noforwards || messageArray[messageIndex].noforwards === false) {
@@ -946,41 +944,25 @@ export class WebSocketServer extends DurableObject {
                       // console.log(row);  //测试
                       for (let button of row.buttons) {
                         // console.log(button);  //测试
-                        if (button.text === "下一页 ➡️") {
-                          if (this.queue === false) {
-                            this.queue = true;
-                            await this.ctx.storage.put("queue", true);
-                          }
-                          await this.client.invoke(
-                            new Api.messages.GetBotCallbackAnswer({
-                              peer: this.fromPeer,
-                              msgId: id,
-                              data: button.data,
-                            })
-                          );
-                          //console.log("(" + this.currentStep + ") 下一页");  //测试
-                          this.sendLog("start", "下一页", null, false);  //测试
-                        // } else if (button.text === "⬅️ 上一页") {
-                        //   if (this.queue === true) {
-                        //     this.queue = false;
-                        //     await this.ctx.storage.put("queue", false);
-                        //     //console.log("(" + this.currentStep + ") 所有媒体已获取完毕");  //测试
-                        //     this.sendLog("start", "所有媒体已获取完毕", null, false);  //测试
-                        //   }
+                        if (button.text === "加入队列全部推送") {
+                          temp = {
+                            id: id,
+                            data: button.data,
+                          };
                         } else {
-                          const regexp = /📄 \d+\/\d+/gi;
-                          if (regexp.test(button.text)) {
-                            const regexp = /(\d+?)/gi;
-                            const matches = button.text.match(regexp);
+                          const message = messageArray[messageIndex].message;
+                          const regexp = /这是第 \d+ 页 \/ 共 \d+ 页/gi;
+                          if (regexp.test(message)) {
+                            const regexp = / (\d+?) /gi;
+                            const matches = message.match(regexp);
                             // console.log(matches);  //测试
                             if (matches && matches.length === 2) {
                               if (matches[0] === matches[1]) {
-                                if (this.queue === true) {
-                                  this.queue = false;
-                                  await this.ctx.storage.put("queue", false);
-                                  //console.log("(" + this.currentStep + ") 所有媒体已获取完毕");  //测试
-                                  this.sendLog("start", "所有媒体已获取完毕", null, false);  //测试
-                                }
+                                temp = null;
+                                this.queue = false;
+                                await this.ctx.storage.put("queue", false);
+                                //console.log("(" + this.currentStep + ") 所有媒体已发送完毕");  //测试
+                                this.sendLog("start", "所有媒体已发送完毕", null, false);  //测试
                               }
                             }
                           }
@@ -990,35 +972,37 @@ export class WebSocketServer extends DurableObject {
                   }
                 } else {
                   const message = messageArray[messageIndex].message;
-                  const str = message.substr(0, 10);
-                  if (str === "tgjmq1bot_" || str === "tgjmq3bot_" || str === "tgjmq5bot_") {
+                  if (message.substr(0, 10) === "blgjlqbot_") {
                     await this.ctx.storage.put(message, 1);
                     // //console.log("(" + this.currentStep + ") 代码入库完毕");  //测试
                     // this.sendLog("start", "代码入库完毕", null, false);  //测试
-                  } else {
-                    const regexp = /📄 第\d+页\/共\d+页/gi;
-                    if (regexp.test(message)) {
-                      const regexp = /(\d+?)/gi;
-                      const matches = message.match(regexp);
-                      // console.log(matches);  //测试
-                      if (matches && matches.length === 2) {
-                        if (matches[0] === matches[1]) {
-                          if (this.queue === true) {
-                            this.queue = false;
-                            await this.ctx.storage.put("queue", false);
-                            //console.log("(" + this.currentStep + ") 所有媒体已获取完毕");  //测试
-                            this.sendLog("start", "所有媒体已获取完毕", null, false);  //测试
-                          }
-                        }
-                      }
-                    }
+                  } else if (message === "所有媒体已发送完毕。") {
+                    temp = null;
+                    this.queue = false;
+                    await this.ctx.storage.put("queue", false);
+                    //console.log("(" + this.currentStep + ") 所有媒体已发送完毕");  //测试
+                    this.sendLog("start", "所有媒体已发送完毕", null, false);  //测试
                   }
                 }
               }
             }
             if (this.queue === false) {
-              if (status === true) {
-                await this.sendQuery(1);
+              if (temp) {
+                this.queue = true;
+                await this.ctx.storage.put("queue", true);
+                await this.client.invoke(
+                  new Api.messages.GetBotCallbackAnswer({
+                    peer: this.fromPeer,
+                    msgId: temp.id,
+                    data: temp.data,
+                  })
+                );
+                //console.log("(" + this.currentStep + ") 加入队列全部推送");  //测试
+                this.sendLog("start", "加入队列全部推送", null, false);  //测试
+              } else {
+                if (status === true) {
+                  await this.sendQuery(1);
+                }
               }
             }
             await this.checkMessage(status);
@@ -1054,10 +1038,7 @@ export class WebSocketServer extends DurableObject {
             if (this.stop === 1) {
               if (this.queue === false) {
                 await this.sendQuery(1);
-              } else if (this.queue === true) {
-                this.offsetId -= 1;
               }
-              await scheduler.wait(5000);
               await this.endStep("start");
             } else if (this.stop === 2) {
               this.broadcast({
@@ -1180,7 +1161,7 @@ export default {
           status: 426,
         });
       }
-      const id = env.WEBSOCKET_SERVER.idFromName("tgjmq");
+      const id = env.WEBSOCKET_SERVER.idFromName("bot");
       const stub = env.WEBSOCKET_SERVER.get(id);
       return stub.fetch(request);
     }

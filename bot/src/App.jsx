@@ -436,24 +436,6 @@ const App = () => {
                 });
               }
               break;
-            case "getChat":
-            case "nextChat":
-            case "checkChat":
-              if (message.status === "add") {
-                const {
-                  operate,
-                  status,
-                  ...temp
-                } = message;
-                addItems(temp);
-              } else {
-                //console.log("未知消息");
-                addNewEvent({
-                  "error": message.error,
-                  "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientIndex + "-" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
-                });
-              }
-              break;
             default:
               //console.log("未知消息");
               addNewEvent({
@@ -728,23 +710,6 @@ const App = () => {
     }
   }, [setNextBtnDisabled, handlerMessageError]);
 
-  const handlerChatBtnClick = useCallback(() => {
-    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-      try {
-        ws.current.send(JSON.stringify({
-          "command": "chat",
-        }));
-      } catch (e) {
-        // console.log(e);  //测试
-        handlerMessageError("  >>> chat失败");
-      }
-    } else {
-      waitReconnect(JSON.stringify({
-        "command": "chat",
-      }), 1000);
-    }
-  }, [handlerMessageError, waitReconnect]);
-
   const handlerClearCacheBtnClick = useCallback(() => {
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       try {
@@ -917,7 +882,6 @@ const App = () => {
             <button onClick={handlerCollectBtnClick} disabled={isCollectBtnDisabled}>断开</button>
             <button onClick={handlerCloseBtnClick} disabled={isCloseBtnDisabled}>强制关闭</button>
             <button onClick={handlerNextBtnClick} disabled={isNextBtnDisabled}>不再继续</button>
-            <button onClick={handlerChatBtnClick}>chat</button>
             <button onClick={handlerClearCacheBtnClick}>清空cache</button>
             <button onClick={handlerClearGridBtnClick} disabled={isClearGridBtnDisabled}>清空grid</button>
             <button onClick={handlerClearLogBtnClick} disabled={isClearLogBtnDisabled}>清空log</button>
