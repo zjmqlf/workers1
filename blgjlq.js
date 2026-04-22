@@ -257,13 +257,14 @@ export class WebSocketServer extends DurableObject {
     });
   }
 
-  sendForward(operate, message, messageLength, status, error) {
+  sendForward(operate, message, messageIndex, status, error) {
     this.broadcast({
       "step": this.currentStep,
       "codeIndex": this.codeIndex + 1,
       "offsetId": this.offsetId,
       "operate": operate,
-      "messageLength": messageLength,
+      "messageIndex": messageIndex,
+      "messageLength": this.idArray.length,
       "message": message,
       "status": status,
       "error": error,
@@ -401,22 +402,30 @@ export class WebSocketServer extends DurableObject {
       await this.ctx.storage.put("codeIndex", this.codeIndex);
       const code = this.codes[this.codeIndex];
       if (code) {
-        try {
-          const result = await this.client.invoke(
-            new Api.messages.SendMessage({
-              peer: this.fromPeer,
-              message: code,
-              silent: true,
-            })
-          );
-        } catch (e) {
-          //console.log("sendQuery出错 : " + e);
-          this.sendLog("sendQuery", "出错 : " + JSON.stringify(e), null, true);
-          await this.sendQueryError(tryCount);
+        const status = await this.ctx.storage.get(code);
+        if (status) {
+          //console.log("sendQuery当前代码已入过库了");
+          this.sendLog("sendQuery", "当前代码已入过库了", null, true);
+          await this.sendQuery(1);
           return;
+        } else {
+          try {
+            const result = await this.client.invoke(
+              new Api.messages.SendMessage({
+                peer: this.fromPeer,
+                message: code,
+                silent: true,
+              })
+            );
+          } catch (e) {
+            //console.log("sendQuery出错 : " + e);
+            this.sendLog("sendQuery", "出错 : " + JSON.stringify(e), null, true);
+            await this.sendQueryError(tryCount);
+            return;
+          }
+          //console.log("(" + this.currentStep + ") code : " + code);  //测试
+          this.sendLog("sendQuery", code, "error", false);  //测试
         }
-        //console.log("(" + this.currentStep + ") code : " + code);  //测试
-        this.sendLog("sendQuery", code, "error", false);  //测试
       } else {
         //console.log("(" + this.currentStep + ") code为空");
         this.sendLog("sendQuery", "code为空", "error", true);
@@ -431,7 +440,7 @@ export class WebSocketServer extends DurableObject {
     if (time && time > 0) {
       if (flood === false) {
         //console.log("(" + this.currentStep + ") 还需等待" + (time / 1000) + "秒");
-        this.sendForward("waitNext", "还需等待" + Math.ceil(time / 1000) + "秒", 0, "wait", true);
+        this.sendLog("waitNext", "还需等待" + Math.ceil(time / 1000) + "秒", "wait", true);
       }
       // const pingInterval = setInterval(function () {
       //   // this.ws.ping();
@@ -464,14 +473,14 @@ export class WebSocketServer extends DurableObject {
     const messageLength = idArray.length;
     // if (messageLength > this.limit) {
     //   //console.log("(" + this.currentStep + ") messageLength比limit大");
-    //   this.sendForward("forwardMessage", "messageLength比limit大", 0, "error", true);
+    //   this.sendLog("forwardMessage", "messageLength比limit大", "error", true);
     // }
     //console.log(length);  //测试
     if (this.flood && this.flood > 0) {
       this.count = 0;
       if (this.flood > new Date().getTime()) {
         //console.log("(" + this.currentStep + ") 还需等待" + ((this.flood - new Date().getTime()) / 1000) + "秒的洪水警告时间");
-        this.sendForward("forwardMessage", "还需等待" + Math.ceil((this.flood - new Date().getTime()) / 1000) + "秒的洪水警告时间", 0, "flood", true);
+        this.sendLog("forwardMessage", "还需等待" + Math.ceil((this.flood - new Date().getTime()) / 1000) + "秒的洪水警告时间", "flood", true);
         return;
       } else {
         this.flood = 0;
@@ -502,13 +511,13 @@ export class WebSocketServer extends DurableObject {
       } catch (e) {
         if (e.errorMessage === "RANDOM_ID_DUPLICATE" || e.code === 500) {
           //console.log("(" + this.currentStep + ") " + e);
-          this.sendForward("forwardMessage", JSON.stringify(e), 0, "error", true);
+          this.sendLog("forwardMessage", JSON.stringify(e), "error", true);
         } else if (e.errorMessage === "CHAT_FORWARDS_RESTRICTED" || e.code === 400) {
           // this.offsetId += this.count;
           // this.count = 0;
           // await this.ctx.storage.put("offsetId", this.offsetId);
           // //console.log("(" + this.currentStep + ") 消息不允许转发" + e);
-          this.sendForward("forwardMessage", "消息不允许转发 : " + JSON.stringify(e), 0, "error", true);
+          this.sendLog("forwardMessage", "消息不允许转发 : " + JSON.stringify(e), "error", true);
           return;
         } else if (e.errorMessage === "FLOOD" || e.code === 420) {
           this.count = 0;
@@ -518,12 +527,12 @@ export class WebSocketServer extends DurableObject {
             await this.ctx.storage.put("client", this.flood);
           }
           //console.log("(" + this.currentStep + ") 触发了洪水警告，请求太频繁" + e);
-          this.sendForward("forwardMessage", "触发了洪水警告，请求太频繁 : " + JSON.stringify(e), 0, "flood", true);
+          this.sendLog("forwardMessage", "触发了洪水警告，请求太频繁 : " + JSON.stringify(e), "flood", true);
           return;
         } else {
           this.count = 0;
           //console.log("(" + this.currentStep + ") 转发消息时发生错误" + e);
-          this.sendForward("forwardMessage", "转发消息时发生错误 : " + JSON.stringify(e), 0, "error", true);
+          this.sendLog("forwardMessage", "转发消息时发生错误 : " + JSON.stringify(e), "error", true);
           return;
         }
       }
@@ -531,13 +540,13 @@ export class WebSocketServer extends DurableObject {
       // this.count = 0;
       // await this.ctx.storage.put("offsetId", this.offsetId);
       //console.log("(" + this.currentStep + ") 成功转发了" + length + "条消息");
-      this.sendForward("forwardMessage", "成功转发了" + messageLength + "条消息", messageLength, "update", false);
+      this.sendLog("forwardMessage", "成功转发了" + messageLength + "条消息", null, false);
     } else {
       // this.offsetId += this.count;
       // this.count = 0;
       // await this.ctx.storage.put("offsetId", this.offsetId);
       //console.log("(" + this.currentStep + ") 消息无需转发");
-      this.sendForward("forwardMessage", "消息无需转发", 0, "error", true);
+      this.sendLog("forwardMessage", "消息无需转发", "error", true);
     }
     this.time = new Date().getTime();
   }
@@ -756,7 +765,7 @@ export class WebSocketServer extends DurableObject {
           await this.ctx.storage.put("offsetId", this.offsetId);
         }
         //console.log("(" + this.currentStep + ") 没有获取到有效的消息");
-        this.sendForward("nextStep", "没有获取到有效的消息", 0, "error", true);
+        this.sendLog("nextStep", "没有获取到有效的消息", "error", true);
         if (this.stop === 1) {
           if (this.queue === false) {
             await this.sendQuery(1);
@@ -1034,7 +1043,7 @@ export class WebSocketServer extends DurableObject {
               await this.ctx.storage.put("offsetId", this.offsetId);
             }
             //console.log("(" + this.currentStep + ") 没有获取到有效的消息");
-            this.sendForward("start", "没有获取到有效的消息", 0, "error", true);
+            this.sendLog("start", "没有获取到有效的消息", "error", true);
             if (this.stop === 1) {
               if (this.queue === false) {
                 await this.sendQuery(1);

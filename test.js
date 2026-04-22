@@ -234,7 +234,7 @@ export default {
               // accessHash: bigInt("-1388224743701786177"),
               // userId: bigInt("8633923875"),  //blgjlqbot
               // accessHash: bigInt("3740805468883295251"),
-              userId: bigInt("8739054943"),  //tgjmq5bot
+              userId: bigInt("8739054943"),  //tgjmqbot
               accessHash: bigInt("-5019818591313862931"),
             }),
           ],
@@ -372,12 +372,13 @@ export default {
                   // console.log(button);  //测试
                   // if (button.text === "加入队列全部推送") {
                   if (button.text === "下一页 ➡️") {
-                    await client[clientIndex].invoke(new Api.messages.GetBotCallbackAnswer({
+                    const result = await client[clientIndex].invoke(new Api.messages.GetBotCallbackAnswer({
                       peer: fromPeer,
                       msgId: message.id,
                       data: button.data,
                       // password: encryptedPassword,
                     }));
+                    console.log(result);  //测试
                   }
                 }
               }

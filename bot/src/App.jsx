@@ -122,8 +122,8 @@ const App = () => {
         openByDefault: true,
         children: [
           {
-            field: "forward",
-            headerName: "forward",
+            field: "messageIndex",
+            headerName: "messageIndex",
             columnGroupShow: "open",
           },
           {
@@ -255,15 +255,6 @@ const App = () => {
   }, [addNewEvent, renderTime, setRowData, setClearGridBtnDisabled]);
 
   const updateLastRow = useCallback((items) => {
-    if (lastRow.current.data.forward && lastRow.current.data.forward > 0) {
-      if (items.messageLength && items.messageLength > 0) {
-        lastRow.current.data.forward += items.messageLength;
-      }
-    } else {
-      if (items.messageLength && items.messageLength > 0) {
-        lastRow.current.data.forward = items.messageLength;
-      }
-    }
     for (const name in items) {
       //console.log(name);  //测试
       //console.log(items[name]);  //测试
@@ -415,7 +406,8 @@ const App = () => {
           });
         } else {
           switch (message.operate) {
-            case "forwardMessage":
+            case "nextStep":
+            case "start":
               if (message.status === "update") {
                 // delete message.operate;
                 // delete message.status;
@@ -425,6 +417,13 @@ const App = () => {
                   ...temp
                 } = message;
                 updateItems(temp);
+              } if (message.status === "add") {
+                const {
+                  operate,
+                  status,
+                  ...temp
+                } = message;
+                addItems(temp);
               // } else if (message.status === "flood") {
               // } else if (message.status === "error") {
               // } else if (message.status === "wait") {
@@ -718,7 +717,37 @@ const App = () => {
         }));
       } catch (e) {
         // console.log(e);  //测试
-        handlerMessageError("  >>> clear失败");
+        handlerMessageError("  >>> clear cache失败");
+      }
+    } else {
+      handlerMessageError("  >>> 没有连接ws");
+    }
+  }, [handlerMessageError]);
+
+  const handlerClearQueueBtnClick = useCallback(() => {
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+      try {
+        ws.current.send(JSON.stringify({
+          "command": "cache",
+        }));
+      } catch (e) {
+        // console.log(e);  //测试
+        handlerMessageError("  >>> clear queue失败");
+      }
+    } else {
+      handlerMessageError("  >>> 没有连接ws");
+    }
+  }, [handlerMessageError]);
+
+  const handlerResetQueueBtnClick = useCallback(() => {
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+      try {
+        ws.current.send(JSON.stringify({
+          "command": "queue",
+        }));
+      } catch (e) {
+        // console.log(e);  //测试
+        handlerMessageError("  >>> reset queue失败");
       }
     } else {
       handlerMessageError("  >>> 没有连接ws");
@@ -883,6 +912,8 @@ const App = () => {
             <button onClick={handlerCloseBtnClick} disabled={isCloseBtnDisabled}>强制关闭</button>
             <button onClick={handlerNextBtnClick} disabled={isNextBtnDisabled}>不再继续</button>
             <button onClick={handlerClearCacheBtnClick}>清空cache</button>
+            <button onClick={handlerClearQueueBtnClick}>清空队列</button>
+            <button onClick={handlerResetQueueBtnClick}>重置queue</button>
             <button onClick={handlerClearGridBtnClick} disabled={isClearGridBtnDisabled}>清空grid</button>
             <button onClick={handlerClearLogBtnClick} disabled={isClearLogBtnDisabled}>清空log</button>
             <label>
