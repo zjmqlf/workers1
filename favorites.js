@@ -1239,14 +1239,22 @@ export class WebSocketServer extends DurableObject {
             // const timeLength = Math.floor(time / 60000);
             const timeLength = Math.ceil(time / this.pingTime);
             for (let i = 0; i < timeLength; i++) {
-              await scheduler.wait(this.pingTime);
-              // this.ws.ping();
-              // this.ws.send({
-              //   "result": "ping",
-              // });
-              this.broadcast({
-                "result": "ping",
-              });
+              if (this.stop === 2) {
+                this.broadcast({
+                  "result": "pause",
+                });
+                await this.closeAll();
+                break;
+              } else {
+                await scheduler.wait(this.pingTime);
+                // this.ws.ping();
+                // this.ws.send({
+                //   "result": "ping",
+                // });
+                this.broadcast({
+                  "result": "ping",
+                });
+              }
             }
           } else {
             await scheduler.wait(time);

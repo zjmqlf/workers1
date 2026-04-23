@@ -109,6 +109,21 @@ const App = () => {
             headerName:"offsetId",
             columnGroupShow: "open",
           },
+          {
+            field: "photoCount",
+            headerName:"photo",
+            columnGroupShow: "open",
+          },
+          {
+            field: "videoCount",
+            headerName:"video",
+            columnGroupShow: "open",
+          },
+          {
+            field: "fileCount",
+            headerName:"file",
+            columnGroupShow: "open",
+          },
           // {
           //   field: "messageId",
           //   headerName:"messageId",
@@ -123,12 +138,12 @@ const App = () => {
         children: [
           {
             field: "messageIndex",
-            headerName: "messageIndex",
+            headerName: "index",
             columnGroupShow: "open",
           },
           {
             field: "messageLength",
-            headerName: "messageLength",
+            headerName: "length",
             columnGroupShow: "open",
           },
           // {

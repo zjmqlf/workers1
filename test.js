@@ -234,8 +234,10 @@ export default {
               // accessHash: bigInt("-1388224743701786177"),
               // userId: bigInt("8633923875"),  //blgjlqbot
               // accessHash: bigInt("3740805468883295251"),
-              userId: bigInt("8739054943"),  //tgjmqbot
-              accessHash: bigInt("-5019818591313862931"),
+              // userId: bigInt("8739054943"),  //tgjmqbot
+              // accessHash: bigInt("-5019818591313862931"),
+              userId: bigInt("7964900739"),  //lockhive_bot
+              accessHash: bigInt("-5856254949516087696"),
             }),
           ],
         })
@@ -371,7 +373,9 @@ export default {
                 for (let button of row.buttons) {
                   // console.log(button);  //测试
                   // if (button.text === "加入队列全部推送") {
-                  if (button.text === "下一页 ➡️") {
+                  // if (button.text === "下一页 ➡️") {
+                  if (button.text.includes("➡️ 查看下一组 (") === true) {
+                    console.log(button.text.replace("➡️ 查看下一组 (", "").replace(")", ""));  //测试
                     const result = await client[clientIndex].invoke(new Api.messages.GetBotCallbackAnswer({
                       peer: fromPeer,
                       msgId: message.id,

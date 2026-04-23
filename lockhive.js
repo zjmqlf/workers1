@@ -1,7 +1,7 @@
 import { DurableObject } from "cloudflare:workers";
 import { TelegramClient, Api, sessions, utils } from "./teleproto";
 import { LogLevel } from "./teleproto/extensions";
-import { codeString } from "./tgjmqString";
+import { codeString } from "./lockhiveString";
 import bigInt from "big-integer";
 
 export class WebSocketServer extends DurableObject {
@@ -21,7 +21,6 @@ export class WebSocketServer extends DurableObject {
   // error = false;
   fromPeer = null;
   toPeer = null;
-  wait = false;
   queue = false;
   waitTime = 60000;
   pingTime = 5000;
@@ -110,7 +109,6 @@ export class WebSocketServer extends DurableObject {
       // this.error = false;
       this.fromPeer = null;
       this.toPeer = null;
-      this.wait = false;
       this.queue = await this.ctx.storage.get("queue") || false;
       this.waitTime = 60000;
       this.pingTime = 5000;
@@ -713,7 +711,6 @@ export class WebSocketServer extends DurableObject {
             if (!messageArray[messageIndex].noforwards || messageArray[messageIndex].noforwards === false) {
               const id = messageArray[messageIndex].id;
               if (messageArray[messageIndex].media) {
-                this.wait = false;
                 let fileId = null;
                 if (messageArray[messageIndex].media.document) {
                   // const mimeType = messageArray[messageIndex].media.document.mimeType;
@@ -734,17 +731,13 @@ export class WebSocketServer extends DurableObject {
                   this.fileIdArray.push(fileId);
                 }
               } else if (messageArray[messageIndex].replyMarkup) {
-                this.wait = false;
                 if (messageArray[messageIndex].replyMarkup.rows) {
                   // console.log(message);  //测试
-                  let both = false;
-                  let text = "";
                   for (const row of messageArray[messageIndex].replyMarkup.rows) {
                     // console.log(row);  //测试
                     for (let button of row.buttons) {
                       // console.log(button);  //测试
-                      if (button.text === "下一页 ➡️") {
-                        both = false;
+                      if (button.text === "全部获取" || button.text.includes("➡️ 查看下一组 (") === true) {
                         if (this.queue === false) {
                           this.queue = true;
                           await this.ctx.storage.put("queue", true);
@@ -756,73 +749,14 @@ export class WebSocketServer extends DurableObject {
                             data: button.data,
                           })
                         );
-                        // console.log("(" + this.currentStep + ")" + text ? "(" + text + ")下一页" : "下一页");  //测试
-                        this.sendForward("nextStep", text ? "(" + text + ")下一页" : "下一页", text, "update", false);
+                        // console.log("(" + this.currentStep + ")" + button.text);  //测试
+                        this.sendForward("nextStep", button.text, button.text.replace("全部获取", "").replace("➡️ 查看下一组 (", "").replace(")", ""), "update", false);
                         await scheduler.wait(5000);
-                        if (result && result.message === "数据已过期，请重新取件。") {
+                        if (result && result.message === "😭哥们！你点太快了！我好累啊！让我缓一秒！") {
                           this.sendLog("nextStep", result.message , "error", true);
+                          await scheduler.wait(5000);
                         }
-                      } else if (button.text === "⬅️ 上一页") {
-                        both = true;
-                      } else {
-                        const regexp = /📄 \d+\/\d+/gi;
-                        if (regexp.test(button.text)) {
-                          text = button.text.replace("📄 ", "");
-                          const regexp = /(\d+?)/gi;
-                          const matches = button.text.match(regexp);
-                          // console.log(matches);  //测试
-                          if (matches && matches.length === 2) {
-                            if (matches[0] === matches[1]) {
-                              if (this.queue === true) {
-                                this.queue = false;
-                                await this.ctx.storage.put("queue", false);
-                                //console.log("(" + this.currentStep + ") " + text ? "(" + text + ")所有媒体已获取完毕" : "所有媒体已获取完毕");
-                                this.sendForward("nextStep", text ? "(" + text + ")所有媒体已获取完毕" : "所有媒体已获取完毕", text, "update", false);
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                  if (both === true) {
-                    if (this.queue === true) {
-                      this.queue = false;
-                      await this.ctx.storage.put("queue", false);
-                      //console.log("(" + this.currentStep + ") " + text ? "(" + text + ")所有媒体已获取完毕" : "所有媒体已获取完毕");
-                      this.sendForward("nextStep", text ? "(" + text + ")所有媒体已获取完毕" : "所有媒体已获取完毕", text, "update", false);
-                    }
-                  }
-                }
-              } else {
-                const message = messageArray[messageIndex].message;
-                const str = message.substr(0, 10);
-                if (str === "tgjmq1bot_" || str === "tgjmq3bot_" || str === "tgjmq5bot_") {
-                  await this.ctx.storage.put(message, 1);
-                  this.getCount(message);
-                  //console.log("(" + this.currentStep + ") 代码入库完毕");
-                  this.sendForward("nextStep", "代码入库完毕", "", "add", false);
-                } else if (message === "正在取件...") {
-                  this.wait = true;
-                } else if (message.includes("密钥不存在或无权访问") === true) {
-                  this.wait = false;
-                  this.sendLog("nextStep", "密钥不存在或无权访问", "error", true);
-                } else if (message.includes("操作太频繁，请等待") === true) {
-                  const time = parseInt(message.replace("操作太频繁，请等待 ", "").replace(" 秒后再试", ""));
-                  if (time && time > 0) {
-                    this.flood = new Date().getTime() + 30000 + time * 1000;
-                    await this.ctx.storage.put("client", this.flood);
-                  }
-                  //console.log("(" + this.currentStep + ") 触发了洪水警告" + message);
-                  this.sendLog("nextStep", "触发了洪水警告，" + message, "flood", true);
-                } else {
-                  const regexp = /📄 第\d+页\/共\d+页/gi;
-                  if (regexp.test(message)) {
-                    const regexp = /(\d+?)/gi;
-                    const matches = message.match(regexp);
-                    // console.log(matches);  //测试
-                    if (matches && matches.length === 2) {
-                      if (matches[0] === matches[1]) {
+                      } else if (messageArray[messageIndex].message === "🫵体验蜂巢密钥搜索" || button.text.includes("🏁 文件获取完成！") === true) {
                         if (this.queue === true) {
                           this.queue = false;
                           await this.ctx.storage.put("queue", false);
@@ -832,6 +766,14 @@ export class WebSocketServer extends DurableObject {
                       }
                     }
                   }
+                }
+              } else {
+                const message = messageArray[messageIndex].message;
+                if (message.substr(0, 12) === "LockHivebot_" || message.substr(0, 3) === "LH_") {
+                  await this.ctx.storage.put(message, 1);
+                  this.getCount(message);
+                  //console.log("(" + this.currentStep + ") 代码入库完毕");
+                  this.sendForward("nextStep", "代码入库完毕", "", "add", false);
                 }
               }
             }
@@ -931,8 +873,8 @@ export class WebSocketServer extends DurableObject {
         new Api.users.GetUsers({
           id: [
             new Api.InputUser({
-              userId: bigInt("8739054943"),
-              accessHash: bigInt("-5019818591313862931"),
+              userId: bigInt("7964900739"),
+              accessHash: bigInt("-5856254949516087696"),
             }),
           ],
         })
@@ -1040,7 +982,6 @@ export class WebSocketServer extends DurableObject {
               if (!messageArray[messageIndex].noforwards || messageArray[messageIndex].noforwards === false) {
                 const id = messageArray[messageIndex].id;
                 if (messageArray[messageIndex].media) {
-                  this.wait = false;
                   let fileId = null;
                   if (messageArray[messageIndex].media.document) {
                     // const mimeType = messageArray[messageIndex].media.document.mimeType;
@@ -1061,17 +1002,13 @@ export class WebSocketServer extends DurableObject {
                     this.fileIdArray.push(fileId);
                   }
                 } else if (messageArray[messageIndex].replyMarkup) {
-                  this.wait = false;
                   if (messageArray[messageIndex].replyMarkup.rows) {
                     // console.log(message);  //测试
-                    let both = false;
-                    let text = "";
                     for (const row of messageArray[messageIndex].replyMarkup.rows) {
                       // console.log(row);  //测试
                       for (let button of row.buttons) {
                         // console.log(button);  //测试
-                        if (button.text === "下一页 ➡️") {
-                          both = false;
+                        if (button.text === "全部获取" || button.text.includes("➡️ 查看下一组 (") === true) {
                           if (this.queue === false) {
                             this.queue = true;
                             await this.ctx.storage.put("queue", true);
@@ -1083,82 +1020,31 @@ export class WebSocketServer extends DurableObject {
                               data: button.data,
                             })
                           );
-                          // console.log("(" + this.currentStep + ")" + text ? "(" + text + ")下一页" : "下一页");
-                          this.sendForward("start", text ? "(" + text + ")下一页" : "下一页", "update", false);
+                          // console.log("(" + this.currentStep + ")" + button.text);
+                          this.sendForward("start", button.text, button.text.replace("全部获取", "").replace("➡️ 查看下一组 (", "").replace(")", ""), "update", false);
                           await scheduler.wait(5000);
-                          if (result && result.message === "数据已过期，请重新取件。") {
+                          if (result && result.message === "😭哥们！你点太快了！我好累啊！让我缓一秒！") {
                             this.sendLog("start", result.message , "error", true);
+                            await scheduler.wait(5000);
                           }
-                        } else if (button.text === "⬅️ 上一页") {
-                          both = true;
-                        } else {
-                          const regexp = /📄 \d+\/\d+/gi;
-                          if (regexp.test(button.text)) {
-                            text = button.text.replace("📄 ", "");
-                            const regexp = /(\d+?)/gi;
-                            const matches = button.text.match(regexp);
-                            // console.log(matches);  //测试
-                            if (matches && matches.length === 2) {
-                              if (matches[0] === matches[1]) {
-                                if (this.queue === true) {
-                                  this.queue = false;
-                                  await this.ctx.storage.put("queue", false);
-                                  // console.log("(" + this.currentStep + ") " + text ? "(" + text + ")所有媒体已获取完毕" : "所有媒体已获取完毕");
-                                  this.sendForward("start", text ? "(" + text + ")所有媒体已获取完毕" : "所有媒体已获取完毕", text, "update", false);
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                    if (both === true) {
-                      if (this.queue === true) {
-                        this.queue = false;
-                        await this.ctx.storage.put("queue", false);
-                        // console.log("(" + this.currentStep + ") " + text ? "(" + text + ")所有媒体已获取完毕" : "所有媒体已获取完毕");
-                        this.sendForward("start", text ? "(" + text + ")所有媒体已获取完毕" : "所有媒体已获取完毕", text, "update", false);
-                      }
-                    }
-                  }
-                } else {
-                  const message = messageArray[messageIndex].message;
-                  const str = message.substr(0, 10);
-                  if (str === "tgjmq1bot_" || str === "tgjmq3bot_" || str === "tgjmq5bot_") {
-                    await this.ctx.storage.put(message, 1);
-                    this.getCount(message);
-                    //console.log("(" + this.currentStep + ") 代码入库完毕");  //测试
-                    this.sendForward("start", "代码入库完毕", "", "add", false);
-                  } else if (message === "正在取件...") {
-                    this.wait = true;
-                  } else if (message.includes("密钥不存在或无权访问") === true) {
-                    this.wait = false;
-                    this.sendLog("start", "密钥不存在或无权访问", "error", true);
-                  } else if (message.includes("操作太频繁，请等待") === true) {
-                    const time = parseInt(message.replace("操作太频繁，请等待 ", "").replace(" 秒后再试", ""));
-                    if (time && time > 0) {
-                      this.flood = new Date().getTime() + 30000 + time * 1000;
-                      await this.ctx.storage.put("client", this.flood);
-                    }
-                    //console.log("(" + this.currentStep + ") 触发了洪水警告" + message);
-                    this.sendLog("start", "触发了洪水警告，" + message, "flood", true);
-                  } else {
-                    const regexp = /📄 第\d+页\/共\d+页/gi;
-                    if (regexp.test(message)) {
-                      const regexp = /(\d+?)/gi;
-                      const matches = message.match(regexp);
-                      // console.log(matches);  //测试
-                      if (matches && matches.length === 2) {
-                        if (matches[0] === matches[1]) {
+                        } else if (messageArray[messageIndex].message === "🫵体验蜂巢密钥搜索" || button.text.includes("🏁 文件获取完成！") === true) {
                           if (this.queue === true) {
                             this.queue = false;
                             await this.ctx.storage.put("queue", false);
-                            // console.log("(" + this.currentStep + ") 所有媒体已获取完毕");
+                            //console.log("(" + this.currentStep + ") 所有媒体已获取完毕");
                             this.sendForward("start", "所有媒体已获取完毕", "", "update", false);
                           }
                         }
                       }
                     }
+                  }
+                } else {
+                  const message = messageArray[messageIndex].message;
+                  if (message.substr(0, 12) === "LockHivebot_" || message.substr(0, 3) === "LH_") {
+                    await this.ctx.storage.put(message, 1);
+                    this.getCount(message);
+                    //console.log("(" + this.currentStep + ") 代码入库完毕");  //测试
+                    this.sendForward("start", "代码入库完毕", "", "add", false);
                   }
                 }
               }
@@ -1348,7 +1234,7 @@ export default {
           status: 426,
         });
       }
-      const id = env.WEBSOCKET_SERVER.idFromName("tgjmq");
+      const id = env.WEBSOCKET_SERVER.idFromName("lockhive");
       const stub = env.WEBSOCKET_SERVER.get(id);
       return stub.fetch(request);
     }

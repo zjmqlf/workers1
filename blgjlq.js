@@ -109,6 +109,9 @@ export class WebSocketServer extends DurableObject {
       this.queue = await this.ctx.storage.get("queue") || false;
       this.waitTime = 60000;
       this.pingTime = 5000;
+      this.photoCount = 0;
+      this.videoCount = 0;
+      this.fileCount = 0;
       this.count = 0;
       this.flood = 0;
       this.time = 0;
@@ -265,6 +268,9 @@ export class WebSocketServer extends DurableObject {
       "operate": operate,
       "messageIndex": messageIndex,
       "messageLength": this.idArray.length,
+      "photoCount": this.photoCount,
+      "videoCount": this.videoCount,
+      "fileCount": this.fileCount,
       "message": message,
       "status": status,
       "error": error,
@@ -380,6 +386,50 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
+  getCount(text) {
+    let string = text.slice(10);
+    string = string.split("_");
+    if (string.length === 2) {
+      const temp = string[0];
+      string = temp.split("p");
+      if (string.length === 2) {
+        this.photoCount = Number(string[0]);
+        string = string[1].split("v");
+        if (string.length === 2) {
+          this.videoCount = Number(string[0]);
+          string = string[1].split("d");
+          if (string.length === 2) {
+            this.fileCount = Number(string[0]);
+          } else {
+            this.fileCount = 0;
+          }
+        } else {
+          this.videoCount = 0;
+          string = string[0].split("d");
+          if (string.length === 2) {
+            this.fileCount = Number(string[0]);
+          } else {
+            this.fileCount = 0;
+          }
+        }
+      } else {
+        this.photoCount = 0;
+        string = string[0].split("v");
+        if (string.length === 2) {
+          this.videoCount = Number(string[0]);
+          string = string[1].split("d");
+          if (string.length === 2) {
+            this.fileCount = Number(string[0]);
+          } else {
+            this.fileCount = 0;
+          }
+        } else {
+          this.videoCount = 0;
+        }
+      }
+    }
+  }
+
   async sendQueryError(tryCount) {
     if (tryCount === 20) {
       //console.log("(" + this.currentStep + ")sendQuery超出tryCount限制");
@@ -402,6 +452,9 @@ export class WebSocketServer extends DurableObject {
       await this.ctx.storage.put("codeIndex", this.codeIndex);
       const code = this.codes[this.codeIndex];
       if (code) {
+        this.photoCount = 0;
+        this.videoCount = 0;
+        this.fileCount = 0;
         const status = await this.ctx.storage.get(code);
         if (status) {
           //console.log("sendQuery当前代码已入过库了");
@@ -410,7 +463,7 @@ export class WebSocketServer extends DurableObject {
           return;
         } else {
           try {
-            const result = await this.client.invoke(
+            await this.client.invoke(
               new Api.messages.SendMessage({
                 peer: this.fromPeer,
                 message: code,
@@ -419,12 +472,12 @@ export class WebSocketServer extends DurableObject {
             );
           } catch (e) {
             //console.log("sendQuery出错 : " + e);
-            this.sendLog("sendQuery", "出错 : " + JSON.stringify(e), null, true);
+            this.sendLog("sendQuery", "出错 : " + JSON.stringify(e), "error", true);
             await this.sendQueryError(tryCount);
             return;
           }
-          //console.log("(" + this.currentStep + ") code : " + code);  //测试
-          this.sendLog("sendQuery", code, "error", false);  //测试
+          //console.log("(" + this.currentStep + ") code : " + code);
+          this.sendLog("sendQuery", code, null, false);
         }
       } else {
         //console.log("(" + this.currentStep + ") code为空");
@@ -454,14 +507,22 @@ export class WebSocketServer extends DurableObject {
         // const timeLength = Math.floor(time / 60000);
         const timeLength = Math.ceil(time / this.pingTime);
         for (let i = 0; i < timeLength; i++) {
-          await scheduler.wait(this.pingTime);
-          // this.ws.ping();
-          // this.ws.send({
-          //   "result": "ping",
-          // });
-          this.broadcast({
-            "result": "ping",
-          });
+          if (this.stop === 2) {
+            this.broadcast({
+              "result": "pause",
+            });
+            await this.close();
+            break;
+          } else {
+            await scheduler.wait(this.pingTime);
+            // this.ws.ping();
+            // this.ws.send({
+            //   "result": "ping",
+            // });
+            this.broadcast({
+              "result": "ping",
+            });
+          }
         }
       } else {
         await scheduler.wait(time);
@@ -579,7 +640,7 @@ export class WebSocketServer extends DurableObject {
     this.count = 0;
     await this.ctx.storage.put("offsetId", this.offsetId);
     //console.log("(" + this.currentStep + ") idArrayLength : " + this.idArray.length);  //测试
-    this.sendLog("nextStep", "idArrayLength : " + this.idArray.length, null, false);  //测试
+    this.sendLog("checkMessage", "idArrayLength : " + this.idArray.length, null, false);  //测试
   }
 
   async endStep(operate) {
@@ -593,14 +654,22 @@ export class WebSocketServer extends DurableObject {
     } else {
       if (this.queue === true) {
         for (let i = 0; i < 6; i++) {
-          await scheduler.wait(5000);
-          // this.ws.ping();
-          // this.ws.send({
-          //   "result": "ping",
-          // });
-          this.broadcast({
-            "result": "ping",
-          });
+          if (this.stop === 2) {
+            this.broadcast({
+              "result": "pause",
+            });
+            await this.close();
+            break;
+          } else {
+            await scheduler.wait(5000);
+            // this.ws.ping();
+            // this.ws.send({
+            //   "result": "ping",
+            // });
+            this.broadcast({
+              "result": "ping",
+            });
+          }
         }
       } else {
         await scheduler.wait(5000);
@@ -689,10 +758,12 @@ export class WebSocketServer extends DurableObject {
                                 temp = null;
                                 this.queue = false;
                                 await this.ctx.storage.put("queue", false);
-                                //console.log("(" + this.currentStep + ") 所有媒体已发送完毕");  //测试
-                                this.sendLog("nextStep", "所有媒体已发送完毕", null, false);  //测试
+                                //console.log("(" + this.currentStep + ") 所有媒体已发送完毕");
+                                this.sendForward("nextStep", "所有媒体已发送完毕", text, "update", false);
                               }
                             } else {
+                              //console.log("(" + this.currentStep + ") " + text);
+                              this.sendForward("nextStep", "", text, "update", false);
                             }
                           }
                         }
@@ -704,6 +775,7 @@ export class WebSocketServer extends DurableObject {
                 const message = messageArray[messageIndex].message;
                 if (message.substr(0, 10) === "blgjlqbot_") {
                   await this.ctx.storage.put(message, 1);
+                  this.getCount(message);
                   //console.log("(" + this.currentStep + ") 代码入库完毕");
                   this.sendForward("nextStep", "代码入库完毕", "", "add", false);
                 } else if (message === "所有媒体已发送完毕。") {
@@ -711,7 +783,7 @@ export class WebSocketServer extends DurableObject {
                   this.queue = false;
                   await this.ctx.storage.put("queue", false);
                   //console.log("(" + this.currentStep + ") 所有媒体已发送完毕");  //测试
-                  this.sendLog("nextStep", "所有媒体已发送完毕", null, false);  //测试
+                  this.sendForward("nextStep", "所有媒体已发送完毕", text, "update", false);  //测试
                 }
               }
             }
@@ -727,8 +799,8 @@ export class WebSocketServer extends DurableObject {
                   data: temp.data,
                 })
               );
-              //console.log("(" + this.currentStep + ") 加入队列全部推送");  //测试
-              this.sendLog("nextStep", "加入队列全部推送", null, false);  //测试
+              //console.log("(" + this.currentStep + ") 加入队列全部推送");
+              this.sendLog("nextStep", "加入队列全部推送", null, false);
             } else {
               if (status === true) {
                 await this.sendQuery(1);
@@ -978,10 +1050,12 @@ export class WebSocketServer extends DurableObject {
                                   temp = null;
                                   this.queue = false;
                                   await this.ctx.storage.put("queue", false);
-                                  //console.log("(" + this.currentStep + ") 所有媒体已发送完毕");  //测试
-                                  this.sendLog("start", "所有媒体已发送完毕", null, false);  //测试
+                                  //console.log("(" + this.currentStep + ") 所有媒体已发送完毕");
+                                  this.sendForward("start", "所有媒体已发送完毕", text, "update", false);
                                 }
                               } else {
+                                //console.log("(" + this.currentStep + ") " + text);
+                                this.sendForward("start", "", text, "update", false);
                               }
                             }
                           }
@@ -993,14 +1067,15 @@ export class WebSocketServer extends DurableObject {
                   const message = messageArray[messageIndex].message;
                   if (message.substr(0, 10) === "blgjlqbot_") {
                     await this.ctx.storage.put(message, 1);
+                    this.getCount(message);
                     //console.log("(" + this.currentStep + ") 代码入库完毕");
                     this.sendForward("nextStep", "代码入库完毕", "", "add", false);
                   } else if (message === "所有媒体已发送完毕。") {
                     temp = null;
                     this.queue = false;
                     await this.ctx.storage.put("queue", false);
-                    //console.log("(" + this.currentStep + ") 所有媒体已发送完毕");  //测试
-                    this.sendLog("start", "所有媒体已发送完毕", null, false);  //测试
+                    //console.log("(" + this.currentStep + ") 所有媒体已发送完毕");
+                    this.sendForward("start", "所有媒体已发送完毕", text, "update", false);
                   }
                 }
               }
@@ -1016,8 +1091,8 @@ export class WebSocketServer extends DurableObject {
                     data: temp.data,
                   })
                 );
-                //console.log("(" + this.currentStep + ") 加入队列全部推送");  //测试
-                this.sendLog("start", "加入队列全部推送", null, false);  //测试
+                //console.log("(" + this.currentStep + ") 加入队列全部推送");
+                this.sendLog("start", "加入队列全部推送", null, false);
               } else {
                 if (status === true) {
                   await this.sendQuery(1);
@@ -1148,6 +1223,27 @@ export class WebSocketServer extends DurableObject {
       if (data.endCode && data.endCode > 0 && this.endCode !== data.endCode) {
         this.endCode = data.endCode;
       }
+    } else if (command === "cache") {
+      this.idArray = [];
+      this.fileIdArray = [];
+      //console.log("清空队列缓存成功");
+      this.broadcast({
+        "operate": "clearQueue",
+        "step": this.currentStep,
+        "message": "清空队列缓存成功",
+        "error": true,
+        "date": new Date().getTime(),
+      });
+    } else if (command === "queue") {
+      this.queue = false;
+      //console.log("重置queue状态成功");
+      this.broadcast({
+        "operate": "resetQueue",
+        "step": this.currentStep,
+        "message": "重置queue状态成功",
+        "error": true,
+        "date": new Date().getTime(),
+      });
     } else {
       this.broadcast({
         "operate": "webSocketMessage",

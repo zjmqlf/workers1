@@ -17,8 +17,8 @@ npm run deploy-forward
 npm run dist-bot
 npm run deploy-bot
 
-npm run dist-blgjlq
-npm run deploy-blgjlq
+npm run dist-lockhive
+npm run deploy-lockhive
 
 npm run dist-tgjmq
 npm run deploy-tgjmq
