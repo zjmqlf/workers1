@@ -236,8 +236,8 @@ export default {
               // accessHash: bigInt("3740805468883295251"),
               // userId: bigInt("8739054943"),  //tgjmqbot
               // accessHash: bigInt("-5019818591313862931"),
-              userId: bigInt("7964900739"),  //lockhive_bot
-              accessHash: bigInt("-5856254949516087696"),
+              userId: bigInt("8554859780"),  //FileLeakBot
+              accessHash: bigInt("-6753499946272396397"),
             }),
           ],
         })
