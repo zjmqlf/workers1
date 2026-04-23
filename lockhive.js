@@ -24,9 +24,6 @@ export class WebSocketServer extends DurableObject {
   queue = false;
   waitTime = 60000;
   pingTime = 5000;
-  photoCount = 0;
-  videoCount = 0;
-  fileCount = 0;
   count = 0;
   flood = 0;
   time = 0;
@@ -112,8 +109,6 @@ export class WebSocketServer extends DurableObject {
       this.queue = await this.ctx.storage.get("queue") || false;
       this.waitTime = 60000;
       this.pingTime = 5000;
-      this.photoCount = 0;
-      this.videoCount = 0;
       this.fileCount = 0;
       this.count = 0;
       this.flood = 0;
@@ -271,9 +266,9 @@ export class WebSocketServer extends DurableObject {
       "operate": operate,
       "messageIndex": messageIndex,
       "messageLength": this.idArray.length,
-      "photoCount": this.photoCount,
-      "videoCount": this.videoCount,
-      "fileCount": this.fileCount,
+      // "photoCount": 0,
+      // "videoCount": 0,
+      // "fileCount": 0,
       "message": message,
       "status": status,
       "error": error,
@@ -389,50 +384,6 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
-  getCount(text) {
-    let string = text.slice(10);
-    string = string.split("_");
-    if (string.length === 2) {
-      const temp = string[0];
-      string = temp.split("P");
-      if (string.length === 2) {
-        this.photoCount = Number(string[0]);
-        string = string[1].split("V");
-        if (string.length === 2) {
-          this.videoCount = Number(string[0]);
-          string = string[1].split("D");
-          if (string.length === 2) {
-            this.fileCount = Number(string[0]);
-          } else {
-            this.fileCount = 0;
-          }
-        } else {
-          this.videoCount = 0;
-          string = string[0].split("D");
-          if (string.length === 2) {
-            this.fileCount = Number(string[0]);
-          } else {
-            this.fileCount = 0;
-          }
-        }
-      } else {
-        this.photoCount = 0;
-        string = string[0].split("V");
-        if (string.length === 2) {
-          this.videoCount = Number(string[0]);
-          string = string[1].split("D");
-          if (string.length === 2) {
-            this.fileCount = Number(string[0]);
-          } else {
-            this.fileCount = 0;
-          }
-        } else {
-          this.videoCount = 0;
-        }
-      }
-    }
-  }
-
   async sendQueryError(tryCount) {
     if (tryCount === 20) {
       //console.log("(" + this.currentStep + ")sendQuery超出tryCount限制");
@@ -455,9 +406,6 @@ export class WebSocketServer extends DurableObject {
       await this.ctx.storage.put("codeIndex", this.codeIndex);
       const code = this.codes[this.codeIndex];
       if (code) {
-        this.photoCount = 0;
-        this.videoCount = 0;
-        this.fileCount = 0;
         const status = await this.ctx.storage.get(code);
         if (status) {
           //console.log("sendQuery当前代码已入过库了");
@@ -749,14 +697,19 @@ export class WebSocketServer extends DurableObject {
                             data: button.data,
                           })
                         );
-                        // console.log("(" + this.currentStep + ")" + button.text);  //测试
-                        this.sendForward("nextStep", button.text, button.text.replace("全部获取", "").replace("➡️ 查看下一组 (", "").replace(")", ""), "update", false);
                         await scheduler.wait(5000);
                         if (result && result.message === "😭哥们！你点太快了！我好累啊！让我缓一秒！") {
                           this.sendLog("nextStep", result.message , "error", true);
                           await scheduler.wait(5000);
                         }
-                      } else if (messageArray[messageIndex].message === "🫵体验蜂巢密钥搜索" || button.text.includes("🏁 文件获取完成！") === true) {
+                        if (button.text === "全部获取") {
+                          // console.log("(" + this.currentStep + ")" + button.text);
+                          this.sendLog("nextStep", button.text, null, false);
+                        } else {
+                          // console.log("(" + this.currentStep + ")" + button.text);
+                          this.sendForward("nextStep", button.text, button.text.replace("全部获取", "").replace("➡️ 查看下一组 (", "").replace(")", ""), "update", false);
+                        }
+                      } else if (button.text === "🫵体验蜂巢密钥搜索" || messageArray[messageIndex].message.includes("🏁 文件获取完成！") === true) {
                         if (this.queue === true) {
                           this.queue = false;
                           await this.ctx.storage.put("queue", false);
@@ -771,7 +724,6 @@ export class WebSocketServer extends DurableObject {
                 const message = messageArray[messageIndex].message;
                 if (message.substr(0, 12) === "LockHivebot_" || message.substr(0, 3) === "LH_") {
                   await this.ctx.storage.put(message, 1);
-                  this.getCount(message);
                   //console.log("(" + this.currentStep + ") 代码入库完毕");
                   this.sendForward("nextStep", "代码入库完毕", "", "add", false);
                 }
@@ -1020,14 +972,19 @@ export class WebSocketServer extends DurableObject {
                               data: button.data,
                             })
                           );
-                          // console.log("(" + this.currentStep + ")" + button.text);
-                          this.sendForward("start", button.text, button.text.replace("全部获取", "").replace("➡️ 查看下一组 (", "").replace(")", ""), "update", false);
                           await scheduler.wait(5000);
                           if (result && result.message === "😭哥们！你点太快了！我好累啊！让我缓一秒！") {
                             this.sendLog("start", result.message , "error", true);
                             await scheduler.wait(5000);
                           }
-                        } else if (messageArray[messageIndex].message === "🫵体验蜂巢密钥搜索" || button.text.includes("🏁 文件获取完成！") === true) {
+                          if (button.text === "全部获取") {
+                            // console.log("(" + this.currentStep + ")" + button.text);
+                            this.sendLog("nextStep", button.text, null, false);
+                          } else {
+                            // console.log("(" + this.currentStep + ")" + button.text);
+                            this.sendForward("nextStep", button.text, button.text.replace("全部获取", "").replace("➡️ 查看下一组 (", "").replace(")", ""), "update", false);
+                          }
+                        } else if (button.text === "🫵体验蜂巢密钥搜索" || messageArray[messageIndex].message.includes("🏁 文件获取完成！") === true) {
                           if (this.queue === true) {
                             this.queue = false;
                             await this.ctx.storage.put("queue", false);
@@ -1042,8 +999,7 @@ export class WebSocketServer extends DurableObject {
                   const message = messageArray[messageIndex].message;
                   if (message.substr(0, 12) === "LockHivebot_" || message.substr(0, 3) === "LH_") {
                     await this.ctx.storage.put(message, 1);
-                    this.getCount(message);
-                    //console.log("(" + this.currentStep + ") 代码入库完毕");  //测试
+                    //console.log("(" + this.currentStep + ") 代码入库完毕");
                     this.sendForward("start", "代码入库完毕", "", "add", false);
                   }
                 }

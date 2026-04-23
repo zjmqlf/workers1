@@ -756,12 +756,12 @@ export class WebSocketServer extends DurableObject {
                             data: button.data,
                           })
                         );
-                        // console.log("(" + this.currentStep + ")" + text ? "(" + text + ")下一页" : "下一页");  //测试
-                        this.sendForward("nextStep", text ? "(" + text + ")下一页" : "下一页", text, "update", false);
                         await scheduler.wait(5000);
                         if (result && result.message === "数据已过期，请重新取件。") {
                           this.sendLog("nextStep", result.message , "error", true);
                         }
+                        // console.log("(" + this.currentStep + ")" + text ? "(" + text + ")下一页" : "下一页");
+                        this.sendForward("nextStep", text ? "(" + text + ")下一页" : "下一页", text, "update", false);
                       } else if (button.text === "⬅️ 上一页") {
                         both = true;
                       } else {
@@ -1083,12 +1083,12 @@ export class WebSocketServer extends DurableObject {
                               data: button.data,
                             })
                           );
-                          // console.log("(" + this.currentStep + ")" + text ? "(" + text + ")下一页" : "下一页");
-                          this.sendForward("start", text ? "(" + text + ")下一页" : "下一页", "update", false);
                           await scheduler.wait(5000);
                           if (result && result.message === "数据已过期，请重新取件。") {
                             this.sendLog("start", result.message , "error", true);
                           }
+                          // console.log("(" + this.currentStep + ")" + text ? "(" + text + ")下一页" : "下一页");
+                          this.sendForward("start", text ? "(" + text + ")下一页" : "下一页", "update", false);
                         } else if (button.text === "⬅️ 上一页") {
                           both = true;
                         } else {
@@ -1127,7 +1127,7 @@ export class WebSocketServer extends DurableObject {
                   if (str === "tgjmq1bot_" || str === "tgjmq3bot_" || str === "tgjmq5bot_") {
                     await this.ctx.storage.put(message, 1);
                     this.getCount(message);
-                    //console.log("(" + this.currentStep + ") 代码入库完毕");  //测试
+                    //console.log("(" + this.currentStep + ") 代码入库完毕");
                     this.sendForward("start", "代码入库完毕", "", "add", false);
                   } else if (message === "正在取件...") {
                     this.wait = true;
