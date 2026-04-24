@@ -765,10 +765,10 @@ export class WebSocketServer extends DurableObject {
                       } else if (button.text === "⬅️ 上一页") {
                         both = true;
                       } else {
-                        const regexp = /📄 \d+\/\d+/gi;
-                        if (regexp.test(button.text)) {
+                        const regexp = /📄 \d+\/\d+/i;
+                        if (regexp.test(button.text) === true) {
                           text = button.text.replace("📄 ", "");
-                          const regexp = /(\d+?)/gi;
+                          const regexp = /(\d+)/gi;
                           const matches = button.text.match(regexp);
                           // console.log(matches);  //测试
                           if (matches && matches.length === 2) {
@@ -816,9 +816,9 @@ export class WebSocketServer extends DurableObject {
                   //console.log("(" + this.currentStep + ") 触发了洪水警告" + message);
                   this.sendLog("nextStep", "触发了洪水警告，" + message, "flood", true);
                 } else {
-                  const regexp = /📄 第\d+页\/共\d+页/gi;
-                  if (regexp.test(message)) {
-                    const regexp = /(\d+?)/gi;
+                  const regexp = /📄 第\d+页\/共\d+页/i;
+                  if (regexp.test(message) === true) {
+                    const regexp = /(\d+)/gi;
                     const matches = message.match(regexp);
                     // console.log(matches);  //测试
                     if (matches && matches.length === 2) {
@@ -1092,10 +1092,10 @@ export class WebSocketServer extends DurableObject {
                         } else if (button.text === "⬅️ 上一页") {
                           both = true;
                         } else {
-                          const regexp = /📄 \d+\/\d+/gi;
-                          if (regexp.test(button.text)) {
+                          const regexp = /📄 \d+\/\d+/i;
+                          if (regexp.test(button.text) === true) {
                             text = button.text.replace("📄 ", "");
-                            const regexp = /(\d+?)/gi;
+                            const regexp = /(\d+)/gi;
                             const matches = button.text.match(regexp);
                             // console.log(matches);  //测试
                             if (matches && matches.length === 2) {
@@ -1143,9 +1143,9 @@ export class WebSocketServer extends DurableObject {
                     //console.log("(" + this.currentStep + ") 触发了洪水警告" + message);
                     this.sendLog("start", "触发了洪水警告，" + message, "flood", true);
                   } else {
-                    const regexp = /📄 第\d+页\/共\d+页/gi;
-                    if (regexp.test(message)) {
-                      const regexp = /(\d+?)/gi;
+                    const regexp = /📄 第\d+页\/共\d+页/i;
+                    if (regexp.test(message) === true) {
+                      const regexp = /(\d+)/gi;
                       const matches = message.match(regexp);
                       // console.log(matches);  //测试
                       if (matches && matches.length === 2) {
@@ -1303,6 +1303,16 @@ export class WebSocketServer extends DurableObject {
         "operate": "clearQueue",
         "step": this.currentStep,
         "message": "清空队列缓存成功",
+        "error": true,
+        "date": new Date().getTime(),
+      });
+    } else if (command === "code") {
+      this.codeIndex = 0;
+      //console.log("重置code序号成功");
+      this.broadcast({
+        "operate": "resetCode",
+        "step": this.currentStep,
+        "message": "重置code序号成功",
         "error": true,
         "date": new Date().getTime(),
       });

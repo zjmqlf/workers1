@@ -1148,6 +1148,16 @@ export class WebSocketServer extends DurableObject {
         "error": true,
         "date": new Date().getTime(),
       });
+    } else if (command === "code") {
+      this.codeIndex = 0;
+      //console.log("重置code序号成功");
+      this.broadcast({
+        "operate": "resetCode",
+        "step": this.currentStep,
+        "message": "重置code序号成功",
+        "error": true,
+        "date": new Date().getTime(),
+      });
     } else if (command === "queue") {
       this.queue = false;
       //console.log("重置queue状态成功");

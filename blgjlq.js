@@ -746,10 +746,10 @@ export class WebSocketServer extends DurableObject {
                         };
                       } else {
                         const message = messageArray[messageIndex].message;
-                        const regexp = /这是第 \d+ 页 \/ 共 \d+ 页/gi;
-                        if (regexp.test(message)) {
+                        const regexp = /这是第 \d+ 页 \/ 共 \d+ 页/i;
+                        if (regexp.test(message) === true) {
                           text = button.text.replace("这是 ", "");
-                          const regexp = / (\d+?) /gi;
+                          const regexp = / (\d+) /gi;
                           const matches = message.match(regexp);
                           // console.log(matches);  //测试
                           if (matches) {
@@ -1038,10 +1038,10 @@ export class WebSocketServer extends DurableObject {
                           };
                         } else {
                           const message = messageArray[messageIndex].message;
-                          const regexp = /这是第 \d+ 页 \/ 共 \d+ 页/gi;
-                          if (regexp.test(message)) {
+                          const regexp = /这是第 \d+ 页 \/ 共 \d+ 页/i;
+                          if (regexp.test(message) === true) {
                             text = button.text.replace("这是 ", "");
-                            const regexp = / (\d+?) /gi;
+                            const regexp = / (\d?) /gi;
                             const matches = message.match(regexp);
                             // console.log(matches);  //测试
                             if (matches) {
@@ -1231,6 +1231,16 @@ export class WebSocketServer extends DurableObject {
         "operate": "clearQueue",
         "step": this.currentStep,
         "message": "清空队列缓存成功",
+        "error": true,
+        "date": new Date().getTime(),
+      });
+    } else if (command === "code") {
+      this.codeIndex = 0;
+      //console.log("重置code序号成功");
+      this.broadcast({
+        "operate": "resetCode",
+        "step": this.currentStep,
+        "message": "重置code序号成功",
         "error": true,
         "date": new Date().getTime(),
       });

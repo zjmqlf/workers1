@@ -515,19 +515,19 @@ export class WebSocketServer extends DurableObject {
   }
 
   async lastpage(operate, message) {
-    const regexp = /✅ Hiện tại \d+\/\d+ media, \d+\/\d+ pages 🥰 20 Vids Teen Nhảy TirkTak 🦋/gi;
-    if (regexp.test(message)) {
-      text = message.replace("✅ Hiện tại \d+\/\d+ media, ", "").replace(" pages 🥰 20 Vids Teen Nhảy TirkTak 🦋", "");
-      const regexp = /(\d+?)/gi;
+    const regexp = /✅ Hiện tại \d+\/\d+ media, \d+\/\d+ pages\n🥰 20 Vids Teen Nhảy TirkTak 🦋/i;
+    if (regexp.test(message) === true) {
+      const text = message.replace(/✅ Hiện tại \d+\/\d+ media, /i, "").replace(" pages\n🥰 20 Vids Teen Nhảy TirkTak 🦋", "");
+      const regexp = /(\d+)/gi;
       const matches = message.match(regexp);
       // console.log(matches);  //测试
-      if (matches && matches.length === 4) {
+      if (matches && matches.length === 5) {
         if (matches[0] === matches[1] && matches[2] === matches[3]) {
           if (this.queue === true) {
             this.queue = false;
             await this.ctx.storage.put("queue", false);
             //console.log("(" + this.currentStep + ") " + text ? "(" + text + ")所有媒体已获取完毕" : "所有媒体已获取完毕");
-            this.sendForward("operate", text ? "(" + text + ")所有媒体已获取完毕" : "所有媒体已获取完毕", text, "update", false);
+            this.sendForward(operate, text ? "(" + text + ")所有媒体已获取完毕" : "所有媒体已获取完毕", text, "update", false);
             return true;
           }
         }
@@ -659,7 +659,7 @@ export class WebSocketServer extends DurableObject {
       await this.close()
     } else {
       // await scheduler.wait(10000);
-      for (let i = 0; i < 3; i++) {
+      for (let i = 0; i < 4; i++) {
         if (this.stop === 2) {
           this.broadcast({
             "result": "pause",
@@ -844,6 +844,13 @@ export class WebSocketServer extends DurableObject {
                   this.getCount(message);
                   //console.log("(" + this.currentStep + ") 代码入库完毕");
                   this.sendForward("nextStep", "代码入库完毕", "", "add", false);
+                } else if (message.includes("⚠️ This code only available for VIP members") === true) {
+                  if (this.queue === true) {
+                    this.queue = false;
+                    await this.ctx.storage.put("queue", false);
+                  }
+                  //console.log("(" + this.currentStep + ") " + message);
+                  this.sendLog("nextStep", message, null, true);
                 } else if (message.includes("操作太频繁，请等待") === true) {
                   const time = parseInt(message.replace("操作太频繁，请等待 ", "").replace(" 秒后再试", ""));
                   if (time && time > 0) {
@@ -853,10 +860,10 @@ export class WebSocketServer extends DurableObject {
                   //console.log("(" + this.currentStep + ") 触发了洪水警告" + message);
                   this.sendLog("nextStep", "触发了洪水警告，" + message, "flood", true);
                 } else {
-                  const regexp = /✅ Trang \d+\/\d+/gi;
-                  if (regexp.test(message)) {
+                  const regexp = /✅ Trang \d+\/\d+/i;
+                  if (regexp.test(message) === true) {
                     text = message.replace("✅ Trang ", "");
-                    const regexp = /(\d+?)/gi;
+                    const regexp = /(\d+)/gi;
                     const matches = message.match(regexp);
                     // console.log(matches);  //测试
                     if (matches && matches.length === 2) {
@@ -1061,6 +1068,7 @@ export class WebSocketServer extends DurableObject {
               await this.ctx.storage.put("client", 0);
             }
           }
+          // this.offsetId -= 1;  //测试
           await this.getMessage(1);
           await scheduler.wait(5000);
           const messageArray = this.messageArray.slice();
@@ -1199,12 +1207,18 @@ export class WebSocketServer extends DurableObject {
                   }
                 } else {
                   const message = messageArray[messageIndex].message;
-                  const str = message.substr(0, 10);
                   if (message.substr(0, 12) === "FileLeakBot_") {
                     await this.ctx.storage.put(message, 1);
                     this.getCount(message);
                     //console.log("(" + this.currentStep + ") 代码入库完毕");
                     this.sendForward("start", "代码入库完毕", "", "add", false);
+                  } else if (message.includes("⚠️ This code only available for VIP members") === true) {
+                    if (this.queue === true) {
+                      this.queue = false;
+                      await this.ctx.storage.put("queue", false);
+                    }
+                    //console.log("(" + this.currentStep + ") " + message);
+                    this.sendLog("start", message, null, true);
                   } else if (message.includes("操作太频繁，请等待") === true) {
                     const time = parseInt(message.replace("操作太频繁，请等待 ", "").replace(" 秒后再试", ""));
                     if (time && time > 0) {
@@ -1214,10 +1228,10 @@ export class WebSocketServer extends DurableObject {
                     //console.log("(" + this.currentStep + ") 触发了洪水警告" + message);
                     this.sendLog("start", "触发了洪水警告，" + message, "flood", true);
                   } else {
-                    const regexp = /✅ Trang \d+\/\d+/gi;
-                    if (regexp.test(message)) {
+                    const regexp = /✅ Trang \d+\/\d+/i;
+                    if (regexp.test(message) === true) {
                       text = message.replace("✅ Trang ", "");
-                      const regexp = /(\d+?)/gi;
+                      const regexp = /(\d+)/gi;
                       const matches = message.match(regexp);
                       // console.log(matches);  //测试
                       if (matches && matches.length === 2) {
@@ -1375,6 +1389,16 @@ export class WebSocketServer extends DurableObject {
         "operate": "clearQueue",
         "step": this.currentStep,
         "message": "清空队列缓存成功",
+        "error": true,
+        "date": new Date().getTime(),
+      });
+    } else if (command === "code") {
+      this.codeIndex = 0;
+      //console.log("重置code序号成功");
+      this.broadcast({
+        "operate": "resetCode",
+        "step": this.currentStep,
+        "message": "重置code序号成功",
         "error": true,
         "date": new Date().getTime(),
       });
