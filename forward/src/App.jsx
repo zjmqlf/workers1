@@ -451,7 +451,7 @@ const App = () => {
                 //console.log("未知消息");
                 addNewEvent({
                   "error": message.error,
-                  "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientIndex + "-" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
+                  "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientIndex + "-" + message.clientId + "]" : " ") + message.operate + " - " + message.message,
                 });
               }
               break;

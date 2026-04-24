@@ -518,7 +518,7 @@ const App = () => {
             } else if (message.status === "flood") {
               addNewEvent({
                 "error": true,
-                "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientIndex + "-" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
+                "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientIndex + "-" + message.clientId + "]" : " ") + message.operate + " - " + message.message,
               });
             } else if (message.status === "error") {
               updateItems({
@@ -527,18 +527,18 @@ const App = () => {
               });
               addNewEvent({
                 "error": true,
-                "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientIndex + "-" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
+                "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientIndex + "-" + message.clientId + "]" : " ") + message.operate + " - " + message.message,
               });
             } else if (message.status === "wait") {
               addNewEvent({
                 "error": true,
-                "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientIndex + "-" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
+                "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientIndex + "-" + message.clientId + "]" : " ") + message.operate + " - " + message.message,
               });
             } else {
               //console.log("未知消息");
               addNewEvent({
                 "error": message.error,
-                "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientIndex + "-" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
+                "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientIndex + "-" + message.clientId + "]" : " ") + message.operate + " - " + message.message,
               });
             }
             break;
@@ -546,13 +546,13 @@ const App = () => {
             if (message.status === "flood") {
               addNewEvent({
                 "error": true,
-                "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientIndex + "-" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
+                "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientIndex + "-" + message.clientId + "]" : " ") + message.operate + " - " + message.message,
               });
             } else {
               //console.log("未知消息");
               addNewEvent({
                 "error": message.error,
-                "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientIndex + "-" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
+                "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientIndex + "-" + message.clientId + "]" : " ") + message.operate + " - " + message.message,
               });
             }
             break;
@@ -570,7 +570,7 @@ const App = () => {
               //console.log("未知消息");
               addNewEvent({
                 "error": message.error,
-                "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientIndex + "-" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
+                "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientIndex + "-" + message.clientId + "]" : " ") + message.operate + " - " + message.message,
               });
             }
             break;
@@ -578,13 +578,13 @@ const App = () => {
             //console.log("未知消息");
             addNewEvent({
               "error": message.error,
-              "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientIndex + "-" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
+              "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientIndex + "-" + message.clientId + "]" : " ") + message.operate + " - " + message.message,
             });
         }
       } else {
         addNewEvent({
           "error": message.error,
-          "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientIndex + "-" + message.clientId + "]" : " ") + " : " + message.operate + " - " + message.message,
+          "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + (message.clientId ? "  [" + message.clientCount + "|" + message.clientIndex + "-" + message.clientId + "]" : " ") + message.operate + " - " + message.message,
         });
       }
     }

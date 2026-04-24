@@ -375,15 +375,12 @@ export default {
                   // if (button.text === "加入队列全部推送") {
                   // if (button.text === "下一页 ➡️") {
                   if (button.text.includes("➡️ 查看下一组 (") === true) {
-                    console.log(button.text.replace("➡️ 查看下一组 (", "").replace(")", ""));  //测试
-                    const result = await client[clientIndex].invoke(new Api.messages.GetBotCallbackAnswer({
-                      peer: fromPeer,
-                      msgId: message.id,
-                      data: button.data,
-                      // password: encryptedPassword,
-                    }));
-                    console.log(result);  //测试
-                  }
+                  const result = await client[clientIndex].invoke(new Api.messages.GetBotCallbackAnswer({
+                    peer: fromPeer,
+                    msgId: message.id,
+                    data: button.data,
+                  }));
+                  console.log(result);  //测试
                 }
               }
             }
