@@ -12,7 +12,7 @@ export class WebSocketServer extends DurableObject {
   currentStep = 0;
   compress = false;
   batch = false;
-  api = apiString.slice(23, 46);
+  api = apiString.slice(23, 47);
   clientCount = 0;
   tg = [];
   waitTime = 60000;
@@ -127,7 +127,7 @@ export class WebSocketServer extends DurableObject {
       // this.webSocket = [];
       this.apiCount = 0;
       this.currentStep = 0;
-      this.api = apiString.slice(23, 46);
+      this.api = apiString.slice(23, 47);
       this.clientCount = this.api.length;
       this.tg = Array(this.clientCount).fill(null);
       this.waitTime = 60000;

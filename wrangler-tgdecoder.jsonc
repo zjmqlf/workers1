@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "tgjmq",
-  "main": "tgjmq.js",
+  "name": "tgdecoder",
+  "main": "tgdecoder.js",
   "compatibility_date": "2026-04-07",
   "compatibility_flags": [
     "nodejs_compat",
@@ -13,7 +13,7 @@
   },
   "routes": [
     {
-      "pattern": "tgjmq.19425.xyz/*",
+      "pattern": "tgdecoder.19425.xyz/*",
       "zone_name": "19425.xyz"
     }
   ],

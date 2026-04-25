@@ -603,25 +603,25 @@ export class WebSocketServer extends DurableObject {
       });
       await this.close()
     } else {
-      await scheduler.wait(5000);
-      // for (let i = 0; i < 2; i++) {
-      //   if (this.stop === 2) {
-      //     this.broadcast({
-      //       "result": "pause",
-      //     });
-      //     await this.close();
-      //     break;
-      //   } else {
-      //     await scheduler.wait(5000);
-      //     // this.ws.ping();
-      //     // this.ws.send({
-      //     //   "result": "ping",
-      //     // });
-      //     this.broadcast({
-      //       "result": "ping",
-      //     });
-      //   }
-      // }
+      // await scheduler.wait(5000);
+      for (let i = 0; i < 4; i++) {
+        if (this.stop === 2) {
+          this.broadcast({
+            "result": "pause",
+          });
+          await this.close();
+          break;
+        } else {
+          await scheduler.wait(5000);
+          // this.ws.ping();
+          // this.ws.send({
+          //   "result": "ping",
+          // });
+          this.broadcast({
+            "result": "ping",
+          });
+        }
+      }
       await this.nextStep();
     }
   }
@@ -674,18 +674,23 @@ export class WebSocketServer extends DurableObject {
                   fileId = messageArray[messageIndex].media.photo.id;
                 }
                 if (id && fileId) {
-                  status = true;
-                  this.idArray.push(id);
-                  this.fileIdArray.push(fileId);
+                  if (this.idArray.includes(id) === false && this.fileIdArray.includes(fileId) === false) {
+                    status = true;
+                    this.idArray.push(id);
+                    this.fileIdArray.push(fileId);
+                  } else {
+                    //console.log("(" + this.currentStep + ") 该媒体已在数据库中");
+                    this.sendLog("nextStep", "该媒体已在数据库中", "error", true);
+                  }
                 }
               } else if (messageArray[messageIndex].replyMarkup) {
                 if (messageArray[messageIndex].replyMarkup.rows) {
                   // console.log(message);  //测试
                   for (const row of messageArray[messageIndex].replyMarkup.rows) {
                     // console.log(row);  //测试
-                    for (let button of row.buttons) {
+                    for (const button of row.buttons) {
                       // console.log(button);  //测试
-                      if (button.text === "全部获取" || button.text.includes("➡️ 查看下一组 (") === true) {
+                      if (button.text === "📦 全部获取" || button.text.includes("➡️ 查看下一组 (") === true) {
                         if (this.queue === false) {
                           this.queue = true;
                           await this.ctx.storage.put("queue", true);
@@ -702,12 +707,12 @@ export class WebSocketServer extends DurableObject {
                           this.sendLog("nextStep", result.message , "error", true);
                           await scheduler.wait(5000);
                         }
-                        if (button.text === "全部获取") {
+                        if (button.text === "📦 全部获取") {
                           // console.log("(" + this.currentStep + ")" + button.text);
                           this.sendLog("nextStep", button.text, null, false);
                         } else {
                           // console.log("(" + this.currentStep + ")" + button.text);
-                          this.sendForward("nextStep", button.text, button.text.replace("全部获取", "").replace("➡️ 查看下一组 (", "").replace(")", ""), "update", false);
+                          this.sendForward("nextStep", button.text, button.text.replace("➡️ 查看下一组 (", "").replace(")", ""), "update", false);
                         }
                       } else if (button.text === "🫵体验蜂巢密钥搜索" || messageArray[messageIndex].message.includes("🏁 文件获取完成！") === true) {
                         if (this.queue === true) {
@@ -726,6 +731,19 @@ export class WebSocketServer extends DurableObject {
                   await this.ctx.storage.put(message, 1);
                   //console.log("(" + this.currentStep + ") 代码入库完毕");
                   this.sendForward("nextStep", "代码入库完毕", "", "add", false);
+                } else if (message.includes("🚫 操作过于频繁") === true) {
+                  const regexp = /⏳ 请耐心等待 (\d+) 秒后恢复。/gi;
+                  const matches = message.match(regexp);
+                  // console.log(matches);  //测试
+                  if (matches && matches.length === 1) {
+                    const time = matches[0];
+                    if (time && time > 0) {
+                      this.flood = new Date().getTime() + 30000 + time * 1000;
+                      await this.ctx.storage.put("client", this.flood);
+                    }
+                  }
+                  //console.log("(" + this.currentStep + ") 触发了洪水警告" + message);
+                  this.sendLog("nextStep", "触发了洪水警告，" + message, "flood", true);
                 }
               }
             }
@@ -949,18 +967,23 @@ export class WebSocketServer extends DurableObject {
                     fileId = messageArray[messageIndex].media.photo.id;
                   }
                   if (id && fileId) {
-                    status = true;
-                    this.idArray.push(id);
-                    this.fileIdArray.push(fileId);
+                    if (this.idArray.includes(id) === false && this.fileIdArray.includes(fileId) === false) {
+                      status = true;
+                      this.idArray.push(id);
+                      this.fileIdArray.push(fileId);
+                    } else {
+                      //console.log("(" + this.currentStep + ") 该媒体已在数据库中");
+                      this.sendLog("start", "该媒体已在数据库中", "error", true);
+                    }
                   }
                 } else if (messageArray[messageIndex].replyMarkup) {
                   if (messageArray[messageIndex].replyMarkup.rows) {
                     // console.log(message);  //测试
                     for (const row of messageArray[messageIndex].replyMarkup.rows) {
                       // console.log(row);  //测试
-                      for (let button of row.buttons) {
+                      for (const button of row.buttons) {
                         // console.log(button);  //测试
-                        if (button.text === "全部获取" || button.text.includes("➡️ 查看下一组 (") === true) {
+                        if (button.text === "📦 全部获取" || button.text.includes("➡️ 查看下一组 (") === true) {
                           if (this.queue === false) {
                             this.queue = true;
                             await this.ctx.storage.put("queue", true);
@@ -977,12 +1000,12 @@ export class WebSocketServer extends DurableObject {
                             this.sendLog("start", result.message , "error", true);
                             await scheduler.wait(5000);
                           }
-                          if (button.text === "全部获取") {
+                          if (button.text === "📦 全部获取") {
                             // console.log("(" + this.currentStep + ")" + button.text);
                             this.sendLog("nextStep", button.text, null, false);
                           } else {
                             // console.log("(" + this.currentStep + ")" + button.text);
-                            this.sendForward("nextStep", button.text, button.text.replace("全部获取", "").replace("➡️ 查看下一组 (", "").replace(")", ""), "update", false);
+                            this.sendForward("nextStep", button.text, button.text.replace("➡️ 查看下一组 (", "").replace(")", ""), "update", false);
                           }
                         } else if (button.text === "🫵体验蜂巢密钥搜索" || messageArray[messageIndex].message.includes("🏁 文件获取完成！") === true) {
                           if (this.queue === true) {
@@ -1001,6 +1024,19 @@ export class WebSocketServer extends DurableObject {
                     await this.ctx.storage.put(message, 1);
                     //console.log("(" + this.currentStep + ") 代码入库完毕");
                     this.sendForward("start", "代码入库完毕", "", "add", false);
+                  } else if (message.includes("🚫 操作过于频繁") === true) {
+                    const regexp = /⏳ 请耐心等待 (\d+) 秒后恢复。/gi;
+                    const matches = message.match(regexp);
+                    // console.log(matches);  //测试
+                    if (matches && matches.length === 1) {
+                      const time = matches[0];
+                      if (time && time > 0) {
+                        this.flood = new Date().getTime() + 30000 + time * 1000;
+                        await this.ctx.storage.put("client", this.flood);
+                      }
+                    }
+                    //console.log("(" + this.currentStep + ") 触发了洪水警告" + message);
+                    this.sendLog("start", "触发了洪水警告，" + message, "flood", true);
                   }
                 }
               }

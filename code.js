@@ -6,9 +6,12 @@ const tgjmqbot = [];
 const blgjlqbot = [];
 const fileLeakBot = [];
 const nnfilebot = [];
+const parludecodingBot = [];
 const teestpanbot = [];
 const atfileslinksbot = [];
 const lockHivebot = [];
+const tgdecoderbot = [];
+const ZYXFilesBot = [];
 const ntmjmqbot = [];
 const newjmqbot = [];
 const filepanbot = [];
@@ -17,6 +20,7 @@ const filepanbot = [];
 const myseseXBot = [];
 const save2BoxBot = [];
 const mtfxqbot = [];
+const mtfxq2bot = [];
 const mediaBK2Bot = [];
 const mouseFilebot = [];
 const dataPanBot = [];
@@ -29,15 +33,19 @@ const tgjmq5botRegexp = /(tgjmq5bot_\d*p*\d*v*\d*d*_[A-Za-z0-9]{16})/gi;   //tgj
 const blgjlqbotRegexp = /(blgjlqbot_\d+p\d+v\d+d_[A-Za-z0-9]{16})/gi;   //blgjlqbot
 const fileLeakBotRegexp = /(fileLeakBot_\d+p_\d+v_\d+d_[A-Za-z0-9]{13})/gi;   //fileLeakBot
 const nnfilebotRegexp = /(nnfilebot_[A-Za-z0-9]*_[A-Za-z0-9]*_[A-Za-z0-9]*_[A-Za-z0-9]{12})/gi;   //nnfilebot
+const parludecodingBotRegexp = /(ParludecodingBot_\d+p\d+v\d+d_[A-Za-z0-9]{16})/gi;   //parludecodingBot
 const teestpanbotRegexp = /(@Teestpanbot:_\d*P*_*\d*V*_*\d*D*_[A-Za-z0-9]{12})/gi;   //teestpanbot
 const atfileslinksbotRegexp = /(atfileslinksbot_\d*p*_*\d*v*_*\d*d*_[A-Za-z0-9]{20})/gi;   //atfileslinksbot
 const lockHivebotRegexp = /(LockHivebot_[A-Za-z0-9]{16})/gi;   //lockHivebot
+const tgdecoderbotRegexp = /(decoder_\d+p_\d+v_\d+d_[A-Za-z0-9]{12})/gi;   //tgdecoderbot
+const ZYXFilesBotRegexp = /(📌 取件码：[A-Za-z0-9]+)/gi;   //ZYXFilesBot
 const ntmjmqbotRegexp = /(ntmjmqbot_\d+p_\d+v_\d+d_[A-Za-z0-9]{13})/gi;   //ntmjmqbot
 const newjmqbotRegexp = /(newjmqbot_\d+p_\d+v_\d+d_[A-Za-z0-9]{13})/gi;   //newjmqbot
 const filepanbotRegexp = /(@filepan_bot:_\d*P*_*\d*V*_*\d*D*_[A-Za-z0-9]{12})/gi;   //filepanbot
 const myseseXBotRegexp = /(myseseXBot_\d+p_\d+v_\d+d_[A-Za-z0-9]{13})/gi;   //myseseXBot
 const save2BoxBotRegexp = /(Save2BoxBot_\d+p_\d+v_\d+d_[A-Za-z0-9]{13})/gi;   //save2BoxBot
 const mtfxqbotRegexp = /(mtfxqbot_[0-9PVD_]*_[A-Za-z0-9]{20})/gi;   //mtfxqbot
+const mtfxq2botRegexp = /(mtfxq2bot_[0-9PVD_]*_[A-Za-z0-9]{20})/gi;   //mtfxq2bot
 const grpRegexp = /([A-Za-z0-9]{12}_[A-Za-z0-9]{11}=_grp)/gi;   //grp
 const mdaRegexp = /([A-Za-z0-9-\+]*=_mda)/gi;   //mda
 const v_Regexp = /(v_BAACAg[A-Za-z0-9_\-]*)/gi;   //v_
@@ -163,7 +171,8 @@ try {
   // data = fs.readFileSync("./source/种资源.txt", "utf-8");
   // data = fs.readFileSync("./source/资源10.txt", "utf-8");
   // data = fs.readFileSync("./source/足.txt", "utf-8");
-  data = fs.readFileSync("./source/1.txt", "utf-8");
+  // data = fs.readFileSync("./source/1.txt", "utf-8");
+  data = fs.readFileSync("./source/messages.html", "utf-8");
   const array = data.split("\n");
   const length = array.length;
   console.log("length : " + length);  //测试
@@ -284,6 +293,20 @@ try {
           }
         }
 
+        const parludecodingBotMatches = str.match(parludecodingBotRegexp);
+        // console.log(parludecodingBotMatches);  //测试
+        if (parludecodingBotMatches) {
+          const parludecodingBotMatchesLength = parludecodingBotMatches.length;
+          // console.log("parludecodingBotMatchesLength : " + parludecodingBotMatchesLength);  //测试
+          if (parludecodingBotMatchesLength > 0) {
+            for (let j = 0; j < parludecodingBotMatchesLength; j++) {
+              if (parludecodingBotMatches[j]) {
+                parludecodingBot.push(parludecodingBotMatches[j]);
+              }
+            }
+          }
+        }
+
         const teestpanbotMatches = str.match(teestpanbotRegexp);
         // console.log(teestpanbotMatches);  //测试
         if (teestpanbotMatches) {
@@ -321,6 +344,34 @@ try {
             for (let j = 0; j < lockHivebotMatchesLength; j++) {
               if (lockHivebotMatches[j]) {
                 lockHivebot.push(lockHivebotMatches[j]);
+              }
+            }
+          }
+        }
+
+        const tgdecoderbotMatches = str.match(tgdecoderbotRegexp);
+        // console.log(tgdecoderbotMatches);  //测试
+        if (tgdecoderbotMatches) {
+          const tgdecoderbotMatchesLength = tgdecoderbotMatches.length;
+          // console.log("tgdecoderbotMatchesLength : " + tgdecoderbotMatchesLength);  //测试
+          if (tgdecoderbotMatchesLength > 0) {
+            for (let j = 0; j < tgdecoderbotMatchesLength; j++) {
+              if (tgdecoderbotMatches[j]) {
+                tgdecoderbot.push(tgdecoderbotMatches[j]);
+              }
+            }
+          }
+        }
+
+        const ZYXFilesBotMatches = str.match(ZYXFilesBotRegexp);
+        // console.log(ZYXFilesBotMatches);  //测试
+        if (ZYXFilesBotMatches) {
+          const ZYXFilesBotMatchesLength = ZYXFilesBotMatches.length;
+          // console.log("ZYXFilesBotMatchesLength : " + ZYXFilesBotMatchesLength);  //测试
+          if (ZYXFilesBotMatchesLength > 0) {
+            for (let j = 0; j < ZYXFilesBotMatchesLength; j++) {
+              if (ZYXFilesBotMatches[j]) {
+                ZYXFilesBot.push(ZYXFilesBotMatches[j]);
               }
             }
           }
@@ -405,6 +456,20 @@ try {
             for (let j = 0; j < mtfxqbotMatchesLength; j++) {
               if (mtfxqbotMatches[j]) {
                 mtfxqbot.push(mtfxqbotMatches[j]);
+              }
+            }
+          }
+        }
+
+        const mtfxq2botMatches = str.match(mtfxq2botRegexp);
+        // console.log(mtfxq2botMatches);  //测试
+        if (mtfxq2botMatches) {
+          const mtfxq2botMatchesLength = mtfxq2botMatches.length;
+          // console.log("mtfxq2botMatchesLength : " + mtfxq2botMatchesLength);  //测试
+          if (mtfxq2botMatchesLength > 0) {
+            for (let j = 0; j < mtfxq2botMatchesLength; j++) {
+              if (mtfxq2botMatches[j]) {
+                mtfxq2bot.push(mtfxq2botMatches[j]);
               }
             }
           }
@@ -661,6 +726,24 @@ try {
     }
   }
 
+  all += parludecodingBot.length;
+  console.log("parludecodingBot : " + parludecodingBot.length);  //测试
+  if (parludecodingBot.length > 0) {
+    const data = fs.readFileSync("./code/parludecodingBot.txt", "utf-8");
+    try {
+      let uniqueArr = JSON.parse(data);
+      uniqueArr = [...uniqueArr, ...parludecodingBot];
+      uniqueArr = [...new Set(uniqueArr)];
+      fs.writeFile("./code/parludecodingBot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+        if (err) {
+          console.log(err);
+        }
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
   all += teestpanbot.length;
   console.log("teestpanbot : " + teestpanbot.length);  //测试
   if (teestpanbot.length > 0) {
@@ -706,6 +789,42 @@ try {
       uniqueArr = [...uniqueArr, ...lockHivebot];
       uniqueArr = [...new Set(uniqueArr)];
       fs.writeFile("./code/lockHivebot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+        if (err) {
+          console.log(err);
+        }
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  all += tgdecoderbot.length;
+  console.log("tgdecoderbot : " + tgdecoderbot.length);  //测试
+  if (tgdecoderbot.length > 0) {
+    const data = fs.readFileSync("./code/tgdecoderbot.txt", "utf-8");
+    try {
+      let uniqueArr = JSON.parse(data);
+      uniqueArr = [...uniqueArr, ...tgdecoderbot];
+      uniqueArr = [...new Set(uniqueArr)];
+      fs.writeFile("./code/tgdecoderbot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+        if (err) {
+          console.log(err);
+        }
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  all += ZYXFilesBot.length;
+  console.log("ZYXFilesBot : " + ZYXFilesBot.length);  //测试
+  if (ZYXFilesBot.length > 0) {
+    const data = fs.readFileSync("./code/ZYXFilesBot.txt", "utf-8");
+    try {
+      let uniqueArr = JSON.parse(data);
+      uniqueArr = [...uniqueArr, ...ZYXFilesBot];
+      uniqueArr = [...new Set(uniqueArr)];
+      fs.writeFile("./code/ZYXFilesBot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
         if (err) {
           console.log(err);
         }
@@ -814,6 +933,24 @@ try {
       uniqueArr = [...uniqueArr, ...mtfxqbot];
       uniqueArr = [...new Set(uniqueArr)];
       fs.writeFile("./code/mtfxqbot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+        if (err) {
+          console.log(err);
+        }
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  all += mtfxq2bot.length;
+  console.log("mtfxq2bot : " + mtfxq2bot.length);  //测试
+  if (mtfxq2bot.length > 0) {
+    const data = fs.readFileSync("./code/mtfxq2bot.txt", "utf-8");
+    try {
+      let uniqueArr = JSON.parse(data);
+      uniqueArr = [...uniqueArr, ...mtfxq2bot];
+      uniqueArr = [...new Set(uniqueArr)];
+      fs.writeFile("./code/mtfxq2bot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
         if (err) {
           console.log(err);
         }

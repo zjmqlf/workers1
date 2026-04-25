@@ -1,7 +1,7 @@
 import { DurableObject } from "cloudflare:workers";
 import { TelegramClient, Api, sessions, utils } from "./teleproto";
 import { LogLevel } from "./teleproto/extensions";
-import { codeString } from "./fileLeakString";
+import { codeString } from "./tgdecoderString";
 import bigInt from "big-integer";
 
 export class WebSocketServer extends DurableObject {
@@ -390,7 +390,7 @@ export class WebSocketServer extends DurableObject {
   }
 
   getCount(text) {
-    let string = text.slice(12);
+    let string = text.slice(8);
     string = string.split("_");
     if (string.length === 4) {
       let temp = string[0].split("p");
@@ -512,28 +512,6 @@ export class WebSocketServer extends DurableObject {
         await scheduler.wait(time);
       }
     }
-  }
-
-  async lastpage(operate, message) {
-    const regexp = /✅ Hiện tại \d+\/\d+ media, \d+\/\d+ pages\n🥰 20 Vids Teen Nhảy TirkTak 🦋/i;
-    if (regexp.test(message) === true) {
-      const text = message.replace(/✅ Hiện tại \d+\/\d+ media, /i, "").replace(" pages\n🥰 20 Vids Teen Nhảy TirkTak 🦋", "");
-      const regexp = /(\d+)/gi;
-      const matches = message.match(regexp);
-      // console.log(matches);  //测试
-      if (matches && matches.length === 5) {
-        if (matches[0] === matches[1] && matches[2] === matches[3]) {
-          if (this.queue === true) {
-            this.queue = false;
-            await this.ctx.storage.put("queue", false);
-            //console.log("(" + this.currentStep + ") " + text ? "(" + text + ")所有媒体已获取完毕" : "所有媒体已获取完毕");
-            this.sendForward(operate, text ? "(" + text + ")所有媒体已获取完毕" : "所有媒体已获取完毕", text, "update", false);
-            return true;
-          }
-        }
-      }
-    }
-    return false;
   }
 
   async forwardMessage(idArray, fileIdArray) {
@@ -722,67 +700,49 @@ export class WebSocketServer extends DurableObject {
                   for (const row of messageArray[messageIndex].replyMarkup.rows) {
                     // console.log(row);  //测试
                     if (next === true) {
-                      for (let button of row.buttons) {
+                      for (const button of row.buttons) {
                         // console.log(button);  //测试
-                        if (button.text === "My Code" || button.text === "🚀 Source") {
-                          if (this.queue === false) {
-                            this.queue = true;
-                            await this.ctx.storage.put("queue", true);
-                          }
-                          if (found === false) {
-                            if (await this.lastpage("nextStep", messageArray[messageIndex].message) === true) {
-                              next = false;
-                              break;
-                            }
-                          }
-                        } else if (button.text === "⬅️") {
-                          if (this.queue === false) {
-                            this.queue = true;
-                            await this.ctx.storage.put("queue", true);
-                          }
-                        } else if (button.text === "➡️") {
-                          if (this.queue === false) {
-                            this.queue = true;
-                            await this.ctx.storage.put("queue", true);
-                          }
-                          if (found === false) {
-                            const result = await this.client.invoke(
-                              new Api.messages.GetBotCallbackAnswer({
-                                peer: this.fromPeer,
-                                msgId: id,
-                                data: button.data,
-                              })
-                            );
-                            await scheduler.wait(5000);
-                            // console.log("(" + this.currentStep + ") 翻页");
-                            this.sendLog("nextStep", "翻页", null, false);
-                            break;
-                          } else {
-                            if (await this.lastpage("nextStep", messageArray[messageIndex].message) === true) {
-                              next = false;
-                              break;
-                            }
-                          }
-                        } else {
-                          // const text = button.text.replace("✅", "").replace("✳️", "");
-                          // if (text) {
-                          //   const status = Number.isInteger(text);
-                          // }
-                          const regexp1 = /✅\d+/gi;
-                          const regexp2 = /✳️\d+/gi;
-                          const regexp3 = /\d+/gi;
-                          if (regexp1.test(button.text)) {
-                            if (this.queue === false) {
-                              this.queue = true;
-                              await this.ctx.storage.put("queue", true);
-                            }
-                          } else if (regexp2.test(button.text)) {
+                        // if (button.text === "⬅️") {
+                        //   if (this.queue === false) {
+                        //     this.queue = true;
+                        //     await this.ctx.storage.put("queue", true);
+                        //   }
+                        // } else if (button.text === "➡️") {
+                        //   if (this.queue === false) {
+                        //     this.queue = true;
+                        //     await this.ctx.storage.put("queue", true);
+                        //   }
+                        //   if (found === false) {
+                        //     const result = await this.client.invoke(
+                        //       new Api.messages.GetBotCallbackAnswer({
+                        //         peer: this.fromPeer,
+                        //         msgId: id,
+                        //         data: button.data,
+                        //       })
+                        //     );
+                        //     await scheduler.wait(5000);
+                        //     // console.log("(" + this.currentStep + ") 翻页");
+                        //     this.sendLog("nextStep", "翻页", null, false);
+                        //     break;
+                        //   }
+                        // } else {
+                          const regexp1 = /共 \d+ 页/i;
+                          const regexp2 = /\d+ ✅/i;
+                          const regexp3 = /^\d+$/i;
+                          if (regexp1.test(button.text) === true) {
+                            // if (this.queue === true) {
+                            //   this.queue = false;
+                            //   await this.ctx.storage.put("queue", false);
+                            //   //console.log("(" + this.currentStep + ") 所有媒体已获取完毕");
+                            //   this.sendForward("nextStep", "所有媒体已获取完毕", "", "update", false);
+                            // }
+                          } else if (regexp2.test(button.text) === true) {
                             current = true;
                             if (this.queue === false) {
                               this.queue = true;
                               await this.ctx.storage.put("queue", true);
                             }
-                          } else if (regexp3.test(button.text)) {
+                          } else if (regexp3.test(button.text) === true) {
                             if (current === true) {
                               if (parseInt(button.text).toString() === button.text) {
                                 next = false;
@@ -805,7 +765,7 @@ export class WebSocketServer extends DurableObject {
                               }
                             }
                           }
-                        }
+                        // }
                       }
                     } else {
                       break;
@@ -833,24 +793,24 @@ export class WebSocketServer extends DurableObject {
                     this.idArray.push(id);
                     this.fileIdArray.push(fileId);
                   } else {
-                    //console.log("(" + this.currentStep + ") 该媒体已在队列中");
-                    this.sendLog("nextStep", "该媒体已在队列中", "flood", true);
+                    //console.log("(" + this.currentStep + ") 该媒体已在数据库中");
+                    this.sendLog("nextStep", "该媒体已在数据库中", "error", true);
                   }
                 }
               } else {
                 const message = messageArray[messageIndex].message;
-                if (message.substr(0, 12) === "FileLeakBot_") {
+                if (message.substr(0, 8) === "decoder_") {
                   await this.ctx.storage.put(message, 1);
                   this.getCount(message);
                   //console.log("(" + this.currentStep + ") 代码入库完毕");
                   this.sendForward("nextStep", "代码入库完毕", "", "add", false);
-                } else if (message.includes("⚠️ This code only available for VIP members") === true) {
+                } else if (message.includes("✅ 代码输出完成") === true) {
                   if (this.queue === true) {
                     this.queue = false;
                     await this.ctx.storage.put("queue", false);
                   }
                   //console.log("(" + this.currentStep + ") " + message);
-                  this.sendLog("nextStep", message, null, true);
+                  this.sendLog("nextStep", message, null, false);
                 } else if (message.includes("操作太频繁，请等待") === true) {
                   const time = parseInt(message.replace("操作太频繁，请等待 ", "").replace(" 秒后再试", ""));
                   if (time && time > 0) {
@@ -859,24 +819,6 @@ export class WebSocketServer extends DurableObject {
                   }
                   //console.log("(" + this.currentStep + ") 触发了洪水警告" + message);
                   this.sendLog("nextStep", "触发了洪水警告，" + message, "flood", true);
-                } else {
-                  const regexp = /✅ Trang \d+\/\d+/i;
-                  if (regexp.test(message) === true) {
-                    text = message.replace("✅ Trang ", "");
-                    const regexp = /(\d+)/gi;
-                    const matches = message.match(regexp);
-                    // console.log(matches);  //测试
-                    if (matches && matches.length === 2) {
-                      if (matches[0] === matches[1]) {
-                        if (this.queue === true) {
-                          this.queue = false;
-                          await this.ctx.storage.put("queue", false);
-                          //console.log("(" + this.currentStep + ") " + text ? "(" + text + ")所有媒体已获取完毕" : "所有媒体已获取完毕");
-                          this.sendForward("nextStep", text ? "(" + text + ")所有媒体已获取完毕" : "所有媒体已获取完毕", text, "update", false);
-                        }
-                      }
-                    }
-                  }
                 }
               }
             }
@@ -976,8 +918,8 @@ export class WebSocketServer extends DurableObject {
         new Api.users.GetUsers({
           id: [
             new Api.InputUser({
-              userId: bigInt("8554859780"),
-              accessHash: bigInt("-6753499946272396397"),
+              userId: bigInt("8723732232"),
+              accessHash: bigInt("7747556831726811342"),
             }),
           ],
         })
@@ -1094,63 +1036,49 @@ export class WebSocketServer extends DurableObject {
                     for (const row of messageArray[messageIndex].replyMarkup.rows) {
                       // console.log(row);  //测试
                       if (next === true) {
-                        for (let button of row.buttons) {
+                        for (const button of row.buttons) {
                           // console.log(button);  //测试
-                          if (button.text === "My Code" || button.text === "🚀 Source") {
-                            if (this.queue === false) {
-                              this.queue = true;
-                              await this.ctx.storage.put("queue", true);
-                            }
-                            if (found === false) {
-                              if (await this.lastpage("start", messageArray[messageIndex].message) === true) {
-                                next = false;
-                                break;
-                              }
-                            }
-                          } else if (button.text === "⬅️") {
-                            if (this.queue === false) {
-                              this.queue = true;
-                              await this.ctx.storage.put("queue", true);
-                            }
-                          } else if (button.text === "➡️") {
-                            if (this.queue === false) {
-                              this.queue = true;
-                              await this.ctx.storage.put("queue", true);
-                            }
-                            if (found === false) {
-                              const result = await this.client.invoke(
-                                new Api.messages.GetBotCallbackAnswer({
-                                  peer: this.fromPeer,
-                                  msgId: id,
-                                  data: button.data,
-                                })
-                              );
-                              await scheduler.wait(5000);
-                              // console.log("(" + this.currentStep + ") 翻页");
-                              this.sendLog("start", "翻页", null, false);
-                              break;
-                            } else {
-                              if (await this.lastpage("start", messageArray[messageIndex].message) === true) {
-                                next = false;
-                                break;
-                              }
-                            }
-                          } else {
-                            const regexp1 = /✅\d+/gi;
-                            const regexp2 = /✳️\d+/gi;
-                            const regexp3 = /\d+/gi;
-                            if (regexp1.test(button.text)) {
-                              if (this.queue === false) {
-                                this.queue = true;
-                                await this.ctx.storage.put("queue", true);
-                              }
-                            } else if (regexp2.test(button.text)) {
+                          // if (button.text === "⬅️") {
+                          //   if (this.queue === false) {
+                          //     this.queue = true;
+                          //     await this.ctx.storage.put("queue", true);
+                          //   }
+                          // } else if (button.text === "➡️") {
+                          //   if (this.queue === false) {
+                          //     this.queue = true;
+                          //     await this.ctx.storage.put("queue", true);
+                          //   }
+                          //   if (found === false) {
+                          //     const result = await this.client.invoke(
+                          //       new Api.messages.GetBotCallbackAnswer({
+                          //         peer: this.fromPeer,
+                          //         msgId: id,
+                          //         data: button.data,
+                          //       })
+                          //     );
+                          //     await scheduler.wait(5000);
+                          //     // console.log("(" + this.currentStep + ") 翻页");
+                          //     this.sendLog("start", "翻页", null, false);
+                          //     break;
+                          //   }
+                          // } else {
+                            const regexp1 = /共 \d+ 页/i;
+                            const regexp2 = /\d+ ✅/i;
+                            const regexp3 = /\d+/i;
+                            if (regexp1.test(button.text) === true) {
+                              // if (this.queue === true) {
+                              //   this.queue = false;
+                              //   await this.ctx.storage.put("queue", false);
+                              //   //console.log("(" + this.currentStep + ") 所有媒体已获取完毕");
+                              //   this.sendForward("start", "所有媒体已获取完毕", "", "update", false);
+                              // }
+                            } else if (regexp2.test(button.text) === true) {
                               current = true;
                               if (this.queue === false) {
                                 this.queue = true;
                                 await this.ctx.storage.put("queue", true);
                               }
-                            } else if (regexp3.test(button.text)) {
+                            } else if (regexp3.test(button.text) === true) {
                               if (current === true) {
                                 if (parseInt(button.text).toString() === button.text) {
                                   next = false;
@@ -1173,7 +1101,7 @@ export class WebSocketServer extends DurableObject {
                                 }
                               }
                             }
-                          }
+                          // }
                         }
                       } else {
                         break;
@@ -1201,24 +1129,24 @@ export class WebSocketServer extends DurableObject {
                       this.idArray.push(id);
                       this.fileIdArray.push(fileId);
                     } else {
-                      //console.log("(" + this.currentStep + ") 该媒体已在队列中");
-                      this.sendLog("nextStep", "该媒体已在队列中", "flood", true);
+                      //console.log("(" + this.currentStep + ") 该媒体已在数据库中");
+                      this.sendLog("start", "该媒体已在数据库中", "error", true);
                     }
                   }
                 } else {
                   const message = messageArray[messageIndex].message;
-                  if (message.substr(0, 12) === "FileLeakBot_") {
+                  if (message.substr(0, 8) === "decoder_") {
                     await this.ctx.storage.put(message, 1);
                     this.getCount(message);
                     //console.log("(" + this.currentStep + ") 代码入库完毕");
                     this.sendForward("start", "代码入库完毕", "", "add", false);
-                  } else if (message.includes("⚠️ This code only available for VIP members") === true) {
+                  } else if (message.includes("✅ 代码输出完成") === true) {
                     if (this.queue === true) {
                       this.queue = false;
                       await this.ctx.storage.put("queue", false);
                     }
                     //console.log("(" + this.currentStep + ") " + message);
-                    this.sendLog("start", message, null, true);
+                    this.sendLog("start", message, null, false);
                   } else if (message.includes("操作太频繁，请等待") === true) {
                     const time = parseInt(message.replace("操作太频繁，请等待 ", "").replace(" 秒后再试", ""));
                     if (time && time > 0) {
@@ -1227,24 +1155,6 @@ export class WebSocketServer extends DurableObject {
                     }
                     //console.log("(" + this.currentStep + ") 触发了洪水警告" + message);
                     this.sendLog("start", "触发了洪水警告，" + message, "flood", true);
-                  } else {
-                    const regexp = /✅ Trang \d+\/\d+/i;
-                    if (regexp.test(message) === true) {
-                      text = message.replace("✅ Trang ", "");
-                      const regexp = /(\d+)/gi;
-                      const matches = message.match(regexp);
-                      // console.log(matches);  //测试
-                      if (matches && matches.length === 2) {
-                        if (matches[0] === matches[1]) {
-                          if (this.queue === true) {
-                            this.queue = false;
-                            await this.ctx.storage.put("queue", false);
-                            //console.log("(" + this.currentStep + ") " + text ? "(" + text + ")所有媒体已获取完毕" : "所有媒体已获取完毕");
-                            this.sendForward("start", text ? "(" + text + ")所有媒体已获取完毕" : "所有媒体已获取完毕", text, "update", false);
-                          }
-                        }
-                      }
-                    }
                   }
                 }
               }
@@ -1444,7 +1354,7 @@ export default {
           status: 426,
         });
       }
-      const id = env.WEBSOCKET_SERVER.idFromName("fileLeak");
+      const id = env.WEBSOCKET_SERVER.idFromName("tgdecoder");
       const stub = env.WEBSOCKET_SERVER.get(id);
       return stub.fetch(request);
     }

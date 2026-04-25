@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "bot",
-  "main": "bot.js",
+  "name": "fileleak",
+  "main": "fileLeak.js",
   "compatibility_date": "2026-04-07",
   "compatibility_flags": [
     "nodejs_compat",
@@ -13,19 +13,12 @@
   },
   "routes": [
     {
-      "pattern": "bot.19425.xyz/*",
+      "pattern": "fileleak.19425.xyz/*",
       "zone_name": "19425.xyz"
     }
   ],
   "preview_urls": false,
   "workers_dev": false,
-  "d1_databases": [
-    {
-      "binding": "MAINDB",
-      "database_name": "maindb",
-      "database_id": "97d41e14-a9b6-45a9-b5cc-f60eb29acc02"
-    }
-  ],
   "durable_objects": {
     "bindings": [
       {

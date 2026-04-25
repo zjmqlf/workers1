@@ -729,9 +729,14 @@ export class WebSocketServer extends DurableObject {
                   fileId = messageArray[messageIndex].media.photo.id;
                 }
                 if (id && fileId) {
-                  status = true;
-                  this.idArray.push(id);
-                  this.fileIdArray.push(fileId);
+                  if (this.idArray.includes(id) === false && this.fileIdArray.includes(fileId) === false) {
+                    status = true;
+                    this.idArray.push(id);
+                    this.fileIdArray.push(fileId);
+                  } else {
+                    //console.log("(" + this.currentStep + ") 该媒体已在数据库中");
+                    this.sendLog("nextStep", "该媒体已在数据库中", "error", true);
+                  }
                 }
               } else if (messageArray[messageIndex].replyMarkup) {
                 this.wait = false;
@@ -741,7 +746,7 @@ export class WebSocketServer extends DurableObject {
                   let text = "";
                   for (const row of messageArray[messageIndex].replyMarkup.rows) {
                     // console.log(row);  //测试
-                    for (let button of row.buttons) {
+                    for (const button of row.buttons) {
                       // console.log(button);  //测试
                       if (button.text === "下一页 ➡️") {
                         both = false;
@@ -1056,9 +1061,14 @@ export class WebSocketServer extends DurableObject {
                     fileId = messageArray[messageIndex].media.photo.id;
                   }
                   if (id && fileId) {
-                    status = true;
-                    this.idArray.push(id);
-                    this.fileIdArray.push(fileId);
+                    if (this.idArray.includes(id) === false && this.fileIdArray.includes(fileId) === false) {
+                      status = true;
+                      this.idArray.push(id);
+                      this.fileIdArray.push(fileId);
+                    } else {
+                      //console.log("(" + this.currentStep + ") 该媒体已在数据库中");
+                      this.sendLog("start", "该媒体已在数据库中", "error", true);
+                    }
                   }
                 } else if (messageArray[messageIndex].replyMarkup) {
                   this.wait = false;
@@ -1068,7 +1078,7 @@ export class WebSocketServer extends DurableObject {
                     let text = "";
                     for (const row of messageArray[messageIndex].replyMarkup.rows) {
                       // console.log(row);  //测试
-                      for (let button of row.buttons) {
+                      for (const button of row.buttons) {
                         // console.log(button);  //测试
                         if (button.text === "下一页 ➡️") {
                           both = false;
