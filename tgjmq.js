@@ -354,9 +354,9 @@ export class WebSocketServer extends DurableObject {
       ) {
         // count += 1;
         this.count += 1;
-        if (message.noforwards === false) {
+        // if (message.noforwards === false) {
           this.messageArray.push(message);
-        }
+        // }
       }
       // if (this.count > this.limit) {
       //   //console.log("(" + this.currentStep + ") messageCount比limit大");
@@ -657,25 +657,25 @@ export class WebSocketServer extends DurableObject {
       });
       await this.close()
     } else {
-      await scheduler.wait(5000);
-      // for (let i = 0; i < 2; i++) {
-      //   if (this.stop === 2) {
-      //     this.broadcast({
-      //       "result": "pause",
-      //     });
-      //     await this.close();
-      //     break;
-      //   } else {
-      //     await scheduler.wait(5000);
-      //     // this.ws.ping();
-      //     // this.ws.send({
-      //     //   "result": "ping",
-      //     // });
-      //     this.broadcast({
-      //       "result": "ping",
-      //     });
-      //   }
-      // }
+      // await scheduler.wait(5000);
+      for (let i = 0; i < 4; i++) {
+        if (this.stop === 2) {
+          this.broadcast({
+            "result": "pause",
+          });
+          await this.close();
+          break;
+        } else {
+          await scheduler.wait(5000);
+          // this.ws.ping();
+          // this.ws.send({
+          //   "result": "ping",
+          // });
+          this.broadcast({
+            "result": "ping",
+          });
+        }
+      }
       await this.nextStep();
     }
   }
@@ -712,33 +712,7 @@ export class WebSocketServer extends DurableObject {
           for (let messageIndex = 0; messageIndex < messageLength; messageIndex++) {
             if (!messageArray[messageIndex].noforwards || messageArray[messageIndex].noforwards === false) {
               const id = messageArray[messageIndex].id;
-              if (messageArray[messageIndex].media) {
-                this.wait = false;
-                let fileId = null;
-                if (messageArray[messageIndex].media.document) {
-                  // const mimeType = messageArray[messageIndex].media.document.mimeType;
-                  // if (mimeType.startsWith("video/")) {
-                  //   fileId = messageArray[messageIndex].media.document.id;
-                  // } else if (mimeType.startsWith("image/")) {
-                  //   fileId = messageArray[messageIndex].media.document.id;
-                  // // } else if (mimeType.startsWith("application/")) {
-                  // // } else {
-                  // }
-                  fileId = messageArray[messageIndex].media.document.id;
-                } else if (messageArray[messageIndex].media.photo) {
-                  fileId = messageArray[messageIndex].media.photo.id;
-                }
-                if (id && fileId) {
-                  if (this.idArray.includes(id) === false && this.fileIdArray.includes(fileId) === false) {
-                    status = true;
-                    this.idArray.push(id);
-                    this.fileIdArray.push(fileId);
-                  } else {
-                    //console.log("(" + this.currentStep + ") 该媒体已在数据库中");
-                    this.sendLog("nextStep", "该媒体已在数据库中", "error", true);
-                  }
-                }
-              } else if (messageArray[messageIndex].replyMarkup) {
+              if (messageArray[messageIndex].replyMarkup) {
                 this.wait = false;
                 if (messageArray[messageIndex].replyMarkup.rows) {
                   // console.log(message);  //测试
@@ -799,6 +773,32 @@ export class WebSocketServer extends DurableObject {
                     }
                   }
                 }
+              } else if (messageArray[messageIndex].media) {
+                this.wait = false;
+                let fileId = null;
+                if (messageArray[messageIndex].media.document) {
+                  // const mimeType = messageArray[messageIndex].media.document.mimeType;
+                  // if (mimeType.startsWith("video/")) {
+                  //   fileId = messageArray[messageIndex].media.document.id;
+                  // } else if (mimeType.startsWith("image/")) {
+                  //   fileId = messageArray[messageIndex].media.document.id;
+                  // // } else if (mimeType.startsWith("application/")) {
+                  // // } else {
+                  // }
+                  fileId = messageArray[messageIndex].media.document.id;
+                } else if (messageArray[messageIndex].media.photo) {
+                  fileId = messageArray[messageIndex].media.photo.id;
+                }
+                if (id && fileId) {
+                  if (this.idArray.includes(id) === false && this.fileIdArray.includes(fileId) === false) {
+                    status = true;
+                    this.idArray.push(id);
+                    this.fileIdArray.push(fileId);
+                  } else {
+                    //console.log("(" + this.currentStep + ") 该媒体已在数据库中");
+                    this.sendLog("nextStep", "该媒体已在数据库中", "error", true);
+                  }
+                }
               } else {
                 const message = messageArray[messageIndex].message;
                 const str = message.substr(0, 10);
@@ -841,11 +841,11 @@ export class WebSocketServer extends DurableObject {
               }
             }
           }
-          if (this.queue === false) {
-            if (status === true) {
-              await this.sendQuery(1);
-            }
-          }
+          // if (this.queue === false) {
+          //   if (status === true) {
+          //     await this.sendQuery(1);
+          //   }
+          // }
           await this.checkMessage(status);
           if (this.stop === 1) {
             await this.endStep("nextStep");
@@ -1044,33 +1044,7 @@ export class WebSocketServer extends DurableObject {
             for (let messageIndex = 0; messageIndex < messageLength; messageIndex++) {
               if (!messageArray[messageIndex].noforwards || messageArray[messageIndex].noforwards === false) {
                 const id = messageArray[messageIndex].id;
-                if (messageArray[messageIndex].media) {
-                  this.wait = false;
-                  let fileId = null;
-                  if (messageArray[messageIndex].media.document) {
-                    // const mimeType = messageArray[messageIndex].media.document.mimeType;
-                    // if (mimeType.startsWith("video/")) {
-                    //   fileId = messageArray[messageIndex].media.document.id;
-                    // } else if (mimeType.startsWith("image/")) {
-                    //   fileId = messageArray[messageIndex].media.document.id;
-                    // // } else if (mimeType.startsWith("application/")) {
-                    // // } else {
-                    // }
-                    fileId = messageArray[messageIndex].media.document.id;
-                  } else if (messageArray[messageIndex].media.photo) {
-                    fileId = messageArray[messageIndex].media.photo.id;
-                  }
-                  if (id && fileId) {
-                    if (this.idArray.includes(id) === false && this.fileIdArray.includes(fileId) === false) {
-                      status = true;
-                      this.idArray.push(id);
-                      this.fileIdArray.push(fileId);
-                    } else {
-                      //console.log("(" + this.currentStep + ") 该媒体已在数据库中");
-                      this.sendLog("start", "该媒体已在数据库中", "error", true);
-                    }
-                  }
-                } else if (messageArray[messageIndex].replyMarkup) {
+                if (messageArray[messageIndex].replyMarkup) {
                   this.wait = false;
                   if (messageArray[messageIndex].replyMarkup.rows) {
                     // console.log(message);  //测试
@@ -1131,6 +1105,32 @@ export class WebSocketServer extends DurableObject {
                       }
                     }
                   }
+                } else if (messageArray[messageIndex].media) {
+                  this.wait = false;
+                  let fileId = null;
+                  if (messageArray[messageIndex].media.document) {
+                    // const mimeType = messageArray[messageIndex].media.document.mimeType;
+                    // if (mimeType.startsWith("video/")) {
+                    //   fileId = messageArray[messageIndex].media.document.id;
+                    // } else if (mimeType.startsWith("image/")) {
+                    //   fileId = messageArray[messageIndex].media.document.id;
+                    // // } else if (mimeType.startsWith("application/")) {
+                    // // } else {
+                    // }
+                    fileId = messageArray[messageIndex].media.document.id;
+                  } else if (messageArray[messageIndex].media.photo) {
+                    fileId = messageArray[messageIndex].media.photo.id;
+                  }
+                  if (id && fileId) {
+                    if (this.idArray.includes(id) === false && this.fileIdArray.includes(fileId) === false) {
+                      status = true;
+                      this.idArray.push(id);
+                      this.fileIdArray.push(fileId);
+                    } else {
+                      //console.log("(" + this.currentStep + ") 该媒体已在数据库中");
+                      this.sendLog("start", "该媒体已在数据库中", "error", true);
+                    }
+                  }
                 } else {
                   const message = messageArray[messageIndex].message;
                   const str = message.substr(0, 10);
@@ -1173,11 +1173,11 @@ export class WebSocketServer extends DurableObject {
                 }
               }
             }
-            if (this.queue === false) {
-              if (status === true) {
-                await this.sendQuery(1);
-              }
-            }
+            // if (this.queue === false) {
+            //   if (status === true) {
+            //     await this.sendQuery(1);
+            //   }
+            // }
             await this.checkMessage(status);
             if (this.stop === 1) {
               await this.endStep("start");

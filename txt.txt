@@ -20,12 +20,6 @@ npm run deploy-bot
 npm run dist-tgjmq
 npm run deploy-tgjmq
 
-npm run dist-fileLeak
-npm run deploy-fileLeak
-
-npm run dist-lockhive
-npm run deploy-lockhive
-
 npm run dist-tgdecoder
 npm run deploy-tgdecoder
 

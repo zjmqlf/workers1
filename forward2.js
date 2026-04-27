@@ -1536,8 +1536,14 @@ export class WebSocketServer extends DurableObject {
                 await this.ctx.storage.put("client" + this.tg[clientIndex].clientId, 0);
                 await this.open(clientIndex, 1);
                 if (this.tg[clientIndex].client) {
-                  await this.getConfig(clientIndex, 1, option);
-                  await this.getNext(clientIndex);
+                  await this.getUser(clientIndex);
+                  if (this.tg[clientIndex].toPeer) {
+                    await this.getConfig(clientIndex, 1, option);
+                    await this.getNext(clientIndex);
+                  } else {
+                    //console.log("获取toPeer出错");
+                    this.sendLog(clientIndex, "nextStep", "获取toPeer出错", "error", true);
+                  }
                 } else {
                   //console.log("连接TG服务" + clientIndex + "失败");
                   this.sendLog(clientIndex, "nextStep", "连接TG服务" + clientIndex + "失败", null, true);

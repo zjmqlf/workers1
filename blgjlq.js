@@ -349,9 +349,9 @@ export class WebSocketServer extends DurableObject {
       ) {
         // count += 1;
         this.count += 1;
-        if (message.noforwards === false) {
+        // if (message.noforwards === false) {
           this.messageArray.push(message);
-        }
+        // }
       }
       // if (this.count > this.limit) {
       //   //console.log("(" + this.currentStep + ") messageCount比limit大");
@@ -806,10 +806,10 @@ export class WebSocketServer extends DurableObject {
               );
               //console.log("(" + this.currentStep + ") 加入队列全部推送");
               this.sendLog("nextStep", "加入队列全部推送", null, false);
-            } else {
-              if (status === true) {
-                await this.sendQuery(1);
-              }
+            // } else {
+            //   if (status === true) {
+            //     await this.sendQuery(1);
+            //   }
             }
           }
           await this.checkMessage(status);
@@ -1103,10 +1103,10 @@ export class WebSocketServer extends DurableObject {
                 );
                 //console.log("(" + this.currentStep + ") 加入队列全部推送");
                 this.sendLog("start", "加入队列全部推送", null, false);
-              } else {
-                if (status === true) {
-                  await this.sendQuery(1);
-                }
+              // } else {
+              //   if (status === true) {
+              //     await this.sendQuery(1);
+              //   }
               }
             }
             await this.checkMessage(status);

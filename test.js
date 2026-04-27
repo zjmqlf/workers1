@@ -228,18 +228,18 @@ export default {
             new Api.InputUser({
               // userId: 7585811878,
               // accessHash: bigInt.zero,
-              userId: bigInt("7964900739"),  //lockhive_bot
-              accessHash: bigInt("-5856254949516087696"),
+              // userId: bigInt("7964900739"),  //lockhive_bot
+              // accessHash: bigInt("-5856254949516087696"),
               // userId: bigInt("8644136882"),  //nnfilebot
               // accessHash: bigInt("-1388224743701786177"),
               // userId: bigInt("8633923875"),  //blgjlqbot
               // accessHash: bigInt("3740805468883295251"),
-              // userId: bigInt("8739054943"),  //tgjmqbot
-              // accessHash: bigInt("-5019818591313862931"),
               // userId: bigInt("8554859780"),  //FileLeakBot
               // accessHash: bigInt("-6753499946272396397"),
-              // userId: bigInt("8723732232"),  //tg_decoderbot
-              // accessHash: bigInt("7747556831726811342"),
+              // userId: bigInt("8739054943"),  //tgjmqbot
+              // accessHash: bigInt("-5019818591313862931"),
+              userId: bigInt("8723732232"),  //tg_decoderbot
+              accessHash: bigInt("7747556831726811342"),
             }),
           ],
         })
@@ -376,16 +376,16 @@ export default {
                 for (const button of row.buttons) {
                   // console.log(button);  //测试
                   // if (button.text === "加入队列全部推送") {
-                  // if (button.text === "下一页 ➡️") {
+                  if (button.text === "下一页 ➡️") {
                   // if (button.text.includes("➡️ 查看下一组 (") === true) {
-                  //   console.log(button.text);  //测试
-                  //   // const result = await client[clientIndex].invoke(new Api.messages.GetBotCallbackAnswer({
-                  //   //   peer: fromPeer,
-                  //   //   msgId: message.id,
-                  //   //   data: button.data,
-                  //   // }));
-                  //   // console.log(result);  //测试
-                  // }
+                    // console.log(button.text);  //测试
+                    const result = await client[clientIndex].invoke(new Api.messages.GetBotCallbackAnswer({
+                      peer: fromPeer,
+                      msgId: message.id,
+                      data: button.data,
+                    }));
+                    console.log(result);  //测试
+                  }
                   // console.log(button.text + " : " + regexp.test(button.text));  //测试
                 }
               }

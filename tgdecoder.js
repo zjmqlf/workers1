@@ -352,9 +352,9 @@ export class WebSocketServer extends DurableObject {
       ) {
         // count += 1;
         this.count += 1;
-        if (message.noforwards === false) {
+        // if (message.noforwards === false) {
           this.messageArray.push(message);
-        }
+        // }
       }
       // if (this.count > this.limit) {
       //   //console.log("(" + this.currentStep + ") messageCount比limit大");
@@ -823,11 +823,11 @@ export class WebSocketServer extends DurableObject {
               }
             }
           }
-          if (this.queue === false) {
-            if (status === true) {
-              await this.sendQuery(1);
-            }
-          }
+          // if (this.queue === false) {
+          //   if (status === true) {
+          //     await this.sendQuery(1);
+          //   }
+          // }
           await this.checkMessage(status);
           if (this.stop === 1) {
             await this.endStep("nextStep");
@@ -1159,11 +1159,11 @@ export class WebSocketServer extends DurableObject {
                 }
               }
             }
-            if (this.queue === false) {
-              if (status === true) {
-                await this.sendQuery(1);
-              }
-            }
+            // if (this.queue === false) {
+            //   if (status === true) {
+            //     await this.sendQuery(1);
+            //   }
+            // }
             await this.checkMessage(status);
             if (this.stop === 1) {
               await this.endStep("start");
