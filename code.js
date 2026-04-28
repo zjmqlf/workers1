@@ -642,13 +642,18 @@ try {
     const data = fs.readFileSync("./code/showfilesbot.txt", "utf-8");
     try {
       let uniqueArr = JSON.parse(data);
+      const oldLength = uniqueArr.length;
       uniqueArr = [...uniqueArr, ...showfilesbot];
       uniqueArr = [...new Set(uniqueArr)];
-      fs.writeFile("./code/showfilesbot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
-        if (err) {
-          console.log(err);
-        }
-      });
+      if (uniqueArr.length > oldLength) {
+        fs.writeFile("./code/showfilesbot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+          if (err) {
+            console.log(err);
+          }
+        });
+      // } else {
+      //   console.log("没有新加数据");
+      }
     } catch (e) {
       console.log(e);
     }
@@ -660,13 +665,18 @@ try {
     const data = fs.readFileSync("./code/tgjmqbot.txt", "utf-8");
     try {
       let uniqueArr = JSON.parse(data);
+      const oldLength = uniqueArr.length;
       uniqueArr = [...uniqueArr, ...tgjmqbot];
       uniqueArr = [...new Set(uniqueArr)];
-      fs.writeFile("./code/tgjmqbot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
-        if (err) {
-          console.log(err);
-        }
-      });
+      if (uniqueArr.length > oldLength) {
+        fs.writeFile("./code/tgjmqbot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+          if (err) {
+            console.log(err);
+          }
+        });
+      // } else {
+      //   console.log("没有新加数据");
+      }
     } catch (e) {
       console.log(e);
     }
@@ -678,13 +688,18 @@ try {
     const data = fs.readFileSync("./code/blgjlqbot.txt", "utf-8");
     try {
       let uniqueArr = JSON.parse(data);
+      const oldLength = uniqueArr.length;
       uniqueArr = [...uniqueArr, ...blgjlqbot];
       uniqueArr = [...new Set(uniqueArr)];
-      fs.writeFile("./code/blgjlqbot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
-        if (err) {
-          console.log(err);
-        }
-      });
+      if (uniqueArr.length > oldLength) {
+        fs.writeFile("./code/blgjlqbot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+          if (err) {
+            console.log(err);
+          }
+        });
+      // } else {
+      //   console.log("没有新加数据");
+      }
     } catch (e) {
       console.log(e);
     }
@@ -696,13 +711,18 @@ try {
     const data = fs.readFileSync("./code/fileLeakBot.txt", "utf-8");
     try {
       let uniqueArr = JSON.parse(data);
+      const oldLength = uniqueArr.length;
       uniqueArr = [...uniqueArr, ...fileLeakBot];
       uniqueArr = [...new Set(uniqueArr)];
-      fs.writeFile("./code/fileLeakBot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
-        if (err) {
-          console.log(err);
-        }
-      });
+      if (uniqueArr.length > oldLength) {
+        fs.writeFile("./code/fileLeakBot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+          if (err) {
+            console.log(err);
+          }
+        });
+      // } else {
+      //   console.log("没有新加数据");
+      }
     } catch (e) {
       console.log(e);
     }
@@ -714,13 +734,18 @@ try {
     const data = fs.readFileSync("./code/nnfilebot.txt", "utf-8");
     try {
       let uniqueArr = JSON.parse(data);
+      const oldLength = uniqueArr.length;
       uniqueArr = [...uniqueArr, ...nnfilebot];
       uniqueArr = [...new Set(uniqueArr)];
-      fs.writeFile("./code/nnfilebot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
-        if (err) {
-          console.log(err);
-        }
-      });
+      if (uniqueArr.length > oldLength) {
+        fs.writeFile("./code/nnfilebot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+          if (err) {
+            console.log(err);
+          }
+        });
+      // } else {
+      //   console.log("没有新加数据");
+      }
     } catch (e) {
       console.log(e);
     }
@@ -732,13 +757,18 @@ try {
     const data = fs.readFileSync("./code/parludecodingBot.txt", "utf-8");
     try {
       let uniqueArr = JSON.parse(data);
+      const oldLength = uniqueArr.length;
       uniqueArr = [...uniqueArr, ...parludecodingBot];
       uniqueArr = [...new Set(uniqueArr)];
-      fs.writeFile("./code/parludecodingBot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
-        if (err) {
-          console.log(err);
-        }
-      });
+      if (uniqueArr.length > oldLength) {
+        fs.writeFile("./code/parludecodingBot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+          if (err) {
+            console.log(err);
+          }
+        });
+      // } else {
+      //   console.log("没有新加数据");
+      }
     } catch (e) {
       console.log(e);
     }
@@ -750,13 +780,18 @@ try {
     const data = fs.readFileSync("./code/teestpanbot.txt", "utf-8");
     try {
       let uniqueArr = JSON.parse(data);
+      const oldLength = uniqueArr.length;
       uniqueArr = [...uniqueArr, ...teestpanbot];
       uniqueArr = [...new Set(uniqueArr)];
-      fs.writeFile("./code/teestpanbot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
-        if (err) {
-          console.log(err);
-        }
-      });
+      if (uniqueArr.length > oldLength) {
+        fs.writeFile("./code/teestpanbot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+          if (err) {
+            console.log(err);
+          }
+        });
+      // } else {
+      //   console.log("没有新加数据");
+      }
     } catch (e) {
       console.log(e);
     }
@@ -768,13 +803,18 @@ try {
     const data = fs.readFileSync("./code/atfileslinksbot.txt", "utf-8");
     try {
       let uniqueArr = JSON.parse(data);
+      const oldLength = uniqueArr.length;
       uniqueArr = [...uniqueArr, ...atfileslinksbot];
       uniqueArr = [...new Set(uniqueArr)];
-      fs.writeFile("./code/atfileslinksbot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
-        if (err) {
-          console.log(err);
-        }
-      });
+      if (uniqueArr.length > oldLength) {
+        fs.writeFile("./code/atfileslinksbot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+          if (err) {
+            console.log(err);
+          }
+        });
+      // } else {
+      //   console.log("没有新加数据");
+      }
     } catch (e) {
       console.log(e);
     }
@@ -786,13 +826,18 @@ try {
     const data = fs.readFileSync("./code/lockHivebot.txt", "utf-8");
     try {
       let uniqueArr = JSON.parse(data);
+      const oldLength = uniqueArr.length;
       uniqueArr = [...uniqueArr, ...lockHivebot];
       uniqueArr = [...new Set(uniqueArr)];
-      fs.writeFile("./code/lockHivebot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
-        if (err) {
-          console.log(err);
-        }
-      });
+      if (uniqueArr.length > oldLength) {
+        fs.writeFile("./code/lockHivebot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+          if (err) {
+            console.log(err);
+          }
+        });
+      // } else {
+      //   console.log("没有新加数据");
+      }
     } catch (e) {
       console.log(e);
     }
@@ -804,13 +849,18 @@ try {
     const data = fs.readFileSync("./code/tgdecoderbot.txt", "utf-8");
     try {
       let uniqueArr = JSON.parse(data);
+      const oldLength = uniqueArr.length;
       uniqueArr = [...uniqueArr, ...tgdecoderbot];
       uniqueArr = [...new Set(uniqueArr)];
-      fs.writeFile("./code/tgdecoderbot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
-        if (err) {
-          console.log(err);
-        }
-      });
+      if (uniqueArr.length > oldLength) {
+        fs.writeFile("./code/tgdecoderbot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+          if (err) {
+            console.log(err);
+          }
+        });
+      // } else {
+      //   console.log("没有新加数据");
+      }
     } catch (e) {
       console.log(e);
     }
@@ -822,13 +872,18 @@ try {
     const data = fs.readFileSync("./code/ZYXFilesBot.txt", "utf-8");
     try {
       let uniqueArr = JSON.parse(data);
+      const oldLength = uniqueArr.length;
       uniqueArr = [...uniqueArr, ...ZYXFilesBot];
       uniqueArr = [...new Set(uniqueArr)];
-      fs.writeFile("./code/ZYXFilesBot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
-        if (err) {
-          console.log(err);
-        }
-      });
+      if (uniqueArr.length > oldLength) {
+        fs.writeFile("./code/ZYXFilesBot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+          if (err) {
+            console.log(err);
+          }
+        });
+      // } else {
+      //   console.log("没有新加数据");
+      }
     } catch (e) {
       console.log(e);
     }
@@ -840,13 +895,18 @@ try {
     const data = fs.readFileSync("./code/ntmjmqbot.txt", "utf-8");
     try {
       let uniqueArr = JSON.parse(data);
+      const oldLength = uniqueArr.length;
       uniqueArr = [...uniqueArr, ...ntmjmqbot];
       uniqueArr = [...new Set(uniqueArr)];
-      fs.writeFile("./code/ntmjmqbot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
-        if (err) {
-          console.log(err);
-        }
-      });
+      if (uniqueArr.length > oldLength) {
+        fs.writeFile("./code/ntmjmqbot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+          if (err) {
+            console.log(err);
+          }
+        });
+      // } else {
+      //   console.log("没有新加数据");
+      }
     } catch (e) {
       console.log(e);
     }
@@ -858,13 +918,18 @@ try {
     const data = fs.readFileSync("./code/newjmqbot.txt", "utf-8");
     try {
       let uniqueArr = JSON.parse(data);
+      const oldLength = uniqueArr.length;
       uniqueArr = [...uniqueArr, ...newjmqbot];
       uniqueArr = [...new Set(uniqueArr)];
-      fs.writeFile("./code/newjmqbot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
-        if (err) {
-          console.log(err);
-        }
-      });
+      if (uniqueArr.length > oldLength) {
+        fs.writeFile("./code/newjmqbot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+          if (err) {
+            console.log(err);
+          }
+        });
+      // } else {
+      //   console.log("没有新加数据");
+      }
     } catch (e) {
       console.log(e);
     }
@@ -876,13 +941,18 @@ try {
     const data = fs.readFileSync("./code/filepanbot.txt", "utf-8");
     try {
       let uniqueArr = JSON.parse(data);
+      const oldLength = uniqueArr.length;
       uniqueArr = [...uniqueArr, ...filepanbot];
       uniqueArr = [...new Set(uniqueArr)];
-      fs.writeFile("./code/filepanbot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
-        if (err) {
-          console.log(err);
-        }
-      });
+      if (uniqueArr.length > oldLength) {
+        fs.writeFile("./code/filepanbot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+          if (err) {
+            console.log(err);
+          }
+        });
+      // } else {
+      //   console.log("没有新加数据");
+      }
     } catch (e) {
       console.log(e);
     }
@@ -894,13 +964,18 @@ try {
     const data = fs.readFileSync("./code/myseseXBot.txt", "utf-8");
     try {
       let uniqueArr = JSON.parse(data);
+      const oldLength = uniqueArr.length;
       uniqueArr = [...uniqueArr, ...myseseXBot];
       uniqueArr = [...new Set(uniqueArr)];
-      fs.writeFile("./code/myseseXBot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
-        if (err) {
-          console.log(err);
-        }
-      });
+      if (uniqueArr.length > oldLength) {
+        fs.writeFile("./code/myseseXBot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+          if (err) {
+            console.log(err);
+          }
+        });
+      // } else {
+      //   console.log("没有新加数据");
+      }
     } catch (e) {
       console.log(e);
     }
@@ -912,13 +987,18 @@ try {
     const data = fs.readFileSync("./code/save2BoxBot.txt", "utf-8");
     try {
       let uniqueArr = JSON.parse(data);
+      const oldLength = uniqueArr.length;
       uniqueArr = [...uniqueArr, ...save2BoxBot];
       uniqueArr = [...new Set(uniqueArr)];
-      fs.writeFile("./code/save2BoxBot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
-        if (err) {
-          console.log(err);
-        }
-      });
+      if (uniqueArr.length > oldLength) {
+        fs.writeFile("./code/save2BoxBot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+          if (err) {
+            console.log(err);
+          }
+        });
+      // } else {
+      //   console.log("没有新加数据");
+      }
     } catch (e) {
       console.log(e);
     }
@@ -930,13 +1010,18 @@ try {
     const data = fs.readFileSync("./code/mtfxqbot.txt", "utf-8");
     try {
       let uniqueArr = JSON.parse(data);
+      const oldLength = uniqueArr.length;
       uniqueArr = [...uniqueArr, ...mtfxqbot];
       uniqueArr = [...new Set(uniqueArr)];
-      fs.writeFile("./code/mtfxqbot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
-        if (err) {
-          console.log(err);
-        }
-      });
+      if (uniqueArr.length > oldLength) {
+        fs.writeFile("./code/mtfxqbot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+          if (err) {
+            console.log(err);
+          }
+        });
+      // } else {
+      //   console.log("没有新加数据");
+      }
     } catch (e) {
       console.log(e);
     }
@@ -948,13 +1033,18 @@ try {
     const data = fs.readFileSync("./code/mtfxq2bot.txt", "utf-8");
     try {
       let uniqueArr = JSON.parse(data);
+      const oldLength = uniqueArr.length;
       uniqueArr = [...uniqueArr, ...mtfxq2bot];
       uniqueArr = [...new Set(uniqueArr)];
-      fs.writeFile("./code/mtfxq2bot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
-        if (err) {
-          console.log(err);
-        }
-      });
+      if (uniqueArr.length > oldLength) {
+        fs.writeFile("./code/mtfxq2bot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+          if (err) {
+            console.log(err);
+          }
+        });
+      // } else {
+      //   console.log("没有新加数据");
+      }
     } catch (e) {
       console.log(e);
     }
@@ -966,13 +1056,18 @@ try {
     const data = fs.readFileSync("./code/mediaBK2Bot.txt", "utf-8");
     try {
       let uniqueArr = JSON.parse(data);
+      const oldLength = uniqueArr.length;
       uniqueArr = [...uniqueArr, ...mediaBK2Bot];
       uniqueArr = [...new Set(uniqueArr)];
-      fs.writeFile("./code/mediaBK2Bot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
-        if (err) {
-          console.log(err);
-        }
-      });
+      if (uniqueArr.length > oldLength) {
+        fs.writeFile("./code/mediaBK2Bot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+          if (err) {
+            console.log(err);
+          }
+        });
+      // } else {
+      //   console.log("没有新加数据");
+      }
     } catch (e) {
       console.log(e);
     }
@@ -984,13 +1079,18 @@ try {
     const data = fs.readFileSync("./code/mouseFilebot.txt", "utf-8");
     try {
       let uniqueArr = JSON.parse(data);
+      const oldLength = uniqueArr.length;
       uniqueArr = [...uniqueArr, ...mouseFilebot];
       uniqueArr = [...new Set(uniqueArr)];
-      fs.writeFile("./code/mouseFilebot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
-        if (err) {
-          console.log(err);
-        }
-      });
+      if (uniqueArr.length > oldLength) {
+        fs.writeFile("./code/mouseFilebot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+          if (err) {
+            console.log(err);
+          }
+        });
+      // } else {
+      //   console.log("没有新加数据");
+      }
     } catch (e) {
       console.log(e);
     }
@@ -1002,13 +1102,18 @@ try {
     const data = fs.readFileSync("./code/dataPanBot.txt", "utf-8");
     try {
       let uniqueArr = JSON.parse(data);
+      const oldLength = uniqueArr.length;
       uniqueArr = [...uniqueArr, ...dataPanBot];
       uniqueArr = [...new Set(uniqueArr)];
-      fs.writeFile("./code/dataPanBot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
-        if (err) {
-          console.log(err);
-        }
-      });
+      if (uniqueArr.length > oldLength) {
+        fs.writeFile("./code/dataPanBot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+          if (err) {
+            console.log(err);
+          }
+        });
+      // } else {
+      //   console.log("没有新加数据");
+      }
     } catch (e) {
       console.log(e);
     }
@@ -1020,13 +1125,18 @@ try {
     const data = fs.readFileSync("./code/filesPan1Bot.txt", "utf-8");
     try {
       let uniqueArr = JSON.parse(data);
+      const oldLength = uniqueArr.length;
       uniqueArr = [...uniqueArr, ...filesPan1Bot];
       uniqueArr = [...new Set(uniqueArr)];
-      fs.writeFile("./code/filesPan1Bot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
-        if (err) {
-          console.log(err);
-        }
-      });
+      if (uniqueArr.length > oldLength) {
+        fs.writeFile("./code/filesPan1Bot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+          if (err) {
+            console.log(err);
+          }
+        });
+      // } else {
+      //   console.log("没有新加数据");
+      }
     } catch (e) {
       console.log(e);
     }

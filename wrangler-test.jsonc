@@ -9,8 +9,8 @@
   ],
   "routes": [
     {
-      "pattern": "test.19425.xyz/*",
-      "zone_name": "19425.xyz"
+      "pattern": "test.19421.xyz/*",
+      "zone_name": "19421.xyz"
     }
   ],
   "preview_urls": false,

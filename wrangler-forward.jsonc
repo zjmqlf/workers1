@@ -13,8 +13,8 @@
   },
   "routes": [
     {
-      "pattern": "forward.19425.xyz/*",
-      "zone_name": "19425.xyz"
+      "pattern": "forward.19421.xyz/*",
+      "zone_name": "19421.xyz"
     }
   ],
   "preview_urls": false,
