@@ -8,37 +8,40 @@ npm run build
 
 zjmqlf2021:
 
-npm run dist-hash
+npm run build-hash
 npm run deploy-hash
 
-npm run dist-forward
+npm run build-forward
 npm run deploy-forward
 
-npm run dist-bot
+npm run build-bot
 npm run deploy-bot
 
-npm run dist-tgjmq
+npm run build-tgjmq
 npm run deploy-tgjmq
 
-npm run dist-tgdecoder
+npm run build-tgdecoder
 npm run deploy-tgdecoder
 
-npm run dist-test
+npm run build-test
 npm run deploy-test
 
 
 zjmqlf2022:
 
-npm run dist-pansou
+npm run build-pansou
 npm run deploy-pansou
 
-npm run dist-favorites
+npm run build-user
+npm run deploy-user
+
+npm run build-favorites
 npm run deploy-favorites
 
-npm run dist-forward1
+npm run build-forward1
 npm run deploy-forward1
 
-npm run dist-forward2
+npm run build-forward2
 npm run deploy-forward2
 
 

@@ -798,10 +798,14 @@ export class WebSocketServer extends DurableObject {
                   }
                 }
               } else {
+                const regexp = /([a-z0-9]{32})/i;
                 const message = messageArray[messageIndex].message;
                 if (message.substr(0, 8) === "decoder_") {
                   await this.ctx.storage.put(message, 1);
                   this.getCount(message);
+                  //console.log("(" + this.currentStep + ") 代码入库完毕");
+                } else if (regexp.test(message) === true) {
+                  await this.ctx.storage.put(message, 1);
                   //console.log("(" + this.currentStep + ") 代码入库完毕");
                   this.sendForward("nextStep", "代码入库完毕", "", "add", false);
                 } else if (message.includes("✅ 代码输出完成") === true) {
@@ -1134,10 +1138,15 @@ export class WebSocketServer extends DurableObject {
                     }
                   }
                 } else {
+                  const regexp = /([a-z0-9]{32})/i;
                   const message = messageArray[messageIndex].message;
                   if (message.substr(0, 8) === "decoder_") {
                     await this.ctx.storage.put(message, 1);
                     this.getCount(message);
+                    //console.log("(" + this.currentStep + ") 代码入库完毕");
+                    this.sendForward("start", "代码入库完毕", "", "add", false);
+                  } else if (regexp.test(message) === true) {
+                    await this.ctx.storage.put(message, 1);
                     //console.log("(" + this.currentStep + ") 代码入库完毕");
                     this.sendForward("start", "代码入库完毕", "", "add", false);
                   } else if (message.includes("✅ 代码输出完成") === true) {

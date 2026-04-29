@@ -38,6 +38,7 @@ const teestpanbotRegexp = /(@Teestpanbot:_\d*P*_*\d*V*_*\d*D*_[A-Za-z0-9]{12})/g
 const atfileslinksbotRegexp = /(atfileslinksbot_\d*p*_*\d*v*_*\d*d*_[A-Za-z0-9]{20})/gi;   //atfileslinksbot
 const lockHivebotRegexp = /(LockHivebot_[A-Za-z0-9]{16})/gi;   //lockHivebot
 const tgdecoderbotRegexp = /(decoder_\d+p_\d+v_\d+d_[A-Za-z0-9]{12})/gi;   //tgdecoderbot
+const tgdecoderbot1Regexp = /([a-z0-9]{32})/gi;   //tgdecoderbot
 const ZYXFilesBotRegexp = /(📌 取件码：[A-Za-z0-9]+)/gi;   //ZYXFilesBot
 const ntmjmqbotRegexp = /(ntmjmqbot_\d+p_\d+v_\d+d_[A-Za-z0-9]{13})/gi;   //ntmjmqbot
 const newjmqbotRegexp = /(newjmqbot_\d+p_\d+v_\d+d_[A-Za-z0-9]{13})/gi;   //newjmqbot
@@ -358,6 +359,20 @@ try {
             for (let j = 0; j < tgdecoderbotMatchesLength; j++) {
               if (tgdecoderbotMatches[j]) {
                 tgdecoderbot.push(tgdecoderbotMatches[j]);
+              }
+            }
+          }
+        }
+
+        const tgdecoderbot1Matches = str.match(tgdecoderbot1Regexp);
+        // console.log(tgdecoderbot1Matches);  //测试
+        if (tgdecoderbot1Matches) {
+          const tgdecoderbot1MatchesLength = tgdecoderbot1Matches.length;
+          // console.log("tgdecoderbot1MatchesLength : " + tgdecoderbot1MatchesLength);  //测试
+          if (tgdecoderbot1MatchesLength > 0) {
+            for (let j = 0; j < tgdecoderbot1MatchesLength; j++) {
+              if (tgdecoderbot1Matches[j]) {
+                tgdecoderbot.push(tgdecoderbot1Matches[j]);
               }
             }
           }

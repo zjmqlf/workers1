@@ -14,26 +14,26 @@ export class WebSocketServer extends DurableObject {
   client = null;
   chatId = 0;
   endChat = 0;
-  lastChat = 0;
-  reverse = true;
+  lastChat = 48;
+  // reverse = true;
   limit = 10;
   offsetId = 0;
   // error = false;
   fromPeer = null;
-  toPeer = null;
   waitTime = 60000;
   pingTime = 5000;
   count = 0;
   errorCount = 0;
   flood = 0;
   time = 0;
-  filterType = 0;
-  filter = Api.InputMessagesFilterVideo;
-  //filterTitle = "媒体";
+  // filterType = 0;
+  // filter = Api.InputMessagesFilterVideo;
+  // //filterTitle = "媒体";
   messageArray = [];
   cacheMessage = null;
   batchMessage = [];
   dialogArray = [];
+  chatArray = {};
 
   constructor(ctx, env) {
     super(ctx, env);
@@ -84,12 +84,12 @@ export class WebSocketServer extends DurableObject {
         if (option.endChat && option.endChat > 0) {
           this.endChat = option.endChat;
         }
-        if (option.filterType) {
-          this.filterType = option.filterType;
-        }
-        if (option.reverse) {
-          this.reverse = option.reverse;
-        }
+        // if (option.filterType) {
+        //   this.filterType = option.filterType;
+        // }
+        // if (option.reverse) {
+        //   this.reverse = option.reverse;
+        // }
         if (option.limit && option.limit > 0) {
           this.limit = option.limit;
         }
@@ -101,8 +101,8 @@ export class WebSocketServer extends DurableObject {
         this.batch = false;
         this.chatId = 0;
         this.endChat = 0;
-        this.filterType = 0;
-        this.reverse = true;
+        // this.filterType = 0;
+        // this.reverse = true;
         this.limit = 20;
         this.offsetId = 0;
       }
@@ -112,10 +112,9 @@ export class WebSocketServer extends DurableObject {
       // this.webSocket = [];
       this.apiCount = 0;
       this.currentStep = 0;
-      this.lastChat = 0;
+      this.lastChat = 48;
       // this.error = false;
       this.fromPeer = null;
-      this.toPeer = null;
       this.waitTime = 60000;
       this.pingTime = 5000;
       this.count = 0;
@@ -123,11 +122,301 @@ export class WebSocketServer extends DurableObject {
       this.flood = 0;
       this.time = 0;
       this.messageArray = [];
-      this.filter = Api.InputMessagesFilterVideo;
-      //this.filterTitle = "媒体";
+      // this.filter = Api.InputMessagesFilterVideo;
+      // //this.filterTitle = "媒体";
       this.cacheMessage = null;
       this.batchMessage = [];
       this.dialogArray = [];
+      this.chatArray = {
+        "0": {
+          "uid": 0,
+          "name": "zjm1985",
+          "id": 1231007796,
+          "accessHash": 13848420579109566,
+        },
+        "1": {
+          "uid": 1,
+          "name": "zjm2023",
+          "id": 2029656369,
+          "accessHash": -3528954742784820459,
+        },
+        "2": {
+          "uid": 2,
+          "name": "zjm2024",
+          "id": 2022378939,
+          "accessHash": 8376691521853558144,
+        },
+        "3": {
+          "uid": 3,
+          "name": "zjm2025",
+          "id": 2021287347,
+          "accessHash": -2474463327330163547,
+        },
+        "4": {
+          "uid": 4,
+          "name": "zjm2026",
+          "id": 2132946221,
+          "accessHash": -3017218929268163713,
+        },
+        "5": {
+          "uid": 5,
+          "name": "zjm2027",
+          "id": 5092267287,
+          "accessHash": -97939840328277599,
+        },
+        "6": {
+          "uid": 6,
+          "name": "zjm2034",
+          "id": 5111333624,
+          "accessHash": -8159676459379074185,
+        },
+        "7": {
+          "uid": 7,
+          "name": "zjm2039",
+          "id": 5210817361,
+          "accessHash": -3108192830429356175,
+        },
+        "8": {
+          "uid": 8,
+          "name": "zjm2040",
+          "id": 5298607595,
+          "accessHash": 7213706693544433367,
+        },
+        "9": {
+          "uid": 9,
+          "name": "zjm2048",
+          "id": 5248558475,
+          "accessHash": -8820145577148596942,
+        },
+        "10": {
+          "uid": 10,
+          "name": "zjm2049",
+          "id": 5334367957,
+          "accessHash": 554218287056445660,
+        },
+        "11": {
+          "uid": 11,
+          "name": "zjm2053",
+          "id": 5498421412,
+          "accessHash": -6188665553229195970,
+        },
+        "12": {
+          "uid": 12,
+          "name": "zjm2062",
+          "id": 5515666705,
+          "accessHash": 3305284847822540224,
+        },
+        "13": {
+          "uid": 13,
+          "name": "zjm2063",
+          "id": 5301758687,
+          "accessHash": -9174745641888598645,
+        },
+        "14": {
+          "uid": 14,
+          "name": "zjm2074",
+          "id": 5537189866,
+          "accessHash": 3914977698310866214,
+        },
+        "15": {
+          "uid": 15,
+          "name": "zjm2075",
+          "id": 5405759157,
+          "accessHash": 2204436030224743240,
+        },
+        "16": {
+          "uid": 16,
+          "name": "zjm2077",
+          "id": 5453647062,
+          "accessHash": 472178056653034692,
+        },
+        "17": {
+          "uid": 17,
+          "name": "zjm2078",
+          "id": 5487160489,
+          "accessHash": -8927191219834325638,
+        },
+        "18": {
+          "uid": 18,
+          "name": "zjm2080",
+          "id": 5586638035,
+          "accessHash": -2343795431669195591,
+        },
+        "19": {
+          "uid": 19,
+          "name": "zjm2082",
+          "id": 5494013993,
+          "accessHash": 3668647721456956830,
+        },
+        "20": {
+          "uid": 20,
+          "name": "zjm2083",
+          "id": 5201326284,
+          "accessHash": 8133162126715863839,
+        },
+        "21": {
+          "uid": 21,
+          "name": "zjm2084",
+          "id": 5562399529,
+          "accessHash": 4761404054046032014,
+        },
+        "22": {
+          "uid": 22,
+          "name": "zjm2097",
+          "id": 5544807930,
+          "accessHash": 2125645380340792600,
+        },
+        "23": {
+          "uid": 23,
+          "name": "zjm2099",
+          "id": 5506554632,
+          "accessHash": -7465790480777399794,
+        },
+        "24": {
+          "uid": 24,
+          "name": "zjm2100",
+          "id": 5422048899,
+          "accessHash": -1491779870861780025,
+        },
+        "25": {
+          "uid": 25,
+          "name": "zjm2105",
+          "id": 1881739674,
+          "accessHash": 7510714810549306348,
+        },
+        "26": {
+          "uid": 26,
+          "name": "zjm2125",
+          "id": 5174498261,
+          "accessHash": 3118062895719256586,
+        },
+        "27": {
+          "uid": 28,
+          "name": "zjm2150",
+          "id": 5491512462,
+          "accessHash": -6282068444938499337,
+        },
+        "28": {
+          "uid": 29,
+          "name": "zjm2152",
+          "id": 5376809814,
+          "accessHash": -4316963345977593904,
+        },
+        "29": {
+          "uid": 30,
+          "name": "zjm2154",
+          "id": 5460596906,
+          "accessHash": 1907811185440497142,
+        },
+        "30": {
+          "uid": 31,
+          "name": "zjm2157",
+          "id": 5525279326,
+          "accessHash": -8914150951960224709,
+        },
+        "31": {
+          "uid": 32,
+          "name": "zjm2231",
+          "id": 5785355067,
+          "accessHash": -4485372488949249025,
+        },
+        "32": {
+          "uid": 33,
+          "name": "zjm2232",
+          "id": 5759109125,
+          "accessHash": 7367771000016874444,
+        },
+        "33": {
+          "uid": 34,
+          "name": "zjm2233",
+          "id": 5621617477,
+          "accessHash": -2442527438641502374,
+        },
+        "34": {
+          "uid": 35,
+          "name": "zjm2235",
+          "id": 5722372365,
+          "accessHash": 2813860196518871567,
+        },
+        "35": {
+          "uid": 36,
+          "name": "zjm2236",
+          "id": 5616445057,
+          "accessHash": 2579704128359772066,
+        },
+        "36": {
+          "uid": 37,
+          "name": "zjm2240",
+          "id": 5782586850,
+          "accessHash": -4211117113720985042,
+        },
+        "37": {
+          "uid": 38,
+          "name": "zjm2241",
+          "id": 5698979470,
+          "accessHash": 6277457358829574092,
+        },
+        "38": {
+          "uid": 39,
+          "name": "zjm2244",
+          "id": 5681167816,
+          "accessHash": 1531362886672261269,
+        },
+        "39": {
+          "uid": 40,
+          "name": "zjm2245",
+          "id": 5616772046,
+          "accessHash": 129998216348589648,
+        },
+        "40": {
+          "uid": 41,
+          "name": "zjm2246",
+          "id": 5678215894,
+          "accessHash": 7046863568563790536,
+        },
+        "41": {
+          "uid": 42,
+          "name": "zjm2419",
+          "id": 5677089513,
+          "accessHash": 4167421863166183979,
+        },
+        "42": {
+          "uid": 43,
+          "name": "zjm2420",
+          "id": 5735084131,
+          "accessHash": -6430412094933543253,
+        },
+        "43": {
+          "uid": 44,
+          "name": "zjm2463",
+          "id": 5468542202,
+          "accessHash": -920943731606205159,
+        },
+        "44": {
+          "uid": 45,
+          "name": "zjm2466",
+          "id": 5552832255,
+          "accessHash": 855812436444788388,
+        },
+        "45": {
+          "uid": 46,
+          "name": "zjm2589",
+          "id": 5741561468,
+          "accessHash": 7798784543598409350,
+        },
+        "46": {
+          "uid": 47,
+          "name": "zjm2590",
+          "id": 5403359805,
+          "accessHash": -4817051678776716002,
+        },
+        "47": {
+          "uid": 48,
+          "name": "zjm4039",
+          "id": 8636590734,
+          "accessHash": -94760164909719154,
+        },
+      }
     }
   }
 
@@ -167,7 +456,7 @@ export class WebSocketServer extends DurableObject {
         }
       } else if (message.operate === "open") {
       } else if (message.operate === "close") {
-      } else if (message.operate === "checkChat") {
+      } else if (message.operate === "getChat") {
       } else if (message.operate === "chat") {
       } else if (message.status === "limit") {
       } else if (message.status === "flood") {
@@ -287,23 +576,24 @@ export class WebSocketServer extends DurableObject {
   }
 
   async open(tryCount) {
-    const apiId = 1334621;
-    const apiHash = "2bc36173f487ece3052a00068be59e7b";
-    const sessionString = "1BQANOTEuMTA4LjU2LjEyOABQwxstTR81Nfcm/tmh20SrKp82pdQJkrsiHhc/NHJn7pPYiybHbL/NnfIYWriQF5lJz8o8FvlEVtQq8+GxCMp+jiyYGBeisN7TKouCRbIFg5XCfqHypd0UDY1hiKvTs73oeSn3mMZP3hKEEW92dC2dLsmZqXS09PYd28pRmKznCYwkoJlM2Puf+R9jQuIvr16MJUhxb3Nlug4QxoCq1MyjWWxgQSOiMpJdigxd57rNd/edeCyC67YMQu8fSXQF44EAkIDB0jVIg2VCTu3Wk36WE8aRA1IX1dtHEpso9+5b0efC/Ks/I+VWCCMQCtMrnzF36aBZKTj4YcPhzHijWdJhvQ==";
+    const apiId = 25429403;
+    const apiHash = "2bb9a1bfd8f598da6cb5c511f0e5fbdf";
+    const sessionString = "1BQAWZmxvcmEud2ViLnRlbGVncmFtLm9yZwG7be+PddSzlPTzgS/mbCsxeZYLhE9ohnesT10Ntv+pdypA3wfrAUdXGXBLb2uturgLlkO49XMxAsIoELAdi8OprHkYfeEWZrQPF9RqjucdgWviAVd3oy/JIHk6lbB6NCS06US2CMdLZMxAsLFLu2JTgWiI07Xm2tpCIaaYED9mmH7NiROvqBx+jpB2GoFM4xzqaoB3y43BURo/ZYPEM3uUB4AVsS7IwdK0/j8pJL/ChB3buNnNtyVADe8wFvEAcbMn/385Xz53T21BdYqanzMuZX2O9cv4UNCpA9P6HoEYRn0D9XsljY6xJFNdR/RRKGHBqlVLK/Xt6PagRm321YBAvw==";
     try {
       this.client = new TelegramClient(new sessions.StringSession(sessionString), apiId, apiHash, {
-        timeout: 5,
-        retryDelay: 1000,
-        connectionRetries: 5,
+        connectionRetries: Number.MAX_VALUE,
         autoReconnect: true,
         deviceModel: "Desktop",
         systemVersion: "Windows 11",
         appVersion: "6.7.6 x64",
         langCode: "en",
         systemLangCode: "en-US",
+        //downloadRetries: 1,
+        //retryDelay: 0,
+        //useWSS: false,
       });
       this.client.session.setDC(5, "91.108.56.128", 80);
-      this.client.setLogLevel(LogLevel.ERROR);
+      // this.client.setLogLevel(LogLevel.ERROR);
       await this.client.connect();
     } catch (e) {
       //console.log("login出错 : " + e);
@@ -342,7 +632,7 @@ export class WebSocketServer extends DurableObject {
     this.apiCount += 1;
     let configResult = {};
     try {
-      configResult = await this.env.MAINDB.prepare("SELECT * FROM `CONFIG` WHERE `name` = 'forward' AND `tgId` = 0 LIMIT 1;").run();
+      configResult = await this.env.MAINDB.prepare("SELECT * FROM `CONFIG` WHERE `name` = 'user' AND `tgId` = ? LIMIT 1;").bind(this.chatId).run();
     } catch (e) {
       //console.log("getConfig出错 : " + e);
       this.sendLog("getConfig", "出错 : " + JSON.stringify(e), null, true);
@@ -355,20 +645,21 @@ export class WebSocketServer extends DurableObject {
         const result = configResult.results[0];
         if (!option || !option.chatId) {
           if (result.chatId && result.chatId > 0) {
-            this.chatId = result.chatId;
-            this.lastChat = this.chatId;
+            // this.chatId = result.chatId;
+            // this.lastChat = this.chatId;
+            this.offsetId = result.chatId;
           }
         }
-        if (!option || !option.filterType) {
-          if (result.filterType && result.filterType > 0 && result.filterType <= 9) {
-            this.filterType = result.filterType;
-          }
-        }
-        if (!option || !option.reverse) {
-          if (result.reverse) {
-            this.reverse = Boolean(result.reverse);
-          }
-        }
+        // if (!option || !option.filterType) {
+        //   if (result.filterType && result.filterType > 0 && result.filterType <= 9) {
+        //     this.filterType = result.filterType;
+        //   }
+        // }
+        // if (!option || !option.reverse) {
+        //   if (result.reverse) {
+        //     this.reverse = Boolean(result.reverse);
+        //   }
+        // }
         if (!option || !option.limited) {
           if (result.limited && result.limited > 0) {
             this.limit = result.limited;
@@ -385,387 +676,126 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
-  async switchType() {
-    switch (this.filterType) {
-      case 0:
-        this.filter = Api.InputMessagesFilterPhotoVideo;
-        break;
-      case 1:
-        //this.filterTitle = "图片";
-        this.filter = Api.InputMessagesFilterPhotos;
-        break;
-      case 2:
-        //this.filterTitle = "视频";
-        this.filter = Api.InputMessagesFilterVideo;
-        break;
-      case 3:
-        //this.filterTitle = "文件";
-        this.filter = Api.InputMessagesFilterDocument;
-        break;
-      case 4:
-        //this.filterTitle = "动图";
-        this.filter = Api.InputMessagesFilterGif;
-        break;
-      case 5:
-        this.filter = Api.InputMessagesFilterVoice;
-        break;
-      case 6:
-        this.filter = Api.InputMessagesFilterMusic;
-        break;
-      case 7:
-        this.filter = Api.InputMessagesFilterChatPhotos;
-        break;
-      case 8:
-        this.filter = Api.InputMessagesFilterRoundVoice;
-        break;
-      case 9:
-        this.filter = Api.InputMessagesFilterRoundVideo;
-        break;
-      default:
-        this.filter = Api.InputMessagesFilterPhotoVideo;
-    }
-  }
+  // async switchType() {
+  //   switch (this.filterType) {
+  //     case 0:
+  //       this.filter = Api.InputMessagesFilterPhotoVideo;
+  //       break;
+  //     case 1:
+  //       //this.filterTitle = "图片";
+  //       this.filter = Api.InputMessagesFilterPhotos;
+  //       break;
+  //     case 2:
+  //       //this.filterTitle = "视频";
+  //       this.filter = Api.InputMessagesFilterVideo;
+  //       break;
+  //     case 3:
+  //       //this.filterTitle = "文件";
+  //       this.filter = Api.InputMessagesFilterDocument;
+  //       break;
+  //     case 4:
+  //       //this.filterTitle = "动图";
+  //       this.filter = Api.InputMessagesFilterGif;
+  //       break;
+  //     case 5:
+  //       this.filter = Api.InputMessagesFilterVoice;
+  //       break;
+  //     case 6:
+  //       this.filter = Api.InputMessagesFilterMusic;
+  //       break;
+  //     case 7:
+  //       this.filter = Api.InputMessagesFilterChatPhotos;
+  //       break;
+  //     case 8:
+  //       this.filter = Api.InputMessagesFilterRoundVoice;
+  //       break;
+  //     case 9:
+  //       this.filter = Api.InputMessagesFilterRoundVideo;
+  //       break;
+  //     default:
+  //       this.filter = Api.InputMessagesFilterPhotoVideo;
+  //   }
+  // }
 
-  async setOffsetId(chatResult) {
-    if (this.filterType === 0) {
-      this.offsetId = chatResult.current;
-    } else if (this.filterType === 1) {
-      this.offsetId = chatResult.photo;
-    } else if (this.filterType === 2) {
-      this.offsetId = chatResult.video;
-    } else if (this.filterType === 3) {
-      this.offsetId = chatResult.document;
-    } else if (this.filterType === 4) {
-      this.offsetId = chatResult.gif;
-    }
-  }
-
-  async noExistChatError(tryCount, Cindex) {
-    if (tryCount === 20) {
-      this.stop = 2;
-      //console.log("(" + this.currentStep + ")noExistChat超出tryCount限制");
-      this.sendLog("noExistChat", "超出tryCount限制", null, true);
-      await this.close();
-    } else {
-      await scheduler.wait(10000);
-      await this.noExistChat(tryCount + 1, Cindex);
-    }
-  }
-
-  async noExistChat(tryCount, Cindex) {
-    this.apiCount += 1;
-    let chatResult = {};
-    try {
-      chatResult = await this.env.MAINDB.prepare("UPDATE `FORWARDCHAT` SET `exist` = 0 WHERE `Cindex` = ?;").bind(Cindex).run();
-    } catch (e) {
-      //console.log("noExistChat出错 : " + e);
-      this.sendLog("noExistChat", "出错 : " + JSON.stringify(e), null, true);
-      await this.noExistChatError(tryCount, Cindex);
-      return;
-    }
-    //console.log(chatResult);  //测试
-    if (chatResult.success === true) {
-      //console.log("更新不存在chat数据成功");
-      this.sendLog("noExistChat", "更新不存在chat数据成功", null, false);
-    } else {
-      //console.log("更新不存在chat数据失败");
-      this.sendLog("noExistChat", "更新不存在chat数据失败", null, true);
-      await this.noExistChatError(tryCount, Cindex);
-    }
-  }
-
-  async checkChat(tryCount, chatResult) {
-    if (chatResult.chatType === 1) {
-      if (chatResult.channelId && chatResult.accessHash) {
-        let result = null;
-        try {
-          result = await this.client.invoke(new Api.channels.GetChannels({
-            id: [new Api.InputChannel({
-              channelId: bigInt(chatResult.channelId),
-              accessHash: bigInt(chatResult.accessHash),
-            })],
-          }));
-        } catch (e) {
-          //console.log("(" + this.currentStep + ")出错 : " + e);
-          this.sendLog("checkChat", "出错 : " + JSON.stringify(e), null, true);
-          if (e.errorMessage === "CHANNEL_INVALID" || e.errorMessage === "CHANNEL_PRIVATE" || e.code === 400) {
-            await this.noExistChat(1, chatResult.Cindex);
-            this.chatId += 1;
-            if (!this.endChat || this.endChat === 0 || (this.endChat > 0 && this.chatId <= this.endChat)) {
-              //console.log(chatResult.title + " : chat已不存在了");  //测试
-              this.sendLog("checkChat", chatResult.title + " : chat已不存在了", null, true);
-              await this.nextChat(1, true);
-            } else {
-              //console.log(this.endChat + " : 超过最大chat了");  //测试
-              this.sendLog("checkChat", this.endChat + " : 超过最大chat了", null, true);
-            }
-          } else {
+  async getChat(tryCount) {
+    if (this.chatId && this.chatId > 0) {
+      if (!this.endChat || this.endChat === 0 || (this.endChat > 0 && this.chatId <= this.endChat)) {
+        if (chatArray[this.chatId]) {
+          const id = chatArray[this.chatId].id;
+          const accessHash = chatArray[this.chatId].accessHash ? bigInt(chatArray[this.chatId].accessHash) : bigInt.zero;
+          let users = null;
+          try {
+            users = await this.client.invoke(
+              new Api.users.GetUsers({
+                id: [
+                  new Api.InputUser({
+                    userId: bigInt(id),
+                    accessHash: accessHash,
+                  }),
+                ],
+              })
+            );
+          } catch (e) {
+            //console.log("(" + this.currentStep + ")出错 : " + e);
+            this.sendLog("getChat", "出错 : " + JSON.stringify(e), null, true);
             if (tryCount === 20) {
               this.stop = 2;
-              //console.log("(" + this.currentStep + ")checkChat超出tryCount限制");
-              this.sendLog("checkChat", "超出tryCount限制", null, true);
+              //console.log("(" + this.currentStep + ")getChat超出tryCount限制");
+              this.sendLog("getChat", "超出tryCount限制", null, true);
               await this.close();
             } else {
               await scheduler.wait(10000);
-              await this.checkChat(tryCount + 1, chatResult);
+              await this.getChat(tryCount + 1);
             }
-          }
-          return;
-        }
-        // console.log(this.fromPeer);  //测试
-        if (result && result.chats && result.chats.length > 0) {
-          this.chatId = chatResult.Cindex;
-          if (!this.endChat || this.endChat === 0 || (this.endChat > 0 && this.chatId <= this.endChat)) {
-            this.fromPeer = result.chats[0];
-            if (this.fromPeer) {
-              this.setOffsetId(chatResult);
-              // this.errorCount = await this.ctx.storage.get(this.chatId) || 0;
-              this.sendGrid("checkChat", this.chatId + " : " + chatResult.title, "add", false);
-            } else {
-              await this.noExistChat(1, chatResult.Cindex);
-              this.chatId = chatResult.Cindex + 1;
-              if (!this.endChat || this.endChat === 0 || (this.endChat > 0 && this.chatId <= this.endChat)) {
-                //console.log(chatResult.title + " : chat已不存在了");  //测试
-                this.sendLog("checkChat", chatResult.title + " : chat已不存在了", null, true);
-                await this.nextChat(1, true);
-              } else {
-                //console.log(this.endChat + " : 超过最大chat了");  //测试
-                this.sendLog("checkChat", this.endChat + " : 超过最大chat了", null, true);
-              }
-            }
-          } else {
-            //console.log(this.endChat + " : 超过最大chat了");  //测试
-            this.sendLog("checkChat", this.endChat + " : 超过最大chat了", null, true);
-          }
-        } else {
-          this.chatId = chatResult.Cindex + 1;
-          if (!this.endChat || this.endChat === 0 || (this.endChat > 0 && this.chatId <= this.endChat)) {
-            //console.log(chatResult.title + " : chat已不存在了");  //测试
-            this.sendLog("checkChat", chatResult.title + " : chat已不存在了", null, true);
-            await this.nextChat(1, true);
-          } else {
-            //console.log(this.endChat + " : 超过最大chat了");  //测试
-            this.sendLog("checkChat", this.endChat + " : 超过最大chat了", null, true);
-          }
-        }
-      } else {
-        await this.noExistChat(1, chatResult.Cindex);
-        this.chatId = chatResult.Cindex + 1;
-        if (!this.endChat || this.endChat === 0 || (this.endChat > 0 && this.chatId <= this.endChat)) {
-          //console.log(chatResult.title + " : channelId或accessHash出错");  //测试
-          this.sendLog("checkChat", chatResult.title + " : channelId或accessHash出错", null, true);
-          await this.nextChat(1, true);
-        } else {
-          //console.log(this.endChat + " : 超过最大chat了");  //测试
-          this.sendLog("checkChat", this.endChat + " : 超过最大chat了", null, true);
-        }
-      }
-    } else if (chatResult.chatType === 2) {
-      if (chatResult.channelId) {
-        let users = null;
-        try {
-          users = await this.client.invoke(
-            new Api.users.GetUsers({
-              id: [
-                new Api.InputUser({
-                  userId: bigInt(chatResult.channelId),
-                  accessHash: chatResult.accessHash ? bigInt(chatResult.accessHash) : bigInt.zero,
-                }),
-              ],
-            })
-          );
-        } catch (e) {
-          //console.log("(" + this.currentStep + ")出错 : " + e);
-          this.sendLog("checkChat", "出错 : " + JSON.stringify(e), null, true);
-          if (tryCount === 20) {
-            this.stop = 2;
-            //console.log("(" + this.currentStep + ")checkChat超出tryCount限制");
-            this.sendLog("checkChat", "超出tryCount限制", null, true);
-            await this.close();
-          } else {
-            await scheduler.wait(10000);
-            await this.checkChat(tryCount + 1, chatResult);
-          }
-          return;
-        }
-        if (users.length && !(users[0] instanceof Api.UserEmpty)) {
-          if (!this.endChat || this.endChat === 0 || (this.endChat > 0 && this.chatId <= this.endChat)) {
-            this.chatId = chatResult.Cindex;
-            this.fromPeer = utils.getInputPeer(users[0]);
-            if (this.fromPeer) {
-              this.setOffsetId(chatResult);
-              // this.errorCount = await this.ctx.storage.get(this.chatId) || 0;
-              this.sendGrid("checkChat", this.chatId + " : " + chatResult.title, "add", false);
-            } else {
-              await this.noExistChat(1, chatResult.Cindex);
-              this.chatId = chatResult.Cindex + 1;
-              if (!this.endChat || this.endChat === 0 || (this.endChat > 0 && this.chatId <= this.endChat)) {
-                //console.log(chatResult.title + " : chat已不存在了");  //测试
-                this.sendLog("checkChat", chatResult.title + " : chat已不存在了", null, true);
-                await this.nextChat(1, true);
-              } else {
-                //console.log(this.endChat + " : 超过最大chat了");  //测试
-                this.sendLog("checkChat", this.endChat + " : 超过最大chat了", null, true);
-              }
-            }
-          } else {
-            //console.log(this.endChat + " : 超过最大chat了");  //测试
-            this.sendLog("checkChat", this.endChat + " : 超过最大chat了", null, true);
-          }
-        } else {
-          this.chatId = chatResult.Cindex + 1;
-          if (!this.endChat || this.endChat === 0 || (this.endChat > 0 && this.chatId <= this.endChat)) {
-            //console.log(chatResult.title + " : chat已不存在了");  //测试
-            this.sendLog("checkChat", chatResult.title + " : chat已不存在了", null, true);
-            await this.nextChat(1, true);
-          } else {
-            //console.log(this.endChat + " : 超过最大chat了");  //测试
-            this.sendLog("checkChat", this.endChat + " : 超过最大chat了", null, true);
-          }
-        }
-      } else {
-        await this.noExistChat(1, chatResult.Cindex);
-        this.chatId = chatResult.Cindex + 1;
-        if (!this.endChat || this.endChat === 0 || (this.endChat > 0 && this.chatId <= this.endChat)) {
-          //console.log(chatResult.title + " : channelId出错");  //测试
-          this.sendLog("checkChat", chatResult.title + " : channelId出错", null, true);
-          await this.nextChat(1, true);
-        } else {
-          //console.log(this.endChat + " : 超过最大chat了");  //测试
-          this.sendLog("checkChat", this.endChat + " : 超过最大chat了", null, true);
-        }
-      }
-    }
-  }
-
-  async nextChatError(tryCount, check) {
-    if (tryCount === 20) {
-      this.stop = 2;
-      //console.log("(" + this.currentStep + ")nextChat超出tryCount限制");
-      this.sendLog("nextChat", "超出tryCount限制", null, true);
-      await this.close();
-    } else {
-      await scheduler.wait(10000);
-      await this.nextChat(tryCount + 1, check);
-    }
-  }
-
-  async nextChat(tryCount, check) {
-    this.apiCount += 1;
-    let chatResult = {};
-    try {
-      chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = 0 AND `Cindex` >= ? AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").bind(this.chatId).run();
-    } catch (e) {
-      //console.log("(" + this.currentStep + ")出错 : " + e);
-      this.sendLog("nextChat", "出错 : " + JSON.stringify(e), null, true);
-      await this.nextChatError(tryCount, check);
-      return;
-    }
-    //console.log("chatResult : " + chatResult);  //测试
-    if (chatResult.success === true) {
-      if (chatResult.results && chatResult.results.length > 0) {
-        if (check === true) {
-          await this.checkChat(1, chatResult.results[0]);
-        } else {
-          this.chatId = chatResult.results[0].Cindex;
-          // this.errorCount = await this.ctx.storage.get(this.chatId) || 0;
-          this.sendGrid("nextChat", this.chatId + " : " + chatResult.results[0].title, "add", false);
-        }
-      } else {
-        this.chatId = -1;
-        //console.log("没有更多chat了");
-        this.sendLog("nextChat", "没有更多chat了", null, true);
-      }
-    } else {
-      //console.log("查询chat失败");
-      this.sendLog("nextChat", "查询chat失败", null, true);
-      await this.nextChatError(tryCount, check);
-    }
-  }
-
-  async getChat() {
-    if (this.chatId === 0) {
-      this.fromPeer = "me";
-      let tryCount = 0;
-      while (tryCount < 30) {
-        this.apiCount += 1;
-        let chatResult = {};
-        try {
-          chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = 0 AND `Cindex` = 0 LIMIT 1;").run();
-        } catch (e) {
-          tryCount += 1;
-          //console.log("(" + this.currentStep + ")getChat出错 : " + e);
-          this.sendLog("getChat", "出错 : " + JSON.stringify(e), null, true);
-          await scheduler.wait(10000);
-        }
-        //console.log("chatResult : " + chatResult);  //测试
-        if (chatResult.success === true) {
-          if (chatResult.results && chatResult.results.length > 0) {
-            this.setOffsetId(chatResult.results[0]);
-            this.sendGrid("getChat", this.chatId + " : " + chatResult.results[0].title, "add", false);
-            break;
-          }
-        } else {
-          //console.log("查询me失败");  //测试
-          this.sendLog("getChat", "查询me失败", null, true);
-        }
-      }
-    } else if (this.chatId && this.chatId > 0) {
-      if (!this.endChat || this.endChat === 0 || (this.endChat > 0 && this.chatId <= this.endChat)) {
-        await this.nextChat(1, true);
-      } else {
-        //console.log(this.endChat + " : 超过最大chat了");  //测试
-        this.sendLog("getChat", this.endChat + " : 超过最大chat了", null, true);
-      }
-    } else {
-      if (!this.endChat || this.endChat === 0 || (this.endChat > 0 && this.chatId <= this.endChat)) {
-        let tryCount = 0;
-        while (tryCount < 30) {
-          this.apiCount += 1;
-          let chatResult = {};
-          try {
-            // if (this.filterType === 0) {
-            //   chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = 0 AND `current` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").run();
-            // } else if (this.filterType === 1) {
-            //   chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = 0 AND `photo` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").run();
-            // } else if (this.filterType === 2) {
-            //   chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = 0 AND `video` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").run();
-            // } else if (this.filterType === 3) {
-            //   chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = 0 AND `document` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").run();
-            // } else if (this.filterType === 4) {
-            //   chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = 0 AND `gif` = 0 AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").run();
-            // }
-            chatResult = await this.env.MAINDB.prepare("SELECT * FROM `FORWARDCHAT` WHERE `tgId` = 0 AND `Cindex` > ? AND `exist` = 1 ORDER BY `Cindex` ASC LIMIT 1;").run(this.chatId);
-          } catch (e) {
-            tryCount += 1;
-            //console.log("(" + this.currentStep + ")getChat出错 : " + e);
-            this.sendLog("getChat", "出错 : " + JSON.stringify(e), null, true);
-            await scheduler.wait(10000);
             return;
           }
-          //console.log("chatResult : " + chatResult);  //测试
-          if (chatResult.success === true) {
-            if (chatResult.results && chatResult.results.length > 0) {
-              await this.checkChat(1, chatResult.results[0]);
+          if (users.length && !(users[0] instanceof Api.UserEmpty)) {
+            if (!this.endChat || this.endChat === 0 || (this.endChat > 0 && this.chatId <= this.endChat)) {
+              this.fromPeer = utils.getInputPeer(users[0]);
+              if (this.fromPeer) {
+                // this.errorCount = await this.ctx.storage.get(this.chatId) || 0;
+                this.sendGrid("getChat", this.chatId + " : " + chatArray[this.chatId].name, "add", false);
+              } else {
+                this.chatId += 1;
+                if (!this.endChat || this.endChat === 0 || (this.endChat > 0 && this.chatId <= this.endChat)) {
+                  //console.log(chatArray[this.chatId].name + " : chat已不存在了");  //测试
+                  this.sendLog("getChat", chatArray[this.chatId].name + " : chat已不存在了", null, true);
+                  await this.getChat(1);
+                } else {
+                  //console.log(this.endChat + " : 超过最大chat了");  //测试
+                  this.sendLog("getChat", this.endChat + " : 超过最大chat了", null, true);
+                }
+              }
             } else {
-              this.chatId = -1;
-              //console.log("没有更多chat了");
-              this.sendLog("getChat", "没有更多chat了", null, true);
+              //console.log(this.endChat + " : 超过最大chat了");  //测试
+              this.sendLog("getChat", this.endChat + " : 超过最大chat了", null, true);
             }
-            break;
           } else {
-            //console.log("查询chat失败");
-            this.sendLog("getChat", "查询chat失败", null, false);
+            this.chatId += 1;
+            if (!this.endChat || this.endChat === 0 || (this.endChat > 0 && this.chatId <= this.endChat)) {
+              //console.log(chatArray[this.chatId].name + " : chat已不存在了");  //测试
+              this.sendLog("getChat", chatArray[this.chatId].name + " : chat已不存在了", null, true);
+              // await this.getChat(1);
+            } else {
+              //console.log(this.endChat + " : 超过最大chat了");  //测试
+              this.sendLog("getChat", this.endChat + " : 超过最大chat了", null, true);
+            }
           }
+        } else {
+          //console.log("chat出错");  //测试
+          this.sendLog("getChat", "chat出错", null, true);
         }
       } else {
         //console.log(this.endChat + " : 超过最大chat了");  //测试
         this.sendLog("getChat", this.endChat + " : 超过最大chat了", null, true);
       }
+    } else {
+      //console.log("chatId出错");  //测试
+      this.sendLog("getChat", "chatId出错", null, true);
     }
   }
 
-  async updateConfigError(tryCount) {
+  async updateConfigError(tryCount, messageLength) {
     if (tryCount === 20) {
       this.stop = 2;
       //console.log("(" + this.currentStep + ")updateConfig超出tryCount限制");
@@ -773,29 +803,29 @@ export class WebSocketServer extends DurableObject {
       await this.close();
     } else {
       await scheduler.wait(10000);
-      await this.updateConfig(tryCount + 1);
+      await this.updateConfig(tryCount + 1, messageLength);
     }
   }
 
-  async updateConfig(tryCount) {
+  async updateConfig(tryCount, messageLength) {
     this.apiCount += 1;
     let configResult = {};
     try {
-      configResult = await this.env.MAINDB.prepare("UPDATE `CONFIG` SET `chatId` = ? WHERE `name` = 'collect' AND `tgId` = 0;").bind(this.chatId).run();
+      configResult = await this.env.MAINDB.prepare("UPDATE `CONFIG` SET `chatId` = ? WHERE `name` = 'user' AND `tgId` = ?;").bind(this.offsetId, this.chatId).run();
     } catch (e) {
       //console.log("updateConfig出错 : " + e);
       this.sendLog("updateConfig", "出错 : " + JSON.stringify(e), null, true);
-      await this.updateConfigError(tryCount);
+      await this.updateConfigError(tryCount, messageLength);
       return;
     }
     //console.log(configResult);  //测试
     if (configResult.success === true) {
-      //console.log("更新config数据成功");
-      this.sendLog("updateConfig", "更新config数据成功", null, false);
+      //console.log("更新config数据成功 - " + messageLength);
+      this.sendLog("updateConfig", "更新config数据成功 - " + messageLength, null, false);
     } else {
-      //console.log("更新config数据失败");
-      this.sendLog("updateConfig", "更新config数据失败", null, true);
-      await this.updateConfigError(tryCount);
+      //console.log("更新config数据失败 - " + messageLength);
+      this.sendLog("updateConfig", "更新config数据失败 - " + messageLength, null, true);
+      await this.updateConfigError(tryCount, messageLength);
     }
   }
 
@@ -810,11 +840,11 @@ export class WebSocketServer extends DurableObject {
         {
           limit: this.limit,
           //limit: 20,  //测试
-          reverse: this.reverse,
-          //reverse: false,  //测试
-          addOffset: this.reverse ? -this.offsetId : this.offsetId,
+          // reverse: this.reverse,
+          reverse: true,
+          addOffset: -this.offsetId,
           //addOffset: 0,  //测试
-          filter: this.filter,
+          // filter: this.filter,
           //filter: Api.InputMessagesFilterVideo,  //测试
           waitTime: 60,
         })
@@ -842,13 +872,12 @@ export class WebSocketServer extends DurableObject {
       //console.log("(" + this.currentStep + ")getMessage出错 : " + e);
       this.sendLog("getMessage", "出错 : " + JSON.stringify(e), null, true);
       if (e.errorMessage === "CHANNEL_INVALID" || e.errorMessage === "CHANNEL_PRIVATE" || e.code === 400) {
-        await this.noExistChat(1, this.chatId);
         this.fromPeer = null;
         this.chatId += 1;
         if (!this.endChat || this.endChat === 0 || (this.endChat > 0 && this.chatId <= this.endChat)) {
-          //console.log("chat已不存在了");  //测试
-          this.sendLog("getMessage", "chat已不存在了", null, true);
-          await this.getChat();
+          //console.log(chatArray[this.chatId].name + " : chat已不存在了");  //测试
+          this.sendLog("getMessage", chatArray[this.chatId].name + " : chat已不存在了", null, true);
+          await this.getChat(1);
         } else {
           //console.log(this.endChat + " : 超过最大chat了");  //测试
           this.sendLog("getMessage", this.endChat + " : 超过最大chat了", null, true);
@@ -873,50 +902,6 @@ export class WebSocketServer extends DurableObject {
         }
       }
       return;
-    }
-  }
-
-  async updateChatError(tryCount, messageLength) {
-    if (tryCount === 20) {
-      this.stop = 2;
-      //console.log("(" + this.currentStep + ")updateChat超出tryCount限制");
-      this.sendLog("updateChat", "超出tryCount限制", null, true);
-      await this.close();
-    } else {
-      await scheduler.wait(10000);
-      await this.updateChat(tryCount + 1, messageLength);
-    }
-  }
-
-  async updateChat(tryCount, messageLength) {
-    this.apiCount += 1;
-    let chatResult = {};
-    try {
-      if (this.filterType === 0) {
-        chatResult = await this.env.MAINDB.prepare("UPDATE `FORWARDCHAT` SET `current` = ?, `updated` = ? WHERE `Cindex` = ?;").bind(this.offsetId, new Date().getTime(), this.chatId).run();
-      } else if (this.filterType === 1) {
-        chatResult = await this.env.MAINDB.prepare("UPDATE `FORWARDCHAT` SET `photo` = ?, `updated` = ? WHERE `Cindex` = ?;").bind(this.offsetId, new Date().getTime(), this.chatId).run();
-      } else if (this.filterType === 2) {
-        chatResult = await this.env.MAINDB.prepare("UPDATE `FORWARDCHAT` SET `video` = ?, `updated` = ? WHERE `Cindex` = ?;").bind(this.offsetId, new Date().getTime(), this.chatId).run();
-      } else if (this.filterType === 3) {
-        chatResult = await this.env.MAINDB.prepare("UPDATE `FORWARDCHAT` SET `document` = ?, `updated` = ? WHERE `Cindex` = ?;").bind(this.offsetId, new Date().getTime(), this.chatId).run();
-      } else if (this.filterType === 4) {
-        chatResult = await this.env.MAINDB.prepare("UPDATE `FORWARDCHAT` SET `gif` = ?, `updated` = ? WHERE `Cindex` = ?;").bind(this.offsetId, new Date().getTime(), this.chatId).run();
-      }
-    } catch (e) {
-      //console.log("(" + this.currentStep + ")updateChat出错 : " + e);
-      this.sendLog("updateChat", "出错 : " + JSON.stringify(e), null, true);
-      await this.updateChatError(tryCount, messageLength);
-      return;
-    }
-    //console.log(chatResult);  //测试
-    if (chatResult.success === true) {
-      //console.log("(" + this.currentStep + ")更新chat数据成功 - " + messageLength);
-      this.sendLog("updateChat", "更新chat数据成功 - " + messageLength, null, false);
-    } else {
-      //console.log("(" + this.currentStep + ")更新chat数据失败 - " + messageLength);
-      this.sendLog("updateChat", "更新chat数据失败 - " + messageLength, null, true);
-      await this.updateChatError(tryCount, messageLength);
     }
   }
 
@@ -966,13 +951,13 @@ export class WebSocketServer extends DurableObject {
     this.chatId += 1;
     this.count = 0;
     if (!this.endChat || this.endChat === 0 || (this.endChat > 0 && this.chatId <= this.endChat)) {
-      await this.getChat();
+      await this.getChat(1);
       if (this.fromPeer) {
         if (this.chatId != this.lastChat) {
-          if (this.lastChat != 0) {
+          // if (this.lastChat != 48) {
             await this.updateConfig(1);
-          }
-          this.lastChat = this.chatId;
+          // }
+          // this.lastChat = this.chatId;
         }
         if (this.stop === 2) {
           this.broadcast({
@@ -1022,7 +1007,7 @@ export class WebSocketServer extends DurableObject {
           fromPeer: this.fromPeer,
           id: idArray,
           randomId: fileIdArray,
-          toPeer: this.toPeer,
+          toPeer: "me",
           silent: true,
           background: true,
           withMyScore: true,
@@ -1064,13 +1049,13 @@ export class WebSocketServer extends DurableObject {
       }
       this.offsetId += this.count;
       this.count = 0;
-      await this.updateChat(1, messageLength);
+      await this.updateConfig(1, messageLength);
       //console.log("(" + this.currentStep + ") 成功转发了" + length + "条消息");
       this.sendForward("forwardMessage", "成功转发了" + messageLength + "条消息", messageLength, "update", false);
     } else {
       this.offsetId += this.count;
       this.count = 0;
-      await this.updateChat(1, 0);
+      await this.updateConfig(1, 0);
       this.errorCount += 1;
       // if (this.errorCount >= 3) {
       //   await this.ctx.storage.put(this.chatId, 0);
@@ -1121,44 +1106,19 @@ export class WebSocketServer extends DurableObject {
               if (!messageArray[messageIndex].noforwards || messageArray[messageIndex].noforwards === false) {
                 let fileId = null;
                 const id = messageArray[messageIndex].id;
-                if (this.filterType === 2) {
-                  if (messageArray[messageIndex].media) {
-                    if (messageArray[messageIndex].media.document) {
-                      fileId = messageArray[messageIndex].media.document.id;
-                    }
-                  }
-                } else if (this.filterType === 1) {
-                  if (messageArray[messageIndex].media) {
-                    if (messageArray[messageIndex].media.photo) {
-                      fileId = messageArray[messageIndex].media.photo.id;
-                    }
-                  }
-                } else if (this.filterType === 3) {
-                  if (messageArray[messageIndex].media) {
-                    if (messageArray[messageIndex].media.document) {
-                      const mimeType = messageArray[messageIndex].media.document.mimeType;
-                      if (mimeType.startsWith("video/")) {
-                        fileId = messageArray[messageIndex].media.document.id;
-                      } else if (mimeType.startsWith("image/")) {
-                        fileId = messageArray[messageIndex].media.document.id;
-                      // } else if (mimeType.startsWith("application/")) {
-                      // } else {
-                      }
-                    }
-                  }
-                } else if (this.filterType === 4) {
-                  if (messageArray[messageIndex].media) {
-                    if (messageArray[messageIndex].media.document) {
-                      fileId = messageArray[messageIndex].media.document.id;
-                    }
-                  }
-                } else if (this.filterType === 0) {
-                  if (messageArray[messageIndex].media) {
-                    if (messageArray[messageIndex].media.document) {
-                      fileId = messageArray[messageIndex].media.document.id;
-                    } else if (messageArray[messageIndex].media.photo) {
-                      fileId = messageArray[messageIndex].media.photo.id;
-                    }
+                if (messageArray[messageIndex].media) {
+                  if (messageArray[messageIndex].media.document) {
+                    // const mimeType = messageArray[messageIndex].media.document.mimeType;
+                    // if (mimeType.startsWith("video/")) {
+                    //   fileId = messageArray[messageIndex].media.document.id;
+                    // } else if (mimeType.startsWith("image/")) {
+                    //   fileId = messageArray[messageIndex].media.document.id;
+                    // // } else if (mimeType.startsWith("application/")) {
+                    // // } else {
+                    // }
+                    fileId = messageArray[messageIndex].media.document.id;
+                  } else if (messageArray[messageIndex].media.photo) {
+                    fileId = messageArray[messageIndex].media.photo.id;
                   }
                 }
                 if (id && fileId) {
@@ -1193,7 +1153,7 @@ export class WebSocketServer extends DurableObject {
         } else if (this.count > 0) {
           this.offsetId += this.count;
           this.count = 0;
-          await this.updateChat(1, 0);
+          await this.updateConfig(1, 0);
           this.errorCount += 1;
           // if (this.errorCount >= 3) {
           //   await this.ctx.storage.put(this.chatId, 0);
@@ -1222,7 +1182,7 @@ export class WebSocketServer extends DurableObject {
             await this.close();
           }
         } else {
-          await this.updateChat(1, 0);
+          await this.updateConfig(1, 0);
           //console.log("(" + this.currentStep + ")" + this.chatId + " : 当前chat采集完毕");
           this.sendLog("nextStep", "当前chat采集完毕", null, false);
           this.broadcast({
@@ -1254,7 +1214,7 @@ export class WebSocketServer extends DurableObject {
         // this.ctx.abort("reset");
       }
     } else if (this.stop === 2) {
-      await this.updateChat(1, 0);
+      await this.updateConfig(1, 0);
       this.broadcast({
         "result": "pause",
       });
@@ -1274,45 +1234,6 @@ export class WebSocketServer extends DurableObject {
     });
   }
 
-  async getUserError(tryCount) {
-    if (tryCount === 20) {
-      //console.log("(" + this.currentStep + ")getUser超出tryCount限制");
-      this.sendLog("getUser", "超出tryCount限制", null, true);
-      await this.close();
-    } else {
-      await scheduler.wait(10000);
-      await this.getUser(tryCount + 1);
-    }
-  }
-
-  async getUser(tryCount) {
-    let users = {};
-    try {
-      users = await this.client.invoke(
-        new Api.users.GetUsers({
-          id: [
-            new Api.InputUser({
-              // userId: 2029656369,   //zjm2023
-              userId: 7585811878,   //zjm4038
-              accessHash: bigInt.zero,
-            }),
-          ],
-        })
-      );
-    } catch (e) {
-      //console.log("getUser出错 : " + e);
-      this.sendLog("getUser", "出错 : " + JSON.stringify(e), null, true);
-      await this.getUserError(tryCount);
-      return;
-    }
-    // console.log(users);  //测试
-    // console.log(users.length);  //测试
-    if (users.length && !(users[0] instanceof Api.UserEmpty)) {
-      this.toPeer = utils.getInputPeer(users[0]);
-      // console.log(this.toPeer);  //测试
-    }
-  }
-
   async start(option) {
     if (this.client || this.stop === 1) {
     // if (this.stop === 1) {
@@ -1328,164 +1249,132 @@ export class WebSocketServer extends DurableObject {
     this.init(option);
     // this.stop = 1;
     await this.open(1);
-    if (!option || !option.chatId || !option.filterType || !option.reverse || !option.limited) {
-      await this.getConfig(1, option);
-    }
-    this.switchType();
-    await this.getChat();
+    await this.getChat(1);
     if (this.fromPeer) {
       if (this.chatId != this.lastChat) {
-        if (this.lastChat != 0) {
+        // if (this.lastChat != 48) {
           await this.updateConfig();
-        }
-        this.lastChat = this.chatId;
+        // }
+        // this.lastChat = this.chatId;
       }
-      await this.getUser(1);
-      if (this.toPeer) {
-        if (this.stop === 1) {
-          this.currentStep += 1;
-          this.flood = await this.ctx.storage.get("client") || 0;
-          if (this.flood > 0) {
-            if (this.flood > new Date().getTime()) {
-              const time = this.flood - new Date().getTime();
-              //console.log("(" + this.currentStep + ") 还需等待" + Math.ceil(time / 1000) + "秒的洪水警告时间");
-              this.sendLog("start", "还需等待" + Math.ceil(time / 1000) + "秒的洪水警告时间", "flood", true);
-              await this.waitNext(time, true);
-            } else {
-              this.flood = 0;
-              await this.ctx.storage.put("client", 0);
-            }
-          }
-          await this.getMessage(1);
-          await scheduler.wait(5000);
-          const messageArray = this.messageArray.slice();
-          const messageLength = messageArray.length;
-          this.messageArray = [];
-          //console.log("(" + this.currentStep + ")messageLength : " + messageLength);  //测试
-          // this.sendLog("start", "messageLength : " + messageLength, null, false);  //测试
-          // if (messageLength > this.limit) {
-          //   //console.log("(" + this.currentStep + ") messageLength比limit大");
-          //   this.sendLog("start", "messageLength比limit大", null, true);
-          // }
-          if (messageLength && messageLength > 0) {
-            const idArray = [];
-            const fileIdArray = [];
-            for (let messageIndex = 0; messageIndex < messageLength; messageIndex++) {
-              if (!messageArray[messageIndex].noforwards || messageArray[messageIndex].noforwards === false) {
-                let fileId = null;
-                const id = messageArray[messageIndex].id;
-                if (this.filterType === 2) {
-                  if (messageArray[messageIndex].media) {
-                    if (messageArray[messageIndex].media.document) {
-                      fileId = messageArray[messageIndex].media.document.id;
-                    }
-                  }
-                } else if (this.filterType === 1) {
-                  if (messageArray[messageIndex].media) {
-                    if (messageArray[messageIndex].media.photo) {
-                      fileId = messageArray[messageIndex].media.photo.id;
-                    }
-                  }
-                } else if (this.filterType === 3) {
-                  if (messageArray[messageIndex].media) {
-                    if (messageArray[messageIndex].media.document) {
-                      const mimeType = messageArray[messageIndex].media.document.mimeType;
-                      if (mimeType.startsWith("video/")) {
-                        fileId = messageArray[messageIndex].media.document.id;
-                      } else if (mimeType.startsWith("image/")) {
-                        fileId = messageArray[messageIndex].media.document.id;
-                      // } else if (mimeType.startsWith("application/")) {
-                      // } else {
-                      }
-                    }
-                  }
-                } else if (this.filterType === 4) {
-                  if (messageArray[messageIndex].media) {
-                    if (messageArray[messageIndex].media.document) {
-                      fileId = messageArray[messageIndex].media.document.id;
-                    }
-                  }
-                } else if (this.filterType === 0) {
-                  if (messageArray[messageIndex].media) {
-                    if (messageArray[messageIndex].media.document) {
-                      fileId = messageArray[messageIndex].media.document.id;
-                    } else if (messageArray[messageIndex].media.photo) {
-                      fileId = messageArray[messageIndex].media.photo.id;
-                    }
-                  }
-                }
-                if (id && fileId) {
-                  idArray.push(id);
-                  fileIdArray.push(fileId);
-                }
-              }
-            }
-            await this.forwardMessage(idArray, fileIdArray);
-            if (this.stop === 1) {
-              if (this.apiCount < 900) {
-                await this.nextStep();
-              } else {
-                this.stop = 2;
-                //console.log("(" + this.currentStep + ")nextStep超出apiCount限制");
-                this.sendLog("nextStep", "超出apiCount限制", "limit", true);
-                await this.close();
-                // this.ctx.abort("reset");
-              }
-            } else if (this.stop === 2) {
-              this.broadcast({
-                "result": "pause",
-              });
-              await this.close();
-            }
-          } else if (this.count > 0) {
-            this.offsetId += this.count;
-            this.count = 0;
-            await this.updateChat(1, 0);
-            this.errorCount += 1;
-            // if (this.errorCount >= 3) {
-            //   await this.ctx.storage.put(this.chatId, 0);
-            //   //console.log("(" + this.currentStep + ") 连续3轮没有获取到包含有效媒体的消息");
-            //   this.sendForward("start", "连续3轮没有获取到包含有效媒体的消息", 0, "error", true);
-            //   await this.getNext();
-            // } else {
-            //   await this.ctx.storage.put(this.chatId, this.errorCount);
-              //console.log("(" + this.currentStep + ") 第" + this.errorCount + "轮没有获取到包含有效媒体的消息");
-              this.sendForward("start", "第" + this.errorCount + "轮没有获取到包含有效媒体的消息", 0, "error", true);
-            // }
-            if (this.stop === 1) {
-              if (this.apiCount < 900) {
-                await this.nextStep();
-              } else {
-                this.stop = 2;
-                //console.log("(" + this.currentStep + ")nextStep超出apiCount限制");
-                this.sendLog("nextStep", "超出apiCount限制", "limit", true);
-                await this.close();
-                // this.ctx.abort("reset");
-              }
-            } else if (this.stop === 2) {
-              this.broadcast({
-                "result": "pause",
-              });
-              await this.close();
-            }
+      if (this.stop === 1) {
+        this.currentStep += 1;
+        this.flood = await this.ctx.storage.get("client") || 0;
+        if (this.flood > 0) {
+          if (this.flood > new Date().getTime()) {
+            const time = this.flood - new Date().getTime();
+            //console.log("(" + this.currentStep + ") 还需等待" + Math.ceil(time / 1000) + "秒的洪水警告时间");
+            this.sendLog("start", "还需等待" + Math.ceil(time / 1000) + "秒的洪水警告时间", "flood", true);
+            await this.waitNext(time, true);
           } else {
-            await this.updateChat(1, 0);
-            //console.log("(" + this.currentStep + ")" + this.chatId + " : 当前chat采集完毕");
-            this.sendLog("start", "当前chat采集完毕", null, false);
-            this.broadcast({
-              "result": "end",
-            });
-            await this.getNext();
+            this.flood = 0;
+            await this.ctx.storage.put("client", 0);
           }
-        } else if (this.stop === 2) {
-          this.broadcast({
-            "result": "pause",
-          });
-          await this.close();
         }
-      } else {
-        //console.log("获取toPeer出错");
-        this.sendLog("start", "获取toPeer出错", "error", true);
+        if (!option || !option.chatId || !option.filterType || !option.reverse || !option.limited) {
+          await this.getConfig(1, option);
+        }
+        // this.switchType();
+        await this.getMessage(1);
+        await scheduler.wait(5000);
+        const messageArray = this.messageArray.slice();
+        const messageLength = messageArray.length;
+        this.messageArray = [];
+        //console.log("(" + this.currentStep + ")messageLength : " + messageLength);  //测试
+        // this.sendLog("start", "messageLength : " + messageLength, null, false);  //测试
+        // if (messageLength > this.limit) {
+        //   //console.log("(" + this.currentStep + ") messageLength比limit大");
+        //   this.sendLog("start", "messageLength比limit大", null, true);
+        // }
+        if (messageLength && messageLength > 0) {
+          const idArray = [];
+          const fileIdArray = [];
+          for (let messageIndex = 0; messageIndex < messageLength; messageIndex++) {
+            if (!messageArray[messageIndex].noforwards || messageArray[messageIndex].noforwards === false) {
+              let fileId = null;
+              const id = messageArray[messageIndex].id;
+              if (messageArray[messageIndex].media) {
+                if (messageArray[messageIndex].media.document) {
+                  // const mimeType = messageArray[messageIndex].media.document.mimeType;
+                  // if (mimeType.startsWith("video/")) {
+                  //   fileId = messageArray[messageIndex].media.document.id;
+                  // } else if (mimeType.startsWith("image/")) {
+                  //   fileId = messageArray[messageIndex].media.document.id;
+                  // // } else if (mimeType.startsWith("application/")) {
+                  // // } else {
+                  // }
+                  fileId = messageArray[messageIndex].media.document.id;
+                } else if (messageArray[messageIndex].media.photo) {
+                  fileId = messageArray[messageIndex].media.photo.id;
+                }
+              }
+              if (id && fileId) {
+                idArray.push(id);
+                fileIdArray.push(fileId);
+              }
+            }
+          }
+          await this.forwardMessage(idArray, fileIdArray);
+          if (this.stop === 1) {
+            if (this.apiCount < 900) {
+              await this.nextStep();
+            } else {
+              this.stop = 2;
+              //console.log("(" + this.currentStep + ")nextStep超出apiCount限制");
+              this.sendLog("nextStep", "超出apiCount限制", "limit", true);
+              await this.close();
+              // this.ctx.abort("reset");
+            }
+          } else if (this.stop === 2) {
+            this.broadcast({
+              "result": "pause",
+            });
+            await this.close();
+          }
+        } else if (this.count > 0) {
+          this.offsetId += this.count;
+          this.count = 0;
+          await this.updateConfig(1, 0);
+          this.errorCount += 1;
+          // if (this.errorCount >= 3) {
+          //   await this.ctx.storage.put(this.chatId, 0);
+          //   //console.log("(" + this.currentStep + ") 连续3轮没有获取到包含有效媒体的消息");
+          //   this.sendForward("start", "连续3轮没有获取到包含有效媒体的消息", 0, "error", true);
+          //   await this.getNext();
+          // } else {
+          //   await this.ctx.storage.put(this.chatId, this.errorCount);
+            //console.log("(" + this.currentStep + ") 第" + this.errorCount + "轮没有获取到包含有效媒体的消息");
+            this.sendForward("start", "第" + this.errorCount + "轮没有获取到包含有效媒体的消息", 0, "error", true);
+          // }
+          if (this.stop === 1) {
+            if (this.apiCount < 900) {
+              await this.nextStep();
+            } else {
+              this.stop = 2;
+              //console.log("(" + this.currentStep + ")nextStep超出apiCount限制");
+              this.sendLog("nextStep", "超出apiCount限制", "limit", true);
+              await this.close();
+              // this.ctx.abort("reset");
+            }
+          } else if (this.stop === 2) {
+            this.broadcast({
+              "result": "pause",
+            });
+            await this.close();
+          }
+        } else {
+          await this.updateConfig(1, 0);
+          //console.log("(" + this.currentStep + ")" + this.chatId + " : 当前chat采集完毕");
+          this.sendLog("start", "当前chat采集完毕", null, false);
+          this.broadcast({
+            "result": "end",
+          });
+          await this.getNext();
+        }
+      } else if (this.stop === 2) {
+        this.broadcast({
+          "result": "pause",
+        });
         await this.close();
       }
     } else {
@@ -1751,7 +1640,7 @@ export class WebSocketServer extends DurableObject {
 
   async webSocketClose(ws, code, reason, wasClean) {
     // if (this.stop === 1) {
-    //   await this.updateChat(1);
+    //   await this.updateConfig(1);
     // }
     // this.stop = 0;
     ws.close(code, "Durable Object is closing WebSocket");
@@ -1771,7 +1660,7 @@ export default {
           status: 426,
         });
       }
-      const id = env.WEBSOCKET_SERVER.idFromName("forward");
+      const id = env.WEBSOCKET_SERVER.idFromName("user");
       const stub = env.WEBSOCKET_SERVER.get(id);
       return stub.fetch(request);
     }

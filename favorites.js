@@ -1075,12 +1075,12 @@ export class WebSocketServer extends DurableObject {
       //console.log("(" + this.currentStep + ")getMessage出错 : " + e);
       this.sendLog(clientIndex, "getMessage", "出错 : " + JSON.stringify(e), null, true);
       if (e.errorMessage === "CHANNEL_INVALID" || e.errorMessage === "CHANNEL_PRIVATE" || e.code === 400) {
-        await this.noExistChat(clientIndex, 1, chatResult.Cindex);
+        await this.noExistChat(clientIndex, 1, this.tg[clientIndex].chatId);
         this.tg[clientIndex].fromPeer = null;
         this.tg[clientIndex].chatId += 1;
         if (this.contrastChat(clientIndex)) {
-          //console.log(chatResult.title + " : chat已不存在了");  //测试
-          this.sendLog(clientIndex, "getMessage", chatResult.title + " : chat已不存在了", null, true);
+          //console.log("chat已不存在了");  //测试
+          this.sendLog(clientIndex, "getMessage", "chat已不存在了", null, true);
           await this.getChat(clientIndex);
         } else {
           //console.log(this.tg[clientIndex].endChat + " : 超过最大chat了");  //测试

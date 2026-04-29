@@ -15,6 +15,7 @@
   ],
   "preview_urls": false,
   "workers_dev": true,
+  /**
   "d1_databases": [
     {
       "binding": "MAINDB",
@@ -57,6 +58,7 @@
       "database_id": "9afe975b-2ec7-4d9b-99f2-6d93f28d1939"
     }
   ],
+  */
   "observability": {
     "logs": {
       "enabled": true,

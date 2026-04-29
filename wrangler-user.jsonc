@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "favorites",
-  "main": "favorites.js",
+  "name": "user",
+  "main": "user.js",
   "compatibility_date": "2026-04-07",
   "compatibility_flags": [
     "nodejs_compat",
@@ -13,7 +13,7 @@
   },
   "routes": [
     {
-      "pattern": "favorites.19420.xyz/*",
+      "pattern": "user.19420.xyz/*",
       "zone_name": "19420.xyz"
     }
   ],
@@ -44,11 +44,11 @@
   ],
   "observability": {
     "logs": {
-      "enabled": false,
-      "invocation_logs": false
+      "enabled": true,
+      "invocation_logs": true
     },
     "traces": {
-      "enabled": false
+      "enabled": true
     }
   },
   "placement": {
