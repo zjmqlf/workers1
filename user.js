@@ -1248,7 +1248,7 @@ export class WebSocketServer extends DurableObject {
     }
     this.init(option);
     // this.stop = 1;
-    await this.open(1);
+    // await this.open(1);
     await this.getChat(1);
     if (this.fromPeer) {
       if (this.chatId != this.lastChat) {
@@ -1275,6 +1275,7 @@ export class WebSocketServer extends DurableObject {
           await this.getConfig(1, option);
         }
         // this.switchType();
+        await this.open(1);
         await this.getMessage(1);
         await scheduler.wait(5000);
         const messageArray = this.messageArray.slice();

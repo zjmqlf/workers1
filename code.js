@@ -6,6 +6,9 @@ const tgjmqbot = [];
 const blgjlqbot = [];
 const fileLeakBot = [];
 const nnfilebot = [];
+const tangBRebot = [];
+const KodeXFilesbot = [];
+const REDDFILEBOT = [];
 const parludecodingBot = [];
 const teestpanbot = [];
 const atfileslinksbot = [];
@@ -25,39 +28,45 @@ const mediaBK2Bot = [];
 const mouseFilebot = [];
 const dataPanBot = [];
 const filesPan1Bot = [];
-const showfilesbotRegexp = /(showfilesbot_\d*p*_*\d*v*_*\d*d*_[A-Za-z0-9]{20})/gi;   //showfilesbot
-const showfiles3botRegexp = /(showfiles3bot_\d*p*_*\d*v*_*\d*d*_[A-Za-z0-9]{20})/gi;   //showfiles3bot
-const tgjmq1botRegexp = /(tgjmq1bot_\d*p*\d*v*\d*d*_[A-Za-z0-9]{16})/gi;   //tgjmq1bot
-const tgjmq3botRegexp = /(tgjmq3bot_\d*p*\d*v*\d*d*_[A-Za-z0-9]{16})/gi;   //tgjmq3bot
-const tgjmq5botRegexp = /(tgjmq5bot_\d*p*\d*v*\d*d*_[A-Za-z0-9]{16})/gi;   //tgjmq5bot
-const blgjlqbotRegexp = /(blgjlqbot_\d+p\d+v\d+d_[A-Za-z0-9]{16})/gi;   //blgjlqbot
-const fileLeakBotRegexp = /(fileLeakBot_\d+p_\d+v_\d+d_[A-Za-z0-9]{13})/gi;   //fileLeakBot
-const nnfilebotRegexp = /(nnfilebot_[A-Za-z0-9]*_[A-Za-z0-9]*_[A-Za-z0-9]*_[A-Za-z0-9]{12})/gi;   //nnfilebot
-const parludecodingBotRegexp = /(ParludecodingBot_\d+p\d+v\d+d_[A-Za-z0-9]{16})/gi;   //parludecodingBot
-const teestpanbotRegexp = /(@Teestpanbot:_\d*P*_*\d*V*_*\d*D*_[A-Za-z0-9]{12})/gi;   //teestpanbot
-const atfileslinksbotRegexp = /(atfileslinksbot_\d*p*_*\d*v*_*\d*d*_[A-Za-z0-9]{20})/gi;   //atfileslinksbot
-const lockHivebotRegexp = /(LockHivebot_[A-Za-z0-9]{16})/gi;   //lockHivebot
-const tgdecoderbotRegexp = /(decoder_\d+p_\d+v_\d+d_[A-Za-z0-9]{12})/gi;   //tgdecoderbot
-const tgdecoderbot1Regexp = /([a-z0-9]{32})/gi;   //tgdecoderbot
-const ZYXFilesBotRegexp = /(📌 取件码：[A-Za-z0-9]+)/gi;   //ZYXFilesBot
-const ntmjmqbotRegexp = /(ntmjmqbot_\d+p_\d+v_\d+d_[A-Za-z0-9]{13})/gi;   //ntmjmqbot
-const newjmqbotRegexp = /(newjmqbot_\d+p_\d+v_\d+d_[A-Za-z0-9]{13})/gi;   //newjmqbot
-const filepanbotRegexp = /(@filepan_bot:_\d*P*_*\d*V*_*\d*D*_[A-Za-z0-9]{12})/gi;   //filepanbot
-const myseseXBotRegexp = /(myseseXBot_\d+p_\d+v_\d+d_[A-Za-z0-9]{13})/gi;   //myseseXBot
-const save2BoxBotRegexp = /(Save2BoxBot_\d+p_\d+v_\d+d_[A-Za-z0-9]{13})/gi;   //save2BoxBot
-const mtfxqbotRegexp = /(mtfxqbot_[0-9PVD_]*_[A-Za-z0-9]{20})/gi;   //mtfxqbot
-const mtfxq2botRegexp = /(mtfxq2bot_[0-9PVD_]*_[A-Za-z0-9]{20})/gi;   //mtfxq2bot
-const grpRegexp = /([A-Za-z0-9]{12}_[A-Za-z0-9]{11}=_grp)/gi;   //grp
-const mdaRegexp = /([A-Za-z0-9-\+]*=_mda)/gi;   //mda
-const v_Regexp = /(v_BAACAg[A-Za-z0-9_\-]*)/gi;   //v_
-const vi_Regexp = /(vi_BAACAg[A-Za-z0-9_\-]*)/gi;   //vi_
-const p_Regexp = /(p_AgACAg[A-Za-z0-9_\-]*)/gi;   //p_
-const d_Regexp = /(d_BQACAg[A-Za-z0-9_\-]*)/gi;   //d_
-const P_DataPanBotRegexp = /(P_DataPanBot_[A-Za-z0-9_\-]*)/gi;   //p_FilesPan1Bot
-const V_DataPanBotRegexp = /(V_DataPanBot_[A-Za-z0-9_\-]*)/gi;   //v_FilesPan1Bot
-const D_DataPanBotRegexp = /(D_DataPanBot_[A-Za-z0-9_\-]*)/gi;   //p_FilesPan1Bot
-const p_FilesPan1BotRegexp = /(p_FilesPan1Bot_[A-Za-z0-9_\-]*)/gi;   //p_FilesPan1Bot
-const v_FilesPan1BotRegexp = /(v_FilesPan1Bot_[A-Za-z0-9_\-]*)/gi;   //v_FilesPan1Bot
+const showfilesbotRegexp = /(showfilesbot_\d*p*_*\d*v*_*\d*d*_[A-Za-z0-9]{20})/i;   //showfilesbot
+const showfiles3botRegexp = /(showfiles3bot_\d*p*_*\d*v*_*\d*d*_[A-Za-z0-9]{20})/i;   //showfiles3bot
+const tgjmq1botRegexp = /(tgjmq1bot_\d*p*\d*v*\d*d*_[A-Za-z0-9]{16})/i;   //tgjmq1bot
+const tgjmq3botRegexp = /(tgjmq3bot_\d*p*\d*v*\d*d*_[A-Za-z0-9]{16})/i;   //tgjmq3bot
+const tgjmq5botRegexp = /(tgjmq5bot_\d*p*\d*v*\d*d*_[A-Za-z0-9]{16})/i;   //tgjmq5bot
+const blgjlqbotRegexp = /(blgjlqbot_\d+p\d+v\d+d_[A-Za-z0-9]{16})/i;   //blgjlqbot
+const fileLeakBotRegexp = /(fileLeakBot_\d+p_\d+v_\d+d_[A-Za-z0-9]{13})/i;   //fileLeakBot
+const nnfilebotRegexp = /(nnfilebot_[A-Za-z0-9]*_[A-Za-z0-9]*_[A-Za-z0-9]*_[A-Za-z0-9]{12})/i;   //nnfilebot
+const tangBRebotRegexp = /(TangBRebot_\d+p_\d+v_\d+d_[A-Za-z0-9]{12})/i;   //tangBRebot
+const KodeXFilesbot1Regexp = /(KodeXFiles_bot_v:[A-Za-z0-9]{32})/i;   //KodeXFilesbot
+const KodeXFilesbot2Regexp = /(KodeXFiles_bot_p:[A-Za-z0-9]{32})/i;   //KodeXFilesbot
+const KodeXFilesbot3Regexp = /(KodeXFiles_bot_d:[A-Za-z0-9]{32})/i;   //KodeXFilesbot
+const KodeXFilesbot4Regexp = /(KodeXFiles_bot_col:[A-Za-z0-9]{32})/i;   //KodeXFilesbot
+const REDDFILEBOTRegexp = /(REDDFILEBOT_\d*v*\d*p*\d*d*_[A-Za-z0-9]{20})/i;    //REDDFILEBOT
+const parludecodingBotRegexp = /(ParludecodingBot_\d+p\d+v\d+d_[A-Za-z0-9]{16})/i;   //parludecodingBot
+const teestpanbotRegexp = /(@Teestpanbot:_\d*P*_*\d*V*_*\d*D*_[A-Za-z0-9]{12})/i;   //teestpanbot
+const atfileslinksbotRegexp = /(atfileslinksbot_\d*p*_*\d*v*_*\d*d*_[A-Za-z0-9]{20})/i;   //atfileslinksbot
+const lockHivebotRegexp = /(LockHivebot_[A-Za-z0-9]{16})/i;   //lockHivebot
+const tgdecoderbotRegexp = /(decoder_\d+p_\d+v_\d+d_[A-Za-z0-9]{12})/i;   //tgdecoderbot
+// const tgdecoderbot1Regexp = /([a-z0-9]{32})/i;   //tgdecoderbot
+const ZYXFilesBotRegexp = /(📌 取件码：[A-Za-z0-9]+)/i;   //ZYXFilesBot
+const ntmjmqbotRegexp = /(ntmjmqbot_\d+p_\d+v_\d+d_[A-Za-z0-9]{13})/i;   //ntmjmqbot
+const newjmqbotRegexp = /(newjmqbot_\d+p_\d+v_\d+d_[A-Za-z0-9]{13})/i;   //newjmqbot
+const filepanbotRegexp = /(@filepan_bot:_\d*P*_*\d*V*_*\d*D*_[A-Za-z0-9]{12})/i;   //filepanbot
+const myseseXBotRegexp = /(myseseXBot_\d+p_\d+v_\d+d_[A-Za-z0-9]{13})/i;   //myseseXBot
+const save2BoxBotRegexp = /(Save2BoxBot_\d+p_\d+v_\d+d_[A-Za-z0-9]{13})/i;   //save2BoxBot
+const mtfxqbotRegexp = /(mtfxqbot_[0-9PVD_]*_[A-Za-z0-9]{20})/i;   //mtfxqbot
+const mtfxq2botRegexp = /(mtfxq2bot_[0-9PVD_]*_[A-Za-z0-9]{20})/i;   //mtfxq2bot
+const grpRegexp = /([A-Za-z0-9]{12}_[A-Za-z0-9]{11}=_grp)/i;   //grp
+const mdaRegexp = /([A-Za-z0-9-\+]*=_mda)/i;   //mda
+const v_Regexp = /(v_BAACAg[A-Za-z0-9_\-]*)/i;   //v_
+const vi_Regexp = /(vi_BAACAg[A-Za-z0-9_\-]*)/i;   //vi_
+const p_Regexp = /(p_AgACAg[A-Za-z0-9_\-]*)/i;   //p_
+const d_Regexp = /(d_BQACAg[A-Za-z0-9_\-]*)/i;   //d_
+const P_DataPanBotRegexp = /(P_DataPanBot_[A-Za-z0-9_\-]*)/i;   //p_FilesPan1Bot
+const V_DataPanBotRegexp = /(V_DataPanBot_[A-Za-z0-9_\-]*)/i;   //v_FilesPan1Bot
+const D_DataPanBotRegexp = /(D_DataPanBot_[A-Za-z0-9_\-]*)/i;   //p_FilesPan1Bot
+const p_FilesPan1BotRegexp = /(p_FilesPan1Bot_[A-Za-z0-9_\-]*)/i;   //p_FilesPan1Bot
+const v_FilesPan1BotRegexp = /(v_FilesPan1Bot_[A-Za-z0-9_\-]*)/i;   //v_FilesPan1Bot
 // const str = "炼铜基地原创媒体组分此条媒体分此条媒体分享newjmqbot_0p_32v_4d_uaBpSUCc8NAEd载下来慢慢看这个有人有更多吗结尾 [主要推";
 let all = 0;
 let data = [];
@@ -294,6 +303,90 @@ try {
           }
         }
 
+        const tangBRebotMatches = str.match(tangBRebotRegexp);
+        // console.log(tangBRebotMatches);  //测试
+        if (tangBRebotMatches) {
+          const tangBRebotMatchesLength = tangBRebotMatches.length;
+          // console.log("tangBRebotMatchesLength : " + tangBRebotMatchesLength);  //测试
+          if (tangBRebotMatchesLength > 0) {
+            for (let j = 0; j < tangBRebotMatchesLength; j++) {
+              if (tangBRebotMatches[j]) {
+                tangBRebot.push(tangBRebotMatches[j]);
+              }
+            }
+          }
+        }
+
+        const KodeXFilesbot1Matches = str.match(KodeXFilesbot1Regexp);
+        // console.log(KodeXFilesbot1Matches);  //测试
+        if (KodeXFilesbot1Matches) {
+          const KodeXFilesbot1MatchesLength = KodeXFilesbot1Matches.length;
+          // console.log("KodeXFilesbot1MatchesLength : " + KodeXFilesbot1MatchesLength);  //测试
+          if (KodeXFilesbot1MatchesLength > 0) {
+            for (let j = 0; j < KodeXFilesbot1MatchesLength; j++) {
+              if (KodeXFilesbot1Matches[j]) {
+                KodeXFilesbot.push(KodeXFilesbot1Matches[j]);
+              }
+            }
+          }
+        }
+
+        const KodeXFilesbot2Matches = str.match(KodeXFilesbot2Regexp);
+        // console.log(KodeXFilesbot2Matches);  //测试
+        if (KodeXFilesbot2Matches) {
+          const KodeXFilesbot2MatchesLength = KodeXFilesbot2Matches.length;
+          // console.log("KodeXFilesbot2MatchesLength : " + KodeXFilesbot2MatchesLength);  //测试
+          if (KodeXFilesbot2MatchesLength > 0) {
+            for (let j = 0; j < KodeXFilesbot2MatchesLength; j++) {
+              if (KodeXFilesbot2Matches[j]) {
+                KodeXFilesbot.push(KodeXFilesbot2Matches[j]);
+              }
+            }
+          }
+        }
+
+        const KodeXFilesbot3Matches = str.match(KodeXFilesbot3Regexp);
+        // console.log(KodeXFilesbot3Matches);  //测试
+        if (KodeXFilesbot3Matches) {
+          const KodeXFilesbot3MatchesLength = KodeXFilesbot3Matches.length;
+          // console.log("KodeXFilesbot3MatchesLength : " + KodeXFilesbot3MatchesLength);  //测试
+          if (KodeXFilesbot3MatchesLength > 0) {
+            for (let j = 0; j < KodeXFilesbot3MatchesLength; j++) {
+              if (KodeXFilesbot3Matches[j]) {
+                KodeXFilesbot.push(KodeXFilesbot3Matches[j]);
+              }
+            }
+          }
+        }
+
+        const KodeXFilesbot4Matches = str.match(KodeXFilesbot4Regexp);
+        // console.log(KodeXFilesbot4Matches);  //测试
+        if (KodeXFilesbot4Matches) {
+          const KodeXFilesbot4MatchesLength = KodeXFilesbot4Matches.length;
+          // console.log("KodeXFilesbot4MatchesLength : " + KodeXFilesbot4MatchesLength);  //测试
+          if (KodeXFilesbot4MatchesLength > 0) {
+            for (let j = 0; j < KodeXFilesbot4MatchesLength; j++) {
+              if (KodeXFilesbot4Matches[j]) {
+                KodeXFilesbot.push(KodeXFilesbot4Matches[j]);
+              }
+            }
+          }
+        }
+
+        const REDDFILEBOTMatches = str.match(REDDFILEBOTRegexp);
+        // console.log(REDDFILEBOTMatches);  //测试
+        if (REDDFILEBOTMatches) {
+          const REDDFILEBOTMatchesLength = REDDFILEBOTMatches.length;
+          // console.log("REDDFILEBOTMatchesLength : " + REDDFILEBOTMatchesLength);  //测试
+          if (REDDFILEBOTMatchesLength > 0) {
+            for (let j = 0; j < REDDFILEBOTMatchesLength; j++) {
+              if (REDDFILEBOTMatches[j]) {
+                REDDFILEBOT.push(REDDFILEBOTMatches[j]);
+              }
+            }
+          }
+        }
+
         const parludecodingBotMatches = str.match(parludecodingBotRegexp);
         // console.log(parludecodingBotMatches);  //测试
         if (parludecodingBotMatches) {
@@ -364,19 +457,19 @@ try {
           }
         }
 
-        const tgdecoderbot1Matches = str.match(tgdecoderbot1Regexp);
-        // console.log(tgdecoderbot1Matches);  //测试
-        if (tgdecoderbot1Matches) {
-          const tgdecoderbot1MatchesLength = tgdecoderbot1Matches.length;
-          // console.log("tgdecoderbot1MatchesLength : " + tgdecoderbot1MatchesLength);  //测试
-          if (tgdecoderbot1MatchesLength > 0) {
-            for (let j = 0; j < tgdecoderbot1MatchesLength; j++) {
-              if (tgdecoderbot1Matches[j]) {
-                tgdecoderbot.push(tgdecoderbot1Matches[j]);
-              }
-            }
-          }
-        }
+        // const tgdecoderbot1Matches = str.match(tgdecoderbot1Regexp);
+        // // console.log(tgdecoderbot1Matches);  //测试
+        // if (tgdecoderbot1Matches) {
+        //   const tgdecoderbot1MatchesLength = tgdecoderbot1Matches.length;
+        //   // console.log("tgdecoderbot1MatchesLength : " + tgdecoderbot1MatchesLength);  //测试
+        //   if (tgdecoderbot1MatchesLength > 0) {
+        //     for (let j = 0; j < tgdecoderbot1MatchesLength; j++) {
+        //       if (tgdecoderbot1Matches[j]) {
+        //         tgdecoderbot.push(tgdecoderbot1Matches[j]);
+        //       }
+        //     }
+        //   }
+        // }
 
         const ZYXFilesBotMatches = str.match(ZYXFilesBotRegexp);
         // console.log(ZYXFilesBotMatches);  //测试
@@ -754,6 +847,75 @@ try {
       uniqueArr = [...new Set(uniqueArr)];
       if (uniqueArr.length > oldLength) {
         fs.writeFile("./code/nnfilebot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+          if (err) {
+            console.log(err);
+          }
+        });
+      // } else {
+      //   console.log("没有新加数据");
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  all += tangBRebot.length;
+  console.log("tangBRebot : " + tangBRebot.length);  //测试
+  if (tangBRebot.length > 0) {
+    const data = fs.readFileSync("./code/tangBRebot.txt", "utf-8");
+    try {
+      let uniqueArr = JSON.parse(data);
+      const oldLength = uniqueArr.length;
+      uniqueArr = [...uniqueArr, ...tangBRebot];
+      uniqueArr = [...new Set(uniqueArr)];
+      if (uniqueArr.length > oldLength) {
+        fs.writeFile("./code/tangBRebot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+          if (err) {
+            console.log(err);
+          }
+        });
+      // } else {
+      //   console.log("没有新加数据");
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  all += KodeXFilesbot.length;
+  console.log("KodeXFilesbot : " + KodeXFilesbot.length);  //测试
+  if (KodeXFilesbot.length > 0) {
+    const data = fs.readFileSync("./code/KodeXFilesbot.txt", "utf-8");
+    try {
+      let uniqueArr = JSON.parse(data);
+      const oldLength = uniqueArr.length;
+      uniqueArr = [...uniqueArr, ...KodeXFilesbot];
+      uniqueArr = [...new Set(uniqueArr)];
+      if (uniqueArr.length > oldLength) {
+        fs.writeFile("./code/KodeXFilesbot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+          if (err) {
+            console.log(err);
+          }
+        });
+      // } else {
+      //   console.log("没有新加数据");
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  all += REDDFILEBOT.length;
+  console.log("REDDFILEBOT : " + REDDFILEBOT.length);  //测试
+  if (REDDFILEBOT.length > 0) {
+    const data = fs.readFileSync("./code/REDDFILEBOT.txt", "utf-8");
+    try {
+      let uniqueArr = JSON.parse(data);
+      const oldLength = uniqueArr.length;
+      uniqueArr = [...uniqueArr, ...REDDFILEBOT];
+      uniqueArr = [...new Set(uniqueArr)];
+      if (uniqueArr.length > oldLength) {
+        fs.writeFile("./code/REDDFILEBOT.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
           if (err) {
             console.log(err);
           }

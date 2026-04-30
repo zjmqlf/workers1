@@ -435,6 +435,14 @@ export class WebSocketServer extends DurableObject {
         this.sendLog("sendQuery", "code为空", "error", true);
       }
     } else {
+      if (this.idArray.length > 100) {
+        await this.checkMessage(true);
+      }
+      if (this.idArray.length > 0) {
+        await this.forwardMessage(this.idArray, this.fileIdArray);
+        await this.ctx.storage.put("idArray", "[]");
+        await this.ctx.storage.put("fileIdArray", "[]");
+      }
       //console.log("(" + this.currentStep + ") 超过codeLength，已经没有code了");
       this.sendLog("sendQuery", "超过codeLength，已经没有code了", "error", true);
     }
@@ -1196,6 +1204,7 @@ export class WebSocketServer extends DurableObject {
       });
     } else if (command === "queue") {
       this.queue = false;
+      await this.ctx.storage.put("queue", false);
       //console.log("重置queue状态成功");
       this.broadcast({
         "operate": "resetQueue",

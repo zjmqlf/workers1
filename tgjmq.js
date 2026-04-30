@@ -489,6 +489,14 @@ export class WebSocketServer extends DurableObject {
         this.sendLog("sendQuery", "code为空", "error", true);
       }
     } else {
+      if (this.idArray.length > 100) {
+        await this.checkMessage(true);
+      }
+      if (this.idArray.length > 0) {
+        await this.forwardMessage(this.idArray, this.fileIdArray);
+        await this.ctx.storage.put("idArray", "[]");
+        await this.ctx.storage.put("fileIdArray", "[]");
+      }
       //console.log("(" + this.currentStep + ") 超过codeLength，已经没有code了");
       this.sendLog("sendQuery", "超过codeLength，已经没有code了", "error", true);
     }
@@ -811,6 +819,7 @@ export class WebSocketServer extends DurableObject {
                   this.wait = true;
                 } else if (message.includes("密钥不存在或无权访问") === true) {
                   this.wait = false;
+                  //console.log("(" + this.currentStep + ") 密钥不存在或无权访问");
                   this.sendLog("nextStep", "密钥不存在或无权访问", "error", true);
                 } else if (message.includes("操作太频繁，请等待") === true) {
                   const time = parseInt(message.replace("操作太频繁，请等待 ", "").replace(" 秒后再试", ""));
@@ -1143,6 +1152,7 @@ export class WebSocketServer extends DurableObject {
                     this.wait = true;
                   } else if (message.includes("密钥不存在或无权访问") === true) {
                     this.wait = false;
+                    //console.log("(" + this.currentStep + ") 密钥不存在或无权访问");
                     this.sendLog("start", "密钥不存在或无权访问", "error", true);
                   } else if (message.includes("操作太频繁，请等待") === true) {
                     const time = parseInt(message.replace("操作太频繁，请等待 ", "").replace(" 秒后再试", ""));
@@ -1328,6 +1338,7 @@ export class WebSocketServer extends DurableObject {
       });
     } else if (command === "queue") {
       this.queue = false;
+      await this.ctx.storage.put("queue", false);
       //console.log("重置queue状态成功");
       this.broadcast({
         "operate": "resetQueue",
