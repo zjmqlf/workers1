@@ -688,32 +688,8 @@ export class WebSocketServer extends DurableObject {
                           id: id,
                           data: button.data,
                         };
-                      } else if (button.text === "⬇️ 全部发送") {
+                      // } else if (button.text === "⬇️ 全部发送") {
                       // } else {
-                      //   const message = messageArray[messageIndex].message;
-                      //   const regexp = /这是第 \d+ 页 \/ 共 \d+ 页/i;
-                      //   if (regexp.test(message) === true) {
-                      //     text = button.text.replace("这是 ", "");
-                      //     const regexp = / (\d+) /gi;
-                      //     const matches = message.match(regexp);
-                      //     // console.log(matches);  //测试
-                      //     if (matches) {
-                      //       if (matches.length === 2) {
-                      //         if (matches[0] === matches[1]) {
-                      //           temp = null;
-                      //           if (this.queue === true) {
-                      //             this.queue = false;
-                      //             await this.ctx.storage.put("queue", false);
-                      //             //console.log("(" + this.currentStep + ") 所有媒体已发送完毕");
-                      //             this.sendForward("nextStep", "所有媒体已发送完毕", text, "update", false);
-                      //           }
-                      //         }
-                      //       } else {
-                      //         //console.log("(" + this.currentStep + ") " + text);
-                      //         this.sendForward("nextStep", "", text, "update", false);
-                      //       }
-                      //     }
-                      //   }
                       }
                     }
                   }
@@ -1005,32 +981,8 @@ export class WebSocketServer extends DurableObject {
                             id: id,
                             data: button.data,
                           };
-                        } else if (button.text === "⬇️ 全部发送") {
+                        // } else if (button.text === "⬇️ 全部发送") {
                         // } else {
-                        //   const message = messageArray[messageIndex].message;
-                        //   const regexp = /这是第 \d+ 页 \/ 共 \d+ 页/i;
-                        //   if (regexp.test(message) === true) {
-                        //     text = button.text.replace("这是 ", "");
-                        //     const regexp = /(\d+)/gi;
-                        //     const matches = message.match(regexp);
-                        //     // console.log(matches);  //测试
-                        //     if (matches) {
-                        //       if (matches.length === 2) {
-                        //         if (matches[0] === matches[1]) {
-                        //           temp = null;
-                        //           if (this.queue === true) {
-                        //             this.queue = false;
-                        //             await this.ctx.storage.put("queue", false);
-                        //             //console.log("(" + this.currentStep + ") 所有媒体已发送完毕");
-                        //             this.sendForward("start", "所有媒体已发送完毕", text, "update", false);
-                        //           }
-                        //         }
-                        //       } else {
-                        //         //console.log("(" + this.currentStep + ") " + text);
-                        //         this.sendForward("start", "", text, "update", false);
-                        //       }
-                        //     }
-                        //   }
                         }
                       }
                     }
@@ -1067,7 +1019,7 @@ export class WebSocketServer extends DurableObject {
                   if (string[0] === "KodeXFiles_bot_v" || string[0] === "KodeXFiles_bot_p" || string[0] === "KodeXFiles_bot_d" || string[0] === "KodeXFiles_bot_col") {
                     await this.ctx.storage.put(message, 1);
                     //console.log("(" + this.currentStep + ") 代码入库完毕");
-                    this.sendForward("nextStep", "代码入库完毕", "", "add", false);
+                    this.sendForward("start", "代码入库完毕", "", "add", false);
                   } else if (regexp.test(message) === true) {
                     temp = null;
                     const text = message.replace("✅ 自动发送完成！成功 ", "");
@@ -1082,12 +1034,12 @@ export class WebSocketServer extends DurableObject {
                             this.queue = false;
                             await this.ctx.storage.put("queue", false);
                             //console.log("(" + this.currentStep + ") 所有媒体已发送完毕");
-                            this.sendForward("nextStep", "所有媒体已发送完毕", text, "update", false);
+                            this.sendForward("start", "所有媒体已发送完毕", text, "update", false);
                           }
                         }
                       } else {
                         //console.log("(" + this.currentStep + ") " + text);
-                        this.sendForward("nextStep", "", text, "update", false);
+                        this.sendForward("start", "", text, "update", false);
                       }
                     }
                   }
@@ -1250,6 +1202,7 @@ export class WebSocketServer extends DurableObject {
       });
     } else if (command === "code") {
       this.codeIndex = 0;
+      await this.ctx.storage.put("codeIndex", 0);
       //console.log("重置code序号成功");
       this.broadcast({
         "operate": "resetCode",

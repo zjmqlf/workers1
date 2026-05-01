@@ -1,7 +1,7 @@
 import { DurableObject } from "cloudflare:workers";
 import { TelegramClient, Api, sessions, utils } from "./teleproto";
 import { LogLevel } from "./teleproto/extensions";
-import { codeString } from "./blgjlqString";
+import { codeString } from "./qqfileString";
 import bigInt from "big-integer";
 
 export class WebSocketServer extends DurableObject {
@@ -387,45 +387,24 @@ export class WebSocketServer extends DurableObject {
   }
 
   getCount(text) {
-    let string = text.slice(10);
-    string = string.split("_");
-    if (string.length === 2) {
-      const temp = string[0];
-      string = temp.split("p");
-      if (string.length === 2) {
-        this.photoCount = Number(string[0]);
-        string = string[1].split("v");
-        if (string.length === 2) {
-          this.videoCount = Number(string[0]);
-          string = string[1].split("d");
-          if (string.length === 2) {
-            this.fileCount = Number(string[0]);
-          } else {
-            this.fileCount = 0;
-          }
-        } else {
-          this.videoCount = 0;
-          string = string[0].split("d");
-          if (string.length === 2) {
-            this.fileCount = Number(string[0]);
-          } else {
-            this.fileCount = 0;
-          }
-        }
-      } else {
-        this.photoCount = 0;
-        string = string[0].split("v");
-        if (string.length === 2) {
-          this.videoCount = Number(string[0]);
-          string = string[1].split("d");
-          if (string.length === 2) {
-            this.fileCount = Number(string[0]);
-          } else {
-            this.fileCount = 0;
-          }
-        } else {
-          this.videoCount = 0;
-        }
+    let string = text.split("-");
+    string = string[0].split("_");
+    const length = string.length;
+    for (let i = 0; i < length; i++) {
+      let temp = string[i].split("P");
+      if (temp.length === 2) {
+        this.photoCount = Number(temp[0]);
+        continue;
+      }
+      temp = string[i].split("V");
+      if (temp.length === 2) {
+        this.videoCount = Number(temp[0]);
+        continue;
+      }
+      temp = string[i].split("D");
+      if (temp.length === 2) {
+        this.fileCount = Number(temp[0]);
+        continue;
       }
     }
   }
@@ -722,41 +701,19 @@ export class WebSocketServer extends DurableObject {
               if (messageArray[messageIndex].replyMarkup) {
                 if (messageArray[messageIndex].replyMarkup.rows) {
                   // console.log(message);  //测试
-                  let text = "";
+                  // let text = "";
                   for (const row of messageArray[messageIndex].replyMarkup.rows) {
                     // console.log(row);  //测试
                     for (const button of row.buttons) {
                       // console.log(button);  //测试
-                      if (button.text === "加入队列全部推送") {
+                      if (button.text === "📁推送剩余全部文件") {
                         temp = {
                           id: id,
                           data: button.data,
                         };
-                      } else {
-                        const message = messageArray[messageIndex].message;
-                        const regexp = /这是第 \d+ 页 \/ 共 \d+ 页/i;
-                        if (regexp.test(message) === true) {
-                          text = button.text.replace("这是 ", "");
-                          const regexp = / (\d+) /gi;
-                          const matches = message.match(regexp);
-                          // console.log(matches);  //测试
-                          if (matches) {
-                            if (matches.length === 2) {
-                              if (matches[0] === matches[1]) {
-                                temp = null;
-                                if (this.queue === true) {
-                                  this.queue = false;
-                                  await this.ctx.storage.put("queue", false);
-                                  //console.log("(" + this.currentStep + ") 所有媒体已发送完毕");
-                                  this.sendForward("nextStep", "所有媒体已发送完毕", text, "update", false);
-                                }
-                              }
-                            } else {
-                              //console.log("(" + this.currentStep + ") " + text);
-                              this.sendForward("nextStep", "", text, "update", false);
-                            }
-                          }
-                        }
+                      // } else if (button.text === "❇️") {
+                      // } else if (button.text === "❎") {
+                      // } else {
                       }
                     }
                   }
@@ -786,21 +743,22 @@ export class WebSocketServer extends DurableObject {
                     this.sendLog("nextStep", "该媒体已在数据库中", "error", true);
                   }
                 }
-              } else {
-                const message = messageArray[messageIndex].message;
-                if (message.substr(0, 10) === "blgjlqbot_") {
-                  await this.ctx.storage.put(message, 1);
-                  this.getCount(message);
-                  //console.log("(" + this.currentStep + ") 代码入库完毕");
-                  this.sendForward("nextStep", "代码入库完毕", "", "add", false);
-                } else if (message === "所有媒体已发送完毕。") {
-                  temp = null;
+                if (messageArray[messageIndex].message.includes("文件获取完毕 文件总数：") === true) {
                   if (this.queue === true) {
                     this.queue = false;
                     await this.ctx.storage.put("queue", false);
-                    //console.log("(" + this.currentStep + ") 所有媒体已发送完毕");
-                    this.sendForward("nextStep", "所有媒体已发送完毕", text, "update", false);
                   }
+                  //console.log("(" + this.currentStep + ") " + message);
+                  this.sendLog("nextStep", "文件获取完毕", null, false);
+                }
+              } else {
+                const message = messageArray[messageIndex].message;
+                const string = message.split(":");
+                if (string[0] === "QQfile_bot") {
+                  await this.ctx.storage.put(message.split("-")[0], 1);
+                  this.getCount(message);
+                  //console.log("(" + this.currentStep + ") 代码入库完毕");
+                  this.sendForward("nextStep", "代码入库完毕", "", "add", false);
                 }
               }
             }
@@ -816,8 +774,8 @@ export class WebSocketServer extends DurableObject {
                   data: temp.data,
                 })
               );
-              //console.log("(" + this.currentStep + ") 加入队列全部推送");
-              this.sendLog("nextStep", "加入队列全部推送", null, false);
+              //console.log("(" + this.currentStep + ") 自动发送");
+              this.sendLog("nextStep", "自动发送", null, false);
             // } else {
             //   if (status === true) {
             //     await this.sendQuery(1);
@@ -911,8 +869,8 @@ export class WebSocketServer extends DurableObject {
         new Api.users.GetUsers({
           id: [
             new Api.InputUser({
-              userId: bigInt("8633923875"),
-              accessHash: bigInt("3740805468883295251"),
+              userId: bigInt("8773044827"),
+              accessHash: bigInt("-7140144570295495626"),
             }),
           ],
         })
@@ -1028,36 +986,14 @@ export class WebSocketServer extends DurableObject {
                       // console.log(row);  //测试
                       for (const button of row.buttons) {
                         // console.log(button);  //测试
-                        if (button.text === "加入队列全部推送") {
+                        if (button.text === "📁推送剩余全部文件") {
                           temp = {
                             id: id,
                             data: button.data,
                           };
-                        } else {
-                          const message = messageArray[messageIndex].message;
-                          const regexp = /这是第 \d+ 页 \/ 共 \d+ 页/i;
-                          if (regexp.test(message) === true) {
-                            text = button.text.replace("这是 ", "");
-                            const regexp = / (\d+) /gi;
-                            const matches = message.match(regexp);
-                            // console.log(matches);  //测试
-                            if (matches) {
-                              if (matches.length === 2) {
-                                if (matches[0] === matches[1]) {
-                                  temp = null;
-                                  if (this.queue === true) {
-                                    this.queue = false;
-                                    await this.ctx.storage.put("queue", false);
-                                    //console.log("(" + this.currentStep + ") 所有媒体已发送完毕");
-                                    this.sendForward("start", "所有媒体已发送完毕", text, "update", false);
-                                  }
-                                }
-                              } else {
-                                //console.log("(" + this.currentStep + ") " + text);
-                                this.sendForward("start", "", text, "update", false);
-                              }
-                            }
-                          }
+                        // } else if (button.text === "❇️") {
+                        // } else if (button.text === "❎") {
+                        // } else {
                         }
                       }
                     }
@@ -1087,21 +1023,22 @@ export class WebSocketServer extends DurableObject {
                       this.sendLog("start", "该媒体已在数据库中", "error", true);
                     }
                   }
-                } else {
-                  const message = messageArray[messageIndex].message;
-                  if (message.substr(0, 10) === "blgjlqbot_") {
-                    await this.ctx.storage.put(message, 1);
-                    this.getCount(message);
-                    //console.log("(" + this.currentStep + ") 代码入库完毕");
-                    this.sendForward("nextStep", "代码入库完毕", "", "add", false);
-                  } else if (message === "所有媒体已发送完毕。") {
-                    temp = null;
+                  if (messageArray[messageIndex].message.includes("文件获取完毕 文件总数：") === true) {
                     if (this.queue === true) {
                       this.queue = false;
                       await this.ctx.storage.put("queue", false);
-                      //console.log("(" + this.currentStep + ") 所有媒体已发送完毕");
-                      this.sendForward("start", "所有媒体已发送完毕", text, "update", false);
                     }
+                    //console.log("(" + this.currentStep + ") " + message);
+                    this.sendLog("start", "文件获取完毕", null, false);
+                  }
+                } else {
+                  const message = messageArray[messageIndex].message;
+                  const string = message.split(":");
+                  if (string[0] === "QQfile_bot") {
+                    await this.ctx.storage.put(message.split("-")[0], 1);
+                    this.getCount(message);
+                    //console.log("(" + this.currentStep + ") 代码入库完毕");
+                    this.sendForward("start", "代码入库完毕", "", "add", false);
                   }
                 }
               }
@@ -1117,8 +1054,8 @@ export class WebSocketServer extends DurableObject {
                     data: temp.data,
                   })
                 );
-                //console.log("(" + this.currentStep + ") 加入队列全部推送");
-                this.sendLog("start", "加入队列全部推送", null, false);
+                //console.log("(" + this.currentStep + ") 自动发送");
+                this.sendLog("start", "自动发送", null, false);
               // } else {
               //   if (status === true) {
               //     await this.sendQuery(1);
@@ -1314,7 +1251,7 @@ export default {
           status: 426,
         });
       }
-      const id = env.WEBSOCKET_SERVER.idFromName("blgjlq");
+      const id = env.WEBSOCKET_SERVER.idFromName("qqfile");
       const stub = env.WEBSOCKET_SERVER.get(id);
       return stub.fetch(request);
     }

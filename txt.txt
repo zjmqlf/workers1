@@ -23,6 +23,12 @@ npm run deploy-tangbre
 npm run build-kodexfiles
 npm run deploy-kodexfiles
 
+npm run build-allxfiles
+npm run deploy-allxfiles
+
+npm run build-qqfile
+npm run deploy-qqfile
+
 npm run build-test
 npm run deploy-test
 

@@ -1194,6 +1194,7 @@ export class WebSocketServer extends DurableObject {
       });
     } else if (command === "code") {
       this.codeIndex = 0;
+      await this.ctx.storage.put("codeIndex", 0);
       //console.log("重置code序号成功");
       this.broadcast({
         "operate": "resetCode",

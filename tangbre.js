@@ -806,7 +806,7 @@ export class WebSocketServer extends DurableObject {
                   }
                 }
               } else {
-                const regexp = /([a-z0-9]{32})/i;
+                // const regexp = /([a-z0-9]{32})/i;
                 const message = messageArray[messageIndex].message;
                 if (message.substr(0, 11) === "TangBRebot_") {
                   await this.ctx.storage.put(message, 1);
@@ -818,10 +818,10 @@ export class WebSocketServer extends DurableObject {
                 //   this.getCount(message, 8);
                 //   //console.log("(" + this.currentStep + ") 代码入库完毕");
                 //   this.sendForward("nextStep", "代码入库完毕", "", "add", false);
-                } else if (regexp.test(message) === true) {
-                  await this.ctx.storage.put(message, 1);
-                  //console.log("(" + this.currentStep + ") 代码入库完毕");
-                  this.sendForward("nextStep", "代码入库完毕", "", "add", false);
+                // } else if (regexp.test(message) === true) {
+                //   await this.ctx.storage.put(message, 1);
+                //   //console.log("(" + this.currentStep + ") 代码入库完毕");
+                //   this.sendForward("nextStep", "代码入库完毕", "", "add", false);
                 } else if (message.includes("✅ 代码输出完成") === true) {
                   if (this.queue === true) {
                     this.queue = false;
@@ -1167,10 +1167,10 @@ export class WebSocketServer extends DurableObject {
                   //   this.getCount(message, 8);
                   //   //console.log("(" + this.currentStep + ") 代码入库完毕");
                   //   this.sendForward("start", "代码入库完毕", "", "add", false);
-                  } else if (regexp.test(message) === true) {
-                    await this.ctx.storage.put(message, 1);
-                    //console.log("(" + this.currentStep + ") 代码入库完毕");
-                    this.sendForward("start", "代码入库完毕", "", "add", false);
+                  // } else if (regexp.test(message) === true) {
+                  //   await this.ctx.storage.put(message, 1);
+                  //   //console.log("(" + this.currentStep + ") 代码入库完毕");
+                  //   this.sendForward("start", "代码入库完毕", "", "add", false);
                   } else if (message.includes("✅ 代码输出完成") === true) {
                     if (this.queue === true) {
                       this.queue = false;
@@ -1338,6 +1338,7 @@ export class WebSocketServer extends DurableObject {
       });
     } else if (command === "code") {
       this.codeIndex = 0;
+      await this.ctx.storage.put("codeIndex", 0);
       //console.log("重置code序号成功");
       this.broadcast({
         "operate": "resetCode",

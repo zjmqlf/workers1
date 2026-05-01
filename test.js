@@ -230,8 +230,10 @@ export default {
               // accessHash: bigInt.zero,
               // userId: bigInt("8644136882"),  //nnfilebot
               // accessHash: bigInt("-1388224743701786177"),
-              userId: bigInt("8707188141"),  //KodeXFiles_bot
-              accessHash: bigInt("6743836843791475407"),
+              // userId: bigInt("8707188141"),  //KodeXFiles_bot
+              // accessHash: bigInt("6743836843791475407"),
+              userId: bigInt("8773044827"),  //QQfile2_bot
+              accessHash: bigInt("-7140144570295495626"),
             }),
           ],
         })
