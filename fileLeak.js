@@ -395,19 +395,19 @@ export class WebSocketServer extends DurableObject {
     if (string.length === 4) {
       let temp = string[0].split("p");
       if (temp.length === 2) {
-        this.photoCount = Number(temp[0]);
+        this.photoCount = parseInt(temp[0]);
       } else {
         this.photoCount = 0;
       }
       temp = string[1].split("v");
       if (temp.length === 2) {
-        this.videoCount = Number(temp[0]);
+        this.videoCount = parseInt(temp[0]);
       } else {
         this.videoCount = 0;
       }
       temp = string[2].split("d");
       if (temp.length === 2) {
-        this.fileCount = Number(temp[0]);
+        this.fileCount = parseInt(temp[0]);
       } else {
         this.fileCount = 0;
       }
@@ -774,7 +774,7 @@ export class WebSocketServer extends DurableObject {
                         } else {
                           // const text = button.text.replace("✅", "").replace("✳️", "");
                           // if (text) {
-                          //   const status = Number.isInteger(text);
+                          //   const status = text.isInteger(text);
                           // }
                           const regexp1 = /✅\d+/gi;
                           const regexp2 = /✳️\d+/gi;

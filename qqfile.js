@@ -386,25 +386,49 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
-  getCount(text) {
-    let string = text.split("-");
-    string = string[0].split("_");
-    const length = string.length;
-    for (let i = 0; i < length; i++) {
-      let temp = string[i].split("P");
-      if (temp.length === 2) {
-        this.photoCount = Number(temp[0]);
-        continue;
+  getCount(text, type) {
+    if (type === 1) {
+      let string = text.split("-");
+      if (string.length === 2) {
+        string = string[1].split("_");
+        const length = string.length;
+        for (let i = 0; i < length; i++) {
+          let temp = string[i].split("P");
+          if (temp.length === 2) {
+            this.photoCount = parseInt(temp[0]);
+            continue;
+          }
+          temp = string[i].split("V");
+          if (temp.length === 2) {
+            this.videoCount = parseInt(temp[0]);
+            continue;
+          }
+          temp = string[i].split("D");
+          if (temp.length === 2) {
+            this.fileCount = parseInt(temp[0]);
+            continue;
+          }
+        }
       }
-      temp = string[i].split("V");
-      if (temp.length === 2) {
-        this.videoCount = Number(temp[0]);
-        continue;
-      }
-      temp = string[i].split("D");
-      if (temp.length === 2) {
-        this.fileCount = Number(temp[0]);
-        continue;
+    } else if (type === 2) {
+      let string = text.split("_");
+      const length = string.length;
+      for (let i = 1; i < length; i++) {
+        let temp = string[i].split("P");
+        if (temp.length === 2) {
+          this.photoCount = parseInt(temp[0]);
+          continue;
+        }
+        temp = string[i].split("V");
+        if (temp.length === 2) {
+          this.videoCount = parseInt(temp[0]);
+          continue;
+        }
+        temp = string[i].split("D");
+        if (temp.length === 2) {
+          this.fileCount = parseInt(temp[0]);
+          continue;
+        }
       }
     }
   }
@@ -434,7 +458,7 @@ export class WebSocketServer extends DurableObject {
         this.photoCount = 0;
         this.videoCount = 0;
         this.fileCount = 0;
-        const status = await this.ctx.storage.get(code);
+        const status = await this.ctx.storage.get(code.split("-")[0]);
         if (status) {
           //console.log("sendQuery当前代码已入过库了");
           this.sendLog("sendQuery", "当前代码已入过库了", null, true);
@@ -701,7 +725,6 @@ export class WebSocketServer extends DurableObject {
               if (messageArray[messageIndex].replyMarkup) {
                 if (messageArray[messageIndex].replyMarkup.rows) {
                   // console.log(message);  //测试
-                  // let text = "";
                   for (const row of messageArray[messageIndex].replyMarkup.rows) {
                     // console.log(row);  //测试
                     for (const button of row.buttons) {
@@ -711,6 +734,18 @@ export class WebSocketServer extends DurableObject {
                           id: id,
                           data: button.data,
                         };
+                      } else if (button.text === "继续推送") {
+                        if (this.queue === true) {
+                          const result = await this.client.invoke(
+                            new Api.messages.GetBotCallbackAnswer({
+                              peer: this.fromPeer,
+                              msgId: id,
+                              data: button.data,
+                            })
+                          );
+                          //console.log("(" + this.currentStep + ") 继续推送");
+                          this.sendLog("nextStep", "继续推送", null, false);
+                        }
                       // } else if (button.text === "❇️") {
                       // } else if (button.text === "❎") {
                       // } else {
@@ -748,15 +783,20 @@ export class WebSocketServer extends DurableObject {
                     this.queue = false;
                     await this.ctx.storage.put("queue", false);
                   }
-                  //console.log("(" + this.currentStep + ") " + message);
-                  this.sendLog("nextStep", "文件获取完毕", null, false);
+                  //console.log("(" + this.currentStep + ") 文件获取完毕");
+                  this.sendForward("nextStep", "文件获取完毕", "", "update", false);
                 }
               } else {
                 const message = messageArray[messageIndex].message;
                 const string = message.split(":");
                 if (string[0] === "QQfile_bot") {
                   await this.ctx.storage.put(message.split("-")[0], 1);
-                  this.getCount(message);
+                  this.getCount(message, 1);
+                  //console.log("(" + this.currentStep + ") 代码入库完毕");
+                  this.sendForward("nextStep", "代码入库完毕", "", "add", false);
+                } else if (string[0] === "QQfile2_bot") {
+                  await this.ctx.storage.put(message.split("_")[0], 1);
+                  this.getCount(message, 2);
                   //console.log("(" + this.currentStep + ") 代码入库完毕");
                   this.sendForward("nextStep", "代码入库完毕", "", "add", false);
                 }
@@ -767,7 +807,7 @@ export class WebSocketServer extends DurableObject {
             if (temp) {
               this.queue = true;
               await this.ctx.storage.put("queue", true);
-              await this.client.invoke(
+              const result = await this.client.invoke(
                 new Api.messages.GetBotCallbackAnswer({
                   peer: this.fromPeer,
                   msgId: temp.id,
@@ -981,7 +1021,6 @@ export class WebSocketServer extends DurableObject {
                 if (messageArray[messageIndex].replyMarkup) {
                   if (messageArray[messageIndex].replyMarkup.rows) {
                     // console.log(message);  //测试
-                    let text = "";
                     for (const row of messageArray[messageIndex].replyMarkup.rows) {
                       // console.log(row);  //测试
                       for (const button of row.buttons) {
@@ -991,6 +1030,18 @@ export class WebSocketServer extends DurableObject {
                             id: id,
                             data: button.data,
                           };
+                        } else if (button.text === "继续推送") {
+                          if (this.queue === true) {
+                            await this.client.invoke(
+                              new Api.messages.GetBotCallbackAnswer({
+                                peer: this.fromPeer,
+                                msgId: id,
+                                data: button.data,
+                              })
+                            );
+                            //console.log("(" + this.currentStep + ") 继续推送");
+                            this.sendLog("start", "继续推送", null, false);
+                          }
                         // } else if (button.text === "❇️") {
                         // } else if (button.text === "❎") {
                         // } else {
@@ -1028,15 +1079,20 @@ export class WebSocketServer extends DurableObject {
                       this.queue = false;
                       await this.ctx.storage.put("queue", false);
                     }
-                    //console.log("(" + this.currentStep + ") " + message);
-                    this.sendLog("start", "文件获取完毕", null, false);
+                    //console.log("(" + this.currentStep + ") 文件获取完毕");
+                    this.sendForward("start", "文件获取完毕", "", "update", false);
                   }
                 } else {
                   const message = messageArray[messageIndex].message;
                   const string = message.split(":");
                   if (string[0] === "QQfile_bot") {
                     await this.ctx.storage.put(message.split("-")[0], 1);
-                    this.getCount(message);
+                    this.getCount(message, 1);
+                    //console.log("(" + this.currentStep + ") 代码入库完毕");
+                    this.sendForward("start", "代码入库完毕", "", "add", false);
+                  } else if (string[0] === "QQfile2_bot") {
+                    await this.ctx.storage.put(message.split("_")[0], 1);
+                    this.getCount(message, 2);
                     //console.log("(" + this.currentStep + ") 代码入库完毕");
                     this.sendForward("start", "代码入库完毕", "", "add", false);
                   }

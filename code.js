@@ -54,6 +54,14 @@ const QQfilebot5Regexp = /(QQfile_bot:[0-9]{5}_[0-9]{5,6}_[0-9]{3}-\d*P)/gi;   /
 const QQfilebot6Regexp = /(QQfile_bot:[0-9]{5}_[0-9]{5,6}_[0-9]{3}-\d*V)/gi;   //QQfilebot
 const QQfilebot7Regexp = /(QQfile_bot:[0-9]{5}_[0-9]{5,6}_[0-9]{3}-\d*D)/gi;   //QQfilebot
 const QQfilebot8Regexp = /(QQfile_bot:[0-9]{5}_[0-9]{5,6}_[0-9]{3})/gi;   //QQfilebot
+const QQfile2bot1Regexp = /(QQfile2_bot:[a-z0-9]{12}_\d*P_\d*V_\d*D)/gi;   //QQfile2bot
+const QQfile2bot2Regexp = /(QQfile2_bot:[a-z0-9]{12}_\d*P_\d*D)/gi;   //QQfile2bot
+const QQfile2bot3Regexp = /(QQfile2_bot:[a-z0-9]{12}_\d*V_\d*D)/gi;   //QQfile2bot
+const QQfile2bot4Regexp = /(QQfile2_bot:[a-z0-9]{12}_\d*P_\d*V)/gi;   //QQfile2bot
+const QQfile2bot5Regexp = /(QQfile2_bot:[a-z0-9]{12}_\d*P)/gi;   //QQfile2bot
+const QQfile2bot6Regexp = /(QQfile2_bot:[a-z0-9]{12}_\d*V)/gi;   //QQfile2bot
+const QQfile2bot7Regexp = /(QQfile2_bot:[a-z0-9]{12}_\d*D)/gi;   //QQfile2bot
+const QQfile2bot8Regexp = /(QQfile2_bot:[0-9]{5}_[0-9]{5,6}_[0-9]{3})/gi;   //QQfile2bot
 const REDDFILEBOTRegexp = /(REDDFILEBOT_\d*v*\d*p*\d*d*_[A-Za-z0-9]{20})/gi;    //REDDFILEBOT
 const parludecodingBotRegexp = /(ParludecodingBot_\d+p\d+v\d+d_[A-Za-z0-9]{16})/gi;   //parludecodingBot
 const teestpanbotRegexp = /(@Teestpanbot:_\d*P*_*\d*V*_*\d*D*_[A-Za-z0-9]{12})/gi;   //teestpanbot
@@ -195,6 +203,7 @@ try {
   // data = fs.readFileSync("./source/资源10.txt", "utf-8");
   // data = fs.readFileSync("./source/足.txt", "utf-8");
   // data = fs.readFileSync("./source/1.txt", "utf-8");
+  // data = fs.readFileSync("./source/message.txt", "utf-8");
   data = fs.readFileSync("./source/messages.html", "utf-8");
   const array = data.split("\n");
   const length = array.length;
@@ -549,6 +558,118 @@ try {
             for (let j = 0; j < QQfilebot8MatchesLength; j++) {
               if (QQfilebot8Matches[j]) {
                 QQfilebot.push(QQfilebot8Matches[j]);
+              }
+            }
+          }
+        }
+
+        const QQfile2bot1Matches = str.match(QQfile2bot1Regexp);
+        // console.log(QQfile2bot1Matches);  //测试
+        if (QQfile2bot1Matches) {
+          const QQfile2bot1MatchesLength = QQfile2bot1Matches.length;
+          // console.log("QQfile2bot1MatchesLength : " + QQfile2bot1MatchesLength);  //测试
+          if (QQfile2bot1MatchesLength > 0) {
+            for (let j = 0; j < QQfile2bot1MatchesLength; j++) {
+              if (QQfile2bot1Matches[j]) {
+                QQfilebot.push(QQfile2bot1Matches[j]);
+              }
+            }
+          }
+        }
+
+        const QQfile2bot2Matches = str.match(QQfile2bot2Regexp);
+        // console.log(QQfile2bot2Matches);  //测试
+        if (QQfile2bot2Matches) {
+          const QQfile2bot2MatchesLength = QQfile2bot2Matches.length;
+          // console.log("QQfile2bot2MatchesLength : " + QQfile2bot2MatchesLength);  //测试
+          if (QQfile2bot2MatchesLength > 0) {
+            for (let j = 0; j < QQfile2bot2MatchesLength; j++) {
+              if (QQfile2bot2Matches[j]) {
+                QQfilebot.push(QQfile2bot2Matches[j]);
+              }
+            }
+          }
+        }
+
+        const QQfile2bot3Matches = str.match(QQfile2bot3Regexp);
+        // console.log(QQfile2bot3Matches);  //测试
+        if (QQfile2bot3Matches) {
+          const QQfile2bot3MatchesLength = QQfile2bot3Matches.length;
+          // console.log("QQfile2bot3MatchesLength : " + QQfile2bot3MatchesLength);  //测试
+          if (QQfile2bot3MatchesLength > 0) {
+            for (let j = 0; j < QQfile2bot3MatchesLength; j++) {
+              if (QQfile2bot3Matches[j]) {
+                QQfilebot.push(QQfile2bot3Matches[j]);
+              }
+            }
+          }
+        }
+
+        const QQfile2bot4Matches = str.match(QQfile2bot4Regexp);
+        // console.log(QQfile2bot4Matches);  //测试
+        if (QQfile2bot4Matches) {
+          const QQfile2bot4MatchesLength = QQfile2bot4Matches.length;
+          // console.log("QQfile2bot4MatchesLength : " + QQfile2bot4MatchesLength);  //测试
+          if (QQfile2bot4MatchesLength > 0) {
+            for (let j = 0; j < QQfile2bot4MatchesLength; j++) {
+              if (QQfile2bot4Matches[j]) {
+                QQfilebot.push(QQfile2bot4Matches[j]);
+              }
+            }
+          }
+        }
+
+        const QQfile2bot5Matches = str.match(QQfile2bot5Regexp);
+        // console.log(QQfile2bot5Matches);  //测试
+        if (QQfile2bot5Matches) {
+          const QQfile2bot5MatchesLength = QQfile2bot5Matches.length;
+          // console.log("QQfile2bot5MatchesLength : " + QQfile2bot5MatchesLength);  //测试
+          if (QQfile2bot5MatchesLength > 0) {
+            for (let j = 0; j < QQfile2bot5MatchesLength; j++) {
+              if (QQfile2bot5Matches[j]) {
+                QQfilebot.push(QQfile2bot5Matches[j]);
+              }
+            }
+          }
+        }
+
+        const QQfile2bot6Matches = str.match(QQfile2bot6Regexp);
+        // console.log(QQfile2bot6Matches);  //测试
+        if (QQfile2bot6Matches) {
+          const QQfile2bot6MatchesLength = QQfile2bot6Matches.length;
+          // console.log("QQfile2bot6MatchesLength : " + QQfile2bot6MatchesLength);  //测试
+          if (QQfile2bot6MatchesLength > 0) {
+            for (let j = 0; j < QQfile2bot6MatchesLength; j++) {
+              if (QQfile2bot6Matches[j]) {
+                QQfilebot.push(QQfile2bot6Matches[j]);
+              }
+            }
+          }
+        }
+
+        const QQfile2bot7Matches = str.match(QQfile2bot7Regexp);
+        // console.log(QQfile2bot7Matches);  //测试
+        if (QQfile2bot7Matches) {
+          const QQfile2bot7MatchesLength = QQfile2bot7Matches.length;
+          // console.log("QQfile2bot7MatchesLength : " + QQfile2bot7MatchesLength);  //测试
+          if (QQfile2bot7MatchesLength > 0) {
+            for (let j = 0; j < QQfile2bot7MatchesLength; j++) {
+              if (QQfile2bot7Matches[j]) {
+                QQfilebot.push(QQfile2bot7Matches[j]);
+              }
+            }
+          }
+        }
+
+        const QQfile2bot8Matches = str.match(QQfile2bot8Regexp);
+        // console.log(QQfile2bot8Matches);  //测试
+        if (QQfile2bot8Matches) {
+          const QQfile2bot8MatchesLength = QQfile2bot8Matches.length;
+          // console.log("QQfile2bot8MatchesLength : " + QQfile2bot8MatchesLength);  //测试
+          if (QQfile2bot8MatchesLength > 0) {
+            for (let j = 0; j < QQfile2bot8MatchesLength; j++) {
+              if (QQfile2bot8Matches[j]) {
+                QQfilebot.push(QQfile2bot8Matches[j]);
               }
             }
           }

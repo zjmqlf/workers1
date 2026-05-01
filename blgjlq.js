@@ -393,13 +393,13 @@ export class WebSocketServer extends DurableObject {
       const temp = string[0];
       string = temp.split("p");
       if (string.length === 2) {
-        this.photoCount = Number(string[0]);
+        this.photoCount = parseInt(string[0]);
         string = string[1].split("v");
         if (string.length === 2) {
-          this.videoCount = Number(string[0]);
+          this.videoCount = parseInt(string[0]);
           string = string[1].split("d");
           if (string.length === 2) {
-            this.fileCount = Number(string[0]);
+            this.fileCount = parseInt(string[0]);
           } else {
             this.fileCount = 0;
           }
@@ -407,7 +407,7 @@ export class WebSocketServer extends DurableObject {
           this.videoCount = 0;
           string = string[0].split("d");
           if (string.length === 2) {
-            this.fileCount = Number(string[0]);
+            this.fileCount = parseInt(string[0]);
           } else {
             this.fileCount = 0;
           }
@@ -416,10 +416,10 @@ export class WebSocketServer extends DurableObject {
         this.photoCount = 0;
         string = string[0].split("v");
         if (string.length === 2) {
-          this.videoCount = Number(string[0]);
+          this.videoCount = parseInt(string[0]);
           string = string[1].split("d");
           if (string.length === 2) {
-            this.fileCount = Number(string[0]);
+            this.fileCount = parseInt(string[0]);
           } else {
             this.fileCount = 0;
           }
@@ -809,7 +809,7 @@ export class WebSocketServer extends DurableObject {
             if (temp) {
               this.queue = true;
               await this.ctx.storage.put("queue", true);
-              await this.client.invoke(
+              const result = await this.client.invoke(
                 new Api.messages.GetBotCallbackAnswer({
                   peer: this.fromPeer,
                   msgId: temp.id,
@@ -1110,7 +1110,7 @@ export class WebSocketServer extends DurableObject {
               if (temp) {
                 this.queue = true;
                 await this.ctx.storage.put("queue", true);
-                await this.client.invoke(
+                const result = await this.client.invoke(
                   new Api.messages.GetBotCallbackAnswer({
                     peer: this.fromPeer,
                     msgId: temp.id,

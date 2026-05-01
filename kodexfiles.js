@@ -757,7 +757,7 @@ export class WebSocketServer extends DurableObject {
             if (temp) {
               this.queue = true;
               await this.ctx.storage.put("queue", true);
-              await this.client.invoke(
+              const result = await this.client.invoke(
                 new Api.messages.GetBotCallbackAnswer({
                   peer: this.fromPeer,
                   msgId: temp.id,
@@ -1050,7 +1050,7 @@ export class WebSocketServer extends DurableObject {
               if (temp) {
                 this.queue = true;
                 await this.ctx.storage.put("queue", true);
-                await this.client.invoke(
+                const result = await this.client.invoke(
                   new Api.messages.GetBotCallbackAnswer({
                     peer: this.fromPeer,
                     msgId: temp.id,

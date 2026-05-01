@@ -398,13 +398,13 @@ export class WebSocketServer extends DurableObject {
       const temp = string[0];
       string = temp.split("P");
       if (string.length === 2) {
-        this.photoCount = Number(string[0]);
+        this.photoCount = parseInt(string[0]);
         string = string[1].split("V");
         if (string.length === 2) {
-          this.videoCount = Number(string[0]);
+          this.videoCount = parseInt(string[0]);
           string = string[1].split("D");
           if (string.length === 2) {
-            this.fileCount = Number(string[0]);
+            this.fileCount = parseInt(string[0]);
           } else {
             this.fileCount = 0;
           }
@@ -412,7 +412,7 @@ export class WebSocketServer extends DurableObject {
           this.videoCount = 0;
           string = string[0].split("D");
           if (string.length === 2) {
-            this.fileCount = Number(string[0]);
+            this.fileCount = parseInt(string[0]);
           } else {
             this.fileCount = 0;
           }
@@ -421,10 +421,10 @@ export class WebSocketServer extends DurableObject {
         this.photoCount = 0;
         string = string[0].split("V");
         if (string.length === 2) {
-          this.videoCount = Number(string[0]);
+          this.videoCount = parseInt(string[0]);
           string = string[1].split("D");
           if (string.length === 2) {
-            this.fileCount = Number(string[0]);
+            this.fileCount = parseInt(string[0]);
           } else {
             this.fileCount = 0;
           }

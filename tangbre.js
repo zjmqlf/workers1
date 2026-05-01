@@ -395,19 +395,19 @@ export class WebSocketServer extends DurableObject {
     if (string.length === 4) {
       let temp = string[0].split("p");
       if (temp.length === 2) {
-        this.photoCount = Number(temp[0]);
+        this.photoCount = parseInt(temp[0]);
       } else {
         this.photoCount = 0;
       }
       temp = string[1].split("v");
       if (temp.length === 2) {
-        this.videoCount = Number(temp[0]);
+        this.videoCount = parseInt(temp[0]);
       } else {
         this.videoCount = 0;
       }
       temp = string[2].split("d");
       if (temp.length === 2) {
-        this.fileCount = Number(temp[0]);
+        this.fileCount = parseInt(temp[0]);
       } else {
         this.fileCount = 0;
       }
@@ -710,70 +710,45 @@ export class WebSocketServer extends DurableObject {
                     if (next === true) {
                       for (const button of row.buttons) {
                         // console.log(button);  //测试
-                        // if (button.text === "⬅️") {
-                        //   if (this.queue === false) {
-                        //     this.queue = true;
-                        //     await this.ctx.storage.put("queue", true);
-                        //   }
-                        // } else if (button.text === "➡️") {
-                        //   if (this.queue === false) {
-                        //     this.queue = true;
-                        //     await this.ctx.storage.put("queue", true);
-                        //   }
-                        //   if (found === false) {
-                        //     const result = await this.client.invoke(
-                        //       new Api.messages.GetBotCallbackAnswer({
-                        //         peer: this.fromPeer,
-                        //         msgId: id,
-                        //         data: button.data,
-                        //       })
-                        //     );
-                        //     await scheduler.wait(5000);
-                        //     // console.log("(" + this.currentStep + ") 翻页");
-                        //     this.sendLog("nextStep", "翻页", null, false);
-                        //     break;
-                        //   }
-                        // } else {
-                          const regexp1 = /共 \d+ 页/i;
-                          const regexp2 = /\d+ ✅/i;
-                          const regexp3 = /^\d+$/i;
-                          if (regexp1.test(button.text) === true) {
-                            // if (this.queue === true) {
-                            //   this.queue = false;
-                            //   await this.ctx.storage.put("queue", false);
-                            //   //console.log("(" + this.currentStep + ") 所有媒体已获取完毕");
-                            //   this.sendForward("nextStep", "所有媒体已获取完毕", "", "update", false);
-                            // }
-                          } else if (regexp2.test(button.text) === true) {
-                            current = true;
-                            if (this.queue === false) {
-                              this.queue = true;
-                              await this.ctx.storage.put("queue", true);
-                            }
-                          } else if (regexp3.test(button.text) === true) {
-                            if (current === true) {
-                              if (parseInt(button.text).toString() === button.text) {
-                                next = false;
-                                found = true;
-                                if (this.queue === false) {
-                                  this.queue = true;
-                                  await this.ctx.storage.put("queue", true);
-                                }
-                                const result = await this.client.invoke(
-                                  new Api.messages.GetBotCallbackAnswer({
-                                    peer: this.fromPeer,
-                                    msgId: id,
-                                    data: button.data,
-                                  })
-                                );
-                                await scheduler.wait(5000);
-                                // console.log("(" + this.currentStep + ") 下一页");
-                                this.sendForward("nextStep", "下一页", button.text, "update", false);
-                                break;
+                        const regexp1 = /共 \d+ 页/i;
+                        const regexp2 = /\d+ ✅/i;
+                        const regexp3 = /^\d+$/i;
+                        if (regexp1.test(button.text) === true) {
+                          // if (this.queue === true) {
+                          //   this.queue = false;
+                          //   await this.ctx.storage.put("queue", false);
+                          //   //console.log("(" + this.currentStep + ") 所有媒体已获取完毕");
+                          //   this.sendForward("nextStep", "所有媒体已获取完毕", "", "update", false);
+                          // }
+                        } else if (regexp2.test(button.text) === true) {
+                          current = true;
+                          if (this.queue === false) {
+                            this.queue = true;
+                            await this.ctx.storage.put("queue", true);
+                          }
+                        } else if (regexp3.test(button.text) === true) {
+                          if (current === true) {
+                            if (parseInt(button.text).toString() === button.text) {
+                              next = false;
+                              found = true;
+                              if (this.queue === false) {
+                                this.queue = true;
+                                await this.ctx.storage.put("queue", true);
                               }
+                              const result = await this.client.invoke(
+                                new Api.messages.GetBotCallbackAnswer({
+                                  peer: this.fromPeer,
+                                  msgId: id,
+                                  data: button.data,
+                                })
+                              );
+                              await scheduler.wait(5000);
+                              // console.log("(" + this.currentStep + ") 下一页");
+                              this.sendForward("nextStep", "下一页", button.text, "update", false);
+                              break;
                             }
                           }
-                        // }
+                        }
                       }
                     } else {
                       break;
@@ -1059,70 +1034,45 @@ export class WebSocketServer extends DurableObject {
                       if (next === true) {
                         for (const button of row.buttons) {
                           // console.log(button);  //测试
-                          // if (button.text === "⬅️") {
-                          //   if (this.queue === false) {
-                          //     this.queue = true;
-                          //     await this.ctx.storage.put("queue", true);
-                          //   }
-                          // } else if (button.text === "➡️") {
-                          //   if (this.queue === false) {
-                          //     this.queue = true;
-                          //     await this.ctx.storage.put("queue", true);
-                          //   }
-                          //   if (found === false) {
-                          //     const result = await this.client.invoke(
-                          //       new Api.messages.GetBotCallbackAnswer({
-                          //         peer: this.fromPeer,
-                          //         msgId: id,
-                          //         data: button.data,
-                          //       })
-                          //     );
-                          //     await scheduler.wait(5000);
-                          //     // console.log("(" + this.currentStep + ") 翻页");
-                          //     this.sendLog("start", "翻页", null, false);
-                          //     break;
-                          //   }
-                          // } else {
-                            const regexp1 = /共 \d+ 页/i;
-                            const regexp2 = /\d+ ✅/i;
-                            const regexp3 = /\d+/i;
-                            if (regexp1.test(button.text) === true) {
-                              // if (this.queue === true) {
-                              //   this.queue = false;
-                              //   await this.ctx.storage.put("queue", false);
-                              //   //console.log("(" + this.currentStep + ") 所有媒体已获取完毕");
-                              //   this.sendForward("start", "所有媒体已获取完毕", "", "update", false);
-                              // }
-                            } else if (regexp2.test(button.text) === true) {
-                              current = true;
-                              if (this.queue === false) {
-                                this.queue = true;
-                                await this.ctx.storage.put("queue", true);
-                              }
-                            } else if (regexp3.test(button.text) === true) {
-                              if (current === true) {
-                                if (parseInt(button.text).toString() === button.text) {
-                                  next = false;
-                                  found = true;
-                                  if (this.queue === false) {
-                                    this.queue = true;
-                                    await this.ctx.storage.put("queue", true);
-                                  }
-                                  const result = await this.client.invoke(
-                                    new Api.messages.GetBotCallbackAnswer({
-                                      peer: this.fromPeer,
-                                      msgId: id,
-                                      data: button.data,
-                                    })
-                                  );
-                                  await scheduler.wait(5000);
-                                  // console.log("(" + this.currentStep + ") 下一页");
-                                  this.sendForward("start", "下一页", button.text, "update", false);
-                                  break;
+                          const regexp1 = /共 \d+ 页/i;
+                          const regexp2 = /\d+ ✅/i;
+                          const regexp3 = /\d+/i;
+                          if (regexp1.test(button.text) === true) {
+                            // if (this.queue === true) {
+                            //   this.queue = false;
+                            //   await this.ctx.storage.put("queue", false);
+                            //   //console.log("(" + this.currentStep + ") 所有媒体已获取完毕");
+                            //   this.sendForward("start", "所有媒体已获取完毕", "", "update", false);
+                            // }
+                          } else if (regexp2.test(button.text) === true) {
+                            current = true;
+                            if (this.queue === false) {
+                              this.queue = true;
+                              await this.ctx.storage.put("queue", true);
+                            }
+                          } else if (regexp3.test(button.text) === true) {
+                            if (current === true) {
+                              if (parseInt(button.text).toString() === button.text) {
+                                next = false;
+                                found = true;
+                                if (this.queue === false) {
+                                  this.queue = true;
+                                  await this.ctx.storage.put("queue", true);
                                 }
+                                const result = await this.client.invoke(
+                                  new Api.messages.GetBotCallbackAnswer({
+                                    peer: this.fromPeer,
+                                    msgId: id,
+                                    data: button.data,
+                                  })
+                                );
+                                await scheduler.wait(5000);
+                                // console.log("(" + this.currentStep + ") 下一页");
+                                this.sendForward("start", "下一页", button.text, "update", false);
+                                break;
                               }
                             }
-                          // }
+                          }
                         }
                       } else {
                         break;
