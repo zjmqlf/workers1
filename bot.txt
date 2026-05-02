@@ -16,6 +16,11 @@ AllXFilesbot
 8470274095
 5404110966721261343
 
+PaijoKontolPanuanBot
+PaijoKontolBurik_bot
+8616062216
+2270909496854481227
+
 QQ文件解码器
 QQfile2_bot
 8773044827

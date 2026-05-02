@@ -497,7 +497,7 @@ const App = () => {
       });
       addNewEvent({
         "error": true,
-        "message": renderTime(message.date) + "  " + message.offsetId + " : " + message.operate + " - " + message.message,
+        "message": renderTime(message.date) + " " + message.offsetId + ":" + message.operate + "-" + message.message,
       });
     } else {
       console.log("未知消息");
@@ -519,12 +519,12 @@ const App = () => {
       });
       addNewEvent({
         "error": true,
-        "message": renderTime(message.date) + "  " + message.offsetId + " : " + message.operate + " - " + message.message,
+        "message": renderTime(message.date) + " " + message.offsetId + ":" + message.operate + "-" + message.message,
       });
     } else if (message.status === "try") {
       addNewEvent({
         "error": true,
-        "message": renderTime(message.date) + "  " + message.offsetId + " : " + message.operate + " - " + message.message,
+        "message": renderTime(message.date) + " " + message.offsetId + ":" + message.operate + "-" + message.message,
       });
     } else {
       console.log("未知消息");
@@ -606,7 +606,7 @@ const App = () => {
       //console.log("当前chat采集完毕");  //测试
       // addNewEvent({
       //   "message": renderTime(Date.now()) + "  >>>当前chat采集完毕",
-      //   // "message": renderTime(message.date) + "  " + message.operate + " - " + message.message,
+      //   // "message": renderTime(message.date) + " " + message.operate + "-" + message.message,
       // });
     } else if (message.result === "over") {
       over.current = true;
@@ -614,7 +614,7 @@ const App = () => {
       //console.log("全部chat采集完毕");  //测试
       // addNewEvent({
       //   "message": renderTime(Date.now()) + "  >>>全部chat采集完毕",
-      //   // "message": renderTime(message.date) + "  " + message.operate + " - " + message.message,
+      //   // "message": renderTime(message.date) + " " + message.operate + "-" + message.message,
       // });
     } else {
       if (message.offsetId && message.offsetId >= 0) {
@@ -622,7 +622,7 @@ const App = () => {
           console.log("消息offsetId小了");
           addNewEvent({
             "error": true,
-            "message": renderTime(message.date) + " " + message.offsetId + " : " + message.operate + " 消息offsetId小了" + (message.message ? " - " + message.message  : " "),
+            "message": renderTime(message.date) + " " + message.offsetId + ":" + message.operate + " 消息offsetId小了" + (message.message ? "-" + message.message  : " "),
           });
         } else {
           switch (message.operate) {
@@ -644,12 +644,12 @@ const App = () => {
                 });
                 addNewEvent({
                   "error": true,
-                  "message": renderTime(message.date) + "  " + message.offsetId + " : " + message.operate + " - " + message.message,
+                  "message": renderTime(message.date) + " " + message.offsetId + ":" + message.operate + "-" + message.message,
                 });
               } else if (message.status === "limit") {
                 addNewEvent({
                   "error": true,
-                  "message": renderTime(message.date) + "  " + message.offsetId + " : " + message.operate + " - " + message.message,
+                  "message": renderTime(message.date) + " " + message.offsetId + ":" + message.operate + "-" + message.message,
                 });
               } else {
                 console.log("未知消息");
@@ -665,13 +665,13 @@ const App = () => {
                 // if (message.hashIndex === 1) {
                 //   addNewEvent({
                 //     "error": true,
-                //     "message": renderTime(message.date) + "  " + message.offsetId + " : " + message.operate + " - 查询首个hash出错 - " + message.message,
+                //     "message": renderTime(message.date) + " " + message.offsetId + ":" + message.operate + " - 查询首个hash出错 - " + message.message,
                 //   });
                 // } else if (message.hashIndex > 1) {
                 if (message.hashIndex && message.hashIndex > 0) {
                   addNewEvent({
                     "error": true,
-                    "message": renderTime(message.date) + "  " + message.offsetId + " : " + message.operate + " - 查询hash出错",
+                    "message": renderTime(message.date) + " " + message.offsetId + ":" + message.operate + " - 查询hash出错",
                   });
                 } else {
                   console.log("hashIndex错误");
@@ -701,12 +701,12 @@ const App = () => {
                 }
                 addNewEvent({
                   "error": true,
-                  "message": renderTime(message.date) + "  " + message.offsetId + " : " + message.operate + " - " + message.message,
+                  "message": renderTime(message.date) + " " + message.offsetId + ":" + message.operate + "-" + message.message,
                 });
               } else if (message.status === "limit") {
                 addNewEvent({
                   "error": true,
-                  "message": renderTime(message.date) + "  " + message.offsetId + " : " + message.operate + " - " + message.message,
+                  "message": renderTime(message.date) + " " + message.offsetId + ":" + message.operate + "-" + message.message,
                 });
               } else {
                 console.log("未知消息");
@@ -731,7 +731,7 @@ const App = () => {
                 }
                 addNewEvent({
                   "error": true,
-                  "message": renderTime(message.date) + "  " + message.offsetId + " : " + message.operate + " - " + message.message,
+                  "message": renderTime(message.date) + " " + message.offsetId + ":" + message.operate + "-" + message.message,
                 });
               } else if (message.status === "indexExist") {
                 updateItems({
@@ -748,7 +748,7 @@ const App = () => {
               } else if (message.status === "cache") {
                 addNewEvent({
                   "error": true,
-                  "message": renderTime(message.date) + "  " + message.offsetId + " : " + message.operate + " - " + message.message,
+                  "message": renderTime(message.date) + " " + message.offsetId + ":" + message.operate + "-" + message.message,
                 });
               } else {
                 console.log("未知消息");
@@ -780,7 +780,7 @@ const App = () => {
                 });
                 addNewEvent({
                   "error": true,
-                  "message": renderTime(message.date) + "  " + message.offsetId + " : " + message.operate + " - " + message.message,
+                  "message": renderTime(message.date) + " " + message.offsetId + ":" + message.operate + "-" + message.message,
                 });
               } else {
                 console.log("未知消息");
@@ -810,7 +810,7 @@ const App = () => {
       } else {
         addNewEvent({
           "error": message.error,
-          "message": renderTime(message.date) + (message.step ? "  (" + message.step + ")" : " ") + message.operate + " - " + message.message,
+          "message": renderTime(message.date) + (message.step ? "  (" + message.step + ")":" ") + message.operate + "-" + message.message,
         });
       }
     }

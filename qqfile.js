@@ -263,6 +263,7 @@ export class WebSocketServer extends DurableObject {
   sendForward(operate, message, messageIndex, status, error) {
     this.broadcast({
       "step": this.currentStep,
+      "codeLength": this.codeLength,
       "codeIndex": this.codeIndex + 1,
       "offsetId": this.offsetId,
       "operate": operate,
@@ -366,7 +367,7 @@ export class WebSocketServer extends DurableObject {
       if (e.errorMessage === "FLOOD" || e.code === 420) {
         // this.waitTime += 120000;
         if (e.seconds && e.seconds > 0) {
-          this.flood = new Date().getTime() + 30000 + e.seconds * 1000;
+          this.flood = new Date().getTime() + 60000 + e.seconds * 1000;
           await this.ctx.storage.put("client", this.flood);
         }
         //console.log("(" + this.currentStep + ") 触发了洪水警告，请求太频繁" + e);
@@ -476,7 +477,19 @@ export class WebSocketServer extends DurableObject {
           } catch (e) {
             //console.log("sendQuery出错 : " + e);
             this.sendLog("sendQuery", "出错 : " + JSON.stringify(e), "error", true);
-            await this.sendQueryError(tryCount);
+            if (e.errorMessage === "FLOOD" || e.code === 420) {
+              this.codeIndex -= 1;
+              await this.ctx.storage.put("codeIndex", this.codeIndex);
+              // this.waitTime += 120000;
+              if (e.seconds && e.seconds > 0) {
+                this.flood = new Date().getTime() + 60000 + e.seconds * 1000;
+                await this.ctx.storage.put("client", this.flood);
+              }
+              //console.log("(" + this.currentStep + ") 触发了洪水警告，请求太频繁" + e);
+              this.sendLog("sendQuery", "触发了洪水警告，请求太频繁 : " + JSON.stringify(e), "flood", true);
+            } else {
+              await this.sendQueryError(tryCount);
+            }
             return;
           }
           //console.log("(" + this.currentStep + ") code : " + code);
@@ -595,7 +608,7 @@ export class WebSocketServer extends DurableObject {
           this.count = 0;
           // this.waitTime += 120000;
           if (e.seconds && e.seconds > 0) {
-            this.flood = new Date().getTime() + 30000 + e.seconds * 1000;
+            this.flood = new Date().getTime() + 60000 + e.seconds * 1000;
             await this.ctx.storage.put("client", this.flood);
           }
           //console.log("(" + this.currentStep + ") 触发了洪水警告，请求太频繁" + e);
@@ -745,6 +758,10 @@ export class WebSocketServer extends DurableObject {
                           );
                           //console.log("(" + this.currentStep + ") 继续推送");
                           this.sendLog("nextStep", "继续推送", null, false);
+                          await scheduler.wait(5000);
+                          if (result && result.message) {
+                            this.sendLog("nextStep", result.message , null, false);
+                          }
                         }
                       // } else if (button.text === "❇️") {
                       // } else if (button.text === "❎") {
@@ -787,7 +804,7 @@ export class WebSocketServer extends DurableObject {
                   this.sendForward("nextStep", "文件获取完毕", "", "update", false);
                 }
               } else {
-                const message = messageArray[messageIndex].message;
+                const message = messageArray[messageIndex].message.trim();
                 const string = message.split(":");
                 if (string[0] === "QQfile_bot") {
                   await this.ctx.storage.put(message.split("-")[0], 1);
@@ -799,6 +816,14 @@ export class WebSocketServer extends DurableObject {
                   this.getCount(message, 2);
                   //console.log("(" + this.currentStep + ") 代码入库完毕");
                   this.sendForward("nextStep", "代码入库完毕", "", "add", false);
+                } else if (message.includes("您已被限制使用,限制期限为：") === true) {
+                  const date = message.replace("您已被限制使用,限制期限为：", "");
+                  if (date) {
+                    this.flood = new Date(date).getTime();
+                    await this.ctx.storage.put("client", this.flood);
+                  }
+                  //console.log("(" + this.currentStep + ") 触发了洪水警告" + message);
+                  this.sendLog("nextStep", "触发了洪水警告，" + message, "flood", true);
                 }
               }
             }
@@ -816,6 +841,10 @@ export class WebSocketServer extends DurableObject {
               );
               //console.log("(" + this.currentStep + ") 自动发送");
               this.sendLog("nextStep", "自动发送", null, false);
+              await scheduler.wait(5000);
+              if (result && result.message) {
+                this.sendLog("nextStep", result.message , null, false);
+              }
             // } else {
             //   if (status === true) {
             //     await this.sendQuery(1);
@@ -980,6 +1009,7 @@ export class WebSocketServer extends DurableObject {
       }));
       return;
     }
+    this.sendLog("start", "codeIndex : " + this.codeIndex, null, false);  //测试
     await this.init(option);
     // this.stop = 1;
     await this.open(1);
@@ -1032,7 +1062,7 @@ export class WebSocketServer extends DurableObject {
                           };
                         } else if (button.text === "继续推送") {
                           if (this.queue === true) {
-                            await this.client.invoke(
+                            const result = await this.client.invoke(
                               new Api.messages.GetBotCallbackAnswer({
                                 peer: this.fromPeer,
                                 msgId: id,
@@ -1041,6 +1071,10 @@ export class WebSocketServer extends DurableObject {
                             );
                             //console.log("(" + this.currentStep + ") 继续推送");
                             this.sendLog("start", "继续推送", null, false);
+                            await scheduler.wait(5000);
+                            if (result && result.message) {
+                              this.sendLog("start", result.message , null, false);
+                            }
                           }
                         // } else if (button.text === "❇️") {
                         // } else if (button.text === "❎") {
@@ -1083,7 +1117,7 @@ export class WebSocketServer extends DurableObject {
                     this.sendForward("start", "文件获取完毕", "", "update", false);
                   }
                 } else {
-                  const message = messageArray[messageIndex].message;
+                  const message = messageArray[messageIndex].message.trim();
                   const string = message.split(":");
                   if (string[0] === "QQfile_bot") {
                     await this.ctx.storage.put(message.split("-")[0], 1);
@@ -1095,6 +1129,14 @@ export class WebSocketServer extends DurableObject {
                     this.getCount(message, 2);
                     //console.log("(" + this.currentStep + ") 代码入库完毕");
                     this.sendForward("start", "代码入库完毕", "", "add", false);
+                  } else if (message.includes("您已被限制使用,限制期限为：") === true) {
+                    const date = message.replace("您已被限制使用,限制期限为：", "");
+                    if (date) {
+                      this.flood = new Date(date).getTime();
+                      await this.ctx.storage.put("client", this.flood);
+                    }
+                    //console.log("(" + this.currentStep + ") 触发了洪水警告" + message);
+                    this.sendLog("start", "触发了洪水警告，" + message, "flood", true);
                   }
                 }
               }
@@ -1103,7 +1145,7 @@ export class WebSocketServer extends DurableObject {
               if (temp) {
                 this.queue = true;
                 await this.ctx.storage.put("queue", true);
-                await this.client.invoke(
+                const result = await this.client.invoke(
                   new Api.messages.GetBotCallbackAnswer({
                     peer: this.fromPeer,
                     msgId: temp.id,
@@ -1112,6 +1154,10 @@ export class WebSocketServer extends DurableObject {
                 );
                 //console.log("(" + this.currentStep + ") 自动发送");
                 this.sendLog("start", "自动发送", null, false);
+                await scheduler.wait(5000);
+                if (result && result.message) {
+                  this.sendLog("start", result.message , null, false);
+                }
               // } else {
               //   if (status === true) {
               //     await this.sendQuery(1);

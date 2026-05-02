@@ -349,7 +349,7 @@ const App = () => {
       });
       addNewEvent({
         "error": true,
-        "message": renderTime(message.date) + "  " + message.offsetId + " : " + message.operate + " - " + message.message,
+        "message": renderTime(message.date) + " " + message.offsetId + ":" + message.operate + "-" + message.message,
       });
     } else {
       console.log("未知消息");
@@ -371,12 +371,12 @@ const App = () => {
       });
       addNewEvent({
         "error": true,
-        "message": renderTime(message.date) + "  " + message.offsetId + " : " + message.operate + " - " + message.message,
+        "message": renderTime(message.date) + " " + message.offsetId + ":" + message.operate + "-" + message.message,
       });
     } else if (message.status === "try") {
       addNewEvent({
         "error": true,
-        "message": renderTime(message.date) + "  " + message.offsetId + " : " + message.operate + " - " + message.message,
+        "message": renderTime(message.date) + " " + message.offsetId + ":" + message.operate + "-" + message.message,
       });
     } else {
       console.log("未知消息");
@@ -458,7 +458,7 @@ const App = () => {
       //console.log("当前chat采集完毕");  //测试
       addNewEvent({
         "message": renderTime(Date.now()) + "  >>>当前chat采集完毕",
-        // "message": renderTime(message.date) + "  " + message.operate + " - " + message.message,
+        // "message": renderTime(message.date) + " " + message.operate + "-" + message.message,
       });
     } else if (message.result === "over") {
       over.current = true;
@@ -466,7 +466,7 @@ const App = () => {
       //console.log("全部chat采集完毕");  //测试
       addNewEvent({
         "message": renderTime(Date.now()) + "  >>>全部chat采集完毕",
-        // "message": renderTime(message.date) + "  " + message.operate + " - " + message.message,
+        // "message": renderTime(message.date) + " " + message.operate + "-" + message.message,
       });
     } else {
       if (message.offsetId && message.offsetId >= 0) {
@@ -474,7 +474,7 @@ const App = () => {
           console.log("消息offsetId小了");
           addNewEvent({
             "error": true,
-            "message": renderTime(message.date) + " " + message.offsetId + " : " + message.operate + " 消息offsetId小了" + (message.message ? " - " + message.message  : " "),
+            "message": renderTime(message.date) + " " + message.offsetId + ":" + message.operate + " 消息offsetId小了" + (message.message ? "-" + message.message  : " "),
           });
         } else {
           switch (message.operate) {
@@ -506,7 +506,7 @@ const App = () => {
                 }
                 addNewEvent({
                   "error": true,
-                  "message": renderTime(message.date) + "  " + message.offsetId + " : " + message.operate + " - " + message.message,
+                  "message": renderTime(message.date) + " " + message.offsetId + ":" + message.operate + "-" + message.message,
                 });
               } else if (message.status === "exist") {
                 updateItems({
@@ -523,7 +523,7 @@ const App = () => {
               } else if (message.status === "limit") {
                 addNewEvent({
                   "error": true,
-                  "message": renderTime(message.date) + "  " + message.offsetId + " : " + message.operate + " - " + message.message,
+                  "message": renderTime(message.date) + " " + message.offsetId + ":" + message.operate + "-" + message.message,
                 });
               } else {
                 console.log("未知消息");
@@ -547,11 +547,11 @@ const App = () => {
             if (message.status === "limit") {
               addNewEvent({
                 "error": true,
-                "message": renderTime(message.date) + "  " + message.operate + " - " + message.message,
+                "message": renderTime(message.date) + " " + message.operate + "-" + message.message,
               });
             } else {
               addNewEvent({
-                "message": renderTime(message.date) + "  " + message.operate + " - " + message.message,
+                "message": renderTime(message.date) + " " + message.operate + "-" + message.message,
               });
             }
             break;
@@ -559,7 +559,7 @@ const App = () => {
             // console.log("未知消息");
             addNewEvent({
               "error": message.error,
-              "message": renderTime(message.date) + (message.step ? "  (" + message.step + ")" : " ") + message.operate + " - " + message.message,
+              "message": renderTime(message.date) + (message.step ? "  (" + message.step + ")" : " ") + message.operate + "-" + message.message,
             });
         }
       }

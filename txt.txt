@@ -14,9 +14,6 @@ npm run deploy-hash
 npm run build-forward
 npm run deploy-forward
 
-npm run build-bot
-npm run deploy-bot
-
 npm run build-tangbre
 npm run deploy-tangbre
 
@@ -25,6 +22,9 @@ npm run deploy-kodexfiles
 
 npm run build-allxfiles
 npm run deploy-allxfiles
+
+npm run build-paijokontolburik
+npm run deploy-paijokontolburik
 
 npm run build-qqfile
 npm run deploy-qqfile

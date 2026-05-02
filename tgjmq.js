@@ -268,6 +268,7 @@ export class WebSocketServer extends DurableObject {
   sendForward(operate, message, messageIndex, status, error) {
     this.broadcast({
       "step": this.currentStep,
+      "codeLength": this.codeLength,
       "codeIndex": this.codeIndex + 1,
       "offsetId": this.offsetId,
       "operate": operate,
@@ -371,7 +372,7 @@ export class WebSocketServer extends DurableObject {
       if (e.errorMessage === "FLOOD" || e.code === 420) {
         // this.waitTime += 120000;
         if (e.seconds && e.seconds > 0) {
-          this.flood = new Date().getTime() + 30000 + e.seconds * 1000;
+          this.flood = new Date().getTime() + 60000 + e.seconds * 1000;
           await this.ctx.storage.put("client", this.flood);
         }
         //console.log("(" + this.currentStep + ") 触发了洪水警告，请求太频繁" + e);
@@ -478,7 +479,19 @@ export class WebSocketServer extends DurableObject {
           } catch (e) {
             //console.log("sendQuery出错 : " + e);
             this.sendLog("sendQuery", "出错 : " + JSON.stringify(e), "error", true);
-            await this.sendQueryError(tryCount);
+            if (e.errorMessage === "FLOOD" || e.code === 420) {
+              this.codeIndex -= 1;
+              await this.ctx.storage.put("codeIndex", this.codeIndex);
+              // this.waitTime += 120000;
+              if (e.seconds && e.seconds > 0) {
+                this.flood = new Date().getTime() + 60000 + e.seconds * 1000;
+                await this.ctx.storage.put("client", this.flood);
+              }
+              //console.log("(" + this.currentStep + ") 触发了洪水警告，请求太频繁" + e);
+              this.sendLog("sendQuery", "触发了洪水警告，请求太频繁 : " + JSON.stringify(e), "flood", true);
+            } else {
+              await this.sendQueryError(tryCount);
+            }
             return;
           }
           //console.log("(" + this.currentStep + ") code : " + code);
@@ -597,7 +610,7 @@ export class WebSocketServer extends DurableObject {
           this.count = 0;
           // this.waitTime += 120000;
           if (e.seconds && e.seconds > 0) {
-            this.flood = new Date().getTime() + 30000 + e.seconds * 1000;
+            this.flood = new Date().getTime() + 60000 + e.seconds * 1000;
             await this.ctx.storage.put("client", this.flood);
           }
           //console.log("(" + this.currentStep + ") 触发了洪水警告，请求太频繁" + e);
@@ -808,7 +821,7 @@ export class WebSocketServer extends DurableObject {
                   }
                 }
               } else {
-                const message = messageArray[messageIndex].message;
+                const message = messageArray[messageIndex].message.trim();
                 const str = message.substr(0, 10);
                 if (str === "tgjmq1bot_" || str === "tgjmq3bot_" || str === "tgjmq5bot_") {
                   await this.ctx.storage.put(message, 1);
@@ -824,7 +837,7 @@ export class WebSocketServer extends DurableObject {
                 } else if (message.includes("操作太频繁，请等待") === true) {
                   const time = parseInt(message.replace("操作太频繁，请等待 ", "").replace(" 秒后再试", ""));
                   if (time && time > 0) {
-                    this.flood = new Date().getTime() + 30000 + time * 1000;
+                    this.flood = new Date().getTime() + 60000 + time * 1000;
                     await this.ctx.storage.put("client", this.flood);
                   }
                   //console.log("(" + this.currentStep + ") 触发了洪水警告" + message);
@@ -1016,6 +1029,7 @@ export class WebSocketServer extends DurableObject {
       }));
       return;
     }
+    this.sendLog("start", "codeIndex : " + this.codeIndex, null, false);  //测试
     await this.init(option);
     // this.stop = 1;
     await this.open(1);
@@ -1141,7 +1155,7 @@ export class WebSocketServer extends DurableObject {
                     }
                   }
                 } else {
-                  const message = messageArray[messageIndex].message;
+                  const message = messageArray[messageIndex].message.trim();
                   const str = message.substr(0, 10);
                   if (str === "tgjmq1bot_" || str === "tgjmq3bot_" || str === "tgjmq5bot_") {
                     await this.ctx.storage.put(message, 1);
@@ -1157,7 +1171,7 @@ export class WebSocketServer extends DurableObject {
                   } else if (message.includes("操作太频繁，请等待") === true) {
                     const time = parseInt(message.replace("操作太频繁，请等待 ", "").replace(" 秒后再试", ""));
                     if (time && time > 0) {
-                      this.flood = new Date().getTime() + 30000 + time * 1000;
+                      this.flood = new Date().getTime() + 60000 + time * 1000;
                       await this.ctx.storage.put("client", this.flood);
                     }
                     //console.log("(" + this.currentStep + ") 触发了洪水警告" + message);

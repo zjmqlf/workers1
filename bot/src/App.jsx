@@ -100,6 +100,11 @@ const App = () => {
             columnGroupShow: "open",
           },
           {
+            field: "codeLength",
+            headerName:"codeLength",
+            columnGroupShow: "open",
+          },
+          {
             field: "codeIndex",
             headerName:"codeIndex",
             columnGroupShow: "open",
@@ -401,7 +406,7 @@ const App = () => {
       //console.log("当前chat采集完毕");  //测试
       addNewEvent({
         "message": renderTime(Date.now()) + "  >>>当前chat采集完毕",
-        // "message": renderTime(message.date) + "  " + message.operate + " - " + message.message,
+        // "message": renderTime(message.date) + " " + message.operate + "-" + message.message,
       });
     } else if (message.result === "over") {
       over.current = true;
@@ -409,7 +414,7 @@ const App = () => {
       //console.log("全部chat采集完毕");  //测试
       addNewEvent({
         "message": renderTime(Date.now()) + "  >>>全部chat采集完毕",
-        // "message": renderTime(message.date) + "  " + message.operate + " - " + message.message,
+        // "message": renderTime(message.date) + " " + message.operate + "-" + message.message,
       });
     } else {
       if (message.codeIndex >= 0) {
@@ -417,7 +422,7 @@ const App = () => {
           console.log("消息codeIndex小了");
           addNewEvent({
             "error": true,
-            "message": renderTime(message.date) + " " + message.codeIndex + " : " + message.operate + " 消息codeIndex小了" + (message.message ? " - " + message.message  : " "),
+            "message": renderTime(message.date) + " " + message.codeIndex + ":" + message.operate + " 消息codeIndex小了" + (message.message ? "-" + message.message  : " "),
           });
         } else {
           switch (message.operate) {
@@ -446,7 +451,7 @@ const App = () => {
                 //console.log("未知消息");
                 addNewEvent({
                   "error": message.error,
-                  "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + message.operate + " - " + message.message,
+                  "message": renderTime(message.date) + " " + (message.step ? "  (" + message.step + ")" : " ") + " " + message.operate + "-" + message.message,
                 });
               }
               break;
@@ -454,7 +459,7 @@ const App = () => {
               //console.log("未知消息");
               addNewEvent({
                 "error": message.error,
-                "message": renderTime(message.date) + "  " + (message.step ? "  (" + message.step + ")" : " ") + " " + message.operate + " - " + message.message,
+                "message": renderTime(message.date) + " " + (message.step ? "  (" + message.step + ")" : " ") + " " + message.operate + "-" + message.message,
               });
           }
         }
@@ -464,7 +469,7 @@ const App = () => {
         }
         addNewEvent({
           "error": message.error,
-          "message": renderTime(message.date) + (message.step ? "  (" + message.step + ")" : " ") + message.operate + " - " + message.message,
+          "message": renderTime(message.date) + (message.step ? "  (" + message.step + ")":" ") + message.operate + "-" + message.message,
         });
       }
     }

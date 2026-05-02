@@ -17,6 +17,8 @@
     "deploy-kodexfiles": "wrangler deploy -c ./wrangler-kodexfiles.jsonc",
     "build-allxfiles": "wrangler deploy -c ./wrangler-allxfiles.jsonc --dry-run --outdir=./bot/dist",
     "deploy-allxfiles": "wrangler deploy -c ./wrangler-allxfiles.jsonc",
+    "build-paijokontolburik": "wrangler deploy -c ./wrangler-paijokontolburik.jsonc --dry-run --outdir=./bot/dist",
+    "deploy-paijokontolburik": "wrangler deploy -c ./wrangler-paijokontolburik.jsonc",
     "build-qqfile": "wrangler deploy -c ./wrangler-qqfile.jsonc --dry-run --outdir=./bot/dist",
     "deploy-qqfile": "wrangler deploy -c ./wrangler-qqfile.jsonc",
     "build-pansou": "wrangler deploy -c ./wrangler-pansou.jsonc --dry-run --outdir=./pansou/dist",
