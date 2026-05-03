@@ -35,6 +35,7 @@ const showfiles3botRegexp = /(showfiles3bot_\d*p*_*\d*v*_*\d*d*_[A-Za-z0-9]{20})
 const tgjmq1botRegexp = /(tgjmq1bot_\d*p*\d*v*\d*d*_[A-Za-z0-9]{16})/gi;   //tgjmq1bot
 const tgjmq3botRegexp = /(tgjmq3bot_\d*p*\d*v*\d*d*_[A-Za-z0-9]{16})/gi;   //tgjmq3bot
 const tgjmq5botRegexp = /(tgjmq5bot_\d*p*\d*v*\d*d*_[A-Za-z0-9]{16})/gi;   //tgjmq5bot
+const tgjmq01botRegexp = /(tgjmq01bot_\d*p*\d*v*\d*d*_[A-Za-z0-9]{16})/gi;   //tgjmq01bot
 const blgjlqbotRegexp = /(blgjlqbot_\d+p\d+v\d+d_[A-Za-z0-9]{16})/gi;   //blgjlqbot
 const fileLeakBotRegexp = /(fileLeakBot_\d+p_\d+v_\d+d_[A-Za-z0-9]{13})/gi;   //fileLeakBot
 const nnfilebotRegexp = /(nnfilebot_[A-Za-z0-9]*_[A-Za-z0-9]*_[A-Za-z0-9]*_[A-Za-z0-9]{12})/gi;   //nnfilebot
@@ -51,21 +52,23 @@ const PaijoKontolBurikbot1Regexp = /(PaijoKontolBurik_bot_v:[A-Za-z0-9]{32})/gi;
 const PaijoKontolBurikbot2Regexp = /(PaijoKontolBurik_bot_p:[A-Za-z0-9]{32})/gi;   //PaijoKontolBurikbot
 const PaijoKontolBurikbot3Regexp = /(PaijoKontolBurik_bot_d:[A-Za-z0-9]{32})/gi;   //PaijoKontolBurikbot
 const PaijoKontolBurikbot4Regexp = /(PaijoKontolBurik_bot_col:[A-Za-z0-9]{32})/gi;   //PaijoKontolBurikbot
-const QQfilebot1Regexp = /(QQfile_bot:[0-9]{5}_[0-9]{5,6}_[0-9]{3}-\d*P_\d*V_\d*D)/gi;   //QQfilebot
-const QQfilebot2Regexp = /(QQfile_bot:[0-9]{5}_[0-9]{5,6}_[0-9]{3}-\d*P_\d*D)/gi;   //QQfilebot
-const QQfilebot3Regexp = /(QQfile_bot:[0-9]{5}_[0-9]{5,6}_[0-9]{3}-\d*V_\d*D)/gi;   //QQfilebot
-const QQfilebot4Regexp = /(QQfile_bot:[0-9]{5}_[0-9]{5,6}_[0-9]{3}-\d*P_\d*V)/gi;   //QQfilebot
-const QQfilebot5Regexp = /(QQfile_bot:[0-9]{5}_[0-9]{5,6}_[0-9]{3}-\d*P)/gi;   //QQfilebot
-const QQfilebot6Regexp = /(QQfile_bot:[0-9]{5}_[0-9]{5,6}_[0-9]{3}-\d*V)/gi;   //QQfilebot
-const QQfilebot7Regexp = /(QQfile_bot:[0-9]{5}_[0-9]{5,6}_[0-9]{3}-\d*D)/gi;   //QQfilebot
-const QQfilebot8Regexp = /(QQfile_bot:[0-9]{5}_[0-9]{5,6}_[0-9]{3})/gi;   //QQfilebot
-const QQfile2bot1Regexp = /(QQfile2_bot:[a-z0-9]{12}_\d*P_\d*V_\d*D)/gi;   //QQfile2bot
-const QQfile2bot2Regexp = /(QQfile2_bot:[a-z0-9]{12}_\d*P_\d*D)/gi;   //QQfile2bot
-const QQfile2bot3Regexp = /(QQfile2_bot:[a-z0-9]{12}_\d*V_\d*D)/gi;   //QQfile2bot
-const QQfile2bot4Regexp = /(QQfile2_bot:[a-z0-9]{12}_\d*P_\d*V)/gi;   //QQfile2bot
-const QQfile2bot5Regexp = /(QQfile2_bot:[a-z0-9]{12}_\d*P)/gi;   //QQfile2bot
-const QQfile2bot6Regexp = /(QQfile2_bot:[a-z0-9]{12}_\d*V)/gi;   //QQfile2bot
-const QQfile2bot7Regexp = /(QQfile2_bot:[a-z0-9]{12}_\d*D)/gi;   //QQfile2bot
+const QQfilebotRegexp = /(QQfile_bot:[0-9]{5}_[0-9]{5,6}_[0-9]{3})/gi;   //QQfilebot
+// const QQfilebot1Regexp = /(QQfile_bot:[0-9]{5}_[0-9]{5,6}_[0-9]{3}-\d*P_\d*V_\d*D)/gi;   //QQfilebot
+// const QQfilebot2Regexp = /(QQfile_bot:[0-9]{5}_[0-9]{5,6}_[0-9]{3}-\d*P_\d*D)/gi;   //QQfilebot
+// const QQfilebot3Regexp = /(QQfile_bot:[0-9]{5}_[0-9]{5,6}_[0-9]{3}-\d*V_\d*D)/gi;   //QQfilebot
+// const QQfilebot4Regexp = /(QQfile_bot:[0-9]{5}_[0-9]{5,6}_[0-9]{3}-\d*P_\d*V)/gi;   //QQfilebot
+// const QQfilebot5Regexp = /(QQfile_bot:[0-9]{5}_[0-9]{5,6}_[0-9]{3}-\d*P)/gi;   //QQfilebot
+// const QQfilebot6Regexp = /(QQfile_bot:[0-9]{5}_[0-9]{5,6}_[0-9]{3}-\d*V)/gi;   //QQfilebot
+// const QQfilebot7Regexp = /(QQfile_bot:[0-9]{5}_[0-9]{5,6}_[0-9]{3}-\d*D)/gi;   //QQfilebot
+// const QQfilebot8Regexp = /(QQfile_bot:[0-9]{5}_[0-9]{5,6}_[0-9]{3})/gi;   //QQfilebot
+const QQfile2botRegexp = /(QQfile2_bot:[a-z0-9]{12})/gi;   //QQfile2bot
+// const QQfile2bot1Regexp = /(QQfile2_bot:[a-z0-9]{12}_\d*P_\d*V_\d*D)/gi;   //QQfile2bot
+// const QQfile2bot2Regexp = /(QQfile2_bot:[a-z0-9]{12}_\d*P_\d*D)/gi;   //QQfile2bot
+// const QQfile2bot3Regexp = /(QQfile2_bot:[a-z0-9]{12}_\d*V_\d*D)/gi;   //QQfile2bot
+// const QQfile2bot4Regexp = /(QQfile2_bot:[a-z0-9]{12}_\d*P_\d*V)/gi;   //QQfile2bot
+// const QQfile2bot5Regexp = /(QQfile2_bot:[a-z0-9]{12}_\d*P)/gi;   //QQfile2bot
+// const QQfile2bot6Regexp = /(QQfile2_bot:[a-z0-9]{12}_\d*V)/gi;   //QQfile2bot
+// const QQfile2bot7Regexp = /(QQfile2_bot:[a-z0-9]{12}_\d*D)/gi;   //QQfile2bot
 const QQfile2bot8Regexp = /(QQfile2_bot:[0-9]{5}_[0-9]{5,6}_[0-9]{3})/gi;   //QQfile2bot
 const REDDFILEBOTRegexp = /(REDDFILEBOT_\d*v*\d*p*\d*d*_[A-Za-z0-9]{20})/gi;    //REDDFILEBOT
 const parludecodingBotRegexp = /(ParludecodingBot_\d+p\d+v\d+d_[A-Za-z0-9]{16})/gi;   //parludecodingBot
@@ -283,6 +286,20 @@ try {
             for (let j = 0; j < tgjmq5botMatchesLength; j++) {
               if (tgjmq5botMatches[j]) {
                 tgjmqbot.push(tgjmq5botMatches[j]);
+              }
+            }
+          }
+        }
+
+        const tgjmq01botMatches = str.match(tgjmq01botRegexp);
+        // console.log(tgjmq01botMatches);  //测试
+        if (tgjmq01botMatches) {
+          const tgjmq01botMatchesLength = tgjmq01botMatches.length;
+          // console.log("tgjmq01botMatchesLength : " + tgjmq01botMatchesLength);  //测试
+          if (tgjmq01botMatchesLength > 0) {
+            for (let j = 0; j < tgjmq01botMatchesLength; j++) {
+              if (tgjmq01botMatches[j]) {
+                tgjmqbot.push(tgjmq01botMatches[j]);
               }
             }
           }
@@ -512,229 +529,257 @@ try {
           }
         }
 
-        const QQfilebot1Matches = str.match(QQfilebot1Regexp);
-        // console.log(QQfilebot1Matches);  //测试
-        if (QQfilebot1Matches) {
-          const QQfilebot1MatchesLength = QQfilebot1Matches.length;
-          // console.log("QQfilebot1MatchesLength : " + QQfilebot1MatchesLength);  //测试
-          if (QQfilebot1MatchesLength > 0) {
-            for (let j = 0; j < QQfilebot1MatchesLength; j++) {
-              if (QQfilebot1Matches[j]) {
-                QQfilebot.push(QQfilebot1Matches[j]);
+        const QQfilebotMatches = str.match(QQfilebotRegexp);
+        // console.log(QQfilebotMatches);  //测试
+        if (QQfilebotMatches) {
+          const QQfilebotMatchesLength = QQfilebotMatches.length;
+          // console.log("QQfilebotMatchesLength : " + QQfilebotMatchesLength);  //测试
+          if (QQfilebotMatchesLength > 0) {
+            for (let j = 0; j < QQfilebotMatchesLength; j++) {
+              if (QQfilebotMatches[j]) {
+                QQfilebot.push(QQfilebotMatches[j]);
               }
             }
           }
         }
 
-        const QQfilebot2Matches = str.match(QQfilebot2Regexp);
-        // console.log(QQfilebot2Matches);  //测试
-        if (QQfilebot2Matches) {
-          const QQfilebot2MatchesLength = QQfilebot2Matches.length;
-          // console.log("QQfilebot2MatchesLength : " + QQfilebot2MatchesLength);  //测试
-          if (QQfilebot2MatchesLength > 0) {
-            for (let j = 0; j < QQfilebot2MatchesLength; j++) {
-              if (QQfilebot2Matches[j]) {
-                QQfilebot.push(QQfilebot2Matches[j]);
+        // const QQfilebot1Matches = str.match(QQfilebot1Regexp);
+        // // console.log(QQfilebot1Matches);  //测试
+        // if (QQfilebot1Matches) {
+        //   const QQfilebot1MatchesLength = QQfilebot1Matches.length;
+        //   // console.log("QQfilebot1MatchesLength : " + QQfilebot1MatchesLength);  //测试
+        //   if (QQfilebot1MatchesLength > 0) {
+        //     for (let j = 0; j < QQfilebot1MatchesLength; j++) {
+        //       if (QQfilebot1Matches[j]) {
+        //         QQfilebot.push(QQfilebot1Matches[j]);
+        //       }
+        //     }
+        //   }
+        // }
+
+        // const QQfilebot2Matches = str.match(QQfilebot2Regexp);
+        // // console.log(QQfilebot2Matches);  //测试
+        // if (QQfilebot2Matches) {
+        //   const QQfilebot2MatchesLength = QQfilebot2Matches.length;
+        //   // console.log("QQfilebot2MatchesLength : " + QQfilebot2MatchesLength);  //测试
+        //   if (QQfilebot2MatchesLength > 0) {
+        //     for (let j = 0; j < QQfilebot2MatchesLength; j++) {
+        //       if (QQfilebot2Matches[j]) {
+        //         QQfilebot.push(QQfilebot2Matches[j]);
+        //       }
+        //     }
+        //   }
+        // }
+
+        // const QQfilebot3Matches = str.match(QQfilebot3Regexp);
+        // // console.log(QQfilebot3Matches);  //测试
+        // if (QQfilebot3Matches) {
+        //   const QQfilebot3MatchesLength = QQfilebot3Matches.length;
+        //   // console.log("QQfilebot3MatchesLength : " + QQfilebot3MatchesLength);  //测试
+        //   if (QQfilebot3MatchesLength > 0) {
+        //     for (let j = 0; j < QQfilebot3MatchesLength; j++) {
+        //       if (QQfilebot3Matches[j]) {
+        //         QQfilebot.push(QQfilebot3Matches[j]);
+        //       }
+        //     }
+        //   }
+        // }
+
+        // const QQfilebot4Matches = str.match(QQfilebot4Regexp);
+        // // console.log(QQfilebot4Matches);  //测试
+        // if (QQfilebot4Matches) {
+        //   const QQfilebot4MatchesLength = QQfilebot4Matches.length;
+        //   // console.log("QQfilebot4MatchesLength : " + QQfilebot4MatchesLength);  //测试
+        //   if (QQfilebot4MatchesLength > 0) {
+        //     for (let j = 0; j < QQfilebot4MatchesLength; j++) {
+        //       if (QQfilebot4Matches[j]) {
+        //         QQfilebot.push(QQfilebot4Matches[j]);
+        //       }
+        //     }
+        //   }
+        // }
+
+        // const QQfilebot5Matches = str.match(QQfilebot5Regexp);
+        // // console.log(QQfilebot5Matches);  //测试
+        // if (QQfilebot5Matches) {
+        //   const QQfilebot5MatchesLength = QQfilebot5Matches.length;
+        //   // console.log("QQfilebot5MatchesLength : " + QQfilebot5MatchesLength);  //测试
+        //   if (QQfilebot5MatchesLength > 0) {
+        //     for (let j = 0; j < QQfilebot5MatchesLength; j++) {
+        //       if (QQfilebot5Matches[j]) {
+        //         QQfilebot.push(QQfilebot5Matches[j]);
+        //       }
+        //     }
+        //   }
+        // }
+
+        // const QQfilebot6Matches = str.match(QQfilebot6Regexp);
+        // // console.log(QQfilebot6Matches);  //测试
+        // if (QQfilebot6Matches) {
+        //   const QQfilebot6MatchesLength = QQfilebot6Matches.length;
+        //   // console.log("QQfilebot6MatchesLength : " + QQfilebot6MatchesLength);  //测试
+        //   if (QQfilebot6MatchesLength > 0) {
+        //     for (let j = 0; j < QQfilebot6MatchesLength; j++) {
+        //       if (QQfilebot6Matches[j]) {
+        //         QQfilebot.push(QQfilebot6Matches[j]);
+        //       }
+        //     }
+        //   }
+        // }
+
+        // const QQfilebot7Matches = str.match(QQfilebot7Regexp);
+        // // console.log(QQfilebot7Matches);  //测试
+        // if (QQfilebot7Matches) {
+        //   const QQfilebot7MatchesLength = QQfilebot7Matches.length;
+        //   // console.log("QQfilebot7MatchesLength : " + QQfilebot7MatchesLength);  //测试
+        //   if (QQfilebot7MatchesLength > 0) {
+        //     for (let j = 0; j < QQfilebot7MatchesLength; j++) {
+        //       if (QQfilebot7Matches[j]) {
+        //         QQfilebot.push(QQfilebot7Matches[j]);
+        //       }
+        //     }
+        //   }
+        // }
+
+        // const QQfilebot8Matches = str.match(QQfilebot8Regexp);
+        // // console.log(QQfilebot8Matches);  //测试
+        // if (QQfilebot8Matches) {
+        //   const QQfilebot8MatchesLength = QQfilebot8Matches.length;
+        //   // console.log("QQfilebot8MatchesLength : " + QQfilebot8MatchesLength);  //测试
+        //   if (QQfilebot8MatchesLength > 0) {
+        //     for (let j = 0; j < QQfilebot8MatchesLength; j++) {
+        //       if (QQfilebot8Matches[j]) {
+        //         QQfilebot.push(QQfilebot8Matches[j]);
+        //       }
+        //     }
+        //   }
+        // }
+
+        const QQfile2botMatches = str.match(QQfile2botRegexp);
+        // console.log(QQfile2botMatches);  //测试
+        if (QQfile2botMatches) {
+          const QQfile2botMatchesLength = QQfile2botMatches.length;
+          // console.log("QQfile2botMatchesLength : " + QQfile2botMatchesLength);  //测试
+          if (QQfile2botMatchesLength > 0) {
+            for (let j = 0; j < QQfile2botMatchesLength; j++) {
+              if (QQfile2botMatches[j]) {
+                QQfilebot.push(QQfile2botMatches[j]);
               }
             }
           }
         }
 
-        const QQfilebot3Matches = str.match(QQfilebot3Regexp);
-        // console.log(QQfilebot3Matches);  //测试
-        if (QQfilebot3Matches) {
-          const QQfilebot3MatchesLength = QQfilebot3Matches.length;
-          // console.log("QQfilebot3MatchesLength : " + QQfilebot3MatchesLength);  //测试
-          if (QQfilebot3MatchesLength > 0) {
-            for (let j = 0; j < QQfilebot3MatchesLength; j++) {
-              if (QQfilebot3Matches[j]) {
-                QQfilebot.push(QQfilebot3Matches[j]);
-              }
-            }
-          }
-        }
+        // const QQfile2bot1Matches = str.match(QQfile2bot1Regexp);
+        // // console.log(QQfile2bot1Matches);  //测试
+        // if (QQfile2bot1Matches) {
+        //   const QQfile2bot1MatchesLength = QQfile2bot1Matches.length;
+        //   // console.log("QQfile2bot1MatchesLength : " + QQfile2bot1MatchesLength);  //测试
+        //   if (QQfile2bot1MatchesLength > 0) {
+        //     for (let j = 0; j < QQfile2bot1MatchesLength; j++) {
+        //       if (QQfile2bot1Matches[j]) {
+        //         QQfilebot.push(QQfile2bot1Matches[j]);
+        //       }
+        //     }
+        //   }
+        // }
 
-        const QQfilebot4Matches = str.match(QQfilebot4Regexp);
-        // console.log(QQfilebot4Matches);  //测试
-        if (QQfilebot4Matches) {
-          const QQfilebot4MatchesLength = QQfilebot4Matches.length;
-          // console.log("QQfilebot4MatchesLength : " + QQfilebot4MatchesLength);  //测试
-          if (QQfilebot4MatchesLength > 0) {
-            for (let j = 0; j < QQfilebot4MatchesLength; j++) {
-              if (QQfilebot4Matches[j]) {
-                QQfilebot.push(QQfilebot4Matches[j]);
-              }
-            }
-          }
-        }
+        // const QQfile2bot2Matches = str.match(QQfile2bot2Regexp);
+        // // console.log(QQfile2bot2Matches);  //测试
+        // if (QQfile2bot2Matches) {
+        //   const QQfile2bot2MatchesLength = QQfile2bot2Matches.length;
+        //   // console.log("QQfile2bot2MatchesLength : " + QQfile2bot2MatchesLength);  //测试
+        //   if (QQfile2bot2MatchesLength > 0) {
+        //     for (let j = 0; j < QQfile2bot2MatchesLength; j++) {
+        //       if (QQfile2bot2Matches[j]) {
+        //         QQfilebot.push(QQfile2bot2Matches[j]);
+        //       }
+        //     }
+        //   }
+        // }
 
-        const QQfilebot5Matches = str.match(QQfilebot5Regexp);
-        // console.log(QQfilebot5Matches);  //测试
-        if (QQfilebot5Matches) {
-          const QQfilebot5MatchesLength = QQfilebot5Matches.length;
-          // console.log("QQfilebot5MatchesLength : " + QQfilebot5MatchesLength);  //测试
-          if (QQfilebot5MatchesLength > 0) {
-            for (let j = 0; j < QQfilebot5MatchesLength; j++) {
-              if (QQfilebot5Matches[j]) {
-                QQfilebot.push(QQfilebot5Matches[j]);
-              }
-            }
-          }
-        }
+        // const QQfile2bot3Matches = str.match(QQfile2bot3Regexp);
+        // // console.log(QQfile2bot3Matches);  //测试
+        // if (QQfile2bot3Matches) {
+        //   const QQfile2bot3MatchesLength = QQfile2bot3Matches.length;
+        //   // console.log("QQfile2bot3MatchesLength : " + QQfile2bot3MatchesLength);  //测试
+        //   if (QQfile2bot3MatchesLength > 0) {
+        //     for (let j = 0; j < QQfile2bot3MatchesLength; j++) {
+        //       if (QQfile2bot3Matches[j]) {
+        //         QQfilebot.push(QQfile2bot3Matches[j]);
+        //       }
+        //     }
+        //   }
+        // }
 
-        const QQfilebot6Matches = str.match(QQfilebot6Regexp);
-        // console.log(QQfilebot6Matches);  //测试
-        if (QQfilebot6Matches) {
-          const QQfilebot6MatchesLength = QQfilebot6Matches.length;
-          // console.log("QQfilebot6MatchesLength : " + QQfilebot6MatchesLength);  //测试
-          if (QQfilebot6MatchesLength > 0) {
-            for (let j = 0; j < QQfilebot6MatchesLength; j++) {
-              if (QQfilebot6Matches[j]) {
-                QQfilebot.push(QQfilebot6Matches[j]);
-              }
-            }
-          }
-        }
+        // const QQfile2bot4Matches = str.match(QQfile2bot4Regexp);
+        // // console.log(QQfile2bot4Matches);  //测试
+        // if (QQfile2bot4Matches) {
+        //   const QQfile2bot4MatchesLength = QQfile2bot4Matches.length;
+        //   // console.log("QQfile2bot4MatchesLength : " + QQfile2bot4MatchesLength);  //测试
+        //   if (QQfile2bot4MatchesLength > 0) {
+        //     for (let j = 0; j < QQfile2bot4MatchesLength; j++) {
+        //       if (QQfile2bot4Matches[j]) {
+        //         QQfilebot.push(QQfile2bot4Matches[j]);
+        //       }
+        //     }
+        //   }
+        // }
 
-        const QQfilebot7Matches = str.match(QQfilebot7Regexp);
-        // console.log(QQfilebot7Matches);  //测试
-        if (QQfilebot7Matches) {
-          const QQfilebot7MatchesLength = QQfilebot7Matches.length;
-          // console.log("QQfilebot7MatchesLength : " + QQfilebot7MatchesLength);  //测试
-          if (QQfilebot7MatchesLength > 0) {
-            for (let j = 0; j < QQfilebot7MatchesLength; j++) {
-              if (QQfilebot7Matches[j]) {
-                QQfilebot.push(QQfilebot7Matches[j]);
-              }
-            }
-          }
-        }
+        // const QQfile2bot5Matches = str.match(QQfile2bot5Regexp);
+        // // console.log(QQfile2bot5Matches);  //测试
+        // if (QQfile2bot5Matches) {
+        //   const QQfile2bot5MatchesLength = QQfile2bot5Matches.length;
+        //   // console.log("QQfile2bot5MatchesLength : " + QQfile2bot5MatchesLength);  //测试
+        //   if (QQfile2bot5MatchesLength > 0) {
+        //     for (let j = 0; j < QQfile2bot5MatchesLength; j++) {
+        //       if (QQfile2bot5Matches[j]) {
+        //         QQfilebot.push(QQfile2bot5Matches[j]);
+        //       }
+        //     }
+        //   }
+        // }
 
-        const QQfilebot8Matches = str.match(QQfilebot8Regexp);
-        // console.log(QQfilebot8Matches);  //测试
-        if (QQfilebot8Matches) {
-          const QQfilebot8MatchesLength = QQfilebot8Matches.length;
-          // console.log("QQfilebot8MatchesLength : " + QQfilebot8MatchesLength);  //测试
-          if (QQfilebot8MatchesLength > 0) {
-            for (let j = 0; j < QQfilebot8MatchesLength; j++) {
-              if (QQfilebot8Matches[j]) {
-                QQfilebot.push(QQfilebot8Matches[j]);
-              }
-            }
-          }
-        }
+        // const QQfile2bot6Matches = str.match(QQfile2bot6Regexp);
+        // // console.log(QQfile2bot6Matches);  //测试
+        // if (QQfile2bot6Matches) {
+        //   const QQfile2bot6MatchesLength = QQfile2bot6Matches.length;
+        //   // console.log("QQfile2bot6MatchesLength : " + QQfile2bot6MatchesLength);  //测试
+        //   if (QQfile2bot6MatchesLength > 0) {
+        //     for (let j = 0; j < QQfile2bot6MatchesLength; j++) {
+        //       if (QQfile2bot6Matches[j]) {
+        //         QQfilebot.push(QQfile2bot6Matches[j]);
+        //       }
+        //     }
+        //   }
+        // }
 
-        const QQfile2bot1Matches = str.match(QQfile2bot1Regexp);
-        // console.log(QQfile2bot1Matches);  //测试
-        if (QQfile2bot1Matches) {
-          const QQfile2bot1MatchesLength = QQfile2bot1Matches.length;
-          // console.log("QQfile2bot1MatchesLength : " + QQfile2bot1MatchesLength);  //测试
-          if (QQfile2bot1MatchesLength > 0) {
-            for (let j = 0; j < QQfile2bot1MatchesLength; j++) {
-              if (QQfile2bot1Matches[j]) {
-                QQfilebot.push(QQfile2bot1Matches[j]);
-              }
-            }
-          }
-        }
+        // const QQfile2bot7Matches = str.match(QQfile2bot7Regexp);
+        // // console.log(QQfile2bot7Matches);  //测试
+        // if (QQfile2bot7Matches) {
+        //   const QQfile2bot7MatchesLength = QQfile2bot7Matches.length;
+        //   // console.log("QQfile2bot7MatchesLength : " + QQfile2bot7MatchesLength);  //测试
+        //   if (QQfile2bot7MatchesLength > 0) {
+        //     for (let j = 0; j < QQfile2bot7MatchesLength; j++) {
+        //       if (QQfile2bot7Matches[j]) {
+        //         QQfilebot.push(QQfile2bot7Matches[j]);
+        //       }
+        //     }
+        //   }
+        // }
 
-        const QQfile2bot2Matches = str.match(QQfile2bot2Regexp);
-        // console.log(QQfile2bot2Matches);  //测试
-        if (QQfile2bot2Matches) {
-          const QQfile2bot2MatchesLength = QQfile2bot2Matches.length;
-          // console.log("QQfile2bot2MatchesLength : " + QQfile2bot2MatchesLength);  //测试
-          if (QQfile2bot2MatchesLength > 0) {
-            for (let j = 0; j < QQfile2bot2MatchesLength; j++) {
-              if (QQfile2bot2Matches[j]) {
-                QQfilebot.push(QQfile2bot2Matches[j]);
-              }
-            }
-          }
-        }
-
-        const QQfile2bot3Matches = str.match(QQfile2bot3Regexp);
-        // console.log(QQfile2bot3Matches);  //测试
-        if (QQfile2bot3Matches) {
-          const QQfile2bot3MatchesLength = QQfile2bot3Matches.length;
-          // console.log("QQfile2bot3MatchesLength : " + QQfile2bot3MatchesLength);  //测试
-          if (QQfile2bot3MatchesLength > 0) {
-            for (let j = 0; j < QQfile2bot3MatchesLength; j++) {
-              if (QQfile2bot3Matches[j]) {
-                QQfilebot.push(QQfile2bot3Matches[j]);
-              }
-            }
-          }
-        }
-
-        const QQfile2bot4Matches = str.match(QQfile2bot4Regexp);
-        // console.log(QQfile2bot4Matches);  //测试
-        if (QQfile2bot4Matches) {
-          const QQfile2bot4MatchesLength = QQfile2bot4Matches.length;
-          // console.log("QQfile2bot4MatchesLength : " + QQfile2bot4MatchesLength);  //测试
-          if (QQfile2bot4MatchesLength > 0) {
-            for (let j = 0; j < QQfile2bot4MatchesLength; j++) {
-              if (QQfile2bot4Matches[j]) {
-                QQfilebot.push(QQfile2bot4Matches[j]);
-              }
-            }
-          }
-        }
-
-        const QQfile2bot5Matches = str.match(QQfile2bot5Regexp);
-        // console.log(QQfile2bot5Matches);  //测试
-        if (QQfile2bot5Matches) {
-          const QQfile2bot5MatchesLength = QQfile2bot5Matches.length;
-          // console.log("QQfile2bot5MatchesLength : " + QQfile2bot5MatchesLength);  //测试
-          if (QQfile2bot5MatchesLength > 0) {
-            for (let j = 0; j < QQfile2bot5MatchesLength; j++) {
-              if (QQfile2bot5Matches[j]) {
-                QQfilebot.push(QQfile2bot5Matches[j]);
-              }
-            }
-          }
-        }
-
-        const QQfile2bot6Matches = str.match(QQfile2bot6Regexp);
-        // console.log(QQfile2bot6Matches);  //测试
-        if (QQfile2bot6Matches) {
-          const QQfile2bot6MatchesLength = QQfile2bot6Matches.length;
-          // console.log("QQfile2bot6MatchesLength : " + QQfile2bot6MatchesLength);  //测试
-          if (QQfile2bot6MatchesLength > 0) {
-            for (let j = 0; j < QQfile2bot6MatchesLength; j++) {
-              if (QQfile2bot6Matches[j]) {
-                QQfilebot.push(QQfile2bot6Matches[j]);
-              }
-            }
-          }
-        }
-
-        const QQfile2bot7Matches = str.match(QQfile2bot7Regexp);
-        // console.log(QQfile2bot7Matches);  //测试
-        if (QQfile2bot7Matches) {
-          const QQfile2bot7MatchesLength = QQfile2bot7Matches.length;
-          // console.log("QQfile2bot7MatchesLength : " + QQfile2bot7MatchesLength);  //测试
-          if (QQfile2bot7MatchesLength > 0) {
-            for (let j = 0; j < QQfile2bot7MatchesLength; j++) {
-              if (QQfile2bot7Matches[j]) {
-                QQfilebot.push(QQfile2bot7Matches[j]);
-              }
-            }
-          }
-        }
-
-        const QQfile2bot8Matches = str.match(QQfile2bot8Regexp);
-        // console.log(QQfile2bot8Matches);  //测试
-        if (QQfile2bot8Matches) {
-          const QQfile2bot8MatchesLength = QQfile2bot8Matches.length;
-          // console.log("QQfile2bot8MatchesLength : " + QQfile2bot8MatchesLength);  //测试
-          if (QQfile2bot8MatchesLength > 0) {
-            for (let j = 0; j < QQfile2bot8MatchesLength; j++) {
-              if (QQfile2bot8Matches[j]) {
-                QQfilebot.push(QQfile2bot8Matches[j]);
-              }
-            }
-          }
-        }
+        // const QQfile2bot8Matches = str.match(QQfile2bot8Regexp);
+        // // console.log(QQfile2bot8Matches);  //测试
+        // if (QQfile2bot8Matches) {
+        //   const QQfile2bot8MatchesLength = QQfile2bot8Matches.length;
+        //   // console.log("QQfile2bot8MatchesLength : " + QQfile2bot8MatchesLength);  //测试
+        //   if (QQfile2bot8MatchesLength > 0) {
+        //     for (let j = 0; j < QQfile2bot8MatchesLength; j++) {
+        //       if (QQfile2bot8Matches[j]) {
+        //         QQfilebot.push(QQfile2bot8Matches[j]);
+        //       }
+        //     }
+        //   }
+        // }
 
         const REDDFILEBOTMatches = str.match(REDDFILEBOTRegexp);
         // console.log(REDDFILEBOTMatches);  //测试

@@ -1001,8 +1001,8 @@ export class WebSocketServer extends DurableObject {
       }));
       return;
     }
-    this.sendLog("start", "codeIndex : " + this.codeIndex, null, false);  //测试
     await this.init(option);
+    this.sendLog("start", "codeIndex : " + this.codeIndex, null, false);  //测试
     // this.stop = 1;
     await this.open(1);
     await this.getBot(1);

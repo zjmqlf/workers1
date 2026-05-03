@@ -827,6 +827,12 @@ export class WebSocketServer extends DurableObject {
                   }
                   //console.log("(" + this.currentStep + ") 触发了洪水警告" + message);
                   this.sendLog("nextStep", "触发了洪水警告，" + message, "flood", true);
+                } else if (message === "文件码解析失败") {
+                  //console.log("(" + this.currentStep + ") " + message);
+                  this.sendLog("nextStep", message, "error", true);
+                } else if (message.includes("当前机器人无法解析") === true) {
+                  //console.log("(" + this.currentStep + ") " + message);
+                  this.sendLog("nextStep", message, "error", true);
                 }
               }
             }
@@ -1012,8 +1018,8 @@ export class WebSocketServer extends DurableObject {
       }));
       return;
     }
-    this.sendLog("start", "codeIndex : " + this.codeIndex, null, false);  //测试
     await this.init(option);
+    this.sendLog("start", "codeIndex : " + this.codeIndex, null, false);  //测试
     // this.stop = 1;
     await this.open(1);
     await this.getBot(1);
@@ -1142,6 +1148,12 @@ export class WebSocketServer extends DurableObject {
                     }
                     //console.log("(" + this.currentStep + ") 触发了洪水警告" + message);
                     this.sendLog("start", "触发了洪水警告，" + message, "flood", true);
+                  } else if (message === "文件码解析失败") {
+                    //console.log("(" + this.currentStep + ") " + message);
+                    this.sendLog("start", message, "error", true);
+                  } else if (message.includes("当前机器人无法解析") === true) {
+                    //console.log("(" + this.currentStep + ") " + message);
+                    this.sendLog("start", message, "error", true);
                   }
                 }
               }

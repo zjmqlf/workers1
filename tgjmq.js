@@ -823,7 +823,7 @@ export class WebSocketServer extends DurableObject {
               } else {
                 const message = messageArray[messageIndex].message.trim();
                 const str = message.substr(0, 10);
-                if (str === "tgjmq1bot_" || str === "tgjmq3bot_" || str === "tgjmq5bot_") {
+                if (str === "tgjmq1bot_" || str === "tgjmq3bot_" || str === "tgjmq5bot_" || str === "tgjmq01bot") {
                   await this.ctx.storage.put(message, 1);
                   this.getCount(message);
                   //console.log("(" + this.currentStep + ") 代码入库完毕");
@@ -1029,8 +1029,8 @@ export class WebSocketServer extends DurableObject {
       }));
       return;
     }
-    this.sendLog("start", "codeIndex : " + this.codeIndex, null, false);  //测试
     await this.init(option);
+    this.sendLog("start", "codeIndex : " + this.codeIndex, null, false);  //测试
     // this.stop = 1;
     await this.open(1);
     await this.getBot(1);
@@ -1157,7 +1157,7 @@ export class WebSocketServer extends DurableObject {
                 } else {
                   const message = messageArray[messageIndex].message.trim();
                   const str = message.substr(0, 10);
-                  if (str === "tgjmq1bot_" || str === "tgjmq3bot_" || str === "tgjmq5bot_") {
+                  if (str === "tgjmq1bot_" || str === "tgjmq3bot_" || str === "tgjmq5bot_" || str === "tgjmq01bot") {
                     await this.ctx.storage.put(message, 1);
                     this.getCount(message);
                     //console.log("(" + this.currentStep + ") 代码入库完毕");

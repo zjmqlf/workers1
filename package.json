@@ -13,6 +13,8 @@
     "deploy-bot": "wrangler deploy -c ./wrangler-bot.jsonc",
     "build-tangbre": "wrangler deploy -c ./wrangler-tangbre.jsonc --dry-run --outdir=./bot/dist",
     "deploy-tangbre": "wrangler deploy -c ./wrangler-tangbre.jsonc",
+    "build-tgjmq": "wrangler deploy -c ./wrangler-tgjmq.jsonc --dry-run --outdir=./bot/dist",
+    "deploy-tgjmq": "wrangler deploy -c ./wrangler-tgjmq.jsonc",
     "build-kodexfiles": "wrangler deploy -c ./wrangler-kodexfiles.jsonc --dry-run --outdir=./bot/dist",
     "deploy-kodexfiles": "wrangler deploy -c ./wrangler-kodexfiles.jsonc",
     "build-allxfiles": "wrangler deploy -c ./wrangler-allxfiles.jsonc --dry-run --outdir=./bot/dist",

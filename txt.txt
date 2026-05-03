@@ -17,6 +17,9 @@ npm run deploy-forward
 npm run build-tangbre
 npm run deploy-tangbre
 
+npm run build-tgjmq
+npm run deploy-tgjmq
+
 npm run build-kodexfiles
 npm run deploy-kodexfiles
 
