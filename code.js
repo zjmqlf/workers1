@@ -8,7 +8,10 @@ const fileLeakBot = [];
 const nnfilebot = [];
 const tangBRebot = [];
 const KodeXFilesbot = [];
+const KodeXMedia1bot = [];
 const AllXFilesbot = [];
+// const MediaXFilebot = [];
+const KodeXFiles2bot = [];
 const PaijoKontolBurikbot = [];
 const QQfilebot = [];
 const REDDFILEBOT = [];
@@ -44,10 +47,22 @@ const KodeXFilesbot1Regexp = /(KodeXFiles_bot_v:[A-Za-z0-9]{32})/gi;   //KodeXFi
 const KodeXFilesbot2Regexp = /(KodeXFiles_bot_p:[A-Za-z0-9]{32})/gi;   //KodeXFilesbot
 const KodeXFilesbot3Regexp = /(KodeXFiles_bot_d:[A-Za-z0-9]{32})/gi;   //KodeXFilesbot
 const KodeXFilesbot4Regexp = /(KodeXFiles_bot_col:[A-Za-z0-9]{32})/gi;   //KodeXFilesbot
+const KodeXMedia1bot1Regexp = /(KodeXMedia1bot_v:[A-Za-z0-9]{32})/gi;   //KodeXMedia1bot
+const KodeXMedia1bot2Regexp = /(KodeXMedia1bot_p:[A-Za-z0-9]{32})/gi;   //KodeXMedia1bot
+const KodeXMedia1bot3Regexp = /(KodeXMedia1bot_d:[A-Za-z0-9]{32})/gi;   //KodeXMedia1bot
+const KodeXMedia1bot4Regexp = /(KodeXMedia1bot_col:[A-Za-z0-9]{32})/gi;   //KodeXMedia1bot
 const AllXFilesbot1Regexp = /(AllXFilesbot_v:[A-Za-z0-9]{32})/gi;   //AllXFilesbot
 const AllXFilesbot2Regexp = /(AllXFilesbot_p:[A-Za-z0-9]{32})/gi;   //AllXFilesbot
 const AllXFilesbot3Regexp = /(AllXFilesbot_d:[A-Za-z0-9]{32})/gi;   //AllXFilesbot
 const AllXFilesbot4Regexp = /(AllXFilesbot_col:[A-Za-z0-9]{32})/gi;   //AllXFilesbot
+// const MediaXFilebot1Regexp = /(MediaXFilebot_v:[A-Za-z0-9]{32})/gi;   //MediaXFilebot
+// const MediaXFilebot2Regexp = /(MediaXFilebot_p:[A-Za-z0-9]{32})/gi;   //MediaXFilebot
+// const MediaXFilebot3Regexp = /(MediaXFilebot_d:[A-Za-z0-9]{32})/gi;   //MediaXFilebot
+// const MediaXFilebot4Regexp = /(MediaXFilebot_col:[A-Za-z0-9]{32})/gi;   //MediaXFilebot
+const KodeXFiles2bot1Regexp = /(KodeXFiles2bot_v:[A-Za-z0-9]{32})/gi;   //KodeXFiles2bot
+const KodeXFiles2bot2Regexp = /(KodeXFiles2bot_p:[A-Za-z0-9]{32})/gi;   //KodeXFiles2bot
+const KodeXFiles2bot3Regexp = /(KodeXFiles2bot_d:[A-Za-z0-9]{32})/gi;   //KodeXFiles2bot
+const KodeXFiles2bot4Regexp = /(KodeXFiles2bot_col:[A-Za-z0-9]{32})/gi;   //KodeXFiles2bot
 const PaijoKontolBurikbot1Regexp = /(PaijoKontolBurik_bot_v:[A-Za-z0-9]{32})/gi;   //PaijoKontolBurikbot
 const PaijoKontolBurikbot2Regexp = /(PaijoKontolBurik_bot_p:[A-Za-z0-9]{32})/gi;   //PaijoKontolBurikbot
 const PaijoKontolBurikbot3Regexp = /(PaijoKontolBurik_bot_d:[A-Za-z0-9]{32})/gi;   //PaijoKontolBurikbot
@@ -417,6 +432,62 @@ try {
           }
         }
 
+        const KodeXMedia1bot1Matches = str.match(KodeXMedia1bot1Regexp);
+        // console.log(KodeXMedia1bot1Matches);  //测试
+        if (KodeXMedia1bot1Matches) {
+          const KodeXMedia1bot1MatchesLength = KodeXMedia1bot1Matches.length;
+          // console.log("KodeXMedia1bot1MatchesLength : " + KodeXMedia1bot1MatchesLength);  //测试
+          if (KodeXMedia1bot1MatchesLength > 0) {
+            for (let j = 0; j < KodeXMedia1bot1MatchesLength; j++) {
+              if (KodeXMedia1bot1Matches[j]) {
+                KodeXMedia1bot.push(KodeXMedia1bot1Matches[j]);
+              }
+            }
+          }
+        }
+
+        const KodeXMedia1bot2Matches = str.match(KodeXMedia1bot2Regexp);
+        // console.log(KodeXMedia1bot2Matches);  //测试
+        if (KodeXMedia1bot2Matches) {
+          const KodeXMedia1bot2MatchesLength = KodeXMedia1bot2Matches.length;
+          // console.log("KodeXMedia1bot2MatchesLength : " + KodeXMedia1bot2MatchesLength);  //测试
+          if (KodeXMedia1bot2MatchesLength > 0) {
+            for (let j = 0; j < KodeXMedia1bot2MatchesLength; j++) {
+              if (KodeXMedia1bot2Matches[j]) {
+                KodeXMedia1bot.push(KodeXMedia1bot2Matches[j]);
+              }
+            }
+          }
+        }
+
+        const KodeXMedia1bot3Matches = str.match(KodeXMedia1bot3Regexp);
+        // console.log(KodeXMedia1bot3Matches);  //测试
+        if (KodeXMedia1bot3Matches) {
+          const KodeXMedia1bot3MatchesLength = KodeXMedia1bot3Matches.length;
+          // console.log("KodeXMedia1bot3MatchesLength : " + KodeXMedia1bot3MatchesLength);  //测试
+          if (KodeXMedia1bot3MatchesLength > 0) {
+            for (let j = 0; j < KodeXMedia1bot3MatchesLength; j++) {
+              if (KodeXMedia1bot3Matches[j]) {
+                KodeXMedia1bot.push(KodeXMedia1bot3Matches[j]);
+              }
+            }
+          }
+        }
+
+        const KodeXMedia1bot4Matches = str.match(KodeXMedia1bot4Regexp);
+        // console.log(KodeXMedia1bot4Matches);  //测试
+        if (KodeXMedia1bot4Matches) {
+          const KodeXMedia1bot4MatchesLength = KodeXMedia1bot4Matches.length;
+          // console.log("KodeXMedia1bot4MatchesLength : " + KodeXMedia1bot4MatchesLength);  //测试
+          if (KodeXMedia1bot4MatchesLength > 0) {
+            for (let j = 0; j < KodeXMedia1bot4MatchesLength; j++) {
+              if (KodeXMedia1bot4Matches[j]) {
+                KodeXMedia1bot.push(KodeXMedia1bot4Matches[j]);
+              }
+            }
+          }
+        }
+
         const AllXFilesbot1Matches = str.match(AllXFilesbot1Regexp);
         // console.log(AllXFilesbot1Matches);  //测试
         if (AllXFilesbot1Matches) {
@@ -468,6 +539,118 @@ try {
             for (let j = 0; j < AllXFilesbot4MatchesLength; j++) {
               if (AllXFilesbot4Matches[j]) {
                 AllXFilesbot.push(AllXFilesbot4Matches[j]);
+              }
+            }
+          }
+        }
+
+        // const MediaXFilebot1Matches = str.match(MediaXFilebot1Regexp);
+        // // console.log(MediaXFilebot1Matches);  //测试
+        // if (MediaXFilebot1Matches) {
+        //   const MediaXFilebot1MatchesLength = MediaXFilebot1Matches.length;
+        //   // console.log("MediaXFilebot1MatchesLength : " + MediaXFilebot1MatchesLength);  //测试
+        //   if (MediaXFilebot1MatchesLength > 0) {
+        //     for (let j = 0; j < MediaXFilebot1MatchesLength; j++) {
+        //       if (MediaXFilebot1Matches[j]) {
+        //         MediaXFilebot.push(MediaXFilebot1Matches[j]);
+        //       }
+        //     }
+        //   }
+        // }
+
+        // const MediaXFilebot2Matches = str.match(MediaXFilebot2Regexp);
+        // // console.log(MediaXFilebot2Matches);  //测试
+        // if (MediaXFilebot2Matches) {
+        //   const MediaXFilebot2MatchesLength = MediaXFilebot2Matches.length;
+        //   // console.log("MediaXFilebot2MatchesLength : " + MediaXFilebot2MatchesLength);  //测试
+        //   if (MediaXFilebot2MatchesLength > 0) {
+        //     for (let j = 0; j < MediaXFilebot2MatchesLength; j++) {
+        //       if (MediaXFilebot2Matches[j]) {
+        //         MediaXFilebot.push(MediaXFilebot2Matches[j]);
+        //       }
+        //     }
+        //   }
+        // }
+
+        // const MediaXFilebot3Matches = str.match(MediaXFilebot3Regexp);
+        // // console.log(MediaXFilebot3Matches);  //测试
+        // if (MediaXFilebot3Matches) {
+        //   const MediaXFilebot3MatchesLength = MediaXFilebot3Matches.length;
+        //   // console.log("MediaXFilebot3MatchesLength : " + MediaXFilebot3MatchesLength);  //测试
+        //   if (MediaXFilebot3MatchesLength > 0) {
+        //     for (let j = 0; j < MediaXFilebot3MatchesLength; j++) {
+        //       if (MediaXFilebot3Matches[j]) {
+        //         MediaXFilebot.push(MediaXFilebot3Matches[j]);
+        //       }
+        //     }
+        //   }
+        // }
+
+        // const MediaXFilebot4Matches = str.match(MediaXFilebot4Regexp);
+        // // console.log(MediaXFilebot4Matches);  //测试
+        // if (MediaXFilebot4Matches) {
+        //   const MediaXFilebot4MatchesLength = MediaXFilebot4Matches.length;
+        //   // console.log("MediaXFilebot4MatchesLength : " + MediaXFilebot4MatchesLength);  //测试
+        //   if (MediaXFilebot4MatchesLength > 0) {
+        //     for (let j = 0; j < MediaXFilebot4MatchesLength; j++) {
+        //       if (MediaXFilebot4Matches[j]) {
+        //         MediaXFilebot.push(MediaXFilebot4Matches[j]);
+        //       }
+        //     }
+        //   }
+        // }
+
+        const KodeXFiles2bot1Matches = str.match(KodeXFiles2bot1Regexp);
+        // console.log(KodeXFiles2bot1Matches);  //测试
+        if (KodeXFiles2bot1Matches) {
+          const KodeXFiles2bot1MatchesLength = KodeXFiles2bot1Matches.length;
+          // console.log("KodeXFiles2bot1MatchesLength : " + KodeXFiles2bot1MatchesLength);  //测试
+          if (KodeXFiles2bot1MatchesLength > 0) {
+            for (let j = 0; j < KodeXFiles2bot1MatchesLength; j++) {
+              if (KodeXFiles2bot1Matches[j]) {
+                KodeXFiles2bot.push(KodeXFiles2bot1Matches[j]);
+              }
+            }
+          }
+        }
+
+        const KodeXFiles2bot2Matches = str.match(KodeXFiles2bot2Regexp);
+        // console.log(KodeXFiles2bot2Matches);  //测试
+        if (KodeXFiles2bot2Matches) {
+          const KodeXFiles2bot2MatchesLength = KodeXFiles2bot2Matches.length;
+          // console.log("KodeXFiles2bot2MatchesLength : " + KodeXFiles2bot2MatchesLength);  //测试
+          if (KodeXFiles2bot2MatchesLength > 0) {
+            for (let j = 0; j < KodeXFiles2bot2MatchesLength; j++) {
+              if (KodeXFiles2bot2Matches[j]) {
+                KodeXFiles2bot.push(KodeXFiles2bot2Matches[j]);
+              }
+            }
+          }
+        }
+
+        const KodeXFiles2bot3Matches = str.match(KodeXFiles2bot3Regexp);
+        // console.log(KodeXFiles2bot3Matches);  //测试
+        if (KodeXFiles2bot3Matches) {
+          const KodeXFiles2bot3MatchesLength = KodeXFiles2bot3Matches.length;
+          // console.log("KodeXFiles2bot3MatchesLength : " + KodeXFiles2bot3MatchesLength);  //测试
+          if (KodeXFiles2bot3MatchesLength > 0) {
+            for (let j = 0; j < KodeXFiles2bot3MatchesLength; j++) {
+              if (KodeXFiles2bot3Matches[j]) {
+                KodeXFiles2bot.push(KodeXFiles2bot3Matches[j]);
+              }
+            }
+          }
+        }
+
+        const KodeXFiles2bot4Matches = str.match(KodeXFiles2bot4Regexp);
+        // console.log(KodeXFiles2bot4Matches);  //测试
+        if (KodeXFiles2bot4Matches) {
+          const KodeXFiles2bot4MatchesLength = KodeXFiles2bot4Matches.length;
+          // console.log("KodeXFiles2bot4MatchesLength : " + KodeXFiles2bot4MatchesLength);  //测试
+          if (KodeXFiles2bot4MatchesLength > 0) {
+            for (let j = 0; j < KodeXFiles2bot4MatchesLength; j++) {
+              if (KodeXFiles2bot4Matches[j]) {
+                KodeXFiles2bot.push(KodeXFiles2bot4Matches[j]);
               }
             }
           }
@@ -1313,6 +1496,29 @@ try {
     }
   }
 
+  all += KodeXMedia1bot.length;
+  console.log("KodeXMedia1bot : " + KodeXMedia1bot.length);  //测试
+  if (KodeXMedia1bot.length > 0) {
+    const data = fs.readFileSync("./code/KodeXMedia1bot.txt", "utf-8");
+    try {
+      let uniqueArr = JSON.parse(data);
+      const oldLength = uniqueArr.length;
+      uniqueArr = [...uniqueArr, ...KodeXMedia1bot];
+      uniqueArr = [...new Set(uniqueArr)];
+      if (uniqueArr.length > oldLength) {
+        fs.writeFile("./code/KodeXMedia1bot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+          if (err) {
+            console.log(err);
+          }
+        });
+      // } else {
+      //   console.log("没有新加数据");
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
   all += AllXFilesbot.length;
   console.log("AllXFilesbot : " + AllXFilesbot.length);  //测试
   if (AllXFilesbot.length > 0) {
@@ -1324,6 +1530,52 @@ try {
       uniqueArr = [...new Set(uniqueArr)];
       if (uniqueArr.length > oldLength) {
         fs.writeFile("./code/AllXFilesbot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+          if (err) {
+            console.log(err);
+          }
+        });
+      // } else {
+      //   console.log("没有新加数据");
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  // all += MediaXFilebot.length;
+  // console.log("MediaXFilebot : " + MediaXFilebot.length);  //测试
+  // if (MediaXFilebot.length > 0) {
+  //   const data = fs.readFileSync("./code/MediaXFilebot.txt", "utf-8");
+  //   try {
+  //     let uniqueArr = JSON.parse(data);
+  //     const oldLength = uniqueArr.length;
+  //     uniqueArr = [...uniqueArr, ...MediaXFilebot];
+  //     uniqueArr = [...new Set(uniqueArr)];
+  //     if (uniqueArr.length > oldLength) {
+  //       fs.writeFile("./code/MediaXFilebot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+  //         if (err) {
+  //           console.log(err);
+  //         }
+  //       });
+  //     // } else {
+  //     //   console.log("没有新加数据");
+  //     }
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
+  // }
+
+  all += KodeXFiles2bot.length;
+  console.log("KodeXFiles2bot : " + KodeXFiles2bot.length);  //测试
+  if (KodeXFiles2bot.length > 0) {
+    const data = fs.readFileSync("./code/KodeXFiles2bot.txt", "utf-8");
+    try {
+      let uniqueArr = JSON.parse(data);
+      const oldLength = uniqueArr.length;
+      uniqueArr = [...uniqueArr, ...KodeXFiles2bot];
+      uniqueArr = [...new Set(uniqueArr)];
+      if (uniqueArr.length > oldLength) {
+        fs.writeFile("./code/KodeXFiles2bot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
           if (err) {
             console.log(err);
           }

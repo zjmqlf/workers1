@@ -1,7 +1,7 @@
 import { DurableObject } from "cloudflare:workers";
 import { TelegramClient, Api, sessions, utils } from "./teleproto";
 import { LogLevel } from "./teleproto/extensions";
-import { codeString } from "./paijokontolburikString";
+import { codeString } from "./kodexmedia1String";
 import bigInt from "big-integer";
 
 export class WebSocketServer extends DurableObject {
@@ -1276,7 +1276,7 @@ export default {
           status: 426,
         });
       }
-      const id = env.WEBSOCKET_SERVER.idFromName("paijokontolburik");
+      const id = env.WEBSOCKET_SERVER.idFromName("kodexmedia1");
       const stub = env.WEBSOCKET_SERVER.get(id);
       return stub.fetch(request);
     }

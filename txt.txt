@@ -26,8 +26,8 @@ npm run deploy-kodexfiles
 npm run build-allxfiles
 npm run deploy-allxfiles
 
-npm run build-paijokontolburik
-npm run deploy-paijokontolburik
+npm run build-kodexmedia1
+npm run deploy-kodexmedia1
 
 npm run build-qqfile
 npm run deploy-qqfile

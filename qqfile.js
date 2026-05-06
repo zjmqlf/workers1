@@ -814,8 +814,8 @@ export class WebSocketServer extends DurableObject {
                   //console.log("(" + this.currentStep + ") 代码入库完毕");
                   this.sendForward("nextStep", "代码入库完毕", "", "add", false);
                 } else if (string[0] === "QQfile2_bot") {
-                  await this.ctx.storage.put(message.split("_")[0], 1);
-                  // await this.ctx.storage.put(message, 1);
+                  // await this.ctx.storage.put(message.split("_")[0], 1);
+                  await this.ctx.storage.put(message, 1);
                   this.getCount(message, 2);
                   //console.log("(" + this.currentStep + ") 代码入库完毕");
                   this.sendForward("nextStep", "代码入库完毕", "", "add", false);
@@ -1142,8 +1142,8 @@ export class WebSocketServer extends DurableObject {
                     //console.log("(" + this.currentStep + ") 代码入库完毕");
                     this.sendForward("start", "代码入库完毕", "", "add", false);
                   } else if (string[0] === "QQfile2_bot") {
-                    await this.ctx.storage.put(message.split("_")[0], 1);
-                    // await this.ctx.storage.put(message, 1);
+                    // await this.ctx.storage.put(message.split("_")[0], 1);
+                    await this.ctx.storage.put(message, 1);
                     this.getCount(message, 2);
                     //console.log("(" + this.currentStep + ") 代码入库完毕");
                     this.sendForward("start", "代码入库完毕", "", "add", false);
