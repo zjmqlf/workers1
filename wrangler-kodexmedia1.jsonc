@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "paijokontolburik",
-  "main": "paijokontolburik.js",
+  "name": "kodexmedia1",
+  "main": "kodexmedia1.js",
   "compatibility_date": "2026-04-07",
   "compatibility_flags": [
     "nodejs_compat",
@@ -13,7 +13,7 @@
   },
   "routes": [
     {
-      "pattern": "paijokontolburik.19421.xyz/*",
+      "pattern": "kodexmedia1.19421.xyz/*",
       "zone_name": "19421.xyz"
     }
   ],

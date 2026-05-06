@@ -588,12 +588,10 @@ export class WebSocketServer extends DurableObject {
         appVersion: "6.7.6 x64",
         langCode: "en",
         systemLangCode: "en-US",
-        //downloadRetries: 1,
         //retryDelay: 0,
-        //useWSS: false,
       });
-      this.client.session.setDC(5, "91.108.56.128", 80);
-      // this.client.setLogLevel(LogLevel.ERROR);
+      // this.client.session.setDC(5, "91.108.56.128", 80);
+      this.client.setLogLevel(LogLevel.ERROR);
       await this.client.connect();
     } catch (e) {
       //console.log("login出错 : " + e);
@@ -1248,7 +1246,7 @@ export class WebSocketServer extends DurableObject {
     }
     this.init(option);
     // this.stop = 1;
-    // await this.open(1);
+    await this.open(1);
     await this.getChat(1);
     if (this.fromPeer) {
       if (this.chatId != this.lastChat) {
@@ -1275,7 +1273,7 @@ export class WebSocketServer extends DurableObject {
           await this.getConfig(1, option);
         }
         // this.switchType();
-        await this.open(1);
+        // await this.open(1);
         await this.getMessage(1);
         await scheduler.wait(5000);
         const messageArray = this.messageArray.slice();
