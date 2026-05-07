@@ -14,6 +14,7 @@ const AllXFilesbot = [];
 const KodeXFiles2bot = [];
 const PaijoKontolBurikbot = [];
 const QQfilebot = [];
+const QQfilekbot = [];
 const REDDFILEBOT = [];
 const parludecodingBot = [];
 const teestpanbot = [];
@@ -75,7 +76,6 @@ const QQfilebotRegexp = /(QQfile_bot:[0-9]{5}_[0-9]{5,6}_[0-9]{3})/gi;   //QQfil
 // const QQfilebot5Regexp = /(QQfile_bot:[0-9]{5}_[0-9]{5,6}_[0-9]{3}-\d*P)/gi;   //QQfilebot
 // const QQfilebot6Regexp = /(QQfile_bot:[0-9]{5}_[0-9]{5,6}_[0-9]{3}-\d*V)/gi;   //QQfilebot
 // const QQfilebot7Regexp = /(QQfile_bot:[0-9]{5}_[0-9]{5,6}_[0-9]{3}-\d*D)/gi;   //QQfilebot
-// const QQfilebot8Regexp = /(QQfile_bot:[0-9]{5}_[0-9]{5,6}_[0-9]{3})/gi;   //QQfilebot
 // const QQfile2botRegexp = /(QQfile2_bot:[a-z0-9]{12})/gi;   //QQfile2bot
 const QQfile2bot1Regexp = /(QQfile2_bot:[a-z0-9]{12}_\d*P_\d*V_\d*D)/gi;   //QQfile2bot
 const QQfile2bot2Regexp = /(QQfile2_bot:[a-z0-9]{12}_\d*P_\d*D)/gi;   //QQfile2bot
@@ -84,7 +84,14 @@ const QQfile2bot4Regexp = /(QQfile2_bot:[a-z0-9]{12}_\d*P_\d*V)/gi;   //QQfile2b
 const QQfile2bot5Regexp = /(QQfile2_bot:[a-z0-9]{12}_\d*P)/gi;   //QQfile2bot
 const QQfile2bot6Regexp = /(QQfile2_bot:[a-z0-9]{12}_\d*V)/gi;   //QQfile2bot
 const QQfile2bot7Regexp = /(QQfile2_bot:[a-z0-9]{12}_\d*D)/gi;   //QQfile2bot
-const QQfile2bot8Regexp = /(QQfile2_bot:[0-9]{5}_[0-9]{5,6}_[0-9]{3})/gi;   //QQfile2bot
+// const QQfilekbotRegexp = /(QQfilek_bot:[a-z0-9]{12})/gi;   //QQfilekbot
+const QQfilekbot1Regexp = /(QQfilek_bot:[a-z0-9]{12}_\d*P_\d*V_\d*D)/gi;   //QQfilekbot
+const QQfilekbot2Regexp = /(QQfilek_bot:[a-z0-9]{12}_\d*P_\d*D)/gi;   //QQfilekbot
+const QQfilekbot3Regexp = /(QQfilek_bot:[a-z0-9]{12}_\d*V_\d*D)/gi;   //QQfilekbot
+const QQfilekbot4Regexp = /(QQfilek_bot:[a-z0-9]{12}_\d*P_\d*V)/gi;   //QQfilekbot
+const QQfilekbot5Regexp = /(QQfilek_bot:[a-z0-9]{12}_\d*P)/gi;   //QQfilekbot
+const QQfilekbot6Regexp = /(QQfilek_bot:[a-z0-9]{12}_\d*V)/gi;   //QQfilekbot
+const QQfilekbot7Regexp = /(QQfilek_bot:[a-z0-9]{12}_\d*D)/gi;   //QQfilekbot
 const REDDFILEBOTRegexp = /(REDDFILEBOT_\d*v*\d*p*\d*d*_[A-Za-z0-9]{20})/gi;    //REDDFILEBOT
 const parludecodingBotRegexp = /(ParludecodingBot_\d+p\d+v\d+d_[A-Za-z0-9]{16})/gi;   //parludecodingBot
 const teestpanbotRegexp = /(@Teestpanbot:_\d*P*_*\d*V*_*\d*D*_[A-Za-z0-9]{12})/gi;   //teestpanbot
@@ -824,20 +831,6 @@ try {
         //   }
         // }
 
-        // const QQfilebot8Matches = str.match(QQfilebot8Regexp);
-        // // console.log(QQfilebot8Matches);  //测试
-        // if (QQfilebot8Matches) {
-        //   const QQfilebot8MatchesLength = QQfilebot8Matches.length;
-        //   // console.log("QQfilebot8MatchesLength : " + QQfilebot8MatchesLength);  //测试
-        //   if (QQfilebot8MatchesLength > 0) {
-        //     for (let j = 0; j < QQfilebot8MatchesLength; j++) {
-        //       if (QQfilebot8Matches[j]) {
-        //         QQfilebot.push(QQfilebot8Matches[j]);
-        //       }
-        //     }
-        //   }
-        // }
-
         // const QQfile2botMatches = str.match(QQfile2botRegexp);
         // // console.log(QQfile2botMatches);  //测试
         // if (QQfile2botMatches) {
@@ -950,15 +943,113 @@ try {
           }
         }
 
-        const QQfile2bot8Matches = str.match(QQfile2bot8Regexp);
-        // console.log(QQfile2bot8Matches);  //测试
-        if (QQfile2bot8Matches) {
-          const QQfile2bot8MatchesLength = QQfile2bot8Matches.length;
-          // console.log("QQfile2bot8MatchesLength : " + QQfile2bot8MatchesLength);  //测试
-          if (QQfile2bot8MatchesLength > 0) {
-            for (let j = 0; j < QQfile2bot8MatchesLength; j++) {
-              if (QQfile2bot8Matches[j]) {
-                QQfilebot.push(QQfile2bot8Matches[j]);
+        // const QQfilekbotMatches = str.match(QQfilekbotRegexp);
+        // // console.log(QQfilekbotMatches);  //测试
+        // if (QQfilekbotMatches) {
+        //   const QQfilekbotMatchesLength = QQfilekbotMatches.length;
+        //   // console.log("QQfilekbotMatchesLength : " + QQfilekbotMatchesLength);  //测试
+        //   if (QQfilekbotMatchesLength > 0) {
+        //     for (let j = 0; j < QQfilekbotMatchesLength; j++) {
+        //       if (QQfilekbotMatches[j]) {
+        //         QQfilekbot.push(QQfilekbotMatches[j]);
+        //       }
+        //     }
+        //   }
+        // }
+
+        const QQfilekbot1Matches = str.match(QQfilekbot1Regexp);
+        // console.log(QQfilekbot1Matches);  //测试
+        if (QQfilekbot1Matches) {
+          const QQfilekbot1MatchesLength = QQfilekbot1Matches.length;
+          // console.log("QQfilekbot1MatchesLength : " + QQfilekbot1MatchesLength);  //测试
+          if (QQfilekbot1MatchesLength > 0) {
+            for (let j = 0; j < QQfilekbot1MatchesLength; j++) {
+              if (QQfilekbot1Matches[j]) {
+                QQfilekbot.push(QQfilekbot1Matches[j]);
+              }
+            }
+          }
+        }
+
+        const QQfilekbot2Matches = str.match(QQfilekbot2Regexp);
+        // console.log(QQfilekbot2Matches);  //测试
+        if (QQfilekbot2Matches) {
+          const QQfilekbot2MatchesLength = QQfilekbot2Matches.length;
+          // console.log("QQfilekbot2MatchesLength : " + QQfilekbot2MatchesLength);  //测试
+          if (QQfilekbot2MatchesLength > 0) {
+            for (let j = 0; j < QQfilekbot2MatchesLength; j++) {
+              if (QQfilekbot2Matches[j]) {
+                QQfilekbot.push(QQfilekbot2Matches[j]);
+              }
+            }
+          }
+        }
+
+        const QQfilekbot3Matches = str.match(QQfilekbot3Regexp);
+        // console.log(QQfilekbot3Matches);  //测试
+        if (QQfilekbot3Matches) {
+          const QQfilekbot3MatchesLength = QQfilekbot3Matches.length;
+          // console.log("QQfilekbot3MatchesLength : " + QQfilekbot3MatchesLength);  //测试
+          if (QQfilekbot3MatchesLength > 0) {
+            for (let j = 0; j < QQfilekbot3MatchesLength; j++) {
+              if (QQfilekbot3Matches[j]) {
+                QQfilekbot.push(QQfilekbot3Matches[j]);
+              }
+            }
+          }
+        }
+
+        const QQfilekbot4Matches = str.match(QQfilekbot4Regexp);
+        // console.log(QQfilekbot4Matches);  //测试
+        if (QQfilekbot4Matches) {
+          const QQfilekbot4MatchesLength = QQfilekbot4Matches.length;
+          // console.log("QQfilekbot4MatchesLength : " + QQfilekbot4MatchesLength);  //测试
+          if (QQfilekbot4MatchesLength > 0) {
+            for (let j = 0; j < QQfilekbot4MatchesLength; j++) {
+              if (QQfilekbot4Matches[j]) {
+                QQfilekbot.push(QQfilekbot4Matches[j]);
+              }
+            }
+          }
+        }
+
+        const QQfilekbot5Matches = str.match(QQfilekbot5Regexp);
+        // console.log(QQfilekbot5Matches);  //测试
+        if (QQfilekbot5Matches) {
+          const QQfilekbot5MatchesLength = QQfilekbot5Matches.length;
+          // console.log("QQfilekbot5MatchesLength : " + QQfilekbot5MatchesLength);  //测试
+          if (QQfilekbot5MatchesLength > 0) {
+            for (let j = 0; j < QQfilekbot5MatchesLength; j++) {
+              if (QQfilekbot5Matches[j]) {
+                QQfilekbot.push(QQfilekbot5Matches[j]);
+              }
+            }
+          }
+        }
+
+        const QQfilekbot6Matches = str.match(QQfilekbot6Regexp);
+        // console.log(QQfilekbot6Matches);  //测试
+        if (QQfilekbot6Matches) {
+          const QQfilekbot6MatchesLength = QQfilekbot6Matches.length;
+          // console.log("QQfilekbot6MatchesLength : " + QQfilekbot6MatchesLength);  //测试
+          if (QQfilekbot6MatchesLength > 0) {
+            for (let j = 0; j < QQfilekbot6MatchesLength; j++) {
+              if (QQfilekbot6Matches[j]) {
+                QQfilekbot.push(QQfilekbot6Matches[j]);
+              }
+            }
+          }
+        }
+
+        const QQfilekbot7Matches = str.match(QQfilekbot7Regexp);
+        // console.log(QQfilekbot7Matches);  //测试
+        if (QQfilekbot7Matches) {
+          const QQfilekbot7MatchesLength = QQfilekbot7Matches.length;
+          // console.log("QQfilekbot7MatchesLength : " + QQfilekbot7MatchesLength);  //测试
+          if (QQfilekbot7MatchesLength > 0) {
+            for (let j = 0; j < QQfilekbot7MatchesLength; j++) {
+              if (QQfilekbot7Matches[j]) {
+                QQfilekbot.push(QQfilekbot7Matches[j]);
               }
             }
           }
@@ -1070,7 +1161,7 @@ try {
           if (ZYXFilesBotMatchesLength > 0) {
             for (let j = 0; j < ZYXFilesBotMatchesLength; j++) {
               if (ZYXFilesBotMatches[j]) {
-                ZYXFilesBot.push(ZYXFilesBotMatches[j]);
+                ZYXFilesBot.push(ZYXFilesBotMatches[j].replace("📌 取件码：", ""));
               }
             }
           }
@@ -1622,6 +1713,29 @@ try {
       uniqueArr = [...new Set(uniqueArr)];
       if (uniqueArr.length > oldLength) {
         fs.writeFile("./code/QQfilebot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+          if (err) {
+            console.log(err);
+          }
+        });
+      // } else {
+      //   console.log("没有新加数据");
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  all += QQfilekbot.length;
+  console.log("QQfilekbot : " + QQfilekbot.length);  //测试
+  if (QQfilekbot.length > 0) {
+    const data = fs.readFileSync("./code/QQfilekbot.txt", "utf-8");
+    try {
+      let uniqueArr = JSON.parse(data);
+      const oldLength = uniqueArr.length;
+      uniqueArr = [...uniqueArr, ...QQfilekbot];
+      uniqueArr = [...new Set(uniqueArr)];
+      if (uniqueArr.length > oldLength) {
+        fs.writeFile("./code/QQfilekbot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
           if (err) {
             console.log(err);
           }

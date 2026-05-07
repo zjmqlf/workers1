@@ -6,7 +6,7 @@
     "MEDIA_DB_INDEX": 19,
     "PHOTO_DB_INDEX": 1,
   },
-  "compatibility_date": "2026-04-07",
+  "compatibility_date": "2026-04-21",
   "compatibility_flags": [
     "nodejs_compat",
     "nodejs_als"

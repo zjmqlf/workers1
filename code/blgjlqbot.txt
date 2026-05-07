@@ -89,5 +89,9 @@
   "blgjlqbot_0p1v0d_91Ezmv1zX2DR3RRX",
   "blgjlqbot_0p2v0d_XK8G5ZT180s3vspR",
   "blgjlqbot_0p1v0d_M4ZpE6QIcb1IpheK",
-  "blgjlqbot_0p1v0d_SByZTMr8XpwumyfK"
+  "blgjlqbot_0p1v0d_SByZTMr8XpwumyfK",
+  "blgjlqbot_0p6v0d_SxR8PednYoaCqY1W",
+  "blgjlqbot_4p6v0d_ySueTePZKn7iwqIP",
+  "blgjlqbot_0p5v0d_WM9jqxfRow5rJkVF",
+  "blgjlqbot_0p0v1d_wcuCQRvEGbAgmFAT"
 ]

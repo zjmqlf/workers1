@@ -26,7 +26,7 @@ export default {
       "2bb9a1bfd8f598da6cb5c511f0e5fbdf"
     ];
     const sessionStringArray = [
-      "1BQANOTEuMTA4LjU2LjEyOABQwxstTR81Nfcm/tmh20SrKp82pdQJkrsiHhc/NHJn7pPYiybHbL/NnfIYWriQF5lJz8o8FvlEVtQq8+GxCMp+jiyYGBeisN7TKouCRbIFg5XCfqHypd0UDY1hiKvTs73oeSn3mMZP3hKEEW92dC2dLsmZqXS09PYd28pRmKznCYwkoJlM2Puf+R9jQuIvr16MJUhxb3Nlug4QxoCq1MyjWWxgQSOiMpJdigxd57rNd/edeCyC67YMQu8fSXQF44EAkIDB0jVIg2VCTu3Wk36WE8aRA1IX1dtHEpso9+5b0efC/Ks/I+VWCCMQCtMrnzF36aBZKTj4YcPhzHijWdJhvQ==",
+      "1BQANOTEuMTA4LjU2LjE0NwG7f4mxXoaNQUpf9BBT1+W86HfUeE1amMhwy/C48BYf8CMxuRZndMKz9GlJCMzLJCXksxFWF8SFm1O1WwqrXdjuuKe4+2bYTH1nx0VvNFC5He857JO39sb4ruDsdXHwESXqFB5HUUFCbKdCwMce5jenU7Yf2NJwQkKAX2lQ0x+lElh5+rzcA/SYbiwtHly1sVvpgMdjAxD24nY50Og9ouAcMVeZqBsgSlA9wxwfu8wXPomx0rkcAYD4yYSyH0qj5BSxf3/F8nOcLaMiCBd6WUAJBjxd4lnhIwGVFlqpNdl9ntlNG4JM+VkbsgnRnA9wz6rsuEep5tjZrXrOwb34UcTowg==",
       "1BQANOTEuMTA4LjU2LjEyOABQLHDMD4nttp5nlyYavCPWP5Mu6WVqx7EprUCty5ZofNENdyWJn6FsczIjIQ95L/qNm5v3Z/pCBJ7kC25NdWudkeIAKXQBrE37b16VObxHq+0oXQk/ySOspHUPJSFy3E1UDPQjFdWS0lbKiAs4Fhd1/P7FYFNpXeGobfi9lfWY8TZlbS0m5+7s2L6bxj/JGWbNFtPL+0B+F0QbhGW9pFdmpdw/eEAiw7ZENCZxY0hJ74KNiPRqunDHXQRiXLPlXU/NoxygvOizxKFsCduCKrcloIrjZTLnbeF26SmNR3EdC8MmC1emxoPyfxd1KpQyWUPRmx+nZBV4NRDZPS3Y8JetHw==",
       "1BQAWZmxvcmEud2ViLnRlbGVncmFtLm9yZwG7be+PddSzlPTzgS/mbCsxeZYLhE9ohnesT10Ntv+pdypA3wfrAUdXGXBLb2uturgLlkO49XMxAsIoELAdi8OprHkYfeEWZrQPF9RqjucdgWviAVd3oy/JIHk6lbB6NCS06US2CMdLZMxAsLFLu2JTgWiI07Xm2tpCIaaYED9mmH7NiROvqBx+jpB2GoFM4xzqaoB3y43BURo/ZYPEM3uUB4AVsS7IwdK0/j8pJL/ChB3buNnNtyVADe8wFvEAcbMn/385Xz53T21BdYqanzMuZX2O9cv4UNCpA9P6HoEYRn0D9XsljY6xJFNdR/RRKGHBqlVLK/Xt6PagRm321YBAvw=="
     ];
@@ -230,10 +230,10 @@ export default {
               // accessHash: bigInt.zero,
               // userId: bigInt("8644136882"),  //nnfilebot
               // accessHash: bigInt("-1388224743701786177"),
-              // userId: bigInt("8707188141"),  //KodeXFiles_bot
-              // accessHash: bigInt("6743836843791475407"),
-              userId: bigInt("8773044827"),  //QQfile2_bot
-              accessHash: bigInt("-7140144570295495626"),
+              // userId: bigInt("8773044827"),  //QQfile2_bot
+              // accessHash: bigInt("-7140144570295495626"),
+              userId: bigInt("8562335085"),  //ZYXFilesBot
+              accessHash: bigInt("8528574297774480165"),
             }),
           ],
         })

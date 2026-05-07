@@ -14,23 +14,20 @@ npm run deploy-hash
 npm run build-forward
 npm run deploy-forward
 
-npm run build-tangbre
-npm run deploy-tangbre
-
-npm run build-tgjmq
-npm run deploy-tgjmq
-
-npm run build-kodexfiles
-npm run deploy-kodexfiles
-
-npm run build-allxfiles
-npm run deploy-allxfiles
+npm run build-kodexfiles2
+npm run deploy-kodexfiles2
 
 npm run build-kodexmedia1
 npm run deploy-kodexmedia1
 
+npm run build-zyxfiles
+npm run deploy-zyxfiles
+
 npm run build-qqfile
 npm run deploy-qqfile
+
+npm run build-allxfiles
+npm run deploy-allxfiles
 
 npm run build-test
 npm run deploy-test
@@ -41,17 +38,17 @@ zjmqlf2022:
 npm run build-pansou
 npm run deploy-pansou
 
-npm run build-user
-npm run deploy-user
-
-npm run build-favorites
-npm run deploy-favorites
-
 npm run build-forward1
 npm run deploy-forward1
 
 npm run build-forward2
 npm run deploy-forward2
+
+npm run build-favorites
+npm run deploy-favorites
+
+npm run build-favorites1
+npm run deploy-favorites1
 
 
 

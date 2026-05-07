@@ -1,4 +1,4 @@
-[
+export const codeString = [
   "S11ySH9cD6hk31g6nEFDYMGi1Ganpj8H85UzbFBv",
   "bGg6uFqWbxCzOZTmdUmGF8ZyMF9GyqtJRvhhfMMk",
   "TGG6kyArD2YInJqgt1QyuACrfh15uufhroW7chwZ",
@@ -50,4 +50,4 @@
   "s8tv2hOw3GLDNTrfFYPzQYY8xOwnZciMwGrL5Bqi",
   "Buvr3QRjB9ELbRKhIF0ZNHLa9bIglGyGPBgSc4z9",
   "xQPvXBLQlcRcoLz6uoWGJtPmBDye4TgEnhu7jnPW"
-]
+];
