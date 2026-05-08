@@ -467,7 +467,7 @@ const App = () => {
       //   "error": true,
       //   "message": renderTime(Date.now()) + "  >>> lastRow错误",
       // });
-      addItems({offsetId, ...items});
+      // addItems({offsetId, ...items});
     }
   }, [updateLastRow, addItems]);
 
@@ -489,18 +489,18 @@ const App = () => {
 
   const updateSelect = useCallback((message, name) => {
     if (message.status === "try") {
-      updateItems({
-        "offsetId": message.offsetId,
-        [name]: false,
-        "error": true,
-        "date": message.date,
-      });
+      // updateItems({
+      //   "offsetId": message.offsetId,
+      //   [name]: false,
+      //   "error": true,
+      //   "date": message.date,
+      // });
       addNewEvent({
         "error": true,
         "message": renderTime(message.date) + " " + message.offsetId + ":" + message.operate + " - " + message.message,
       });
     } else {
-      console.log("未知消息");
+      console.log("未知消息 : " + JSON.stringify(message));
     }
   }, [addNewEvent, renderTime, updateItems]);
 
@@ -512,11 +512,11 @@ const App = () => {
         "date": message.date,
       });
     } else if (message.status === "error") {
-      updateItems({
-        "offsetId": message.offsetId,
-        [name]: false,
-        "date": message.date,
-      });
+      // updateItems({
+      //   "offsetId": message.offsetId,
+      //   [name]: false,
+      //   "date": message.date,
+      // });
       addNewEvent({
         "error": true,
         "message": renderTime(message.date) + " " + message.offsetId + ":" + message.operate + " - " + message.message,
@@ -527,7 +527,7 @@ const App = () => {
         "message": renderTime(message.date) + " " + message.offsetId + ":" + message.operate + " - " + message.message,
       });
     } else {
-      console.log("未知消息");
+      console.log("未知消息 : " + JSON.stringify(message));
     }
   }, [addNewEvent, renderTime, updateItems]);
 
@@ -586,7 +586,9 @@ const App = () => {
   }, [addNewEvent, renderTime, handleBeforeUnload, handlerBtnUnable]);
 
   const parseMessage = useCallback((message) => {
-    if (message.result === "pause") {
+    if (message.result === "ping") {
+      // console.log("ping");  //测试
+    } else if (message.result === "pause") {
       //console.log("远程websocket已停止完毕");  //测试
       addNewEvent({
         "error": true,
@@ -627,7 +629,6 @@ const App = () => {
         } else {
           switch (message.operate) {
             case "nextHash":
-            case "getPhoto":
               if (message.status === "update") {
                 if (message.hashIndex && message.hashIndex > 0) {
                   updateItems({
@@ -639,10 +640,10 @@ const App = () => {
                   console.log("hashIndex错误");
                 }
               } else if (message.status === "error") {
-                updateItems({
-                  "offsetId": message.offsetId,
-                  "date": message.date,
-                });
+                // updateItems({
+                //   "offsetId": message.offsetId,
+                //   "date": message.date,
+                // });
                 addNewEvent({
                   "error": true,
                   "message": renderTime(message.date) + " " + message.offsetId + ":" + message.operate + " - " + message.message,
@@ -653,16 +654,16 @@ const App = () => {
                   "message": renderTime(message.date) + " " + message.offsetId + ":" + message.operate + " - " + message.message,
                 });
               } else {
-                console.log("未知消息");
+                console.log("未知消息 : " + JSON.stringify(message));
               }
               break;
             case "getHash":
               if (message.status === "try") {
-                updateItems({
-                  "offsetId": message.offsetId,
-                  "hashIndex": message.hashIndex,
-                  "date": message.date,
-                });
+                // updateItems({
+                //   "offsetId": message.offsetId,
+                //   "hashIndex": message.hashIndex,
+                //   "date": message.date,
+                // });
                 // if (message.hashIndex === 1) {
                 //   addNewEvent({
                 //     "error": true,
@@ -678,12 +679,9 @@ const App = () => {
                   console.log("hashIndex错误");
                 }
               } else {
-                console.log("未知消息");
+                console.log("未知消息 : " + JSON.stringify(message));
               }
               break;
-            case "getMedia":
-            case "getPhoto":
-            case "getFile":
             case "nextMessage":
               if (message.status === "add") {
                 if (!lastRow.current || lastRow.current.data.offsetId !== message.offsetId) {
@@ -697,12 +695,12 @@ const App = () => {
                   addItems([temp]);
                 }
               } else if (message.status === "error") {
-                if (isCompressChecked === false) {
-                  updateItems({
-                    "offsetId": message.offsetId,
-                    "date": message.date,
-                  });
-                }
+                // if (isCompressChecked === false) {
+                //   updateItems({
+                //     "offsetId": message.offsetId,
+                //     "date": message.date,
+                //   });
+                // }
                 addNewEvent({
                   "error": true,
                   "message": renderTime(message.date) + " " + message.offsetId + ":" + message.operate + " - " + message.message,
@@ -713,7 +711,45 @@ const App = () => {
                   "message": renderTime(message.date) + " " + message.offsetId + ":" + message.operate + " - " + message.message,
                 });
               } else {
-                console.log("未知消息");
+                console.log("未知消息 : " + JSON.stringify(message));
+              }
+              break;
+            case "start":
+            case "nextStep":
+              if (message.status === "add") {
+                if (!lastRow.current || lastRow.current.data.offsetId !== message.offsetId) {
+                  //delete message.operate;
+                  //delete message.status;
+                  const {
+                    operate,
+                    status,
+                    ...temp
+                  } = message;
+                  addItems([temp]);
+                }
+              } else if (message.status === "error") {
+                // if (isCompressChecked === false) {
+                //   updateItems({
+                //     "offsetId": message.offsetId,
+                //     "date": message.date,
+                //   });
+                // }
+                addNewEvent({
+                  "error": true,
+                  "message": renderTime(message.date) + " " + message.offsetId + ":" + message.operate + " - " + message.message,
+                });
+              } else if (message.status === "limit") {
+                addNewEvent({
+                  "error": true,
+                  "message": renderTime(message.date) + " " + message.offsetId + ":" + message.operate + " - " + message.message,
+                });
+              } else if (message.status === "flood") {
+                addNewEvent({
+                  "error": true,
+                  "message": renderTime(message.date) + " " + message.offsetId + ":" + message.operate + " - " + message.message,
+                });
+              } else {
+                console.log("未知消息 : " + JSON.stringify(message));
               }
               break;
             case "getMedia":
@@ -727,12 +763,12 @@ const App = () => {
                 } = message;
                 updateItems(temp);
               } else if (message.status === "error") {
-                if (isCompressChecked === false) {
-                  updateItems({
-                    "offsetId": message.offsetId,
-                    "date": message.date,
-                  });
-                }
+                // if (isCompressChecked === false) {
+                //   updateItems({
+                //     "offsetId": message.offsetId,
+                //     "date": message.date,
+                //   });
+                // }
                 addNewEvent({
                   "error": true,
                   "message": renderTime(message.date) + " " + message.offsetId + ":" + message.operate + " - " + message.message,
@@ -755,7 +791,7 @@ const App = () => {
                   "message": renderTime(message.date) + " " + message.offsetId + ":" + message.operate + " - " + message.message,
                 });
               } else {
-                console.log("未知消息");
+                console.log("未知消息 : " + JSON.stringify(message));
               }
               break;
             case "selectMediaIndex":
@@ -777,26 +813,32 @@ const App = () => {
               updateInsert(message, "insertIndex");
               break;
             case "endMessage":
+            case "endMediaMessage":
+            case "endPhotoMessage":
               if (message.status === "try") {
-                updateItems({
-                  "offsetId": message.offsetId,
-                  "date": message.date,
-                });
+                // updateItems({
+                //   "offsetId": message.offsetId,
+                //   "date": message.date,
+                // });
                 addNewEvent({
                   "error": true,
                   "message": renderTime(message.date) + " " + message.offsetId + ":" + message.operate + " - " + message.message,
                 });
               } else {
-                console.log("未知消息");
+                console.log("未知消息 : " + JSON.stringify(message));
               }
               break;
-            case "selectMessage":
+            case "selectMedia":
+            case "selectMediaMessage":
+            case "selectPhotoMessage":
               updateSelect(message, "selectMessage");
               break;
             case "insertMessage":
               updateInsert(message, "insertMessage");
               break;
             case "endInsert":
+            case "endMediaInsert":
+            case "endPhotoInsert":
               if (message.status === "exist") {
                 updateItems({
                   "offsetId": message.offsetId,
@@ -804,11 +846,40 @@ const App = () => {
                   "date": message.date,
                 });
               } else {
-                console.log("未知消息");
+                console.log("未知消息 : " + JSON.stringify(message));
               }
               break;
+            case "getMessage":
+              if (message.status === "flood") {
+                addNewEvent({
+                  "error": true,
+                  "message": renderTime(message.date) + " " + message.offsetId + ":" + message.operate + " - " + message.message,
+                });
+              } else if (message.status === "error") {
+                // if (isCompressChecked === false) {
+                //   updateItems({
+                //     "offsetId": message.offsetId,
+                //     "date": message.date,
+                //   });
+                // }
+                addNewEvent({
+                  "error": true,
+                  "message": renderTime(message.date) + " " + message.offsetId + ":" + message.operate + " - " + message.message,
+                });
+              } else {
+                console.log("未知消息 : " + JSON.stringify(message));
+              }
+              break;
+            case "getNext":
+            case "waitNext":
+            case "forwardMessage":
+              addNewEvent({
+                "error": message.error,
+                "message": renderTime(message.date) + " " + message.offsetId + ":" + message.operate + " - " + message.message,
+              });
+              break;
             default:
-              console.log("未知消息");
+              console.log("未知消息 : " + JSON.stringify(message));
           }
         }
       } else {

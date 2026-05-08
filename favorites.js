@@ -15,7 +15,7 @@ export class WebSocketServer extends DurableObject {
   client = null;
   chatId = 1;
   endChat = 0;
-  // lastChat = 1;
+  lastChat = 1;
   // reverse = true;
   limit = 10;
   offsetId = 0;
@@ -113,7 +113,7 @@ export class WebSocketServer extends DurableObject {
       // this.webSocket = [];
       this.apiCount = 0;
       this.currentStep = 0;
-      // this.lastChat = 1;
+      this.lastChat = 1;
       // this.error = false;
       this.fromPeer = null;
       this.waitTime = 60000;
@@ -1129,13 +1129,10 @@ export class WebSocketServer extends DurableObject {
               const dcId = message.media.document.dcId;
               const size = parseInt(message.media.document.size);
               const mimeType = message.media.document.mimeType;
-              const time = new Date().getTime();
               this.broadcast({
                 "step": this.currentStep,
                 "operate": "getMedia",
-                "chatId": this.chatId,
                 "offsetId": this.offsetId,
-                "messageId": messageId,
                 "category": category,
                 "dcId": dcId,
                 "size": size,
@@ -1144,9 +1141,8 @@ export class WebSocketServer extends DurableObject {
                 "duration": duration,
                 "width": width,
                 "height": height,
-                "status": "add",
-                "time": time,
-                "date": time,
+                "status": "update",
+                "date": new Date().getTime(),
               });
               if (this.stop === 1) {
                 const Vindex = await this.endMediaMessage(id, accessHash, dcId, fileName, mimeType, size, duration, width, height);
@@ -1185,7 +1181,7 @@ export class WebSocketServer extends DurableObject {
       // } else {
       //   //console.log("(" + this.currentStep + ") 视频的mediaIndexResult错误");
       //   this.sendGrid("getMedia", "视频的mediaIndexResult错误", "error", true);
-    //   this.offsetId += 1;
+      //   this.offsetId += 1;
       // }
     } else {
       //console.log("(" + this.currentStep + ") 视频的id或accessHash错误");
@@ -1206,18 +1202,14 @@ export class WebSocketServer extends DurableObject {
       if (photoLength && photoLength > 0) {
         const category = 1;
         const txt = message.message;
-        const time = new Date().getTime();
         this.broadcast({
           "step": this.currentStep,
           "operate": "getPhoto",
-          "chatId": this.chatId,
           "offsetId": this.offsetId,
-          "messageId": messageId,
           "category": category,
           "photoLength": photoLength,
-          "status": "add",
-          "time": time,
-          "date": time,
+          "status": "update",
+          "date": new Date().getTime(),
         });
         for (let index = 0; index < photoLength; index++) {
           const photoIndex = index + 1;
@@ -1315,20 +1307,16 @@ export class WebSocketServer extends DurableObject {
               const dcId = message.media.document.dcId;
               const size = parseInt(message.media.document.size);
               const mimeType = message.media.document.mimeType;
-              const time = new Date().getTime();
               this.broadcast({
                 "step": this.currentStep,
                 "operate": "getFile",
-                "chatId": this.chatId,
                 "offsetId": this.offsetId,
-                "messageId": messageId,
                 "category": category,
                 "dcId": dcId,
                 "size": size,
                 "type": mimeType,
-                "status": "add",
-                "time": time,
-                "date": time,
+                "status": "update",
+                "date": new Date().getTime(),
               });
               if (this.stop === 1) {
                 const Pindex = await this.endPhotoMessage(id, accessHash, dcId, 1, "p", size);
@@ -1388,7 +1376,7 @@ export class WebSocketServer extends DurableObject {
           // if (this.lastChat != 48) {
             await this.updateConfig(1, 0);
           // }
-          // this.lastChat = this.chatId;
+          this.lastChat = this.chatId;
         }
         if (this.stop === 2) {
           this.broadcast({
@@ -1602,27 +1590,38 @@ export class WebSocketServer extends DurableObject {
                 //   }
                 // }
                 if (messageArray[messageIndex].media) {
+                  const time = new Date().getTime();
+                  this.broadcast({
+                    "step": this.currentStep,
+                    "operate": "nextStep",
+                    "chatId": this.chatId,
+                    "offsetId": this.offsetId,
+                    "messageId": id,
+                    "status": "add",
+                    "time": time,
+                    "date": time,
+                  });
                   if (messageArray[messageIndex].media.document) {
                     const mimeType = messageArray[messageIndex].media.document.mimeType;
                     if (mimeType.startsWith("video/")) {
                       const status = await this.getMedia(messageArray[messageIndex]);
-                      if (status === true) {
+                      // if (status === true) {
                         fileId = messageArray[messageIndex].media.document.id;
-                      }
+                      // }
                     } else if (mimeType.startsWith("image/")) {
                       const status = await this.getPhoto(messageArray[messageIndex]);
-                      if (status === true) {
+                      // if (status === true) {
                         fileId = messageArray[messageIndex].media.document.id;
-                      }
+                      // }
                     // } else if (mimeType.startsWith("application/")) {
                     // } else {
                     }
                   } else if (messageArray[messageIndex].media.photo) {
                     fileId = messageArray[messageIndex].media.photo.id;
                     const status = await this.getPhoto(messageArray[messageIndex]);
-                    if (status === true) {
+                    // if (status === true) {
                       fileId = messageArray[messageIndex].media.photo.id;
-                    }
+                    // }
                   }
                 }
                 if (id && fileId) {
@@ -1763,7 +1762,7 @@ export class WebSocketServer extends DurableObject {
         // if (this.lastChat != 48) {
           await this.updateConfig(1, 0);
         // }
-        // this.lastChat = this.chatId;
+        this.lastChat = this.chatId;
       }
       if (this.stop === 1) {
         this.currentStep += 1;
@@ -1861,27 +1860,38 @@ export class WebSocketServer extends DurableObject {
               //   }
               // }
               if (messageArray[messageIndex].media) {
+                const time = new Date().getTime();
+                this.broadcast({
+                  "step": this.currentStep,
+                  "operate": "start",
+                  "chatId": this.chatId,
+                  "offsetId": this.offsetId,
+                  "messageId": id,
+                  "status": "add",
+                  "time": time,
+                  "date": time,
+                });
                 if (messageArray[messageIndex].media.document) {
                   const mimeType = messageArray[messageIndex].media.document.mimeType;
                   if (mimeType.startsWith("video/")) {
                     const status = await this.getMedia(messageArray[messageIndex]);
-                    if (status === true) {
+                    // if (status === true) {
                       fileId = messageArray[messageIndex].media.document.id;
-                    }
+                    // }
                   } else if (mimeType.startsWith("image/")) {
                     const status = await this.getPhoto(messageArray[messageIndex]);
-                    if (status === true) {
+                    // if (status === true) {
                       fileId = messageArray[messageIndex].media.document.id;
-                    }
+                    // }
                   // } else if (mimeType.startsWith("application/")) {
                   // } else {
                   }
                 } else if (messageArray[messageIndex].media.photo) {
                   fileId = messageArray[messageIndex].media.photo.id;
                   const status = await this.getPhoto(messageArray[messageIndex]);
-                  if (status === true) {
+                  // if (status === true) {
                     fileId = messageArray[messageIndex].media.photo.id;
-                  }
+                  // }
                 }
               }
               if (id && fileId) {
