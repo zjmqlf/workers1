@@ -9,7 +9,7 @@
   ],
   "assets": {
     "binding": "ASSETS",
-    "directory": "./forward/build"
+    "directory": "./hash/build"
   },
   "routes": [
     {
@@ -24,6 +24,21 @@
       "binding": "MAINDB",
       "database_name": "maindb",
       "database_id": "52bec4a2-a12a-484d-8f58-4f254b8cffd0"
+    },
+    {
+      "binding": "MESSAGEDB",
+      "database_name": "message",
+      "database_id": "7d1bf949-b8a8-4246-bfab-f34a3499e8a9"
+    },
+    {
+      "binding": "MEDIADB",
+      "database_name": "media",
+      "database_id": "d54951f9-72a8-4b24-8ffa-b1a37589eb84"
+    },
+    {
+      "binding": "PHOTODB",
+      "database_name": "photo",
+      "database_id": "2eb6c6d9-0acc-4ab6-b8a9-8e1cda7b413b"
     }
   ],
   "durable_objects": {

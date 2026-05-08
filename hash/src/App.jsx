@@ -627,6 +627,7 @@ const App = () => {
         } else {
           switch (message.operate) {
             case "nextHash":
+            case "getPhoto":
               if (message.status === "update") {
                 if (message.hashIndex && message.hashIndex > 0) {
                   updateItems({
@@ -680,6 +681,9 @@ const App = () => {
                 console.log("未知消息");
               }
               break;
+            case "getMedia":
+            case "getPhoto":
+            case "getFile":
             case "nextMessage":
               if (message.status === "add") {
                 if (!lastRow.current || lastRow.current.data.offsetId !== message.offsetId) {

@@ -27,9 +27,9 @@ export class WebSocketServer extends DurableObject {
   errorCount = 0;
   flood = 0;
   time = 0;
-  filterType = 0;
-  filter = Api.InputMessagesFilterVideo;
-  //filterTitle = "媒体";
+  // filterType = 0;
+  // filter = Api.InputMessagesFilterVideo;
+  // //filterTitle = "媒体";
   messageArray = [];
   cacheMessage = null;
   batchMessage = [];
@@ -85,9 +85,9 @@ export class WebSocketServer extends DurableObject {
         if (option.endChat && option.endChat > 0) {
           this.endChat = option.endChat;
         }
-        if (option.filterType) {
-          this.filterType = option.filterType;
-        }
+        // if (option.filterType) {
+        //   this.filterType = option.filterType;
+        // }
         // if (option.reverse) {
         //   this.reverse = option.reverse;
         // }
@@ -102,7 +102,7 @@ export class WebSocketServer extends DurableObject {
         this.batch = false;
         this.chatId = 1;
         this.endChat = 0;
-        this.filterType = 0;
+        // this.filterType = 0;
         // this.reverse = true;
         this.limit = 20;
         this.offsetId = 0;
@@ -123,8 +123,8 @@ export class WebSocketServer extends DurableObject {
       this.flood = 0;
       this.time = 0;
       this.messageArray = [];
-      this.filter = Api.InputMessagesFilterVideo;
-      //this.filterTitle = "媒体";
+      // this.filter = Api.InputMessagesFilterVideo;
+      // //this.filterTitle = "媒体";
       this.cacheMessage = null;
       this.batchMessage = [];
       this.dialogArray = [];
@@ -241,9 +241,21 @@ export class WebSocketServer extends DurableObject {
   sendGrid(operate, message, status, error) {
     this.broadcast({
       "step": this.currentStep,
-      "chatId": this.chatId,
-      "offsetId": this.offsetId,
       "operate": operate,
+      "offsetId": this.offsetId,
+      "message": message,
+      "status": status,
+      "error": error,
+      "date": new Date().getTime(),
+    });
+  }
+
+  sendPhoto(operate, message, photoIndex, status, error) {
+    this.broadcast({
+      "step": this.currentStep,
+      "operate": operate,
+      "offsetId": this.offsetId,
+      "photoIndex": photoIndex,
       "message": message,
       "status": status,
       "error": error,
@@ -324,7 +336,7 @@ export class WebSocketServer extends DurableObject {
     //console.log("连接服务器成功");
     this.sendLog("open", "连接服务器成功", null, false);  //测试
     //console.log(this.client);  //测试
-    // await scheduler.wait(5000);
+    //await scheduler.wait(5000);
   }
 
   async getConfigError(tryCount, option) {
@@ -361,11 +373,11 @@ export class WebSocketServer extends DurableObject {
             this.offsetId = result.chatId;
           }
         }
-        if (!option || !option.filterType) {
-          if (result.filterType && result.filterType > 0 && result.filterType <= 9) {
-            this.filterType = result.filterType;
-          }
-        }
+        // if (!option || !option.filterType) {
+        //   if (result.filterType && result.filterType > 0 && result.filterType <= 9) {
+        //     this.filterType = result.filterType;
+        //   }
+        // }
         // if (!option || !option.reverse) {
         //   if (result.reverse) {
         //     this.reverse = Boolean(result.reverse);
@@ -387,46 +399,46 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
-  async switchType() {
-    switch (this.filterType) {
-      case 0:
-        this.filter = Api.InputMessagesFilterPhotoVideo;
-        break;
-      case 1:
-        //this.filterTitle = "图片";
-        this.filter = Api.InputMessagesFilterPhotos;
-        break;
-      case 2:
-        //this.filterTitle = "视频";
-        this.filter = Api.InputMessagesFilterVideo;
-        break;
-      case 3:
-        //this.filterTitle = "文件";
-        this.filter = Api.InputMessagesFilterDocument;
-        break;
-      case 4:
-        //this.filterTitle = "动图";
-        this.filter = Api.InputMessagesFilterGif;
-        break;
-      case 5:
-        this.filter = Api.InputMessagesFilterVoice;
-        break;
-      case 6:
-        this.filter = Api.InputMessagesFilterMusic;
-        break;
-      case 7:
-        this.filter = Api.InputMessagesFilterChatPhotos;
-        break;
-      case 8:
-        this.filter = Api.InputMessagesFilterRoundVoice;
-        break;
-      case 9:
-        this.filter = Api.InputMessagesFilterRoundVideo;
-        break;
-      default:
-        this.filter = Api.InputMessagesFilterPhotoVideo;
-    }
-  }
+  // async switchType() {
+  //   switch (this.filterType) {
+  //     case 0:
+  //       this.filter = Api.InputMessagesFilterPhotoVideo;
+  //       break;
+  //     case 1:
+  //       //this.filterTitle = "图片";
+  //       this.filter = Api.InputMessagesFilterPhotos;
+  //       break;
+  //     case 2:
+  //       //this.filterTitle = "视频";
+  //       this.filter = Api.InputMessagesFilterVideo;
+  //       break;
+  //     case 3:
+  //       //this.filterTitle = "文件";
+  //       this.filter = Api.InputMessagesFilterDocument;
+  //       break;
+  //     case 4:
+  //       //this.filterTitle = "动图";
+  //       this.filter = Api.InputMessagesFilterGif;
+  //       break;
+  //     case 5:
+  //       this.filter = Api.InputMessagesFilterVoice;
+  //       break;
+  //     case 6:
+  //       this.filter = Api.InputMessagesFilterMusic;
+  //       break;
+  //     case 7:
+  //       this.filter = Api.InputMessagesFilterChatPhotos;
+  //       break;
+  //     case 8:
+  //       this.filter = Api.InputMessagesFilterRoundVoice;
+  //       break;
+  //     case 9:
+  //       this.filter = Api.InputMessagesFilterRoundVideo;
+  //       break;
+  //     default:
+  //       this.filter = Api.InputMessagesFilterPhotoVideo;
+  //   }
+  // }
 
   async getChat(tryCount) {
     if (this.chatId && this.chatId > 0) {
@@ -465,7 +477,7 @@ export class WebSocketServer extends DurableObject {
               this.fromPeer = utils.getInputPeer(users[0]);
               if (this.fromPeer) {
                 // this.errorCount = await this.ctx.storage.get(this.chatId) || 0;
-                this.sendGrid("getChat", this.chatId + " : " + this.chatArray[this.chatId].name, "add", false);
+                this.sendLog("getChat", this.chatId + " : " + this.chatArray[this.chatId].name, "add", false);
               } else {
                 this.chatId += 1;
                 if (!this.endChat || this.endChat === 0 || (this.endChat > 0 && this.chatId <= this.endChat)) {
@@ -555,7 +567,7 @@ export class WebSocketServer extends DurableObject {
           reverse: true,
           addOffset: -this.offsetId,
           //addOffset: 0,  //测试
-          filter: this.filter,
+          // filter: this.filter,
           //filter: Api.InputMessagesFilterVideo,  //测试
           waitTime: 60,
         })
@@ -657,27 +669,94 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
-  async selectMediaIndexError(tryCount, id, accessHash) {
+  // async selectMediaIndexError(tryCount, id, accessHash) {
+  //   if (tryCount === 20) {
+  //     this.stop = 2;
+  //     //console.log("(" + this.currentStep + ")selectMediaIndex超出tryCount限制");
+  //     this.sendLog("selectMediaIndex", "超出tryCount限制", null, true);
+  //     await this.close();
+  //   } else {
+  //     await scheduler.wait(10000);
+  //     await this.selectMediaIndex(tryCount + 1, id, accessHash);
+  //   }
+  // }
+
+  // async selectMediaIndex(tryCount, id, accessHash) {
+  //   this.apiCount += 1;
+  //   let mediaResult = {};
+  //   try {
+  //     mediaResult = await this.env.MEDIADB.prepare("SELECT `Vindex`, COUNT(id) FROM `MEDIAINDEX` WHERE `id` = ? AND `accessHash` = ? LIMIT 1;").bind(id, accessHash).run();
+  //   } catch (e) {
+  //     //console.log("(" + this.currentStep + ") selectMediaIndex出错 : " + e);
+  //     this.sendGrid("selectMediaIndex", "出错 : " + JSON.stringify(e), "try", true);
+  //     await this.selectMediaIndexError(tryCount, id, accessHash);
+  //     return;
+  //   }
+  //   //console.log("mediaResult : " + mediaResult);  //测试
+  //   if (mediaResult.success === true) {
+  //     if (mediaResult.results && mediaResult.results.length > 0) {
+  //       return mediaResult.results[0];
+  //     }
+  //   } else {
+  //     await this.selectMediaIndexError(tryCount, id, accessHash);
+  //   }
+  // }
+
+  // async insertMediaIndexError(tryCount, Vindex, id, accessHash) {
+  //   if (tryCount === 20) {
+  //     this.stop = 2;
+  //     //console.log("(" + this.currentStep + ")insertMediaIndex超出tryCount限制");
+  //     this.sendLog("insertMediaIndex", "超出tryCount限制", null, true);
+  //     await this.close();
+  //   } else {
+  //     await scheduler.wait(10000);
+  //     await this.insertMediaIndex(tryCount + 1, Vindex, id, accessHash);
+  //   }
+  // }
+
+  // async insertMediaIndex(tryCount, Vindex, id, accessHash) {
+  //   this.apiCount += 1;
+  //   let indexResult = {};
+  //   try {
+  //     indexResult = await this.env.MEDIADB.prepare("INSERT INTO `MEDIAINDEX` (Vindex, id, accessHash) VALUES (?, ?, ?);").bind(Vindex, id, accessHash).run();
+  //   } catch (e) {
+  //     //console.log("(" + this.currentStep + ") insertMediaIndex出错 : " + e);
+  //     this.sendGrid("insertMediaIndex", "出错 : " + JSON.stringify(e), "try", true);
+  //     await this.insertMediaIndexError(tryCount, Vindex, id, accessHash);
+  //     return;
+  //   }
+  //   //console.log(indexResult);  //测试
+  //   if (indexResult.success === true) {
+  //     //console.log("(" + this.currentStep + ") 插入mediaIndex数据成功");
+  //     this.sendGrid("insertMediaIndex", "", "success", false);
+  //   } else {
+  //     //console.log("(" + this.currentStep + ") 插入mediaIndex数据失败");
+  //     this.sendGrid("insertMediaIndex", "插入mediaIndex数据失败", "error", true);
+  //     await this.insertMediaIndexError(tryCount, Vindex, id, accessHash);
+  //   }
+  // }
+
+  async selectMediaError(tryCount, id, accessHash) {
     if (tryCount === 20) {
       this.stop = 2;
-      //console.log("(" + this.currentStep + ")selectMediaIndex超出tryCount限制");
-      this.sendLog("selectMediaIndex", "超出tryCount限制", null, true);
+      //console.log("(" + this.currentStep + ")selectMedia超出tryCount限制");
+      this.sendLog("selectMedia", "超出tryCount限制", null, true);
       await this.close();
     } else {
       await scheduler.wait(10000);
-      await this.selectMediaIndex(tryCount + 1, id, accessHash);
+      await this.selectMedia(tryCount + 1, id, accessHash);
     }
   }
 
-  async selectMediaIndex(tryCount, id, accessHash) {
+  async selectMedia(tryCount, id, accessHash) {
     this.apiCount += 1;
     let mediaResult = {};
     try {
-      mediaResult = await this.env.MAINDB.prepare("SELECT `Vindex`, COUNT(id) FROM `MEDIAINDEX` WHERE `id` = ? AND `accessHash` = ? LIMIT 1;").bind(id, accessHash).run();
+      mediaResult = await this.env.MEDIADB.prepare("SELECT `Vindex`, COUNT(id) FROM `MEDIA` WHERE `id` = ? AND `accessHash` = ? LIMIT 1;").bind(id, accessHash).run();
     } catch (e) {
-      //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : selectMediaIndex出错 : " + e);
-      this.sendGrid("selectMediaIndex", "出错 : " + JSON.stringify(e), "try", true);
-      await this.selectMediaIndexError(tryCount, id, accessHash);
+      //console.log("(" + this.currentStep + ") selectMedia出错 : " + e);
+      this.sendGrid("selectMedia", "出错 : " + JSON.stringify(e), "try", true);
+      await this.selectMediaError(tryCount, id, accessHash);
       return;
     }
     //console.log("mediaResult : " + mediaResult);  //测试
@@ -686,65 +765,150 @@ export class WebSocketServer extends DurableObject {
         return mediaResult.results[0];
       }
     } else {
-      await this.selectMediaIndexError(tryCount, id, accessHash);
+      await this.selectMediaError(tryCount, id, accessHash);
     }
   }
 
-  async insertMediaIndexError(tryCount, Vindex, id, accessHash) {
+  async insertMediaError(tryCount, id, accessHash, dcId, fileName, mimeType, size, duration, width, height) {
     if (tryCount === 20) {
       this.stop = 2;
-      //console.log("(" + this.currentStep + ")insertMediaIndex超出tryCount限制");
-      this.sendLog("insertMediaIndex", "超出tryCount限制", null, true);
+      //console.log("(" + this.currentStep + ")insertMedia超出tryCount限制");
+      this.sendLog("insertMedia", "超出tryCount限制", null, true);
       await this.close();
     } else {
       await scheduler.wait(10000);
-      await this.insertMediaIndex(tryCount + 1, Vindex, id, accessHash);
+      await this.insertMedia(tryCount + 1, id, accessHash, dcId, fileName, mimeType, size, duration, width, height);
     }
   }
 
-  async insertMediaIndex(tryCount, Vindex, id, accessHash) {
+  async insertMedia(tryCount, id, accessHash, dcId, fileName, mimeType, size, duration, width, height) {
     this.apiCount += 1;
-    let indexResult = {};
+    let mediaResult = {};
     try {
-      indexResult = await this.env.MAINDB.prepare("INSERT INTO `MEDIAINDEX` (Vindex, id, accessHash) VALUES (?, ?, ?);").bind(Vindex, id, accessHash).run();
+      mediaResult = await this.env.MEDIADB.prepare("INSERT INTO `MEDIA` (id, accessHash, dcId, fileName, mimeType, size, duration, width, height) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);").bind(id, accessHash, dcId, fileName, mimeType, size, duration, width, height).run();
     } catch (e) {
-      //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : insertMediaIndex出错 : " + e);
-      this.sendGrid("insertMediaIndex", "出错 : " + JSON.stringify(e), "try", true);
-      await this.insertMediaIndexError(tryCount, Vindex, id, accessHash);
+      //console.log("(" + this.currentStep + ") insertMedia出错 : " + e);;
+      this.sendGrid("insertMedia", "出错 : " + JSON.stringify(e), "try", true);
+      await this.insertMediaError(tryCount, id, accessHash, dcId, fileName, mimeType, size, duration, width, height);
       return;
     }
-    //console.log(indexResult);  //测试
-    if (indexResult.success === true) {
-      //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : 插入mediaIndex数据成功");
-      this.sendGrid("insertMediaIndex", "", "success", false);
+    //console.log(mediaResult);  //测试
+    if (mediaResult.success === true) {
+      //console.log("(" + this.currentStep + ") 插入media数据成功");
+      this.sendGrid("insertMedia", "", "success", false);
+      return mediaResult.meta.last_row_id;
     } else {
-      //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : 插入mediaIndex数据失败");
-      this.sendGrid("insertMediaIndex", "插入mediaIndex数据失败", "error", true);
-      await this.insertMediaIndexError(tryCount, Vindex, id, accessHash);
+      //console.log("(" + this.currentStep + ") 插入media数据失败");
+      this.sendGrid("insertMedia", "插入media数据失败", "error", true);
+      await this.insertMediaError(tryCount, id, accessHash, dcId, fileName, mimeType, size, duration, width, height);
+      return 0;
     }
   }
 
-  async selectPhotoIndexError(tryCount, id, accessHash, type) {
+  async endMediaMessage(id, accessHash, dcId, fileName, mimeType, size, duration, width, height) {
+    if (this.stop === 1) {
+      const index = await this.insertMedia(1, id, accessHash, dcId, fileName, mimeType, size, duration, width, height);
+      // if (index > 0) {
+      //   await this.insertMediaIndex(1, index, id, accessHash);
+      // }
+      return index;
+    } else if (this.stop === 2) {
+      await this.updateConfig(1, 0);
+      this.broadcast({
+        "result": "pause",
+      });
+      await this.close();
+    }
+  }
+
+  // async selectPhotoIndexError(tryCount, id, accessHash, type) {
+  //   if (tryCount === 20) {
+  //     this.stop = 2;
+  //     //console.log("(" + this.currentStep + ")selectPhotoIndex超出tryCount限制");
+  //     this.sendLog("selectPhotoIndex", "超出tryCount限制", null, true);
+  //     await this.close();
+  //   } else {
+  //     await scheduler.wait(10000);
+  //     await this.selectPhotoIndex(tryCount + 1, id, accessHash, type);
+  //   }
+  // }
+
+  // async selectPhotoIndex(tryCount, id, accessHash, type) {
+  //   this.apiCount += 1;
+  //   let photoResult = {};
+  //   try {
+  //     photoResult = await this.env.PHOTODB.prepare("SELECT `Pindex`, COUNT(id) FROM `PHOTOINDEX` WHERE `id` = ? AND `accessHash` = ? AND `sizeType` = ? LIMIT 1;").bind(id, accessHash, type).run();
+  //   } catch (e) {
+  //     //console.log("(" + this.currentStep + ") selectPhotoIndex出错 : " + e);
+  //     this.sendGrid("selectPhotoIndex", "出错 : " + JSON.stringify(e), "try", true);
+  //     await this.selectPhotoIndexError(tryCount, id, accessHash, type);
+  //     return;
+  //   }
+  //   //console.log("photoResult : " + photoResult);  //测试
+  //   if (photoResult.success === true) {
+  //     if (photoResult.results && photoResult.results.length > 0) {
+  //       return photoResult.results[0];
+  //     }
+  //   } else {
+  //     await this.selectPhotoIndexError(tryCount, id, accessHash, type);
+  //   }
+  // }
+
+  // async insertPhotoIndexError(tryCount, Pindex, id, accessHash, type) {
+  //   if (tryCount === 20) {
+  //     this.stop = 2;
+  //     //console.log("(" + this.currentStep + ")insertPhotoIndex超出tryCount限制");
+  //     this.sendLog("insertPhotoIndex", "超出tryCount限制", null, true);
+  //     await this.close();
+  //   } else {
+  //     await scheduler.wait(10000);
+  //     await this.insertPhotoIndex(tryCount + 1, Pindex, id, accessHash, type);
+  //   }
+  // }
+
+  // async insertPhotoIndex(tryCount, Pindex, id, accessHash, type) {
+  //   this.apiCount += 1;
+  //   let photoResult = {};
+  //   try {
+  //     photoResult = await this.env.PHOTODB.prepare("INSERT INTO `PHOTOINDEX` (Pindex, id, accessHash, sizeType) VALUES (?, ?, ?, ?);").bind(Pindex, id, accessHash, type).run();
+  //   } catch (e) {
+  //     //console.log("(" + this.currentStep + ") insertPhotoIndex出错 : " + e);
+  //     this.sendGrid("insertPhotoIndex", "出错 : " + JSON.stringify(e), "try", true);
+  //     await this.insertPhotoIndexError(tryCount, Pindex, id, accessHash, type);
+  //     return;
+  //   }
+  //   //console.log(photoResult);  //测试
+  //   if (photoResult.success === true) {
+  //     //console.log("(" + this.currentStep + ") 插入photoIndex数据成功");
+  //     this.sendGrid("insertPhotoIndex", "", "success", false);
+  //   } else {
+  //     //console.log("(" + this.currentStep + ") 插入photoIndex数据失败");
+  //     this.sendGrid("insertPhotoIndex", "插入photoIndex数据失败", "error", true);
+  //     await this.insertPhotoIndexError(tryCount, Pindex, id, accessHash, type);
+  //   }
+  // }
+
+  async selectPhotoError(tryCount, id, accessHash, type) {
     if (tryCount === 20) {
       this.stop = 2;
-      //console.log("(" + this.currentStep + ")selectPhotoIndex超出tryCount限制");
-      this.sendLog("selectPhotoIndex", "超出tryCount限制", null, true);
+      //console.log("(" + this.currentStep + ")selectPhoto超出tryCount限制");
+      this.sendLog("selectPhoto", "超出tryCount限制", null, true);
       await this.close();
     } else {
       await scheduler.wait(10000);
-      await this.selectPhotoIndex(tryCount + 1, id, accessHash, type);
+      await this.selectPhoto(tryCount + 1, id, accessHash, type);
     }
   }
 
-  async selectPhotoIndex(tryCount, id, accessHash, type) {
+  async selectPhoto(tryCount, id, accessHash, type) {
     this.apiCount += 1;
     let photoResult = {};
     try {
-      photoResult = await this.env.MAINDB.prepare("SELECT `Pindex`, COUNT(id) FROM `PHOTOINDEX` WHERE `id` = ? AND `accessHash` = ? AND `sizeType` = ? LIMIT 1;").bind(id, accessHash, type).run();
+      photoResult = await this.env.PHOTODB.prepare("SELECT `Pindex`, COUNT(id) FROM `PHOTO` WHERE `id` = ? AND `accessHash` = ? AND `sizeType` = ? LIMIT 1;").bind(id, accessHash, type).run();
     } catch (e) {
-      //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : selectPhotoIndex出错 : " + e);
-      this.sendGrid("selectPhotoIndex", "出错 : " + JSON.stringify(e), "try", true);
-      await this.selectPhotoIndexError(tryCount, id, accessHash, type);
+      //console.log("(" + this.currentStep + ") selectPhoto出错 : " + e);
+      this.sendGrid("selectPhoto", "出错 : " + JSON.stringify(e), "try", true);
+      await this.selectPhotoError(tryCount, id, accessHash, type);
       return;
     }
     //console.log("photoResult : " + photoResult);  //测试
@@ -753,42 +917,464 @@ export class WebSocketServer extends DurableObject {
         return photoResult.results[0];
       }
     } else {
-      await this.selectPhotoIndexError(tryCount, id, accessHash, type);
+      await this.selectPhotoError(tryCount, id, accessHash, type);
     }
   }
 
-  async insertPhotoIndexError(tryCount, Pindex, id, accessHash, type) {
+  async insertPhotoError(tryCount, id, accessHash, dcId, photoIndex, type, size) {
     if (tryCount === 20) {
       this.stop = 2;
-      //console.log("(" + this.currentStep + ")insertPhotoIndex超出tryCount限制");
-      this.sendLog("insertPhotoIndex", "超出tryCount限制", null, true);
+      //console.log("(" + this.currentStep + ")insertPhoto超出tryCount限制");
+      this.sendLog("insertPhoto", "超出tryCount限制", null, true);
       await this.close();
     } else {
       await scheduler.wait(10000);
-      await this.insertPhotoIndex(tryCount + 1, Pindex, id, accessHash, type);
+      await this.insertPhoto(tryCount + 1, id, accessHash, dcId, photoIndex, type, size);
     }
   }
 
-  async insertPhotoIndex(tryCount, Pindex, id, accessHash, type) {
+  async insertPhoto(tryCount, id, accessHash, dcId, photoIndex, type, size) {
     this.apiCount += 1;
     let photoResult = {};
     try {
-      photoResult = await this.env.MAINDB.prepare("INSERT INTO `PHOTOINDEX` (Pindex, id, accessHash, sizeType) VALUES (?, ?, ?, ?);").bind(Pindex, id, accessHash, type).run();
+      photoResult = await this.env.PHOTODB.prepare("INSERT INTO `PHOTO` (id, accessHash, dcId, sizeType, size) VALUES (?, ?, ?, ?, ?);").bind(id, accessHash, dcId, type, size).run();
     } catch (e) {
-      //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : insertPhotoIndex出错 : " + e);
-      this.sendGrid("insertPhotoIndex", "出错 : " + JSON.stringify(e), "try", true);
-      await this.insertPhotoIndexError(tryCount, Pindex, id, accessHash, type);
+      //console.log("(" + this.currentStep + ") (" + photoLength +"/" + photoIndex + ") insertPhoto出错 : " + e);
+      this.sendPhoto("insertPhoto", "出错 : " + JSON.stringify(e), photoIndex, "try", true);
+      await this.insertPhotoError(tryCount, id, accessHash, dcId, photoIndex, type, size);
       return;
     }
     //console.log(photoResult);  //测试
     if (photoResult.success === true) {
-      //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : 插入photoIndex数据成功");
-      this.sendGrid("insertPhotoIndex", "", "success", false);
+      //console.log("(" + this.currentStep + ") 插入photo数据成功");
+      this.sendPhoto("insertPhoto", "", photoIndex, "success", false);
+      return photoResult.meta.last_row_id;
     } else {
-      //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : 插入photoIndex数据失败");
-      this.sendGrid("insertPhotoIndex", "插入photoIndex数据失败", "error", true);
-      await this.insertPhotoIndexError(tryCount, Pindex, id, accessHash, type);
+      //console.log("(" + this.currentStep + ") 插入photo数据失败");
+      this.sendPhoto("insertPhoto", "插入photo数据失败", photoIndex, "error", true);
+      await this.insertPhotoError(tryCount, id, accessHash, dcId, photoIndex, type, size);
+      return 0;
     }
+  }
+
+  async endPhotoMessage(id, accessHash, dcId, photoIndex, type, size) {
+    if (this.stop === 1) {
+      const index = await this.insertPhoto(1, id, accessHash, dcId, photoIndex, type, size);
+      // if (index > 0) {
+      //   await this.insertPhotoIndex(1, index, id, accessHash, type);
+      // }
+      return index;
+    } else if (this.stop === 2) {
+      await this.updateConfig(1, 0);
+      this.broadcast({
+        "result": "pause",
+      });
+      await this.close();
+    }
+  }
+
+  async selectMediaMessageError(tryCount, messageId) {
+    if (tryCount === 20) {
+      this.stop = 2;
+      //console.log("(" + this.currentStep + ")selectMediaMessage超出tryCount限制");
+      this.sendLog("selectMediaMessage", "超出tryCount限制", null, true);
+      await this.close();
+    } else {
+      await scheduler.wait(10000);
+      await this.selectMediaMessage(tryCount + 1, messageId);
+    }
+  }
+
+  async selectMediaMessage(tryCount, messageId) {
+    this.apiCount += 1;
+    let messageResult = null;
+    try {
+      messageResult = await this.env.MESSAGEDB.prepare("SELECT COUNT(id) FROM `MESSAGE` WHERE `userId` = ? AND `id` = ? LIMIT 1;").bind(this.chatId, messageId).run();
+    } catch (e) {
+      //console.log("(" + this.currentStep + ") selectMediaMessage出错 : " + e);
+      this.sendGrid("selectMediaMessage", "出错 : " + JSON.stringify(e), "try", true);
+      await this.selectMediaMessageError(tryCount, messageId);
+      return;
+    }
+    //console.log("messageResult : " + messageResult["COUNT(id)"]);  //测试
+    if (messageResult.success === true) {
+      if (messageResult.results && messageResult.results.length > 0) {
+        return messageResult.results[0]["COUNT(id)"];
+      }
+    } else {
+      await this.selectMediaMessageError(tryCount, messageId);
+    }
+  }
+
+  async selectPhotoMessageError(tryCount, messageId, type) {
+    if (tryCount === 20) {
+      this.stop = 2;
+      //console.log("(" + this.currentStep + ")selectPhotoMessage超出tryCount限制");
+      this.sendLog("selectPhotoMessage", "超出tryCount限制", null, true);
+      await this.close();
+    } else {
+      await scheduler.wait(10000);
+      await this.selectPhotoMessage(tryCount + 1, messageId, type);
+    }
+  }
+
+  async selectPhotoMessage(tryCount, messageId, type) {
+    this.apiCount += 1;
+    let messageResult = null;
+    try {
+      messageResult = await this.env.MESSAGEDB.prepare("SELECT COUNT(id) FROM `MESSAGE` WHERE `userId` = ? AND `id` = ? AND `sizeType` = ? LIMIT 1;").bind(this.chatId, messageId, type).run();
+    } catch (e) {
+      //console.log("(" + this.currentStep + ") selectPhotoMessage出错 : " + e);
+      this.sendGrid("selectPhotoMessage", "出错 : " + JSON.stringify(e), "try", true);
+      await this.selectPhotoMessageError(tryCount, messageId, type);
+      return;
+    }
+    //console.log("messageResult : " + messageResult["COUNT(id)"]);  //测试
+    if (messageResult.success === true) {
+      if (messageResult.results && messageResult.results.length > 0) {
+        return messageResult.results[0]["COUNT(id)"];
+      }
+    } else {
+      await this.selectPhotoMessageError(tryCount, messageId, type);
+    }
+  }
+
+  async insertMessageError(tryCount, messageId, category, type, mid, id, accessHash, txt) {
+    if (tryCount === 20) {
+      this.stop = 2;
+      //console.log("(" + this.currentStep + ")insertMessage超出tryCount限制");
+      this.sendLog("insertMessage", "超出tryCount限制", null, true);
+      await this.close();
+    } else {
+      await scheduler.wait(10000);
+      await this.insertMessage(tryCount + 1, messageId, category, type, mid, id, accessHash, txt);
+    }
+  }
+
+  async insertMessage(tryCount, messageId, category, type, mid, id, accessHash, txt) {
+    this.apiCount += 1;
+    let messageResult = {};
+    try {
+      messageResult = await this.env.MESSAGEDB.prepare("INSERT INTO `MESSAGE` (userId, id, category, sizeType, mid, accessId, accessHash, txt) VALUES (?, ?, ?, ?, ?, ?, ?, ?);").bind(this.chatId, messageId, category, type, mid, id, accessHash, txt).run();
+    } catch (e) {
+      //console.log("(" + this.currentStep + ") insertMessage出错 : " + e);;
+      this.sendGrid("insertMessage", "出错 : " + JSON.stringify(e), "try", true);
+      await this.insertMessageError(tryCount, messageId, category, type, mid, id, accessHash, txt);
+      return;
+    }
+    //console.log(messageResult);  //测试
+    if (messageResult.success === true) {
+      //console.log("(" + this.currentStep + ") 插入message数据成功");
+      this.sendGrid("insertMessage", "", "success", false);
+    } else {
+      //console.log("(" + this.currentStep + ") 插入message数据失败");
+      this.sendGrid("insertMessage", "插入message数据失败", "error", true);
+      await this.insertMessageError(tryCount, messageId, category, type, mid, id, accessHash, txt);
+    }
+  }
+
+  async endMediaInsert(messageId, category, mid, id, accessHash, txt) {
+    const messageCount = await this.selectMediaMessage(1, messageId);
+    if (parseInt(messageCount) === 0) {
+      await this.insertMessage(1, messageId, category, "", mid, id, accessHash, txt);
+    } else {
+      //console.log("(" + this.currentStep + ") message已在数据库中");
+      this.sendGrid("endMediaInsert", "", "exist", false);
+    }
+  }
+
+  async endPhotoInsert(messageId, category, type, mid, id, accessHash, txt) {
+    const messageCount = await this.selectPhotoMessage(1, messageId, type);
+    if (parseInt(messageCount) === 0) {
+      await this.insertMessage(1, messageId, category, type, mid, id, accessHash, txt);
+    } else {
+      //console.log("(" + this.currentStep + ") message已在数据库中");
+      this.sendGrid("endPhotoInsert", "", "exist", false);
+    }
+  }
+
+  async getMedia(message) {
+    const messageId = message.id;
+    const id = message.media.document.id.toString();
+    const accessHash = message.media.document.accessHash.toString();
+    if (id && accessHash) {
+      // const mediaIndexResult = await this.selectMediaIndex(1, id, accessHash);
+      // if (mediaIndexResult) {
+        const category = 2;
+        const txt = message.message;
+      //   const mediaIndexCount = parseInt(mediaIndexResult["COUNT(id)"]);
+      //   if (mediaIndexCount === 0) {
+          const mediaResult = await this.selectMedia(1, id, accessHash);
+          if (mediaResult) {
+            const mediaCount = parseInt(mediaResult["COUNT(id)"]);
+            if (mediaCount === 0) {
+              let duration = 0;
+              let width = 0;
+              let height = 0;
+              let fileName = "";
+              const attributes = message.media.document.attributes;
+              if (attributes.length > 0) {
+                for (const attribute of attributes) {
+                  if (attribute) {
+                    if (attribute.className === "DocumentAttributeVideo") {
+                      duration = attribute.duration;
+                      width = attribute.w;
+                      height = attribute.h;
+                    } else if (attribute.className === "DocumentAttributeFilename") {
+                      fileName = attribute.fileName;
+                    }
+                  }
+                }
+              }
+              const dcId = message.media.document.dcId;
+              const size = parseInt(message.media.document.size);
+              const mimeType = message.media.document.mimeType;
+              const time = new Date().getTime();
+              this.broadcast({
+                "step": this.currentStep,
+                "operate": "getMedia",
+                "chatId": this.chatId,
+                "offsetId": this.offsetId,
+                "messageId": messageId,
+                "category": category,
+                "dcId": dcId,
+                "size": size,
+                "type": mimeType,
+                "fileName": fileName,
+                "duration": duration,
+                "width": width,
+                "height": height,
+                "status": "add",
+                "time": time,
+                "date": time,
+              });
+              if (this.stop === 1) {
+                const Vindex = await this.endMediaMessage(id, accessHash, dcId, fileName, mimeType, size, duration, width, height);
+                await this.endMediaInsert(messageId, category, Vindex, id, accessHash, txt);
+                this.offsetId += 1;
+                return true;
+              } else if (this.stop === 2) {
+                await this.updateConfig(1, 0);
+                this.broadcast({
+                  "result": "pause",
+                });
+                await this.close();
+              }
+            } else {
+              //console.log("(" + this.currentStep + ") 视频已入过库了");
+              this.sendGrid("getMedia", "", "fileExist", false);
+              const Vindex = mediaResult.Vindex;
+              // if (Vindex && Vindex > 0) {
+              //   await this.insertMediaIndex(1, Vindex, id, accessHash);
+              // }
+              await this.endMediaInsert(messageId, category, Vindex, id, accessHash, txt);
+              this.offsetId += 1;
+            }
+          } else {
+            //console.log("(" + this.currentStep + ") 视频的mediaResult错误");
+            this.sendGrid("getMedia", "视频的mediaResult错误", "error", true);
+            this.offsetId += 1;
+          }
+      //   } else {
+      //     //console.log("(" + this.currentStep + ") 视频已入过索引库了");
+      //     this.sendGrid("getMedia", "", "indexExist", false);
+      //     const Vindex = mediaIndexResult.Vindex;
+      //     await this.endMediaInsert(messageId, category, Vindex, id, accessHash, txt);
+      //     this.offsetId += 1;
+      //   }
+      // } else {
+      //   //console.log("(" + this.currentStep + ") 视频的mediaIndexResult错误");
+      //   this.sendGrid("getMedia", "视频的mediaIndexResult错误", "error", true);
+    //   this.offsetId += 1;
+      // }
+    } else {
+      //console.log("(" + this.currentStep + ") 视频的id或accessHash错误");
+      this.sendGrid("getMedia", "视频的id或accessHash错误", "error", true);
+      this.offsetId += 1;
+    }
+    return false;
+  }
+
+  async getPhoto(message) {
+    const messageId = message.id;
+    const id = message.media.photo.id.toString();
+    const accessHash = message.media.photo.accessHash.toString();
+    if (id && accessHash) {
+      const photoInfo = utils.getPhotoInfo(message.media);
+      const photoLength = photoInfo.length;
+      //console.log("photoLength : " + photoLength);  //测试
+      if (photoLength && photoLength > 0) {
+        const category = 1;
+        const txt = message.message;
+        const time = new Date().getTime();
+        this.broadcast({
+          "step": this.currentStep,
+          "operate": "getPhoto",
+          "chatId": this.chatId,
+          "offsetId": this.offsetId,
+          "messageId": messageId,
+          "category": category,
+          "photoLength": photoLength,
+          "status": "add",
+          "time": time,
+          "date": time,
+        });
+        for (let index = 0; index < photoLength; index++) {
+          const photoIndex = index + 1;
+          const type = photoInfo[index].type;
+          // const photoIndexResult = await this.selectPhotoIndex(1, id, accessHash, type);
+          // if (photoIndexResult) {
+          //   const photoIndexCount = parseInt(photoIndexResult["COUNT(id)"]);
+          //   if (photoIndexCount === 0) {
+              const photoResult = await this.selectPhoto(1, id, accessHash, type);
+              if (photoResult) {
+                const photoCount = parseInt(photoResult["COUNT(id)"]);
+                if (photoCount === 0) {
+                  const dcId = photoInfo[index].dcId;
+                  const size = photoInfo[index].size;
+                  const time = new Date().getTime();
+                  this.broadcast({
+                    "step": this.currentStep,
+                    "operate": "getPhoto",
+                    "chatId": this.chatId,
+                    "offsetId": this.offsetId,
+                    "messageId": messageId,
+                    "photoIndex": photoIndex,
+                    "dcId": dcId,
+                    "type": type,
+                    "size": size,
+                    "status": "update",
+                    "time": time,
+                    "date": time,
+                  });
+                  if (this.stop === 1) {
+                    const Pindex = await this.endPhotoMessage(id, accessHash, dcId, photoIndex, type, size);
+                    await this.endPhotoInsert(messageId, category, type, Pindex, id, accessHash, txt);
+                  } else if (this.stop === 2) {
+                    await this.updateConfig(1, 0);
+                    this.broadcast({
+                      "result": "pause",
+                    });
+                    await this.close();
+                  }
+                } else {
+                  //console.log("(" + this.currentStep + ") (" + photoLength +"/" + photoIndex + ") 图片"+ type + "已入过库了");
+                  this.sendPhoto("getPhoto", "", photoIndex, "fileExist", false);
+                  const Pindex = photoResult.Pindex;
+                  // if (Pindex && Pindex > 0) {
+                  //   await this.insertPhotoIndex(1, Pindex, id, accessHash);
+                  // }
+                  await this.endPhotoInsert(messageId, category, type, Pindex, id, accessHash, txt);
+                }
+              } else {
+                //console.log("(" + this.currentStep + ") 图片的photoResult错误");
+                this.sendPhoto("getPhoto", "图片的photoResult错误", photoIndex, "error", true);
+              }
+          //   } else {
+          //     //console.log("(" + this.currentStep + ") 图片已入过索引库了");
+          //     this.sendPhoto("getPhoto", "", photoIndex, "indexExist", false);
+          //     const Pindex = photoIndexResult.Pindex;
+          //     await this.endPhotoInsert(messageId, category, type, Pindex, id, accessHash, txt);
+          //   }
+          // } else {
+          //   //console.log("(" + this.currentStep + ") 图片的photoIndexResult错误");
+          //   this.sendPhoto("getPhoto", "图片的photoIndexResult错误", photoIndex, "error", true);
+          // }
+        }
+        this.offsetId += 1;
+        return true;
+      } else {
+        //console.log("(" + this.currentStep + ") 图片的info错误");
+        this.sendPhoto("getPhoto", "图片的info错误", photoIndex, "error", true);
+        this.offsetId += 1;
+      }
+    } else {
+      //console.log("(" + this.currentStep + ") 图片的id或accessHash错误");
+      this.sendPhoto("getPhoto", "图片的id或accessHash错误", photoIndex, "error", true);
+      this.offsetId += 1;
+    }
+    return false;
+  }
+
+  async getFile(message) {
+    const messageId = message.id;
+    const id = message.media.document.id.toString();
+    const accessHash = message.media.document.accessHash.toString();
+    if (id && accessHash) {
+      // const photoIndexResult = await this.selectPhotoIndex(1, id, accessHash,"p");
+      // if (photoIndexResult) {
+        const category = 1;
+        const txt = message.message;
+        // const photoIndexCount = parseInt(photoIndexResult["COUNT(id)"]);
+        // if (photoIndexCount === 0) {
+          const photoResult = await this.selectPhoto(1, id, accessHash,"p");
+          if (photoResult) {
+            const photoCount = parseInt(photoResult["COUNT(id)"]);
+            if (photoCount === 0) {
+              //console.log("(" + this.currentStep + ") 准备查询图片的hash");
+              const dcId = message.media.document.dcId;
+              const size = parseInt(message.media.document.size);
+              const mimeType = message.media.document.mimeType;
+              const time = new Date().getTime();
+              this.broadcast({
+                "step": this.currentStep,
+                "operate": "getFile",
+                "chatId": this.chatId,
+                "offsetId": this.offsetId,
+                "messageId": messageId,
+                "category": category,
+                "dcId": dcId,
+                "size": size,
+                "type": mimeType,
+                "status": "add",
+                "time": time,
+                "date": time,
+              });
+              if (this.stop === 1) {
+                const Pindex = await this.endPhotoMessage(id, accessHash, dcId, 1, "p", size);
+                await this.endMediaInsert(messageId, category, Pindex, id, accessHash, txt);
+                this.offsetId += 1;
+                return true;
+              } else if (this.stop === 2) {
+                await this.updateConfig(1, 0);
+                this.broadcast({
+                  "result": "pause",
+                });
+                await this.close();
+              }
+            } else {
+              //console.log("(" + this.currentStep + ") 图片已入过库了");
+              this.sendGrid("getFile", "", "fileExist", false);
+              const Pindex = photoResult.Pindex;
+              // if (Pindex && Pindex > 0) {
+              //   await this.insertPhotoIndex(1, Pindex, id, accessHash,"p");
+              // }
+              await this.endMediaInsert(messageId, category, Pindex, id, accessHash, txt);
+              this.offsetId += 1;
+            }
+          } else {
+            //console.log("(" + this.currentStep + ") 图片的photoResult错误");
+            this.sendGrid("getFile", "图片的photoResult错误", "error", true);
+            this.offsetId += 1;
+          }
+      //   } else {
+      //     //console.log("(" + this.currentStep + ") 图片已入过索引库了");
+      //     this.sendGrid("getFile", "", "indexExist", false);
+      //     const Pindex = photoIndexResult.Pindex;
+      //     await this.endMediaInsert(messageId, category, Pindex, id, accessHash, txt);
+      //     this.offsetId += 1;
+      //   }
+      // } else {
+      //   //console.log("(" + this.currentStep + ") 图片的photoIndexResult错误");
+      //   this.sendGrid("getFile", "图片的photoIndexResult错误", "error", true);
+      //   this.offsetId += 1;
+      // }
+    } else {
+      //console.log("(" + this.currentStep + ") 图片的id或accessHash错误");
+      this.sendGrid("getFile", "图片的id或accessHash错误", "error", true);
+      this.offsetId += 1;
+    }
+    return false;
   }
 
   async getNext() {
@@ -800,7 +1386,7 @@ export class WebSocketServer extends DurableObject {
       if (this.fromPeer) {
         if (this.chatId != this.lastChat) {
           // if (this.lastChat != 48) {
-            await this.updateConfig(1);
+            await this.updateConfig(1, 0);
           // }
           // this.lastChat = this.chatId;
         }
@@ -869,13 +1455,14 @@ export class WebSocketServer extends DurableObject {
           //console.log("(" + this.currentStep + ") " + e);
           this.sendForward("forwardMessage", JSON.stringify(e), 0, "error", true);
         } else if (e.errorMessage === "CHAT_FORWARDS_RESTRICTED" || e.code === 400) {
-          this.offsetId += this.count;
+          // this.offsetId += this.count;
           this.count = 0;
           //console.log("(" + this.currentStep + ") 消息不允许转发" + e);
           this.sendForward("forwardMessage", "消息不允许转发 : " + JSON.stringify(e), 0, "error", true);
           await this.getNext();
           return;
         } else if (e.errorMessage === "FLOOD" || e.code === 420) {
+          this.offsetId -= this.count;
           this.count = 0;
           // this.waitTime += 120000;
           if (e.seconds && e.seconds > 0) {
@@ -892,13 +1479,13 @@ export class WebSocketServer extends DurableObject {
           return;
         }
       }
-      this.offsetId += this.count;
+      // this.offsetId += this.count;
       this.count = 0;
       await this.updateConfig(1, messageLength);
       //console.log("(" + this.currentStep + ") 成功转发了" + length + "条消息");
       this.sendForward("forwardMessage", "成功转发了" + messageLength + "条消息", messageLength, "update", false);
     } else {
-      this.offsetId += this.count;
+      // this.offsetId += this.count;
       this.count = 0;
       await this.updateConfig(1, 0);
       this.errorCount += 1;
@@ -951,75 +1538,89 @@ export class WebSocketServer extends DurableObject {
               if (!messageArray[messageIndex].noforwards || messageArray[messageIndex].noforwards === false) {
                 let fileId = null;
                 const id = messageArray[messageIndex].id;
-                // if (messageArray[messageIndex].media) {
-                //   if (messageArray[messageIndex].media.document) {
-                //     // const mimeType = messageArray[messageIndex].media.document.mimeType;
-                //     // if (mimeType.startsWith("video/")) {
-                //     //   fileId = messageArray[messageIndex].media.document.id;
-                //     // } else if (mimeType.startsWith("image/")) {
-                //     //   fileId = messageArray[messageIndex].media.document.id;
-                //     // // } else if (mimeType.startsWith("application/")) {
-                //     // // } else {
-                //     // }
-                //     fileId = messageArray[messageIndex].media.document.id;
-                //   } else if (messageArray[messageIndex].media.photo) {
-                //     fileId = messageArray[messageIndex].media.photo.id;
+                // if (this.tg[clientIndex].filterType === 2) {
+                //   if (messageArray[messageIndex].media) {
+                //     if (messageArray[messageIndex].media.document) {
+                //       const status = await this.getMedia(messageArray[messageIndex]);
+                //       if (status === true) {
+                //         fileId = messageArray[messageIndex].media.document.id;
+                //       }
+                //     }
+                //   }
+                // } else if (this.tg[clientIndex].filterType === 1) {
+                //   if (messageArray[messageIndex].media) {
+                //     if (messageArray[messageIndex].media.photo) {
+                //       const status = await this.getPhoto(messageArray[messageIndex]);
+                //       if (status === true) {
+                //         fileId = messageArray[messageIndex].media.photo.id;
+                //       }
+                //     }
+                //   }
+                // } else if (this.tg[clientIndex].filterType === 3) {
+                //   if (messageArray[messageIndex].media) {
+                //     if (messageArray[messageIndex].media.document) {
+                //       const mimeType = messageArray[messageIndex].media.document.mimeType;
+                //       if (mimeType.startsWith("video/")) {
+                //         const status = await this.getMedia(messageArray[messageIndex]);
+                //         if (status === true) {
+                //           fileId = messageArray[messageIndex].media.document.id;
+                //         }
+                //       } else if (mimeType.startsWith("image/")) {
+                //         const status = await this.getPhoto(messageArray[messageIndex]);
+                //         if (status === true) {
+                //           fileId = messageArray[messageIndex].media.document.id;
+                //         }
+                //       // } else if (mimeType.startsWith("application/")) {
+                //       // } else {
+                //       }
+                //     }
+                //   }
+                // } else if (this.tg[clientIndex].filterType === 4) {
+                //   if (messageArray[messageIndex].media) {
+                //     if (messageArray[messageIndex].media.document) {
+                //       const status = await this.getMedia(messageArray[messageIndex]);
+                //       if (status === true) {
+                //         fileId = messageArray[messageIndex].media.document.id;
+                //       }
+                //     }
+                //   }
+                // } else if (this.tg[clientIndex].filterType === 0) {
+                //   if (messageArray[messageIndex].media) {
+                //     if (messageArray[messageIndex].media.document) {
+                //       const id = messageArray[messageIndex].media.document.id;
+                //       const status = await this.getMedia(messageArray[messageIndex]);
+                //       if (status === true) {
+                //         fileId = messageArray[messageIndex].media.document.id;
+                //       }
+                //     } else if (messageArray[messageIndex].media.photo) {
+                //       const id = messageArray[messageIndex].media.photo.id;
+                //       const status = await this.getPhoto(messageArray[messageIndex]);
+                //       if (status === true) {
+                //         fileId = messageArray[messageIndex].media.photo.id;
+                //       }
+                //     }
                 //   }
                 // }
-                if (this.tg[clientIndex].filterType === 2) {
-                  if (messageArray[messageIndex].media) {
-                    if (messageArray[messageIndex].media.document) {
-                      const id = messageArray[messageIndex].media.document.id;
-                      const accessHash = messageArray[messageIndex].media.document.accessHash;
-                      if (id && accessHash) {
-                        const mediaIndexResult = await this.selectMediaIndex(1, id, accessHash);
-                        if (mediaIndexResult) {
-                          fileId = id;
-                        } else {
-                          //console.log("(" + this.currentStep + ") 视频的mediaIndexResult错误");
-                          this.sendGrid("nextStep", "视频的mediaIndexResult错误", "error", true);
-                        }
-                      } else {
-                        //console.log("(" + this.currentStep + ") 视频的id或accessHash错误");
-                        this.sendLog("nextStep", "视频的id或accessHash错误", "error", true);
-                      }
-                    }
-                  }
-                } else if (this.tg[clientIndex].filterType === 1) {
-                  if (messageArray[messageIndex].media) {
-                    if (messageArray[messageIndex].media.photo) {
-                      const id = messageArray[messageIndex].media.document.id;
-                      const accessHash = messageArray[messageIndex].media.document.accessHash;
-                      if (id && accessHash) {
-                        const photoIndexResult = await this.selectPhotoIndex(1, id, accessHash, type);
-                        if (photoIndexResult) {
-                          fileId = messageArray[messageIndex].media.photo.id;
-                    }
-                  }
-                } else if (this.tg[clientIndex].filterType === 3) {
-                  if (messageArray[messageIndex].media) {
-                    if (messageArray[messageIndex].media.document) {
-                      const mimeType = messageArray[messageIndex].media.document.mimeType;
-                      if (mimeType.startsWith("video/")) {
+                if (messageArray[messageIndex].media) {
+                  if (messageArray[messageIndex].media.document) {
+                    const mimeType = messageArray[messageIndex].media.document.mimeType;
+                    if (mimeType.startsWith("video/")) {
+                      const status = await this.getMedia(messageArray[messageIndex]);
+                      if (status === true) {
                         fileId = messageArray[messageIndex].media.document.id;
-                      } else if (mimeType.startsWith("image/")) {
-                        fileId = messageArray[messageIndex].media.document.id;
-                      // } else if (mimeType.startsWith("application/")) {
-                      // } else {
                       }
+                    } else if (mimeType.startsWith("image/")) {
+                      const status = await this.getPhoto(messageArray[messageIndex]);
+                      if (status === true) {
+                        fileId = messageArray[messageIndex].media.document.id;
+                      }
+                    // } else if (mimeType.startsWith("application/")) {
+                    // } else {
                     }
-                  }
-                } else if (this.tg[clientIndex].filterType === 4) {
-                  if (messageArray[messageIndex].media) {
-                    if (messageArray[messageIndex].media.document) {
-                      fileId = messageArray[messageIndex].media.document.id;
-                    }
-                  }
-                } else if (this.tg[clientIndex].filterType === 0) {
-                  if (messageArray[messageIndex].media) {
-                    if (messageArray[messageIndex].media.document) {
-                      fileId = messageArray[messageIndex].media.document.id;
-                    } else if (messageArray[messageIndex].media.photo) {
+                  } else if (messageArray[messageIndex].media.photo) {
+                    fileId = messageArray[messageIndex].media.photo.id;
+                    const status = await this.getPhoto(messageArray[messageIndex]);
+                    if (status === true) {
                       fileId = messageArray[messageIndex].media.photo.id;
                     }
                   }
@@ -1054,7 +1655,7 @@ export class WebSocketServer extends DurableObject {
             await this.close();
           }
         } else if (this.count > 0) {
-          this.offsetId += this.count;
+          // this.offsetId += this.count;
           this.count = 0;
           await this.updateConfig(1, 0);
           this.errorCount += 1;
@@ -1152,11 +1753,15 @@ export class WebSocketServer extends DurableObject {
     this.init(option);
     // this.stop = 1;
     await this.open(1);
+    if (!option || !option.chatId || !option.filterType || !option.reverse || !option.limited) {
+      await this.getConfig(1, option);
+    }
+    // this.switchType();
     await this.getChat(1);
     if (this.fromPeer) {
       if (this.chatId != this.lastChat) {
         // if (this.lastChat != 48) {
-          await this.updateConfig();
+          await this.updateConfig(1, 0);
         // }
         // this.lastChat = this.chatId;
       }
@@ -1174,10 +1779,6 @@ export class WebSocketServer extends DurableObject {
             await this.ctx.storage.put("client", 0);
           }
         }
-        if (!option || !option.chatId || !option.filterType || !option.reverse || !option.limited) {
-          await this.getConfig(1, option);
-        }
-        this.switchType();
         await this.getMessage(1);
         await scheduler.wait(5000);
         const messageArray = this.messageArray.slice();
@@ -1196,19 +1797,91 @@ export class WebSocketServer extends DurableObject {
             if (!messageArray[messageIndex].noforwards || messageArray[messageIndex].noforwards === false) {
               let fileId = null;
               const id = messageArray[messageIndex].id;
+              // if (this.tg[clientIndex].filterType === 2) {
+              //   if (messageArray[messageIndex].media) {
+              //     if (messageArray[messageIndex].media.document) {
+              //       const status = await this.getMedia(messageArray[messageIndex]);
+              //       if (status === true) {
+              //         fileId = messageArray[messageIndex].media.document.id;
+              //       }
+              //     }
+              //   }
+              // } else if (this.tg[clientIndex].filterType === 1) {
+              //   if (messageArray[messageIndex].media) {
+              //     if (messageArray[messageIndex].media.photo) {
+              //       const status = await this.getPhoto(messageArray[messageIndex]);
+              //       if (status === true) {
+              //         fileId = messageArray[messageIndex].media.photo.id;
+              //       }
+              //     }
+              //   }
+              // } else if (this.tg[clientIndex].filterType === 3) {
+              //   if (messageArray[messageIndex].media) {
+              //     if (messageArray[messageIndex].media.document) {
+              //       const mimeType = messageArray[messageIndex].media.document.mimeType;
+              //       if (mimeType.startsWith("video/")) {
+              //         const status = await this.getMedia(messageArray[messageIndex]);
+              //         if (status === true) {
+              //           fileId = messageArray[messageIndex].media.document.id;
+              //         }
+              //       } else if (mimeType.startsWith("image/")) {
+              //         const status = await this.getPhoto(messageArray[messageIndex]);
+              //         if (status === true) {
+              //           fileId = messageArray[messageIndex].media.document.id;
+              //         }
+              //       // } else if (mimeType.startsWith("application/")) {
+              //       // } else {
+              //       }
+              //     }
+              //   }
+              // } else if (this.tg[clientIndex].filterType === 4) {
+              //   if (messageArray[messageIndex].media) {
+              //     if (messageArray[messageIndex].media.document) {
+              //       const status = await this.getMedia(messageArray[messageIndex]);
+              //       if (status === true) {
+              //         fileId = messageArray[messageIndex].media.document.id;
+              //       }
+              //     }
+              //   }
+              // } else if (this.tg[clientIndex].filterType === 0) {
+              //   if (messageArray[messageIndex].media) {
+              //     if (messageArray[messageIndex].media.document) {
+              //       const id = messageArray[messageIndex].media.document.id;
+              //       const status = await this.getMedia(messageArray[messageIndex]);
+              //       if (status === true) {
+              //         fileId = messageArray[messageIndex].media.document.id;
+              //       }
+              //     } else if (messageArray[messageIndex].media.photo) {
+              //       const id = messageArray[messageIndex].media.photo.id;
+              //       const status = await this.getPhoto(messageArray[messageIndex]);
+              //       if (status === true) {
+              //         fileId = messageArray[messageIndex].media.photo.id;
+              //       }
+              //     }
+              //   }
+              // }
               if (messageArray[messageIndex].media) {
                 if (messageArray[messageIndex].media.document) {
-                  // const mimeType = messageArray[messageIndex].media.document.mimeType;
-                  // if (mimeType.startsWith("video/")) {
-                  //   fileId = messageArray[messageIndex].media.document.id;
-                  // } else if (mimeType.startsWith("image/")) {
-                  //   fileId = messageArray[messageIndex].media.document.id;
-                  // // } else if (mimeType.startsWith("application/")) {
-                  // // } else {
-                  // }
-                  fileId = messageArray[messageIndex].media.document.id;
+                  const mimeType = messageArray[messageIndex].media.document.mimeType;
+                  if (mimeType.startsWith("video/")) {
+                    const status = await this.getMedia(messageArray[messageIndex]);
+                    if (status === true) {
+                      fileId = messageArray[messageIndex].media.document.id;
+                    }
+                  } else if (mimeType.startsWith("image/")) {
+                    const status = await this.getPhoto(messageArray[messageIndex]);
+                    if (status === true) {
+                      fileId = messageArray[messageIndex].media.document.id;
+                    }
+                  // } else if (mimeType.startsWith("application/")) {
+                  // } else {
+                  }
                 } else if (messageArray[messageIndex].media.photo) {
                   fileId = messageArray[messageIndex].media.photo.id;
+                  const status = await this.getPhoto(messageArray[messageIndex]);
+                  if (status === true) {
+                    fileId = messageArray[messageIndex].media.photo.id;
+                  }
                 }
               }
               if (id && fileId) {
@@ -1235,7 +1908,7 @@ export class WebSocketServer extends DurableObject {
             await this.close();
           }
         } else if (this.count > 0) {
-          this.offsetId += this.count;
+          // this.offsetId += this.count;
           this.count = 0;
           await this.updateConfig(1, 0);
           this.errorCount += 1;

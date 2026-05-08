@@ -48,17 +48,76 @@ CREATE INDEX IF NOT EXISTS idx_forwardChat_tgId_documentForward_exist ON FORWARD
 CREATE INDEX IF NOT EXISTS idx_forwardChat_tgId_gifForward_exist ON FORWARDCHAT(tgId, gifForward, exist);
 
 
-DROP TABLE IF EXISTS FORWARDMESSAGE;
-CREATE TABLE IF NOT EXISTS FORWARDMESSAGE (
+DROP TABLE IF EXISTS MESSAGE;
+CREATE TABLE IF NOT EXISTS MESSAGE (
   Mindex INTEGER PRIMARY KEY,
-  chatId INTEGER NOT NULL,
-  id TEXT NOT NULL,
-  txt TEXT NOT NULL,
-  status INTEGER
+  userId INTEGER NOT NULL,
+  id INTEGER NOT NULL,
+  category INTEGER NOT NULL,
+  sizeType TEXT NOT NULL,
+  mid INTEGER,
+  accessId TEXT NOT NULL,
+  accessHash TEXT NOT NULL,
+  txt TEXT
 );
 
-CREATE INDEX IF NOT EXISTS idx_forwardMessage_chatId_id ON FORWARDMESSAGE(chatId, id);
-CREATE INDEX IF NOT EXISTS idx_forwardMessage_chatId_mindex ON FORWARDMESSAGE(chatId, Mindex);
+CREATE INDEX IF NOT EXISTS idx_message_mid ON MESSAGE(mid);
+CREATE INDEX IF NOT EXISTS idx_message_userId_id ON MESSAGE(userId, id);
+CREATE INDEX IF NOT EXISTS idx_message_userId_mid ON MESSAGE(userId, mid);
+CREATE INDEX IF NOT EXISTS idx_message_userId_mindex ON MESSAGE(userId, Mindex);
+CREATE INDEX IF NOT EXISTS idx_message_userId_id_sizeType ON MESSAGE(userId, id, sizeType);
+CREATE INDEX IF NOT EXISTS idx_message_accessId_accessHash ON MESSAGE(accessId, accessHash);
+
+
+DROP TABLE IF EXISTS MEDIA;
+CREATE TABLE IF NOT EXISTS MEDIA (
+  Vindex INTEGER PRIMARY KEY,
+  id TEXT NOT NULL,
+  accessHash TEXT NOT NULL,
+  dcId TEXT NOT NULL,
+  fileName TEXT,
+  mimeType TEXT NOT NULL,
+  size INTEGER NOT NULL,
+  duration INTEGER,
+  width INTEGER,
+  height INTEGER
+);
+
+CREATE INDEX IF NOT EXISTS idx_media_id_accessHash ON MEDIA(id, accessHash);
+
+
+DROP TABLE IF EXISTS MEDIAINDEX;
+CREATE TABLE IF NOT EXISTS MEDIAINDEX (
+  Vindex INTEGER NOT NULL,
+  id TEXT NOT NULL,
+  accessHash TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_mediaIndex_id_accessHash ON MEDIAINDEX(id, accessHash);
+
+
+DROP TABLE IF EXISTS PHOTO;
+CREATE TABLE IF NOT EXISTS PHOTO (
+  Pindex INTEGER PRIMARY KEY,
+  id TEXT NOT NULL,
+  accessHash TEXT NOT NULL,
+  dcId TEXT NOT NULL,
+  sizeType TEXT NOT NULL,
+  size INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_photo_id_accessHash_sizeType ON PHOTO(id, accessHash, sizeType);
+
+
+DROP TABLE IF EXISTS PHOTOINDEX;
+CREATE TABLE IF NOT EXISTS PHOTOINDEX (
+  Pindex INTEGER NOT NULL,
+  id TEXT NOT NULL,
+  accessHash TEXT NOT NULL,
+  sizeType TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_photoIndex_id_accessHash_sizeType ON PHOTOINDEX(id, accessHash, sizeType);
 
 
 

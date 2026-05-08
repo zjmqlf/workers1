@@ -581,6 +581,40 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
+  async updateConfigError(tryCount) {
+    if (tryCount === 20) {
+      this.stop = 2;
+      //console.log("(" + this.currentStep + ")updateConfig超出tryCount限制");
+      this.sendLog("updateConfig", "超出tryCount限制", null, true);
+      await this.close();
+    } else {
+      await scheduler.wait(10000);
+      await this.updateConfig(tryCount + 1);
+    }
+  }
+
+  async updateConfig(tryCount) {
+    this.apiCount += 1;
+    let configResult = {};
+    try {
+      configResult = await this.env.MAINDB.prepare("UPDATE `CONFIG` SET `chatId` = ? WHERE `name` = 'collect' AND `tgId` = 0;").bind(this.chatId).run();
+    } catch (e) {
+      //console.log("updateConfig出错 : " + e);
+      this.sendLog("updateConfig", "出错 : " + JSON.stringify(e), null, true);
+      await this.updateConfigError(tryCount);
+      return;
+    }
+    //console.log(configResult);  //测试
+    if (configResult.success === true) {
+      //console.log("更新config数据成功");
+      this.sendLog("updateConfig", "更新config数据成功", null, false);
+    } else {
+      //console.log("更新config数据失败");
+      this.sendLog("updateConfig", "更新config数据失败", null, true);
+      await this.updateConfigError(tryCount);
+    }
+  }
+
   async switchType() {
     switch (this.filterType) {
       case 0:
@@ -880,37 +914,47 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
-  async updateConfigError(tryCount) {
+  async updateChatError(tryCount) {
     if (tryCount === 20) {
       this.stop = 2;
-      //console.log("(" + this.currentStep + ")updateConfig超出tryCount限制");
-      this.sendLog("updateConfig", "超出tryCount限制", null, true);
+      //console.log("(" + this.currentStep + ")updateChat超出tryCount限制");
+      this.sendLog("updateChat", "超出tryCount限制", null, true);
       await this.close();
     } else {
       await scheduler.wait(10000);
-      await this.updateConfig(tryCount + 1);
+      await this.updateChat(tryCount + 1);
     }
   }
 
-  async updateConfig(tryCount) {
+  async updateChat(tryCount) {
     this.apiCount += 1;
-    let configResult = {};
+    let chatResult = {};
     try {
-      configResult = await this.env.MAINDB.prepare("UPDATE `CONFIG` SET `chatId` = ? WHERE `name` = 'collect' AND `tgId` = 0;").bind(this.chatId).run();
+      if (this.filterType === 0) {
+        chatResult = await this.env.MAINDB.prepare("UPDATE `CHAT` SET `current` = ?, `updated` = ? WHERE `Cindex` = ?;").bind(this.offsetId, new Date().getTime(), this.chatId).run();
+      } else if (this.filterType === 1) {
+        chatResult = await this.env.MAINDB.prepare("UPDATE `CHAT` SET `photo` = ?, `updated` = ? WHERE `Cindex` = ?;").bind(this.offsetId, new Date().getTime(), this.chatId).run();
+      } else if (this.filterType === 2) {
+        chatResult = await this.env.MAINDB.prepare("UPDATE `CHAT` SET `video` = ?, `updated` = ? WHERE `Cindex` = ?;").bind(this.offsetId, new Date().getTime(), this.chatId).run();
+      } else if (this.filterType === 3) {
+        chatResult = await this.env.MAINDB.prepare("UPDATE `CHAT` SET `document` = ?, `updated` = ? WHERE `Cindex` = ?;").bind(this.offsetId, new Date().getTime(), this.chatId).run();
+      } else if (this.filterType === 4) {
+        chatResult = await this.env.MAINDB.prepare("UPDATE `CHAT` SET `gif` = ?, `updated` = ? WHERE `Cindex` = ?;").bind(this.offsetId, new Date().getTime(), this.chatId).run();
+      }
     } catch (e) {
-      //console.log("updateConfig出错 : " + e);
-      this.sendLog("updateConfig", "出错 : " + JSON.stringify(e), null, true);
-      await this.updateConfigError(tryCount);
+      //console.log("(" + this.currentStep + ")updateChat出错 : " + e);
+      this.sendLog("updateChat", "出错 : " + JSON.stringify(e), null, true);
+      await this.updateChatError(tryCount);
       return;
     }
-    //console.log(configResult);  //测试
-    if (configResult.success === true) {
-      //console.log("更新config数据成功");
-      this.sendLog("updateConfig", "更新config数据成功", null, false);
+    //console.log(chatResult);  //测试
+    if (chatResult.success === true) {
+      //console.log("(" + this.currentStep + ")更新chat数据成功");
+      this.sendLog("updateChat", "更新chat数据成功", null, false);
     } else {
-      //console.log("更新config数据失败");
-      this.sendLog("updateConfig", "更新config数据失败", null, true);
-      await this.updateConfigError(tryCount);
+      //console.log("(" + this.currentStep + ")更新chat数据失败");
+      this.sendLog("updateChat", "更新chat数据失败", null, true);
+      await this.updateChatError(tryCount);
     }
   }
 
@@ -977,72 +1021,6 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
-  async selectMediaIndexError(tryCount, id, accessHash) {
-    if (tryCount === 20) {
-      this.stop = 2;
-      //console.log("(" + this.currentStep + ")selectMediaIndex超出tryCount限制");
-      this.sendLog("selectMediaIndex", "超出tryCount限制", null, true);
-      await this.close();
-    } else {
-      await scheduler.wait(10000);
-      await this.selectMediaIndex(tryCount + 1, id, accessHash);
-    }
-  }
-
-  async selectMediaIndex(tryCount, id, accessHash) {
-    this.apiCount += 1;
-    let mediaResult = {};
-    try {
-      mediaResult = await this.env.MAINDB.prepare("SELECT `Vindex`, COUNT(id) FROM `MEDIAINDEX` WHERE `id` = ? AND `accessHash` = ? LIMIT 1;").bind(id, accessHash).run();
-    } catch (e) {
-      //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : selectMediaIndex出错 : " + e);
-      this.sendGrid("selectMediaIndex", "出错 : " + JSON.stringify(e), "try", true);
-      await this.selectMediaIndexError(tryCount, id, accessHash);
-      return;
-    }
-    //console.log("mediaResult : " + mediaResult);  //测试
-    if (mediaResult.success === true) {
-      if (mediaResult.results && mediaResult.results.length > 0) {
-        return mediaResult.results[0];
-      }
-    } else {
-      await this.selectMediaIndexError(tryCount, id, accessHash);
-    }
-  }
-
-  async selectMediaError(tryCount, id, accessHash) {
-    if (tryCount === 20) {
-      this.stop = 2;
-      //console.log("(" + this.currentStep + ")selectMedia超出tryCount限制");
-      this.sendLog("selectMedia", "超出tryCount限制", null, true);
-      await this.close();
-    } else {
-      await scheduler.wait(10000);
-      await this.selectMedia(tryCount + 1, id, accessHash);
-    }
-  }
-
-  async selectMedia(tryCount, id, accessHash) {
-    this.apiCount += 1;
-    let mediaResult = {};
-    try {
-      mediaResult = await this.env.MEDIADB.prepare("SELECT `Vindex`, COUNT(id) FROM `MEDIA` WHERE `id` = ? AND `accessHash` = ? LIMIT 1;").bind(id, accessHash).run();
-    } catch (e) {
-      //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : selectMedia出错 : " + e);
-      this.sendGrid("selectMedia", "出错 : " + JSON.stringify(e), "try", true);
-      await this.selectMediaError(tryCount, id, accessHash);
-      return;
-    }
-    //console.log("mediaResult : " + mediaResult);  //测试
-    if (mediaResult.success === true) {
-      if (mediaResult.results && mediaResult.results.length > 0) {
-        return mediaResult.results[0];
-      }
-    } else {
-      await this.selectMediaError(tryCount, id, accessHash);
-    }
-  }
-
   async getHash(tryCount, location, sender, offset, hashIndex) {
     if (this.stop === 1) {
       try {
@@ -1103,108 +1081,6 @@ export class WebSocketServer extends DurableObject {
         "result": "pause",
       });
       await this.close();
-    }
-  }
-
-  async getCache(id, accessHash) {
-    if (this.currentStep === 1) {
-      if (this.filter === Api.InputMessagesFilterVideo || this.filter === Api.InputMessagesFilterPhotoVideo || this.filter === Api.InputMessagesFilterDocument) {
-        if (id && accessHash) {
-          const cacheResult = await this.ctx.storage.get(id + "|" + accessHash);
-          if (cacheResult) {
-            let cacheHash = undefined;
-            try {
-              cacheHash = JSON.parse(cacheResult);
-            } catch (e) {
-              //console.log(this.offsetId + " : 恢复cache失败");
-              this.sendLog("getCache", this.offsetId + " : 恢复cache失败", null, true);
-            }
-            return cacheHash;
-          } else {
-            return undefined;
-          }
-        } else {
-          return undefined;
-        }
-      } else {
-        return undefined;
-      }
-    } else {
-      return undefined;
-    }
-  }
-
-  async insertCache(tryCount, category, id, accessHash, offset, hashLength, hashIndex, hash) {
-    if (category === 2 && hash && hash.length && hash.length > 0) {
-      try {
-        await this.ctx.storage.put(id + "|" + accessHash, JSON.stringify({
-          "offset": offset,
-          "hashIndex": hashIndex,
-          "hash": hash,
-        }));
-      } catch (e) {
-        //console.log("(" + this.currentStep + ")insertCache " + this.offsetId + " : ("+ hashLength + " | " + hashIndex + ")插入cache数据出错 : " + e);
-        this.sendLog("insertCache", this.offsetId + " : ("+ hashLength + " | " + hashIndex + ")插入cache数据出错 : " + e, null, true);
-        if (tryCount === 20) {
-          this.stop = 2;
-          //console.log("(" + this.currentStep + ")insertCache超出tryCount限制");
-          this.sendLog("insertCache", "超出tryCount限制", null, true);
-          await this.close();
-        } else {
-          await scheduler.wait(10000);
-          await this.insertCache(tryCount + 1, category, id, accessHash, offset, hashLength, hashIndex, hash);
-        }
-        return;
-      }
-      //console.log("(" + this.currentStep + ")insertCache " + this.offsetId + " : ("+ hashLength + " | " + hashIndex + ")插入cache数据成功");
-      this.sendLog("insertCache", this.offsetId + " : ("+ hashLength + " | " + hashIndex + ")插入cache数据成功", null, false);
-    } else {
-      //console.log("(" + this.currentStep + ")cache("+ hashLength + " | " + hashIndex + ")数据错误");
-      this.sendLog("insertCache", "cache("+ hashLength + " | " + hashIndex + ")数据错误", null, true);
-    }
-  }
-
-  async updateChatError(tryCount) {
-    if (tryCount === 20) {
-      this.stop = 2;
-      //console.log("(" + this.currentStep + ")updateChat超出tryCount限制");
-      this.sendLog("updateChat", "超出tryCount限制", null, true);
-      await this.close();
-    } else {
-      await scheduler.wait(10000);
-      await this.updateChat(tryCount + 1);
-    }
-  }
-
-  async updateChat(tryCount) {
-    this.apiCount += 1;
-    let chatResult = {};
-    try {
-      if (this.filterType === 0) {
-        chatResult = await this.env.MAINDB.prepare("UPDATE `CHAT` SET `current` = ?, `updated` = ? WHERE `Cindex` = ?;").bind(this.offsetId, new Date().getTime(), this.chatId).run();
-      } else if (this.filterType === 1) {
-        chatResult = await this.env.MAINDB.prepare("UPDATE `CHAT` SET `photo` = ?, `updated` = ? WHERE `Cindex` = ?;").bind(this.offsetId, new Date().getTime(), this.chatId).run();
-      } else if (this.filterType === 2) {
-        chatResult = await this.env.MAINDB.prepare("UPDATE `CHAT` SET `video` = ?, `updated` = ? WHERE `Cindex` = ?;").bind(this.offsetId, new Date().getTime(), this.chatId).run();
-      } else if (this.filterType === 3) {
-        chatResult = await this.env.MAINDB.prepare("UPDATE `CHAT` SET `document` = ?, `updated` = ? WHERE `Cindex` = ?;").bind(this.offsetId, new Date().getTime(), this.chatId).run();
-      } else if (this.filterType === 4) {
-        chatResult = await this.env.MAINDB.prepare("UPDATE `CHAT` SET `gif` = ?, `updated` = ? WHERE `Cindex` = ?;").bind(this.offsetId, new Date().getTime(), this.chatId).run();
-      }
-    } catch (e) {
-      //console.log("(" + this.currentStep + ")updateChat出错 : " + e);
-      this.sendLog("updateChat", "出错 : " + JSON.stringify(e), null, true);
-      await this.updateChatError(tryCount);
-      return;
-    }
-    //console.log(chatResult);  //测试
-    if (chatResult.success === true) {
-      //console.log("(" + this.currentStep + ")更新chat数据成功");
-      this.sendLog("updateChat", "更新chat数据成功", null, false);
-    } else {
-      //console.log("(" + this.currentStep + ")更新chat数据失败");
-      this.sendLog("updateChat", "更新chat数据失败", null, true);
-      await this.updateChatError(tryCount);
     }
   }
 
@@ -1272,39 +1148,94 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
-  async insertMediaError(tryCount, id, accessHash, dcId, fileName, mimeType, size, duration, width, height, hash) {
-    if (tryCount === 20) {
-      this.stop = 2;
-      //console.log("(" + this.currentStep + ")insertMedia超出tryCount限制");
-      this.sendLog("insertMedia", "超出tryCount限制", null, true);
-      await this.close();
+  async getCache(id, accessHash) {
+    if (this.currentStep === 1) {
+      if (this.filter === Api.InputMessagesFilterVideo || this.filter === Api.InputMessagesFilterPhotoVideo || this.filter === Api.InputMessagesFilterDocument) {
+        if (id && accessHash) {
+          const cacheResult = await this.ctx.storage.get(id + "|" + accessHash);
+          if (cacheResult) {
+            let cacheHash = undefined;
+            try {
+              cacheHash = JSON.parse(cacheResult);
+            } catch (e) {
+              //console.log(this.offsetId + " : 恢复cache失败");
+              this.sendLog("getCache", this.offsetId + " : 恢复cache失败", null, true);
+            }
+            return cacheHash;
+          } else {
+            return undefined;
+          }
+        } else {
+          return undefined;
+        }
+      } else {
+        return undefined;
+      }
     } else {
-      await scheduler.wait(10000);
-      await this.insertMedia(tryCount + 1, id, accessHash, dcId, fileName, mimeType, size, duration, width, height, hash);
+      return undefined;
     }
   }
 
-  async insertMedia(tryCount, id, accessHash, dcId, fileName, mimeType, size, duration, width, height, hash) {
+  async insertCache(tryCount, category, id, accessHash, offset, hashLength, hashIndex, hash) {
+    if (category === 2 && hash && hash.length && hash.length > 0) {
+      try {
+        await this.ctx.storage.put(id + "|" + accessHash, JSON.stringify({
+          "offset": offset,
+          "hashIndex": hashIndex,
+          "hash": hash,
+        }));
+      } catch (e) {
+        //console.log("(" + this.currentStep + ")insertCache " + this.offsetId + " : ("+ hashLength + " | " + hashIndex + ")插入cache数据出错 : " + e);
+        this.sendLog("insertCache", this.offsetId + " : ("+ hashLength + " | " + hashIndex + ")插入cache数据出错 : " + e, null, true);
+        if (tryCount === 20) {
+          this.stop = 2;
+          //console.log("(" + this.currentStep + ")insertCache超出tryCount限制");
+          this.sendLog("insertCache", "超出tryCount限制", null, true);
+          await this.close();
+        } else {
+          await scheduler.wait(10000);
+          await this.insertCache(tryCount + 1, category, id, accessHash, offset, hashLength, hashIndex, hash);
+        }
+        return;
+      }
+      //console.log("(" + this.currentStep + ")insertCache " + this.offsetId + " : ("+ hashLength + " | " + hashIndex + ")插入cache数据成功");
+      this.sendLog("insertCache", this.offsetId + " : ("+ hashLength + " | " + hashIndex + ")插入cache数据成功", null, false);
+    } else {
+      //console.log("(" + this.currentStep + ")cache("+ hashLength + " | " + hashIndex + ")数据错误");
+      this.sendLog("insertCache", "cache("+ hashLength + " | " + hashIndex + ")数据错误", null, true);
+    }
+  }
+
+  async selectMediaIndexError(tryCount, id, accessHash) {
+    if (tryCount === 20) {
+      this.stop = 2;
+      //console.log("(" + this.currentStep + ")selectMediaIndex超出tryCount限制");
+      this.sendLog("selectMediaIndex", "超出tryCount限制", null, true);
+      await this.close();
+    } else {
+      await scheduler.wait(10000);
+      await this.selectMediaIndex(tryCount + 1, id, accessHash);
+    }
+  }
+
+  async selectMediaIndex(tryCount, id, accessHash) {
     this.apiCount += 1;
     let mediaResult = {};
     try {
-      mediaResult = await this.env.MEDIADB.prepare("INSERT INTO `MEDIA` (id, accessHash, dcId, fileName, mimeType, size, duration, width, height, hash) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);").bind(id, accessHash, dcId, fileName, mimeType, size, duration, width, height, JSON.stringify(hash)).run();
+      mediaResult = await this.env.MAINDB.prepare("SELECT `Vindex`, COUNT(id) FROM `MEDIAINDEX` WHERE `id` = ? AND `accessHash` = ? LIMIT 1;").bind(id, accessHash).run();
     } catch (e) {
-      //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : insertMedia出错 : " + e);;
-      this.sendGrid("insertMedia", "出错 : " + JSON.stringify(e), "try", true);
-      await this.insertMediaError(tryCount, id, accessHash, dcId, fileName, mimeType, size, duration, width, height, hash);
+      //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : selectMediaIndex出错 : " + e);
+      this.sendGrid("selectMediaIndex", "出错 : " + JSON.stringify(e), "try", true);
+      await this.selectMediaIndexError(tryCount, id, accessHash);
       return;
     }
-    //console.log(mediaResult);  //测试
+    //console.log("mediaResult : " + mediaResult);  //测试
     if (mediaResult.success === true) {
-      //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : 插入media数据成功");
-      this.sendGrid("insertMedia", "", "success", false);
-      return mediaResult.meta.last_row_id;
+      if (mediaResult.results && mediaResult.results.length > 0) {
+        return mediaResult.results[0];
+      }
     } else {
-      //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : 插入media数据失败");
-      this.sendGrid("insertMedia", "插入media数据失败", "error", true);
-      await this.insertMediaError(tryCount, id, accessHash, dcId, fileName, mimeType, size, duration, width, height, hash);
-      return 0;
+      await this.selectMediaIndexError(tryCount, id, accessHash);
     }
   }
 
@@ -1342,6 +1273,99 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
+  async selectMediaError(tryCount, id, accessHash) {
+    if (tryCount === 20) {
+      this.stop = 2;
+      //console.log("(" + this.currentStep + ")selectMedia超出tryCount限制");
+      this.sendLog("selectMedia", "超出tryCount限制", null, true);
+      await this.close();
+    } else {
+      await scheduler.wait(10000);
+      await this.selectMedia(tryCount + 1, id, accessHash);
+    }
+  }
+
+  async selectMedia(tryCount, id, accessHash) {
+    this.apiCount += 1;
+    let mediaResult = {};
+    try {
+      mediaResult = await this.env.MEDIADB.prepare("SELECT `Vindex`, COUNT(id) FROM `MEDIA` WHERE `id` = ? AND `accessHash` = ? LIMIT 1;").bind(id, accessHash).run();
+    } catch (e) {
+      //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : selectMedia出错 : " + e);
+      this.sendGrid("selectMedia", "出错 : " + JSON.stringify(e), "try", true);
+      await this.selectMediaError(tryCount, id, accessHash);
+      return;
+    }
+    //console.log("mediaResult : " + mediaResult);  //测试
+    if (mediaResult.success === true) {
+      if (mediaResult.results && mediaResult.results.length > 0) {
+        return mediaResult.results[0];
+      }
+    } else {
+      await this.selectMediaError(tryCount, id, accessHash);
+    }
+  }
+
+  async insertMediaError(tryCount, id, accessHash, dcId, fileName, mimeType, size, duration, width, height, hash) {
+    if (tryCount === 20) {
+      this.stop = 2;
+      //console.log("(" + this.currentStep + ")insertMedia超出tryCount限制");
+      this.sendLog("insertMedia", "超出tryCount限制", null, true);
+      await this.close();
+    } else {
+      await scheduler.wait(10000);
+      await this.insertMedia(tryCount + 1, id, accessHash, dcId, fileName, mimeType, size, duration, width, height, hash);
+    }
+  }
+
+  async insertMedia(tryCount, id, accessHash, dcId, fileName, mimeType, size, duration, width, height, hash) {
+    this.apiCount += 1;
+    let mediaResult = {};
+    try {
+      mediaResult = await this.env.MEDIADB.prepare("INSERT INTO `MEDIA` (id, accessHash, dcId, fileName, mimeType, size, duration, width, height, hash) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);").bind(id, accessHash, dcId, fileName, mimeType, size, duration, width, height, JSON.stringify(hash)).run();
+    } catch (e) {
+      //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : insertMedia出错 : " + e);;
+      this.sendGrid("insertMedia", "出错 : " + JSON.stringify(e), "try", true);
+      await this.insertMediaError(tryCount, id, accessHash, dcId, fileName, mimeType, size, duration, width, height, hash);
+      return;
+    }
+    //console.log(mediaResult);  //测试
+    if (mediaResult.success === true) {
+      //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : 插入media数据成功");
+      this.sendGrid("insertMedia", "", "success", false);
+      return mediaResult.meta.last_row_id;
+    } else {
+      //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : 插入media数据失败");
+      this.sendGrid("insertMedia", "插入media数据失败", "error", true);
+      await this.insertMediaError(tryCount, id, accessHash, dcId, fileName, mimeType, size, duration, width, height, hash);
+      return 0;
+    }
+  }
+
+  async endMediaMessage(count, id, accessHash, dcId, fileName, mimeType, size, duration, width, height, hash) {
+    if (this.stop === 1) {
+      //console.log(count + " : " + hash.length);  //测试
+      if (hash.length === count) {
+        const index = await this.insertMedia(1, id, accessHash, dcId, fileName, mimeType, size, duration, width, height, hash);
+        if (index > 0) {
+          await this.insertMediaIndex(1, index, id, accessHash);
+        }
+        return index;
+      } else {
+        //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : count不一至 : " + count + " - " + hash.length);
+        this.sendGrid("endMediaMessage", "count不一至 : " + count + " - " + hash.length, "error", true);
+        return 0;
+      }
+      //this.offsetId += 1;
+    } else if (this.stop === 2) {
+      await this.updateChat(1);
+      this.broadcast({
+        "result": "pause",
+      });
+      await this.close();
+    }
+  }
+
   async selectPhotoIndexError(tryCount, id, accessHash, type) {
     if (tryCount === 20) {
       this.stop = 2;
@@ -1372,6 +1396,40 @@ export class WebSocketServer extends DurableObject {
       }
     } else {
       await this.selectPhotoIndexError(tryCount, id, accessHash, type);
+    }
+  }
+
+  async insertPhotoIndexError(tryCount, Pindex, id, accessHash, type) {
+    if (tryCount === 20) {
+      this.stop = 2;
+      //console.log("(" + this.currentStep + ")insertPhotoIndex超出tryCount限制");
+      this.sendLog("insertPhotoIndex", "超出tryCount限制", null, true);
+      await this.close();
+    } else {
+      await scheduler.wait(10000);
+      await this.insertPhotoIndex(tryCount + 1, Pindex, id, accessHash, type);
+    }
+  }
+
+  async insertPhotoIndex(tryCount, Pindex, id, accessHash, type) {
+    this.apiCount += 1;
+    let photoResult = {};
+    try {
+      photoResult = await this.env.MAINDB.prepare("INSERT INTO `PHOTOINDEX` (Pindex, id, accessHash, sizeType) VALUES (?, ?, ?, ?);").bind(Pindex, id, accessHash, type).run();
+    } catch (e) {
+      //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : insertPhotoIndex出错 : " + e);
+      this.sendGrid("insertPhotoIndex", "出错 : " + JSON.stringify(e), "try", true);
+      await this.insertPhotoIndexError(tryCount, Pindex, id, accessHash, type);
+      return;
+    }
+    //console.log(photoResult);  //测试
+    if (photoResult.success === true) {
+      //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : 插入photoIndex数据成功");
+      this.sendGrid("insertPhotoIndex", "", "success", false);
+    } else {
+      //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : 插入photoIndex数据失败");
+      this.sendGrid("insertPhotoIndex", "插入photoIndex数据失败", "error", true);
+      await this.insertPhotoIndexError(tryCount, Pindex, id, accessHash, type);
     }
   }
 
@@ -1444,60 +1502,18 @@ export class WebSocketServer extends DurableObject {
     }
   }
 
-  async insertPhotoIndexError(tryCount, Pindex, id, accessHash, type) {
-    if (tryCount === 20) {
-      this.stop = 2;
-      //console.log("(" + this.currentStep + ")insertPhotoIndex超出tryCount限制");
-      this.sendLog("insertPhotoIndex", "超出tryCount限制", null, true);
-      await this.close();
-    } else {
-      await scheduler.wait(10000);
-      await this.insertPhotoIndex(tryCount + 1, Pindex, id, accessHash, type);
-    }
-  }
-
-  async insertPhotoIndex(tryCount, Pindex, id, accessHash, type) {
-    this.apiCount += 1;
-    let photoResult = {};
-    try {
-      photoResult = await this.env.MAINDB.prepare("INSERT INTO `PHOTOINDEX` (Pindex, id, accessHash, sizeType) VALUES (?, ?, ?, ?);").bind(Pindex, id, accessHash, type).run();
-    } catch (e) {
-      //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : insertPhotoIndex出错 : " + e);
-      this.sendGrid("insertPhotoIndex", "出错 : " + JSON.stringify(e), "try", true);
-      await this.insertPhotoIndexError(tryCount, Pindex, id, accessHash, type);
-      return;
-    }
-    //console.log(photoResult);  //测试
-    if (photoResult.success === true) {
-      //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : 插入photoIndex数据成功");
-      this.sendGrid("insertPhotoIndex", "", "success", false);
-    } else {
-      //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : 插入photoIndex数据失败");
-      this.sendGrid("insertPhotoIndex", "插入photoIndex数据失败", "error", true);
-      await this.insertPhotoIndexError(tryCount, Pindex, id, accessHash, type);
-    }
-  }
-
-  async endMessage(category, count, id, accessHash, dcId, fileName, mimeType, size, duration, width, height, photoIndex, type, hash) {
+  async endPhotoMessage(count, id, accessHash, dcId, photoIndex, type, size, hash) {
     if (this.stop === 1) {
       //console.log(count + " : " + hash.length);  //测试
       if (hash.length === count) {
-        let index = 0;
-        if (category === 1) {
-          index = await this.insertPhoto(1, id, accessHash, dcId, photoIndex, type, size, hash);
-          if (index > 0) {
-            await this.insertPhotoIndex(1, index, id, accessHash, type);
-          }
-        } else if (category === 2) {
-          index = await this.insertMedia(1, id, accessHash, dcId, fileName, mimeType, size, duration, width, height, hash);
-          if (index > 0) {
-            await this.insertMediaIndex(1, index, id, accessHash);
-          }
+        const index = await this.insertPhoto(1, id, accessHash, dcId, photoIndex, type, size, hash);
+        if (index > 0) {
+          await this.insertPhotoIndex(1, index, id, accessHash, type);
         }
         return index;
       } else {
         //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : count不一至 : " + count + " - " + hash.length);
-        this.sendGrid("endMessage", "count不一至 : " + count + " - " + hash.length, "error", true);
+        this.sendGrid("endPhotoMessage", "count不一至 : " + count + " - " + hash.length, "error", true);
         return 0;
       }
       //this.offsetId += 1;
@@ -1601,10 +1617,6 @@ export class WebSocketServer extends DurableObject {
       const mediaIndexResult = await this.selectMediaIndex(1, id, accessHash);
       if (mediaIndexResult) {
         let status = 0;
-        let duration = 0;
-        let width = 0;
-        let height = 0;
-        let fileName = "";
         const category = 2;
         const txt = message.message;
         const ids = [];
@@ -1615,6 +1627,10 @@ export class WebSocketServer extends DurableObject {
             const mediaCount = parseInt(mediaResult["COUNT(id)"]);
             if (mediaCount === 0) {
               //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : 准备查询视频的hash");
+              let duration = 0;
+              let width = 0;
+              let height = 0;
+              let fileName = "";
               const attributes = message.media.document.attributes;
               if (attributes.length > 0) {
                 for (const attribute of attributes) {
@@ -1676,7 +1692,7 @@ export class WebSocketServer extends DurableObject {
               }
               // if (this.error === false) {
                 if (this.stop === 1) {
-                  const lastId = await this.endMessage(category, count, id, accessHash, dcId, fileName, mimeType, size, duration, width, height, 0, "", hash);
+                  const lastId = await this.endMediaMessage(count, id, accessHash, dcId, fileName, mimeType, size, duration, width, height, hash);
                   if (lastId && lastId > 0) {
                     status = 1;
                     ids.push(lastId);
@@ -1791,7 +1807,7 @@ export class WebSocketServer extends DurableObject {
                   }
                   // if (this.error === false) {
                     if (this.stop === 1) {
-                      const lastId = await this.endMessage(category, count, id, accessHash, dcId, "", "", size, 0, 0, 0, photoIndex, type, hash);
+                      const lastId = await this.endPhotoMessage(count, id, accessHash, dcId, photoIndex, type, size, hash);
                       if (lastId && lastId > 0) {
                         status = 1;
                         ids.push(lastId);
@@ -1820,18 +1836,15 @@ export class WebSocketServer extends DurableObject {
               } else {
                 //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : 图片的photoResult错误");
                 this.sendPhoto("getPhoto", "图片的photoResult错误", photoIndex, "error", true);
-                this.offsetId += 1;
               }
             } else {
               //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : 图片已入过索引库了");
               this.sendPhoto("getPhoto", "", photoIndex, "indexExist", false);
-              const Vindex = photoIndexResult.Vindex;
-              if (Vindex && Vindex > 0) {
+              const Pindex = photoIndexResult.Pindex;
+              if (Pindex && Pindex > 0) {
                 status = 1;
-                ids.push(Vindex);
+                ids.push(Pindex);
               }
-              await this.endInsert(messageId, category, txt, ids, status);
-              this.offsetId += 1;
             }
           } else {
             //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : 图片的photoIndexResult错误");
@@ -1899,7 +1912,7 @@ export class WebSocketServer extends DurableObject {
               }
               // if (this.error === false) {
                 if (this.stop === 1) {
-                  const lastId = await this.endMessage(category, count, id, accessHash, dcId, "", "", size, 0, 0, 0, 1, "p", hash);
+                  const lastId = await this.endPhotoMessage(count, id, accessHash, dcId, 1, "p", size, hash);
                   if (lastId && lastId > 0) {
                     status = 1;
                     ids.push(lastId);
@@ -1920,11 +1933,11 @@ export class WebSocketServer extends DurableObject {
             } else {
               //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : 图片已入过库了");
               this.sendGrid("getFile", "", "fileExist", false);
-              const Vindex = photoResult.Vindex;
-              if (Vindex && Vindex > 0) {
+              const Pindex = photoResult.Pindex;
+              if (Pindex && Pindex > 0) {
                 status = 1;
-                ids.push(Vindex);
-                await this.insertPhotoIndex(1, Vindex, id, accessHash,"p");
+                ids.push(Pindex);
+                await this.insertPhotoIndex(1, Pindex, id, accessHash,"p");
               }
               await this.endInsert(messageId, category, txt, ids, status);
               this.offsetId += 1;
@@ -1937,10 +1950,10 @@ export class WebSocketServer extends DurableObject {
         } else {
           //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : 图片已入过索引库了");
           this.sendGrid("getFile", "", "indexExist", false);
-          const Vindex = photoIndexResult.Vindex;
-          if (Vindex && Vindex > 0) {
+          const Pindex = photoIndexResult.Pindex;
+          if (Pindex && Pindex > 0) {
             status = 1;
-            ids.push(Vindex);
+            ids.push(Pindex);
           }
           await this.endInsert(messageId, category, txt, ids, status);
           this.offsetId += 1;

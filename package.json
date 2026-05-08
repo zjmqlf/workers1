@@ -25,7 +25,7 @@
     "deploy-forward1": "wrangler deploy -c ./wrangler-forward1.jsonc",
     "build-forward2": "wrangler deploy -c ./wrangler-forward2.jsonc --dry-run --outdir=./forward1/dist",
     "deploy-forward2": "wrangler deploy -c ./wrangler-forward2.jsonc",
-    "build-favorites": "wrangler deploy -c ./wrangler-favorites.jsonc --dry-run --outdir=./forward/dist",
+    "build-favorites": "wrangler deploy -c ./wrangler-favorites.jsonc --dry-run --outdir=./hash/dist",
     "deploy-favorites": "wrangler deploy -c ./wrangler-favorites.jsonc",
     "build-favorites1": "wrangler deploy -c ./wrangler-favorites1.jsonc --dry-run --outdir=./forward1/dist",
     "deploy-favorites1": "wrangler deploy -c ./wrangler-favorites1.jsonc",
