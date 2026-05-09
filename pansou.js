@@ -418,8 +418,16 @@ export class WebSocketServer extends DurableObject {
       configResult = await this.env.MAINDB.prepare("SELECT * FROM `CONFIG` WHERE `name` = 'pansou' LIMIT 1;").run();
     } catch (e) {
       //console.log("getConfig出错 : " + e);
-      this.sendLog("getConfig", "出错 : " + JSON.stringify(e), null, true);
-      await this.getConfigError(tryCount, option);
+      this.sendLog("getConfig", "出错 : " + e.message, null, true);
+      if (e.message === "Too many API requests by single Worker invocation. To configure this limit, refer to https://developers.cloudflare.com/workers/wrangler/configuration/#limits") {
+        this.stop = 2;
+        this.broadcast({
+          "result": "pause",
+        });
+        await this.close();
+      } else {
+        await this.getConfigError(tryCount, option);
+      }
       return;
     }
     //console.log("configResult : " + configResult);  //测试
@@ -472,8 +480,16 @@ export class WebSocketServer extends DurableObject {
       chatResult = await this.env.MAINDB.prepare("UPDATE `PANCHAT` SET `exist` = 0 WHERE `Cindex` = ?;").bind(Cindex).run();
     } catch (e) {
       //console.log("noExistChat出错 : " + e);
-      this.sendLog("noExistChat", "出错 : " + JSON.stringify(e), null, true);
-      await this.noExistChatError(tryCount, Cindex);
+      this.sendLog("noExistChat", "出错 : " + e.message, null, true);
+      if (e.message === "Too many API requests by single Worker invocation. To configure this limit, refer to https://developers.cloudflare.com/workers/wrangler/configuration/#limits") {
+        this.stop = 2;
+        this.broadcast({
+          "result": "pause",
+        });
+        await this.close();
+      } else {
+        await this.noExistChatError(tryCount, Cindex);
+      }
       return;
     }
     //console.log(chatResult);  //测试
@@ -592,8 +608,16 @@ export class WebSocketServer extends DurableObject {
       chatResult = await this.env.MAINDB.prepare("SELECT * FROM `PANCHAT` WHERE `Cindex` >= ? AND `exist` = 1 LIMIT 1;").bind(this.chatId).run();
     } catch (e) {
       //console.log("(" + this.currentStep + ")出错 : " + e);
-      this.sendLog("nextChat", "出错 : " + JSON.stringify(e), null, true);
-      await this.nextChatError(tryCount, check);
+      this.sendLog("nextChat", "出错 : " + e.message, null, true);
+      if (e.message === "Too many API requests by single Worker invocation. To configure this limit, refer to https://developers.cloudflare.com/workers/wrangler/configuration/#limits") {
+        this.stop = 2;
+        this.broadcast({
+          "result": "pause",
+        });
+        await this.close();
+      } else {
+        await this.nextChatError(tryCount, check);
+      }
       return;
     }
     //console.log("chatResult : " + chatResult"]);  //测试
@@ -628,7 +652,15 @@ export class WebSocketServer extends DurableObject {
         } catch (e) {
           tryCount += 1;
           //console.log("(" + this.currentStep + ")getChat出错 : " + e);
-          this.sendLog("getChat", "出错 : " + JSON.stringify(e), null, true);
+          this.sendLog("getChat", "出错 : " + e.message, null, true);
+          if (e.message === "Too many API requests by single Worker invocation. To configure this limit, refer to https://developers.cloudflare.com/workers/wrangler/configuration/#limits") {
+            this.stop = 2;
+            this.broadcast({
+              "result": "pause",
+            });
+            await this.close();
+            break;
+          }
           await scheduler.wait(10000);
         }
         //console.log("chatResult : " + chatResult"]);  //测试
@@ -705,8 +737,16 @@ export class WebSocketServer extends DurableObject {
       configResult = await this.env.MAINDB.prepare("UPDATE `CONFIG` SET `chatId` = ? WHERE `name` = 'pansou';").bind(this.chatId).run();
     } catch (e) {
       //console.log("updateConfig出错 : " + e);
-      this.sendLog("updateConfig", "出错 : " + JSON.stringify(e), null, true);
-      await this.updateConfigError(tryCount);
+      this.sendLog("updateConfig", "出错 : " + e.message, null, true);
+      if (e.message === "Too many API requests by single Worker invocation. To configure this limit, refer to https://developers.cloudflare.com/workers/wrangler/configuration/#limits") {
+        this.stop = 2;
+        this.broadcast({
+          "result": "pause",
+        });
+        await this.close();
+      } else {
+        await this.updateConfigError(tryCount);
+      }
       return;
     }
     //console.log(configResult);  //测试
@@ -830,8 +870,16 @@ export class WebSocketServer extends DurableObject {
       messageResult = await this.env.PANSOUDB.prepare("SELECT COUNT(id) FROM `PANMESSAGE` WHERE `chatId` = ? AND  `id` = ? LIMIT 1;").bind(this.chatId, messageId).run();
     } catch (e) {
       //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : selectMessage出错 : " + e);
-      this.sendGrid("selectMessage", "出错 : " + JSON.stringify(e), "try", true);
-      await this.selectMessageError(tryCount, messageId);
+      this.sendGrid("selectMessage", "出错 : " + e.message, "try", true);
+      if (e.message === "Too many API requests by single Worker invocation. To configure this limit, refer to https://developers.cloudflare.com/workers/wrangler/configuration/#limits") {
+        this.stop = 2;
+        this.broadcast({
+          "result": "pause",
+        });
+        await this.close();
+      } else {
+        await this.selectMessageError(tryCount, messageId);
+      }
       return;
     }
     //console.log("messageResult : " + messageResult["COUNT(id)"]);  //测试
@@ -863,8 +911,16 @@ export class WebSocketServer extends DurableObject {
       messageResult = await this.env.PANSOUDB.prepare("INSERT INTO `PANMESSAGE` (chatId, id, txt, webpage, url) VALUES (?, ?, ?, ?, ?);").bind(this.chatId, messageId, txt, id, url).run();
     } catch (e) {
       //console.log("(" + this.currentStep + ")[" + messageLength +"/" + messageIndex + "] " + this.offsetId + " : insertMessage出错 : " + e);;
-      this.sendGrid("insertMessage", "出错 : " + JSON.stringify(e), "try", true);
-      await this.insertMessageError(tryCount, messageId, txt, id, url);
+      this.sendGrid("insertMessage", "出错 : " + e.message, "try", true);
+      if (e.message === "Too many API requests by single Worker invocation. To configure this limit, refer to https://developers.cloudflare.com/workers/wrangler/configuration/#limits") {
+        this.stop = 2;
+        this.broadcast({
+          "result": "pause",
+        });
+        await this.close();
+      } else {
+        await this.insertMessageError(tryCount, messageId, txt, id, url);
+      }
       return;
     }
     //console.log(messageResult);  //测试
@@ -935,8 +991,16 @@ export class WebSocketServer extends DurableObject {
       chatResult = await this.env.MAINDB.prepare("UPDATE `PANCHAT` SET `current` = ?, `updated` = ? WHERE `Cindex` = ?;").bind(this.offsetId, new Date().getTime(), this.chatId).run();
     } catch (e) {
       //console.log("(" + this.currentStep + ")updateChat出错 : " + e);
-      this.sendLog("updateChat", "出错 : " + JSON.stringify(e), null, true);
-      await this.updateChatError(tryCount);
+      this.sendLog("updateChat", "出错 : " + e.message, null, true);
+      if (e.message === "Too many API requests by single Worker invocation. To configure this limit, refer to https://developers.cloudflare.com/workers/wrangler/configuration/#limits") {
+        this.stop = 2;
+        this.broadcast({
+          "result": "pause",
+        });
+        await this.close();
+      } else {
+        await this.updateChatError(tryCount);
+      }
       return;
     }
     //console.log(chatResult);  //测试
@@ -1284,8 +1348,16 @@ export class WebSocketServer extends DurableObject {
       chatResult = await this.env.MAINDB.prepare("SELECT COUNT(Cindex) FROM `PANCHAT` WHERE `channelId` = ? AND `accessHash` = ? LIMIT 1;").bind(channelId, accessHash).run();
     } catch (e) {
       //console.log("selectChat出错 : " + e);
-      this.sendLog("selectChat", "出错 : " + JSON.stringify(e), "try", true);
-      await this.selectChatError(tryCount, channelId, accessHash);
+      this.sendLog("selectChat", "出错 : " + e.message, "try", true);
+      if (e.message === "Too many API requests by single Worker invocation. To configure this limit, refer to https://developers.cloudflare.com/workers/wrangler/configuration/#limits") {
+        this.stop = 2;
+        this.broadcast({
+          "result": "pause",
+        });
+        await this.close();
+      } else {
+        await this.selectChatError(tryCount, channelId, accessHash);
+      }
       return;
     }
     //console.log("chatResult : " + chatResult["COUNT(Cindex)"]);  //测试
@@ -1317,8 +1389,16 @@ export class WebSocketServer extends DurableObject {
       chatResult = await this.env.MAINDB.prepare("INSERT INTO `PANCHAT` (channelId, accessHash, username, title, current, exist) VALUES (?, ?, ?, ?, ?, ?);").bind(channelId, accessHash, username, title, 0, 1).run();
     } catch (e) {
       //console.log("insertChat出错 : " + e);;
-      this.sendLog("insertChat", "出错 : " + JSON.stringify(e), "try", true);
-      await this.insertChatError(tryCount, channelId, accessHash, username, title);
+      this.sendLog("insertChat", "出错 : " + e.message, "try", true);
+      if (e.message === "Too many API requests by single Worker invocation. To configure this limit, refer to https://developers.cloudflare.com/workers/wrangler/configuration/#limits") {
+        this.stop = 2;
+        this.broadcast({
+          "result": "pause",
+        });
+        await this.close();
+      } else {
+        await this.insertChatError(tryCount, channelId, accessHash, username, title);
+      }
       return;
     }
     //console.log(chatResult);  //测试
@@ -1423,15 +1503,23 @@ export class WebSocketServer extends DurableObject {
         messageResult = await this.env.PANSOUDB.prepare("SELECT `Mindex`,`id` FROM `PANMESSAGE` WHERE `chatId` = ? AND  `Mindex` >= ? ORDER BY Mindex ASC LIMIT 0,20;").bind(this.chatId, this.offsetId).run();
       } catch (e) {
         //console.log("(" + this.currentStep + ")cache出错 : " + e);
-        this.sendLog("cache", "出错 : " + JSON.stringify(e), "try", true);
-        if (tryCount === 20) {
+        this.sendLog("cache", "出错 : " + e.message, "try", true);
+        if (e.message === "Too many API requests by single Worker invocation. To configure this limit, refer to https://developers.cloudflare.com/workers/wrangler/configuration/#limits") {
           this.stop = 2;
-          //console.log("(" + this.currentStep + ")cache超出tryCount限制");
-          this.sendLog("cache", "超出tryCount限制", null, true);
+          this.broadcast({
+            "result": "pause",
+          });
           await this.close();
         } else {
-          await scheduler.wait(10000);
-          await this.cache(tryCount + 1);
+          if (tryCount === 20) {
+            this.stop = 2;
+            //console.log("(" + this.currentStep + ")cache超出tryCount限制");
+            this.sendLog("cache", "超出tryCount限制", null, true);
+            await this.close();
+          } else {
+            await scheduler.wait(10000);
+            await this.cache(tryCount + 1);
+          }
         }
         return;
       }
