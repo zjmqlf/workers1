@@ -1,0 +1,4 @@
+[
+  "mmyzy_bot_col:nc9rZZQTeGDWS4MMIr84uFQU7o6l2x3M",
+  "mmyzy_bot_col:qPron48VNvqUTCeCIXisCrdiEv1j0H6L"
+]

@@ -20,14 +20,23 @@ npm run deploy-kodexfiles2
 npm run build-kodexmedia1
 npm run deploy-kodexmedia1
 
+npm run build-deanignitenations
+npm run deploy-deanignitenations
+
+npm run build-lunindiacipoksupretto
+npm run deploy-lunindiacipoksupretto
+
 npm run build-zyxfiles
 npm run deploy-zyxfiles
 
 npm run build-qqfile
 npm run deploy-qqfile
 
-npm run build-allxfiles
-npm run deploy-allxfiles
+npm run build-qqfilef
+npm run deploy-qqfilef
+
+npm run build-qqfilek
+npm run deploy-qqfilek
 
 npm run build-test
 npm run deploy-test

@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "allxfiles",
-  "main": "allxfiles.js",
+  "name": "qqfilef",
+  "main": "qqfilef.js",
   "compatibility_date": "2026-04-21",
   "compatibility_flags": [
     "nodejs_compat",
@@ -13,7 +13,7 @@
   },
   "routes": [
     {
-      "pattern": "allxfiles.19421.xyz/*",
+      "pattern": "qqfilef.19421.xyz/*",
       "zone_name": "19421.xyz"
     }
   ],

@@ -355,5 +355,8 @@ export const codeString = [
   "KodeXMedia1bot_col:zlIYaVwLR7hLuHMoT3B8VW2R1peunqta",
   "KodeXMedia1bot_col:Txo8djMF3ap4vm0bydSp5cE8VfbchFhY",
   "KodeXMedia1bot_col:bCaLDdxGLPxAh4OU6gAXq9oXhJcusIIq",
-  "KodeXMedia1bot_col:r3owJbW76KMunS9jjqpUL9TBHXD6pOAa"
+  "KodeXMedia1bot_col:r3owJbW76KMunS9jjqpUL9TBHXD6pOAa",
+  "KodeXMedia1bot_p:7Kgmab5ZAKMzDSDLd0jlC2uOd9djmKcz",
+  "KodeXMedia1bot_p:elm5ub1A3OU5M2kVbyNYI6cnqYR0oU6I",
+  "KodeXMedia1bot_v:K6KV4ua6Hp4UYlXqChRTQenCHQiIfSSB"
 ];

@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "tangbre",
-  "main": "tangbre.js",
+  "name": "qqfilek",
+  "main": "qqfilek.js",
   "compatibility_date": "2026-04-21",
   "compatibility_flags": [
     "nodejs_compat",
@@ -13,7 +13,7 @@
   },
   "routes": [
     {
-      "pattern": "tangbre.19421.xyz/*",
+      "pattern": "qqfilek.19421.xyz/*",
       "zone_name": "19421.xyz"
     }
   ],

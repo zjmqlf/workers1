@@ -1,5 +1,8 @@
 
-
+kodeXfilebot
+kodexfilebot
+8784482045
+4477441047772791150
 
 KodeXFilesbot
 KodeXFiles2bot
@@ -10,6 +13,41 @@ KodeXMedia1bot
 KodeXMedia1bot
 8281571457
 713613322439788943
+
+DEANIgniteNations
+DEANIgniteNations_bot
+8737186679
+1024528739420182834
+
+LunindiaCipokSupretto
+LunindiaCipokSupretto_bot
+8554653830
+-3683149469932305016
+
+4KPartyKodeXChat
+WonkaLopeOnaa_bot
+8673393691
+62958369251494747
+
+RyumaSepongMilku
+RyumaSepongMilku_bot
+8613570788
+7003533048444817742
+
+HikkiTusbolPaijo
+HikkiTusbolPaijo_bot
+8718756852
+2206641291710006927
+
+偷偷
+kkjmqmbot
+8723025652
+-6954184739738150301
+
+萌萌机器人
+mmyzy_bot
+8676309541
+965997289879100015
 
 AllXFilesbot
 AllXFilesbot
@@ -35,11 +73,6 @@ QQ解码器K
 QQfilek_bot
 8466548874
 6430572177113500135
-
-QQ解码器G
-QQfileg_bot
-8714652560
-7643641448302173992
 
 LH_仓库
 LHDATA_BOT
