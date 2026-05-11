@@ -7,6 +7,7 @@ const blgjlqbot = [];
 const fileLeakBot = [];
 const nnfilebot = [];
 const tangBRebot = [];
+const tebiejiebot = [];
 const mmyzybot = [];
 const kkjmqmbot = [];
 const KodeXFilesbot = [];
@@ -16,6 +17,7 @@ const AllXFilesbot = [];
 // const MediaXFilebot = [];
 const KodeXFiles2bot = [];
 const DEANIgniteNationsbot = [];
+const RyumaSepongMilkubot = [];
 const LunindiaCipokSuprettobot = [];
 const PaijoKontolBurikbot = [];
 const QQfilebot = [];
@@ -50,6 +52,7 @@ const blgjlqbotRegexp = /(blgjlqbot_\d+p\d+v\d+d_[A-Za-z0-9]{16})/gi;   //blgjlq
 const fileLeakBotRegexp = /(fileLeakBot_\d+p_\d+v_\d+d_[A-Za-z0-9]{13})/gi;   //fileLeakBot
 const nnfilebotRegexp = /(nnfilebot_[A-Za-z0-9]*_[A-Za-z0-9]*_[A-Za-z0-9]*_[A-Za-z0-9]{12})/gi;   //nnfilebot
 const tangBRebotRegexp = /(TangBRebot_\d+p_\d+v_\d+d_[A-Za-z0-9]{12})/gi;   //tangBRebot
+const tebiejie1botRegexp = /(tebiejie1_\d*V*\d*P*\d*D*_[A-Za-z0-9]{14})/gi;   //tebiejie1bot
 const mmyzybot1Regexp = /(mmyzy_bot_v:[A-Za-z0-9]{32})/gi;   //mmyzybot
 const mmyzybot2Regexp = /(mmyzy_bot_p:[A-Za-z0-9]{32})/gi;   //mmyzybot
 const mmyzybot3Regexp = /(mmyzy_bot_d:[A-Za-z0-9]{32})/gi;   //mmyzybot
@@ -86,6 +89,10 @@ const DEANIgniteNationsbot1Regexp = /(DEANIgniteNations_bot_v:[A-Za-z0-9]{32})/g
 const DEANIgniteNationsbot2Regexp = /(DEANIgniteNations_bot_p:[A-Za-z0-9]{32})/gi;   //DEANIgniteNationsbot
 const DEANIgniteNationsbot3Regexp = /(DEANIgniteNations_bot_d:[A-Za-z0-9]{32})/gi;   //DEANIgniteNationsbot
 const DEANIgniteNationsbot4Regexp = /(DEANIgniteNations_bot_col:[A-Za-z0-9]{32})/gi;   //DEANIgniteNationsbot
+const RyumaSepongMilkubot1Regexp = /(RyumaSepongMilku_bot_v:[A-Za-z0-9]{32})/gi;   //RyumaSepongMilkubot
+const RyumaSepongMilkubot2Regexp = /(RyumaSepongMilku_bot_p:[A-Za-z0-9]{32})/gi;   //RyumaSepongMilkubot
+const RyumaSepongMilkubot3Regexp = /(RyumaSepongMilku_bot_d:[A-Za-z0-9]{32})/gi;   //RyumaSepongMilkubot
+const RyumaSepongMilkubot4Regexp = /(RyumaSepongMilku_bot_col:[A-Za-z0-9]{32})/gi;   //RyumaSepongMilkubot
 const LunindiaCipokSuprettobot1Regexp = /(LunindiaCipokSupretto_bot_v:[A-Za-z0-9]{32})/gi;   //LunindiaCipokSuprettobot
 const LunindiaCipokSuprettobot2Regexp = /(LunindiaCipokSupretto_bot_p:[A-Za-z0-9]{32})/gi;   //LunindiaCipokSuprettobot
 const LunindiaCipokSuprettobot3Regexp = /(LunindiaCipokSupretto_bot_d:[A-Za-z0-9]{32})/gi;   //LunindiaCipokSuprettobot
@@ -412,6 +419,20 @@ try {
             for (let j = 0; j < tangBRebotMatchesLength; j++) {
               if (tangBRebotMatches[j]) {
                 tangBRebot.push(tangBRebotMatches[j]);
+              }
+            }
+          }
+        }
+
+        const tebieji1botMatches = str.match(tebiejie1botRegexp);
+        // console.log(tebieji1botMatches);  //测试
+        if (tebieji1botMatches) {
+          const tebieji1botMatchesLength = tebieji1botMatches.length;
+          // console.log("tebieji1botMatchesLength : " + tebieji1botMatchesLength);  //测试
+          if (tebieji1botMatchesLength > 0) {
+            for (let j = 0; j < tebieji1botMatchesLength; j++) {
+              if (tebieji1botMatches[j]) {
+                tebiejibot.push(tebieji1botMatches[j]);
               }
             }
           }
@@ -916,6 +937,62 @@ try {
             for (let j = 0; j < DEANIgniteNationsbot4MatchesLength; j++) {
               if (DEANIgniteNationsbot4Matches[j]) {
                 DEANIgniteNationsbot.push(DEANIgniteNationsbot4Matches[j]);
+              }
+            }
+          }
+        }
+
+        const RyumaSepongMilkubot1Matches = str.match(RyumaSepongMilkubot1Regexp);
+        // console.log(RyumaSepongMilkubot1Matches);  //测试
+        if (RyumaSepongMilkubot1Matches) {
+          const RyumaSepongMilkubot1MatchesLength = RyumaSepongMilkubot1Matches.length;
+          // console.log("RyumaSepongMilkubot1MatchesLength : " + RyumaSepongMilkubot1MatchesLength);  //测试
+          if (RyumaSepongMilkubot1MatchesLength > 0) {
+            for (let j = 0; j < RyumaSepongMilkubot1MatchesLength; j++) {
+              if (RyumaSepongMilkubot1Matches[j]) {
+                RyumaSepongMilkubot.push(RyumaSepongMilkubot1Matches[j]);
+              }
+            }
+          }
+        }
+
+        const RyumaSepongMilkubot2Matches = str.match(RyumaSepongMilkubot2Regexp);
+        // console.log(RyumaSepongMilkubot2Matches);  //测试
+        if (RyumaSepongMilkubot2Matches) {
+          const RyumaSepongMilkubot2MatchesLength = RyumaSepongMilkubot2Matches.length;
+          // console.log("RyumaSepongMilkubot2MatchesLength : " + RyumaSepongMilkubot2MatchesLength);  //测试
+          if (RyumaSepongMilkubot2MatchesLength > 0) {
+            for (let j = 0; j < RyumaSepongMilkubot2MatchesLength; j++) {
+              if (RyumaSepongMilkubot2Matches[j]) {
+                RyumaSepongMilkubot.push(RyumaSepongMilkubot2Matches[j]);
+              }
+            }
+          }
+        }
+
+        const RyumaSepongMilkubot3Matches = str.match(RyumaSepongMilkubot3Regexp);
+        // console.log(RyumaSepongMilkubot3Matches);  //测试
+        if (RyumaSepongMilkubot3Matches) {
+          const RyumaSepongMilkubot3MatchesLength = RyumaSepongMilkubot3Matches.length;
+          // console.log("RyumaSepongMilkubot3MatchesLength : " + RyumaSepongMilkubot3MatchesLength);  //测试
+          if (RyumaSepongMilkubot3MatchesLength > 0) {
+            for (let j = 0; j < RyumaSepongMilkubot3MatchesLength; j++) {
+              if (RyumaSepongMilkubot3Matches[j]) {
+                RyumaSepongMilkubot.push(RyumaSepongMilkubot3Matches[j]);
+              }
+            }
+          }
+        }
+
+        const RyumaSepongMilkubot4Matches = str.match(RyumaSepongMilkubot4Regexp);
+        // console.log(RyumaSepongMilkubot4Matches);  //测试
+        if (RyumaSepongMilkubot4Matches) {
+          const RyumaSepongMilkubot4MatchesLength = RyumaSepongMilkubot4Matches.length;
+          // console.log("RyumaSepongMilkubot4MatchesLength : " + RyumaSepongMilkubot4MatchesLength);  //测试
+          if (RyumaSepongMilkubot4MatchesLength > 0) {
+            for (let j = 0; j < RyumaSepongMilkubot4MatchesLength; j++) {
+              if (RyumaSepongMilkubot4Matches[j]) {
+                RyumaSepongMilkubot.push(RyumaSepongMilkubot4Matches[j]);
               }
             }
           }
@@ -1990,6 +2067,29 @@ try {
     }
   }
 
+  all += tebiejibot.length;
+  console.log("tebiejibot : " + tebiejibot.length);  //测试
+  if (tebiejibot.length > 0) {
+    const data = fs.readFileSync("./code/tebiejibot.txt", "utf-8");
+    try {
+      let uniqueArr = JSON.parse(data);
+      const oldLength = uniqueArr.length;
+      uniqueArr = [...uniqueArr, ...tebiejibot];
+      uniqueArr = [...new Set(uniqueArr)];
+      if (uniqueArr.length > oldLength) {
+        fs.writeFile("./code/tebiejibot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+          if (err) {
+            console.log(err);
+          }
+        });
+      // } else {
+      //   console.log("没有新加数据");
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
   all += mmyzybot.length;
   console.log("mmyzybot : " + mmyzybot.length);  //测试
   if (mmyzybot.length > 0) {
@@ -2185,6 +2285,29 @@ try {
       uniqueArr = [...new Set(uniqueArr)];
       if (uniqueArr.length > oldLength) {
         fs.writeFile("./code/DEANIgniteNationsbot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+          if (err) {
+            console.log(err);
+          }
+        });
+      // } else {
+      //   console.log("没有新加数据");
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  all += RyumaSepongMilkubot.length;
+  console.log("RyumaSepongMilkubot : " + RyumaSepongMilkubot.length);  //测试
+  if (RyumaSepongMilkubot.length > 0) {
+    const data = fs.readFileSync("./code/RyumaSepongMilkubot.txt", "utf-8");
+    try {
+      let uniqueArr = JSON.parse(data);
+      const oldLength = uniqueArr.length;
+      uniqueArr = [...uniqueArr, ...RyumaSepongMilkubot];
+      uniqueArr = [...new Set(uniqueArr)];
+      if (uniqueArr.length > oldLength) {
+        fs.writeFile("./code/RyumaSepongMilkubot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
           if (err) {
             console.log(err);
           }

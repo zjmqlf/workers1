@@ -23,8 +23,14 @@ npm run deploy-kodexmedia1
 npm run build-deanignitenations
 npm run deploy-deanignitenations
 
+npm run build-ryumasepongmilku
+npm run deploy-ryumasepongmilku
+
 npm run build-lunindiacipoksupretto
 npm run deploy-lunindiacipoksupretto
+
+npm run build-tgjmq
+npm run deploy-tgjmq
 
 npm run build-zyxfiles
 npm run deploy-zyxfiles
