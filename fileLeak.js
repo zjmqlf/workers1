@@ -1426,6 +1426,17 @@ export class WebSocketServer extends DurableObject {
         "error": true,
         "date": new Date().getTime(),
       });
+    } else if (command === "offset") {
+      this.offsetId = 0;
+      await this.ctx.storage.put("offsetId", 0);
+      //console.log("重置offset序号成功");
+      this.broadcast({
+        "operate": "resetOffset",
+        "step": this.currentStep,
+        "message": "重置offset序号成功",
+        "error": true,
+        "date": new Date().getTime(),
+      });
     } else if (command === "code") {
       this.codeIndex = 0;
       await this.ctx.storage.put("codeIndex", 0);
