@@ -13,8 +13,8 @@
   },
   "routes": [
     {
-      "pattern": "zyxfiles.19421.xyz/*",
-      "zone_name": "19421.xyz"
+      "pattern": "zyxfiles.19422.xyz/*",
+      "zone_name": "19422.xyz"
     }
   ],
   "preview_urls": false,

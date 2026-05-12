@@ -7,9 +7,11 @@ const blgjlqbot = [];
 const fileLeakBot = [];
 const nnfilebot = [];
 const tangBRebot = [];
-const tebiejiebot = [];
+const decoderrobot = [];
+const tebiejibot = [];
 const mmyzybot = [];
 const kkjmqmbot = [];
+const paniangbot = [];
 const KodeXFilesbot = [];
 const kodexfilebot = [];
 const KodeXMedia1bot = [];
@@ -52,11 +54,16 @@ const blgjlqbotRegexp = /(blgjlqbot_\d+p\d+v\d+d_[A-Za-z0-9]{16})/gi;   //blgjlq
 const fileLeakBotRegexp = /(fileLeakBot_\d+p_\d+v_\d+d_[A-Za-z0-9]{13})/gi;   //fileLeakBot
 const nnfilebotRegexp = /(nnfilebot_[A-Za-z0-9]*_[A-Za-z0-9]*_[A-Za-z0-9]*_[A-Za-z0-9]{12})/gi;   //nnfilebot
 const tangBRebotRegexp = /(TangBRebot_\d+p_\d+v_\d+d_[A-Za-z0-9]{12})/gi;   //tangBRebot
+const decoderrobotRegexp = /(files_\d+v_\d+p_\d+d_[a-z0-9]{12})/gi;   //decoderrobot
 const tebiejie1botRegexp = /(tebiejie1_\d*V*\d*P*\d*D*_[A-Za-z0-9]{14})/gi;   //tebiejie1bot
 const mmyzybot1Regexp = /(mmyzy_bot_v:[A-Za-z0-9]{32})/gi;   //mmyzybot
 const mmyzybot2Regexp = /(mmyzy_bot_p:[A-Za-z0-9]{32})/gi;   //mmyzybot
 const mmyzybot3Regexp = /(mmyzy_bot_d:[A-Za-z0-9]{32})/gi;   //mmyzybot
 const mmyzybot4Regexp = /(mmyzy_bot_col:[A-Za-z0-9]{32})/gi;   //mmyzybot
+const paniangbot1Regexp = /(paniang_bot_v:[A-Za-z0-9]{32})/gi;   //paniangbot
+const paniangbot2Regexp = /(paniang_bot_p:[A-Za-z0-9]{32})/gi;   //paniangbot
+const paniangbot3Regexp = /(paniang_bot_d:[A-Za-z0-9]{32})/gi;   //paniangbot
+const paniangbot4Regexp = /(paniang_bot_col:[A-Za-z0-9]{32})/gi;   //paniangbot
 const kkjmqmbot1Regexp = /(kkjmqmbot_v:[A-Za-z0-9]{32})/gi;   //kkjmqmbot
 const kkjmqmbot2Regexp = /(kkjmqmbot_p:[A-Za-z0-9]{32})/gi;   //kkjmqmbot
 const kkjmqmbot3Regexp = /(kkjmqmbot_d:[A-Za-z0-9]{32})/gi;   //kkjmqmbot
@@ -424,6 +431,20 @@ try {
           }
         }
 
+        const decoderrobotMatches = str.match(decoderrobotRegexp);
+        // console.log(decoderrobotMatches);  //测试
+        if (decoderrobotMatches) {
+          const decoderrobotMatchesLength = decoderrobotMatches.length;
+          // console.log("decoderrobotMatchesLength : " + decoderrobotMatchesLength);  //测试
+          if (decoderrobotMatchesLength > 0) {
+            for (let j = 0; j < decoderrobotMatchesLength; j++) {
+              if (decoderrobotMatches[j]) {
+                decoderrobot.push(decoderrobotMatches[j]);
+              }
+            }
+          }
+        }
+
         const tebieji1botMatches = str.match(tebiejie1botRegexp);
         // console.log(tebieji1botMatches);  //测试
         if (tebieji1botMatches) {
@@ -489,6 +510,62 @@ try {
             for (let j = 0; j < mmyzybot4MatchesLength; j++) {
               if (mmyzybot4Matches[j]) {
                 mmyzybot.push(mmyzybot4Matches[j]);
+              }
+            }
+          }
+        }
+
+        const paniangbot1Matches = str.match(paniangbot1Regexp);
+        // console.log(paniangbot1Matches);  //测试
+        if (paniangbot1Matches) {
+          const paniangbot1MatchesLength = paniangbot1Matches.length;
+          // console.log("paniangbot1MatchesLength : " + paniangbot1MatchesLength);  //测试
+          if (paniangbot1MatchesLength > 0) {
+            for (let j = 0; j < paniangbot1MatchesLength; j++) {
+              if (paniangbot1Matches[j]) {
+                paniangbot.push(paniangbot1Matches[j]);
+              }
+            }
+          }
+        }
+
+        const paniangbot2Matches = str.match(paniangbot2Regexp);
+        // console.log(paniangbot2Matches);  //测试
+        if (paniangbot2Matches) {
+          const paniangbot2MatchesLength = paniangbot2Matches.length;
+          // console.log("paniangbot2MatchesLength : " + paniangbot2MatchesLength);  //测试
+          if (paniangbot2MatchesLength > 0) {
+            for (let j = 0; j < paniangbot2MatchesLength; j++) {
+              if (paniangbot2Matches[j]) {
+                paniangbot.push(paniangbot2Matches[j]);
+              }
+            }
+          }
+        }
+
+        const paniangbot3Matches = str.match(paniangbot3Regexp);
+        // console.log(paniangbot3Matches);  //测试
+        if (paniangbot3Matches) {
+          const paniangbot3MatchesLength = paniangbot3Matches.length;
+          // console.log("paniangbot3MatchesLength : " + paniangbot3MatchesLength);  //测试
+          if (paniangbot3MatchesLength > 0) {
+            for (let j = 0; j < paniangbot3MatchesLength; j++) {
+              if (paniangbot3Matches[j]) {
+                paniangbot.push(paniangbot3Matches[j]);
+              }
+            }
+          }
+        }
+
+        const paniangbot4Matches = str.match(paniangbot4Regexp);
+        // console.log(paniangbot4Matches);  //测试
+        if (paniangbot4Matches) {
+          const paniangbot4MatchesLength = paniangbot4Matches.length;
+          // console.log("paniangbot4MatchesLength : " + paniangbot4MatchesLength);  //测试
+          if (paniangbot4MatchesLength > 0) {
+            for (let j = 0; j < paniangbot4MatchesLength; j++) {
+              if (paniangbot4Matches[j]) {
+                paniangbot.push(paniangbot4Matches[j]);
               }
             }
           }
@@ -2067,6 +2144,29 @@ try {
     }
   }
 
+  all += decoderrobot.length;
+  console.log("decoderrobot : " + decoderrobot.length);  //测试
+  if (decoderrobot.length > 0) {
+    const data = fs.readFileSync("./code/decoderrobot.txt", "utf-8");
+    try {
+      let uniqueArr = JSON.parse(data);
+      const oldLength = uniqueArr.length;
+      uniqueArr = [...uniqueArr, ...decoderrobot];
+      uniqueArr = [...new Set(uniqueArr)];
+      if (uniqueArr.length > oldLength) {
+        fs.writeFile("./code/decoderrobot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+          if (err) {
+            console.log(err);
+          }
+        });
+      // } else {
+      //   console.log("没有新加数据");
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
   all += tebiejibot.length;
   console.log("tebiejibot : " + tebiejibot.length);  //测试
   if (tebiejibot.length > 0) {
@@ -2101,6 +2201,29 @@ try {
       uniqueArr = [...new Set(uniqueArr)];
       if (uniqueArr.length > oldLength) {
         fs.writeFile("./code/mmyzybot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
+          if (err) {
+            console.log(err);
+          }
+        });
+      // } else {
+      //   console.log("没有新加数据");
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  all += paniangbot.length;
+  console.log("paniangbot : " + paniangbot.length);  //测试
+  if (paniangbot.length > 0) {
+    const data = fs.readFileSync("./code/paniangbot.txt", "utf-8");
+    try {
+      let uniqueArr = JSON.parse(data);
+      const oldLength = uniqueArr.length;
+      uniqueArr = [...uniqueArr, ...paniangbot];
+      uniqueArr = [...new Set(uniqueArr)];
+      if (uniqueArr.length > oldLength) {
+        fs.writeFile("./code/paniangbot.txt", JSON.stringify(uniqueArr, null, 2), function(err) {
           if (err) {
             console.log(err);
           }

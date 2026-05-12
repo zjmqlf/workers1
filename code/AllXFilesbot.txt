@@ -22,5 +22,18 @@
   "AllXFilesbot_v:rE6vAx4yGEUD2sPDxDyjW2hSKA34hwIb",
   "AllXFilesbot_v:b4Hiz5a2qqBE3EV2nHG8YzSMIWNTdri3",
   "AllXFilesbot_v:D7C7n4FXvwuENMW7NJZbjJhv0Gc3jCMO",
-  "AllXFilesbot_col:NqFFxDCp439nYU0OQI5XU2YuQUx258Es"
+  "AllXFilesbot_col:NqFFxDCp439nYU0OQI5XU2YuQUx258Es",
+  "AllXFilesbot_v:tVN8aDtK1h4eHWOZ0oN03ocxvHJv9lq0",
+  "AllXFilesbot_v:Pb2r9ayQ7GyDvf15Qg3qd2qq17RzVLHO",
+  "AllXFilesbot_v:8qK7whJLI1GRs0bX4JtCq3THDlGZAURj",
+  "AllXFilesbot_v:2SCX3qxPLw9PvGwpPwR5UAdNZea1mUkI",
+  "AllXFilesbot_v:Te4MJR1Yjynj3cHNGZRxf1XRxGCgoQUZ",
+  "AllXFilesbot_v:jffKr2Cnt06yfKfKuZUXesKioN1OZGiH",
+  "AllXFilesbot_v:dLUf8XWcdGHMBdBBlptljxHG79QuoYUL",
+  "AllXFilesbot_v:x3Vz5iJtEi6RK0tEKvJj2SRu42YbrIWA",
+  "AllXFilesbot_v:QQF8ErIi9KFsgsm8ypdBZnwKJSZL25S2",
+  "AllXFilesbot_v:OxXExtI6XJXOVOv1j1fc3K23603doE2g",
+  "AllXFilesbot_col:q4k1Yowz8L8s94GyPBbUlbcjkJYYHect",
+  "AllXFilesbot_col:unAMF9Et1cG3vnoZiRzp8EmXpX74OfxQ",
+  "AllXFilesbot_col:xSq3rhRU3xRusJKHYl2Cp2RekaagbyPq"
 ]

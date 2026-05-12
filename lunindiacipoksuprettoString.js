@@ -1,5 +1,4 @@
 export const codeString = [
-  "LunindiaCipokSupretto_bot_v:jhz26q483q3dr6PyYRdQF8aYoIaWuZ4i",
   "LunindiaCipokSupretto_bot_v:AGmZx6qDVWyEKJ02kTWEp2G68prYZzWk",
   "LunindiaCipokSupretto_bot_v:rlb5sPyb2H7OTAoJ4ad2zWZcOrgjjJQU",
   "LunindiaCipokSupretto_bot_v:nG6Ycs9m0ujdfu9FD0Fv3K9xsZIu2bDy",
@@ -220,5 +219,21 @@ export const codeString = [
   "LunindiaCipokSupretto_bot_v:d0eezFgtXK4nPzlGJkvb1XW70AcOc8YE",
   "LunindiaCipokSupretto_bot_v:H1GCUGfJXqChvRmUHDldKz8Ouy1ErYq0",
   "LunindiaCipokSupretto_bot_v:ETLzrHLiNfvU8twv09hgSGxd9QURqB8Z",
-  "LunindiaCipokSupretto_bot_v:i4IIiVqNzfjNIySxsMAmRRZ2Z6xcQztJ"
+  "LunindiaCipokSupretto_bot_v:i4IIiVqNzfjNIySxsMAmRRZ2Z6xcQztJ",
+  "LunindiaCipokSupretto_bot_col:qcdaHmW7mU5qWZ7Gm3JE7K96bnw6HmZS",
+  "LunindiaCipokSupretto_bot_v:TgYMnEl0OGJ2jO04SmdDf7WNmCqAGX0i",
+  "LunindiaCipokSupretto_bot_col:91ZUgaQzX57RLp1a3S7jECHZ2U4HwFjn",
+  "LunindiaCipokSupretto_bot_p:n8tsmF61mza3R66aVJsIHDEurpNXnLDN",
+  "LunindiaCipokSupretto_bot_col:yJfiEf5KvMVyLAYxGeaCqLH4Fq9ArGpu",
+  "LunindiaCipokSupretto_bot_col:yzQjV6sGkb0HPpkVkDnPLxULcF2Gs33S",
+  "LunindiaCipokSupretto_bot_col:lw6ZNGi33Sd9C0SWeHgnifO9lbvsWm7T",
+  "LunindiaCipokSupretto_bot_col:xb9Hvk2lrBdfShyNhTbssMTojPGmXowA",
+  "LunindiaCipokSupretto_bot_col:ypIQYcOuAHEchG8aSHHX6aqxPAsb0S6W",
+  "LunindiaCipokSupretto_bot_col:snV1Ct3wn9UHAZW0DHIDQVps3XpHH4ik",
+  "LunindiaCipokSupretto_bot_v:db7Kc3QNr2lHs2cSPBGCJHjrttce7Cby",
+  "LunindiaCipokSupretto_bot_v:rv7YybKITDA8Gy1wYPgBLOWhwpRUvy7G",
+  "LunindiaCipokSupretto_bot_v:gyD816nEUw5Osf92EZ3q0kqf05p0XyR9",
+  "LunindiaCipokSupretto_bot_v:A4yOLPnOQ3IlLOUuEKN9UcJgv9p7gxKt",
+  "LunindiaCipokSupretto_bot_v:JlTzttvZcxcTAlHOyeOWz1DyFEW2bbhx",
+  "LunindiaCipokSupretto_bot_v:z06fmrgUUTomsvZAAjNKCgYOrtVTx0QE"
 ];

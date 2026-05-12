@@ -732,7 +732,7 @@ export class WebSocketServer extends DurableObject {
     this.apiCount += 1;
     let configResult = {};
     try {
-      configResult = await this.env.MAINDB.prepare("UPDATE `CONFIG` SET `chatId` = ?, `filterType` = ? WHERE `tgId` = ?;").bind(this.tg[clientIndex].chatId, this.tg[clientIndex].filterType, this.tg[clientIndex].clientId).run();
+      configResult = await this.env.MAINDB.prepare("UPDATE `CONFIG` SET `chatId` = ?, `filterType` = ? WHERE `tgId` = ? AND `name` = 'forward';").bind(this.tg[clientIndex].chatId, this.tg[clientIndex].filterType, this.tg[clientIndex].clientId).run();
     } catch (e) {
       //console.log("updateConfig出错 : " + e);
       this.sendLog(clientIndex, "updateConfig", "出错 : " + e.message, null, true);

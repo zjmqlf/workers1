@@ -13,8 +13,8 @@
   },
   "routes": [
     {
-      "pattern": "favorites.19420.xyz/*",
-      "zone_name": "19420.xyz"
+      "pattern": "favorites.19422.xyz/*",
+      "zone_name": "19422.xyz"
     }
   ],
   "preview_urls": false,
@@ -23,22 +23,22 @@
     {
       "binding": "MAINDB",
       "database_name": "maindb",
-      "database_id": "52bec4a2-a12a-484d-8f58-4f254b8cffd0"
+      "database_id": "aec6fc9f-94b9-4d8f-8c27-d9e730a0f5c7"
     },
     {
       "binding": "MESSAGEDB",
       "database_name": "message",
-      "database_id": "7d1bf949-b8a8-4246-bfab-f34a3499e8a9"
+      "database_id": "2bed0b37-bee4-42a6-a4bb-8cd9cd011050"
     },
     {
       "binding": "MEDIADB",
       "database_name": "media",
-      "database_id": "d54951f9-72a8-4b24-8ffa-b1a37589eb84"
+      "database_id": "6cd82b51-cb8a-49bc-829e-4704d87fea64"
     },
     {
       "binding": "PHOTODB",
       "database_name": "photo",
-      "database_id": "2eb6c6d9-0acc-4ab6-b8a9-8e1cda7b413b"
+      "database_id": "20a9bdc1-46c0-41ed-8fa5-cc65138c1fd2"
     }
   ],
   "durable_objects": {
