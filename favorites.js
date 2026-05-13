@@ -13,9 +13,9 @@ export class WebSocketServer extends DurableObject {
   compress = false;
   batch = false;
   client = null;
-  chatId = 1;
+  chatId = 0;
   endChat = 0;
-  lastChat = 1;
+  lastChat = 0;
   // reverse = true;
   limit = 10;
   offsetId = 0;
@@ -100,7 +100,7 @@ export class WebSocketServer extends DurableObject {
       } else {
         this.compress = false;
         this.batch = false;
-        this.chatId = 1;
+        this.chatId = 0;
         this.endChat = 0;
         // this.filterType = 0;
         // this.reverse = true;
@@ -113,7 +113,7 @@ export class WebSocketServer extends DurableObject {
       // this.webSocket = [];
       this.apiCount = 0;
       this.currentStep = 0;
-      this.lastChat = 1;
+      this.lastChat = 0;
       // this.error = false;
       this.fromPeer = null;
       this.waitTime = 60000;
@@ -491,7 +491,8 @@ export class WebSocketServer extends DurableObject {
   // }
 
   async getChat(tryCount) {
-    if (this.chatId && this.chatId > 0) {
+    // if (this.chatId && this.chatId >= 0) {
+    if (this.chatId >= 0) {
       if (!this.endChat || this.endChat === 0 || (this.endChat > 0 && this.chatId <= this.endChat)) {
         if (this.chatArray[this.chatId]) {
           const id = bigInt(this.chatArray[this.chatId].id);
@@ -625,6 +626,7 @@ export class WebSocketServer extends DurableObject {
           //console.log(this.chatArray[this.chatId].name + " : chat已不存在了");  //测试
           this.sendLog("getMessage", this.chatArray[this.chatId].name + " : chat已不存在了", null, true);
           await this.getChat(1);
+          await this.getConfig(1);
         } else {
           //console.log(this.endChat + " : 超过最大chat了");  //测试
           this.sendLog("getMessage", this.endChat + " : 超过最大chat了", null, true);
@@ -1483,6 +1485,7 @@ export class WebSocketServer extends DurableObject {
     this.count = 0;
     if (!this.endChat || this.endChat === 0 || (this.endChat > 0 && this.chatId <= this.endChat)) {
       await this.getChat(1);
+      await this.getConfig(1);
       if (this.fromPeer) {
         if (this.chatId != this.lastChat) {
           // if (this.lastChat != 48) {
@@ -1864,10 +1867,6 @@ export class WebSocketServer extends DurableObject {
     this.init(option);
     // this.stop = 1;
     await this.open(1);
-    if (!option || !option.chatId || !option.filterType || !option.reverse || !option.limited) {
-      await this.getConfig(1, option);
-    }
-    // this.switchType();
     await this.getChat(1);
     if (this.fromPeer) {
       if (this.chatId != this.lastChat) {
@@ -1890,6 +1889,10 @@ export class WebSocketServer extends DurableObject {
             await this.ctx.storage.put("client", 0);
           }
         }
+        if (!option || !option.chatId || !option.filterType || !option.reverse || !option.limited) {
+          await this.getConfig(1, option);
+        }
+        // this.switchType();
         await this.getMessage(1);
         await scheduler.wait(5000);
         const messageArray = this.messageArray.slice();

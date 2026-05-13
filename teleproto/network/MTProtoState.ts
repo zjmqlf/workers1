@@ -8,6 +8,7 @@ import { BinaryReader } from "../extensions";
 import type { BinaryWriter } from "../extensions";
 import { IGE } from "../crypto/IGE";
 import { InvalidBufferError, SecurityError } from "../errors";
+import { ReceivedIdsManager } from "./ReceivedIdsManager";
 import { Buffer } from "node:buffer";
 
 export class MTProtoState {
@@ -18,7 +19,7 @@ export class MTProtoState {
     private id: bigInt.BigInteger;
     _sequence: number;
     private _lastMsgId: bigInt.BigInteger;
-    private msgIds: string[];
+    private receivedIds: ReceivedIdsManager;
     private securityChecks: boolean;
 
     constructor(authKey?: AuthKey, loggers?: any, securityChecks = true) {
@@ -28,7 +29,7 @@ export class MTProtoState {
         this.salt = bigInt.zero;
         this._sequence = 0;
         this.id = this._lastMsgId = bigInt.zero;
-        this.msgIds = [];
+        this.receivedIds = new ReceivedIdsManager();
         this.securityChecks = securityChecks;
         this.reset();
     }
@@ -37,7 +38,7 @@ export class MTProtoState {
         this.id = generateRandomLong(true);
         this._sequence = 0;
         this._lastMsgId = bigInt.zero;
-        this.msgIds = [];
+        this.receivedIds.clear();
     }
 
     updateMessageId(message: any) {
@@ -160,16 +161,11 @@ export class MTProtoState {
         if (serverId.neq(this.id)) {
         }
         const remoteMsgId = reader.readLong();
-        if (
-            this.msgIds.includes(remoteMsgId.toString()) &&
-            this.securityChecks
-        ) {
+        const registerResult = this.receivedIds.registerMsgId(remoteMsgId, true);
+        if (registerResult === "duplicate" && this.securityChecks) {
             throw new SecurityError("Duplicate msgIds");
         }
-        if (this.msgIds.length > 500) {
-            this.msgIds.shift();
-        }
-        this.msgIds.push(remoteMsgId.toString());
+        this.receivedIds.shrink();
         const remoteSequence = reader.readInt();
         reader.readInt();
         const obj = reader.tgReadObject();

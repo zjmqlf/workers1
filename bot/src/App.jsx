@@ -759,6 +759,21 @@ const App = () => {
     }
   }, [handlerMessageError]);
 
+  const handlerResetOffsetBtnClick = useCallback(() => {
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+      try {
+        ws.current.send(JSON.stringify({
+          "command": "offset",
+        }));
+      } catch (e) {
+        // console.log(e);  //测试
+        handlerMessageError("  >>> reset offset失败");
+      }
+    } else {
+      handlerMessageError("  >>> 没有连接ws");
+    }
+  }, [handlerMessageError]);
+
   const handlerResetCodeBtnClick = useCallback(() => {
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       try {
@@ -948,6 +963,7 @@ const App = () => {
             <button onClick={handlerNextBtnClick} disabled={isNextBtnDisabled}>不再继续</button>
             <button onClick={handlerClearCacheBtnClick}>清空cache</button>
             <button onClick={handlerClearQueueBtnClick}>清空队列</button>
+            <button onClick={handlerResetOffsetBtnClick}>重置offset</button>
             <button onClick={handlerResetCodeBtnClick}>重置code</button>
             <button onClick={handlerResetQueueBtnClick}>重置queue</button>
             <button onClick={handlerClearGridBtnClick} disabled={isClearGridBtnDisabled}>清空grid</button>

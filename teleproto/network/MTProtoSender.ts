@@ -281,10 +281,14 @@ export class MTProtoSender {
     }
 
     private _isApiRequest(request: Api.AnyRequest): boolean {
-        return (
-            typeof (request as any).readResult === "function" &&
-            !(request instanceof Api.InvokeWithLayer)
-        );
+        if (typeof (request as any).readResult !== "function") return false;
+        if (request instanceof Api.InvokeWithLayer) return false;
+        if (request instanceof Api.Ping) return false;
+        if (request instanceof Api.PingDelayDisconnect) return false;
+        if (request instanceof Api.GetFutureSalts) return false;
+        if (request instanceof Api.RpcDropAnswer) return false;
+        if (request instanceof Api.DestroySession) return false;
+        return true;
     }
 
     addStateToQueue(state: RequestState) {

@@ -3,7 +3,7 @@ import {
     ConnectionTCPFull,
     ConnectionTCPObfuscated,
 } from "../network";
-import { TelegramClient } from "./";
+import { TelegramClient } from "./TelegramClient";
 import { sleep } from "../Helpers";
 import { Session, StoreSession } from "../sessions";
 import { Logger, PromisedNetSockets } from "../extensions";
@@ -18,9 +18,29 @@ import { Semaphore } from "async-mutex";
 
 const EXPORTED_SENDER_RECONNECT_TIMEOUT = 1000;
 const EXPORTED_SENDER_RELEASE_TIMEOUT = 30000;
-const DEFAULT_DC_ID = 4;
-const DEFAULT_IPV4_IP = "149.154.167.91";
-const DEFAULT_IPV6_IP = "2001:067c:04e8:f004:0000:0000:0000:000a";
+const PROD_DEFAULT_DC_ID = 2;
+
+export const PROD_DC_IPV4: { readonly [id: number]: string } = {
+    1: "149.154.175.50",
+    2: "149.154.167.51",
+    3: "149.154.175.100",
+    4: "149.154.167.91",
+    5: "149.154.171.5",
+};
+export const PROD_DC_IPV6: { readonly [id: number]: string } = {
+    1: "2001:0b28:f23d:f001:0000:0000:0000:000a",
+    2: "2001:067c:04e8:f002:0000:0000:0000:000a",
+    3: "2001:0b28:f23d:f003:0000:0000:0000:000a",
+    4: "2001:067c:04e8:f004:0000:0000:0000:000a",
+    5: "2001:0b28:f23f:f005:0000:0000:0000:000a",
+};
+const DC_PORT = 443;
+
+function inferSessionEnv(address: string): boolean | undefined {
+    for (const ip of Object.values(PROD_DC_IPV4)) if (ip === address) return false;
+    for (const ip of Object.values(PROD_DC_IPV6)) if (ip === address) return false;
+    return undefined;
+}
 
 export interface TelegramClientParams {
     connection?: typeof Connection;
@@ -101,15 +121,11 @@ export abstract class TelegramBaseClient {
         [ReturnType<typeof setTimeout>, Api.TypeUpdate[]]
     >();
     public _exportedSenderPromises = new Map<number, Promise<MTProtoSender>>();
-    _updateState?: { pts: number; qts: number; date: number; seq: number };
-    _channelPts: Map<string, number>;
-    _fetchingDifference: boolean;
-    _fetchingChannelDifference: Set<string>;
-    _pendingPtsUpdates: Array<{ update: any; pts: number; ptsCount: number; others: any; entities?: any; bufferedAt: number }>;
-    _pendingSeqUpdates: Array<{ update: any; seqStart: number; seq: number; bufferedAt: number }>;
-    _pendingQtsUpdates: Array<{ update: any; qts: number; others: any; entities?: any; bufferedAt: number }>;
-    _pendingChannelUpdates: Map<string, Array<{ update: any; pts: number; ptsCount: number; others: any; entities?: any; bufferedAt: number }>>;
-    _lastUpdateTime: number;
+    private _exportedSenderReleaseTimeouts = new Map<
+        number,
+        ReturnType<typeof setTimeout>
+    >();
+    _loopStarted: boolean;
     _reconnecting: boolean;
     _destroyed: boolean;
     _isSwitchingDc: boolean;
@@ -133,7 +149,7 @@ export abstract class TelegramBaseClient {
         } else {
             this._log = new Logger();
         }
-        this._log.info("Running gramJS");
+        this._log.info("Running teleproto");
         if (session && typeof session == "string") {
             session = new StoreSession(session);
         }
@@ -182,14 +198,7 @@ export abstract class TelegramBaseClient {
         this._securityChecks = !!clientParams.securityChecks;
         this._entityCache = new EntityCache();
         this._config = undefined;
-        this._channelPts = new Map();
-        this._fetchingDifference = false;
-        this._fetchingChannelDifference = new Set();
-        this._pendingPtsUpdates = [];
-        this._pendingSeqUpdates = [];
-        this._pendingQtsUpdates = [];
-        this._pendingChannelUpdates = new Map();
-        this._lastUpdateTime = Date.now();
+        this._loopStarted = false;
         this._reconnecting = false;
         this._destroyed = false;
         this._isSwitchingDc = false;
@@ -213,12 +222,23 @@ export abstract class TelegramBaseClient {
     async _initSession() {
         await this.session.load();
         if (!this.session.serverAddress) {
+            const dcId = PROD_DEFAULT_DC_ID;
+            const ipv4Table = PROD_DC_IPV4;
+            const ipv6Table = PROD_DC_IPV6;
             this.session.setDC(
-                DEFAULT_DC_ID,
-                this._useIPV6 ? DEFAULT_IPV6_IP : DEFAULT_IPV4_IP,
-                80
+                dcId,
+                this._useIPV6 ? ipv6Table[dcId] : ipv4Table[dcId],
+                DC_PORT
             );
         } else {
+            const sessionEnv = inferSessionEnv(this.session.serverAddress);
+            if (sessionEnv !== undefined) {
+                this._log.warn(
+                    `but the session's saved address (${this.session.serverAddress}) looks like ` +
+                    `${sessionEnv ? "test" : "production"}. Sessions are not portable between ` +
+                    `environments ¡ª use a separate session for each.`
+                );
+            }
             this._useIPV6 = this.session.serverAddress.includes(":");
         }
     }

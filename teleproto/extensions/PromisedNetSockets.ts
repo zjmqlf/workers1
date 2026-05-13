@@ -103,11 +103,16 @@ export class PromisedNetSockets {
     }
 
     async close() {
-        if (this.client) {
-            await this.client.destroy();
-            this.client.unref();
-        }
+        const socket = this.client;
         this.closed = true;
+        if (!socket) return;
+        const closed = new Promise<void>((resolve) => {
+            if (socket.destroyed) resolve();
+            else socket.once("close", () => resolve());
+        });
+        socket.destroy();
+        socket.unref();
+        await closed;
     }
 
     async receive() {

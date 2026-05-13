@@ -621,7 +621,7 @@ const App = () => {
     } else {
       if (message.offsetId && message.offsetId >= 0) {
         if (message.offsetId < lastId.current) {
-          console.log("消息offsetId小了");
+          // console.log("消息offsetId小了");
           addNewEvent({
             "error": true,
             "message": renderTime(message.date) + " " + message.offsetId + ":" + message.operate + " 消息offsetId小了" + (message.message ? " - " + message.message  : " "),
