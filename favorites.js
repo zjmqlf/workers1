@@ -339,6 +339,98 @@ export class WebSocketServer extends DurableObject {
     //await scheduler.wait(5000);
   }
 
+  async getClientError(tryCount) {
+    if (tryCount === 20) {
+      this.stop = 2;
+      //console.log("(" + this.currentStep + ")getClient超出tryCount限制");
+      this.sendLog("getClient", "超出tryCount限制", null, true);
+      await this.close();
+    } else {
+      await scheduler.wait(10000);
+      await this.getClient(tryCount + 1);
+    }
+  }
+
+  async getClient(tryCount) {
+    this.apiCount += 1;
+    let configResult = {};
+    try {
+      configResult = await this.env.MAINDB.prepare("SELECT * FROM `CONFIG` WHERE `name` = 'user' AND `tgId` = 999 LIMIT 1;").run();
+    } catch (e) {
+      //console.log("getClient出错 : " + e);
+      this.sendLog("getClient", "出错 : " + e.message, null, true);
+      if (e.message === "Too many API requests by single Worker invocation. To configure this limit, refer to https://developers.cloudflare.com/workers/wrangler/configuration/#limits") {
+        this.stop = 2;
+        this.broadcast({
+          "result": "pause",
+        });
+        await this.close();
+      } else {
+        await this.getClientError(tryCount);
+      }
+      return;
+    }
+    //console.log("configResult : " + configResult);  //测试
+    if (configResult.success === true) {
+      if (configResult.results && configResult.results.length > 0) {
+        const result = configResult.results[0];
+        if (result.chatId && result.chatId > 0) {
+          this.chatId = result.chatId;
+          this.lastChat = this.chatId;
+        }
+      } else {
+        //console.log("没有预设client");
+        this.sendLog("getClient", "没有预设client", null, false);
+      }
+    } else {
+      //console.log("查询client失败");
+      this.sendLog("getClient", "查询client失败", null, true);
+      await this.getClientError(tryCount);
+    }
+  }
+
+  async updateClientError(tryCount) {
+    if (tryCount === 20) {
+      this.stop = 2;
+      //console.log("(" + this.currentStep + ")updateClient超出tryCount限制");
+      this.sendLog("updateClient", "超出tryCount限制", null, true);
+      await this.close();
+    } else {
+      await scheduler.wait(10000);
+      await this.updateClient(tryCount + 1);
+    }
+  }
+
+  async updateClient(tryCount) {
+    this.apiCount += 1;
+    let configResult = {};
+    try {
+      configResult = await this.env.MAINDB.prepare("UPDATE `CONFIG` SET `chatId` = ? WHERE `name` = 'user' AND `tgId` = 999;").bind(this.chatId).run();
+    } catch (e) {
+      //console.log("updateClient出错 : " + e);
+      this.sendLog("updateClient", "出错 : " + e.message, null, true);
+      if (e.message === "Too many API requests by single Worker invocation. To configure this limit, refer to https://developers.cloudflare.com/workers/wrangler/configuration/#limits") {
+        this.stop = 2;
+        this.broadcast({
+          "result": "pause",
+        });
+        await this.close();
+      } else {
+        await this.updateClientError(tryCount);
+      }
+      return;
+    }
+    //console.log(configResult);  //测试
+    if (configResult.success === true) {
+      //console.log("更新config数据成功");
+      this.sendLog("updateClient", "更新client数据成功", null, false);
+    } else {
+      //console.log("更新config数据失败");
+      this.sendLog("updateClient", "更新client数据失败", null, true);
+      await this.updateClientError(tryCount);
+    }
+  }
+
   async getConfigError(tryCount, option) {
     if (tryCount === 20) {
       this.stop = 2;
@@ -599,14 +691,16 @@ export class WebSocketServer extends DurableObject {
       ) {
         // count += 1;
         this.count += 1;
-        if (message.noforwards === false) {
-          if (message.media) {
-            if (message.media.document) {
-              this.messageArray.push(message);
-            } else if (message.media.photo) {
-              this.messageArray.push(message);
+        if (message) {
+          // if (message.noforwards === false) {
+            if (message.media) {
+              if (message.media.document) {
+                this.messageArray.push(message);
+              } else if (message.media.photo) {
+                this.messageArray.push(message);
+              }
             }
-          }
+          // }
         }
       }
       // if (this.count > this.limit) {
@@ -626,6 +720,7 @@ export class WebSocketServer extends DurableObject {
           //console.log(this.chatArray[this.chatId].name + " : chat已不存在了");  //测试
           this.sendLog("getMessage", this.chatArray[this.chatId].name + " : chat已不存在了", null, true);
           await this.getChat(1);
+          await this.updateClient(1);
           await this.getConfig(1);
         } else {
           //console.log(this.endChat + " : 超过最大chat了");  //测试
@@ -1485,6 +1580,7 @@ export class WebSocketServer extends DurableObject {
     this.count = 0;
     if (!this.endChat || this.endChat === 0 || (this.endChat > 0 && this.chatId <= this.endChat)) {
       await this.getChat(1);
+      await this.updateClient(1);
       await this.getConfig(1);
       if (this.fromPeer) {
         if (this.chatId != this.lastChat) {
@@ -1638,110 +1734,112 @@ export class WebSocketServer extends DurableObject {
             const idArray = [];
             const fileIdArray = [];
             for (let messageIndex = 0; messageIndex < messageLength; messageIndex++) {
-              if (!messageArray[messageIndex].noforwards || messageArray[messageIndex].noforwards === false) {
-                let fileId = null;
-                const id = messageArray[messageIndex].id;
-                // if (this.tg[clientIndex].filterType === 2) {
-                //   if (messageArray[messageIndex].media) {
-                //     if (messageArray[messageIndex].media.document) {
-                //       const status = await this.getMedia(messageArray[messageIndex]);
-                //       if (status === true) {
-                //         fileId = messageArray[messageIndex].media.document.id;
-                //       }
-                //     }
-                //   }
-                // } else if (this.tg[clientIndex].filterType === 1) {
-                //   if (messageArray[messageIndex].media) {
-                //     if (messageArray[messageIndex].media.photo) {
-                //       const status = await this.getPhoto(messageArray[messageIndex]);
-                //       if (status === true) {
-                //         fileId = messageArray[messageIndex].media.photo.id;
-                //       }
-                //     }
-                //   }
-                // } else if (this.tg[clientIndex].filterType === 3) {
-                //   if (messageArray[messageIndex].media) {
-                //     if (messageArray[messageIndex].media.document) {
-                //       const mimeType = messageArray[messageIndex].media.document.mimeType;
-                //       if (mimeType.startsWith("video/")) {
-                //         const status = await this.getMedia(messageArray[messageIndex]);
-                //         if (status === true) {
-                //           fileId = messageArray[messageIndex].media.document.id;
-                //         }
-                //       } else if (mimeType.startsWith("image/")) {
-                //         const status = await this.getPhoto(messageArray[messageIndex]);
-                //         if (status === true) {
-                //           fileId = messageArray[messageIndex].media.document.id;
-                //         }
-                //       // } else if (mimeType.startsWith("application/")) {
-                //       // } else {
-                //       }
-                //     }
-                //   }
-                // } else if (this.tg[clientIndex].filterType === 4) {
-                //   if (messageArray[messageIndex].media) {
-                //     if (messageArray[messageIndex].media.document) {
-                //       const status = await this.getMedia(messageArray[messageIndex]);
-                //       if (status === true) {
-                //         fileId = messageArray[messageIndex].media.document.id;
-                //       }
-                //     }
-                //   }
-                // } else if (this.tg[clientIndex].filterType === 0) {
-                //   if (messageArray[messageIndex].media) {
-                //     if (messageArray[messageIndex].media.document) {
-                //       const id = messageArray[messageIndex].media.document.id;
-                //       const status = await this.getMedia(messageArray[messageIndex]);
-                //       if (status === true) {
-                //         fileId = messageArray[messageIndex].media.document.id;
-                //       }
-                //     } else if (messageArray[messageIndex].media.photo) {
-                //       const id = messageArray[messageIndex].media.photo.id;
-                //       const status = await this.getPhoto(messageArray[messageIndex]);
-                //       if (status === true) {
-                //         fileId = messageArray[messageIndex].media.photo.id;
-                //       }
-                //     }
-                //   }
-                // }
-                if (messageArray[messageIndex].media) {
-                  const time = new Date().getTime();
-                  this.broadcast({
-                    "step": this.currentStep,
-                    "operate": "nextStep",
-                    "chatId": this.chatId,
-                    "offsetId": this.offsetId,
-                    "messageId": id,
-                    "status": "add",
-                    "time": time,
-                    "date": time,
-                  });
-                  if (messageArray[messageIndex].media.document) {
-                    const mimeType = messageArray[messageIndex].media.document.mimeType;
-                    if (mimeType.startsWith("video/")) {
-                      const status = await this.getMedia(messageArray[messageIndex]);
-                      // if (status === true) {
-                        fileId = messageArray[messageIndex].media.document.id;
-                      // }
-                    } else if (mimeType.startsWith("image/")) {
+              if (messageArray[messageIndex]) {
+                if (!messageArray[messageIndex].noforwards || messageArray[messageIndex].noforwards === false) {
+                  let fileId = null;
+                  const id = messageArray[messageIndex].id;
+                  // if (this.tg[clientIndex].filterType === 2) {
+                  //   if (messageArray[messageIndex].media) {
+                  //     if (messageArray[messageIndex].media.document) {
+                  //       const status = await this.getMedia(messageArray[messageIndex]);
+                  //       if (status === true) {
+                  //         fileId = messageArray[messageIndex].media.document.id;
+                  //       }
+                  //     }
+                  //   }
+                  // } else if (this.tg[clientIndex].filterType === 1) {
+                  //   if (messageArray[messageIndex].media) {
+                  //     if (messageArray[messageIndex].media.photo) {
+                  //       const status = await this.getPhoto(messageArray[messageIndex]);
+                  //       if (status === true) {
+                  //         fileId = messageArray[messageIndex].media.photo.id;
+                  //       }
+                  //     }
+                  //   }
+                  // } else if (this.tg[clientIndex].filterType === 3) {
+                  //   if (messageArray[messageIndex].media) {
+                  //     if (messageArray[messageIndex].media.document) {
+                  //       const mimeType = messageArray[messageIndex].media.document.mimeType;
+                  //       if (mimeType.startsWith("video/")) {
+                  //         const status = await this.getMedia(messageArray[messageIndex]);
+                  //         if (status === true) {
+                  //           fileId = messageArray[messageIndex].media.document.id;
+                  //         }
+                  //       } else if (mimeType.startsWith("image/")) {
+                  //         const status = await this.getPhoto(messageArray[messageIndex]);
+                  //         if (status === true) {
+                  //           fileId = messageArray[messageIndex].media.document.id;
+                  //         }
+                  //       // } else if (mimeType.startsWith("application/")) {
+                  //       // } else {
+                  //       }
+                  //     }
+                  //   }
+                  // } else if (this.tg[clientIndex].filterType === 4) {
+                  //   if (messageArray[messageIndex].media) {
+                  //     if (messageArray[messageIndex].media.document) {
+                  //       const status = await this.getMedia(messageArray[messageIndex]);
+                  //       if (status === true) {
+                  //         fileId = messageArray[messageIndex].media.document.id;
+                  //       }
+                  //     }
+                  //   }
+                  // } else if (this.tg[clientIndex].filterType === 0) {
+                  //   if (messageArray[messageIndex].media) {
+                  //     if (messageArray[messageIndex].media.document) {
+                  //       const id = messageArray[messageIndex].media.document.id;
+                  //       const status = await this.getMedia(messageArray[messageIndex]);
+                  //       if (status === true) {
+                  //         fileId = messageArray[messageIndex].media.document.id;
+                  //       }
+                  //     } else if (messageArray[messageIndex].media.photo) {
+                  //       const id = messageArray[messageIndex].media.photo.id;
+                  //       const status = await this.getPhoto(messageArray[messageIndex]);
+                  //       if (status === true) {
+                  //         fileId = messageArray[messageIndex].media.photo.id;
+                  //       }
+                  //     }
+                  //   }
+                  // }
+                  if (messageArray[messageIndex].media) {
+                    const time = new Date().getTime();
+                    this.broadcast({
+                      "step": this.currentStep,
+                      "operate": "nextStep",
+                      "chatId": this.chatId,
+                      "offsetId": this.offsetId,
+                      "messageId": id,
+                      "status": "add",
+                      "time": time,
+                      "date": time,
+                    });
+                    if (messageArray[messageIndex].media.document) {
+                      const mimeType = messageArray[messageIndex].media.document.mimeType;
+                      if (mimeType.startsWith("video/")) {
+                        const status = await this.getMedia(messageArray[messageIndex]);
+                        // if (status === true) {
+                          fileId = messageArray[messageIndex].media.document.id;
+                        // }
+                      } else if (mimeType.startsWith("image/")) {
+                        const status = await this.getPhoto(messageArray[messageIndex]);
+                        // if (status === true) {
+                          fileId = messageArray[messageIndex].media.document.id;
+                        // }
+                      // } else if (mimeType.startsWith("application/")) {
+                      // } else {
+                      }
+                    } else if (messageArray[messageIndex].media.photo) {
+                      fileId = messageArray[messageIndex].media.photo.id;
                       const status = await this.getPhoto(messageArray[messageIndex]);
                       // if (status === true) {
-                        fileId = messageArray[messageIndex].media.document.id;
+                        fileId = messageArray[messageIndex].media.photo.id;
                       // }
-                    // } else if (mimeType.startsWith("application/")) {
-                    // } else {
                     }
-                  } else if (messageArray[messageIndex].media.photo) {
-                    fileId = messageArray[messageIndex].media.photo.id;
-                    const status = await this.getPhoto(messageArray[messageIndex]);
-                    // if (status === true) {
-                      fileId = messageArray[messageIndex].media.photo.id;
-                    // }
                   }
-                }
-                if (id && fileId) {
-                  idArray.push(id);
-                  fileIdArray.push(fileId);
+                  if (id && fileId) {
+                    idArray.push(id);
+                    fileIdArray.push(fileId);
+                  }
                 }
               }
             }
@@ -1867,12 +1965,11 @@ export class WebSocketServer extends DurableObject {
     this.init(option);
     // this.stop = 1;
     await this.open(1);
+    await this.getClient(1);
     await this.getChat(1);
     if (this.fromPeer) {
       if (this.chatId != this.lastChat) {
-        // if (this.lastChat != 48) {
-          await this.updateConfig(1, 0);
-        // }
+        await this.updateClient(1);
         this.lastChat = this.chatId;
       }
       if (this.stop === 1) {
@@ -1908,110 +2005,112 @@ export class WebSocketServer extends DurableObject {
           const idArray = [];
           const fileIdArray = [];
           for (let messageIndex = 0; messageIndex < messageLength; messageIndex++) {
-            if (!messageArray[messageIndex].noforwards || messageArray[messageIndex].noforwards === false) {
-              let fileId = null;
-              const id = messageArray[messageIndex].id;
-              // if (this.tg[clientIndex].filterType === 2) {
-              //   if (messageArray[messageIndex].media) {
-              //     if (messageArray[messageIndex].media.document) {
-              //       const status = await this.getMedia(messageArray[messageIndex]);
-              //       if (status === true) {
-              //         fileId = messageArray[messageIndex].media.document.id;
-              //       }
-              //     }
-              //   }
-              // } else if (this.tg[clientIndex].filterType === 1) {
-              //   if (messageArray[messageIndex].media) {
-              //     if (messageArray[messageIndex].media.photo) {
-              //       const status = await this.getPhoto(messageArray[messageIndex]);
-              //       if (status === true) {
-              //         fileId = messageArray[messageIndex].media.photo.id;
-              //       }
-              //     }
-              //   }
-              // } else if (this.tg[clientIndex].filterType === 3) {
-              //   if (messageArray[messageIndex].media) {
-              //     if (messageArray[messageIndex].media.document) {
-              //       const mimeType = messageArray[messageIndex].media.document.mimeType;
-              //       if (mimeType.startsWith("video/")) {
-              //         const status = await this.getMedia(messageArray[messageIndex]);
-              //         if (status === true) {
-              //           fileId = messageArray[messageIndex].media.document.id;
-              //         }
-              //       } else if (mimeType.startsWith("image/")) {
-              //         const status = await this.getPhoto(messageArray[messageIndex]);
-              //         if (status === true) {
-              //           fileId = messageArray[messageIndex].media.document.id;
-              //         }
-              //       // } else if (mimeType.startsWith("application/")) {
-              //       // } else {
-              //       }
-              //     }
-              //   }
-              // } else if (this.tg[clientIndex].filterType === 4) {
-              //   if (messageArray[messageIndex].media) {
-              //     if (messageArray[messageIndex].media.document) {
-              //       const status = await this.getMedia(messageArray[messageIndex]);
-              //       if (status === true) {
-              //         fileId = messageArray[messageIndex].media.document.id;
-              //       }
-              //     }
-              //   }
-              // } else if (this.tg[clientIndex].filterType === 0) {
-              //   if (messageArray[messageIndex].media) {
-              //     if (messageArray[messageIndex].media.document) {
-              //       const id = messageArray[messageIndex].media.document.id;
-              //       const status = await this.getMedia(messageArray[messageIndex]);
-              //       if (status === true) {
-              //         fileId = messageArray[messageIndex].media.document.id;
-              //       }
-              //     } else if (messageArray[messageIndex].media.photo) {
-              //       const id = messageArray[messageIndex].media.photo.id;
-              //       const status = await this.getPhoto(messageArray[messageIndex]);
-              //       if (status === true) {
-              //         fileId = messageArray[messageIndex].media.photo.id;
-              //       }
-              //     }
-              //   }
-              // }
-              if (messageArray[messageIndex].media) {
-                const time = new Date().getTime();
-                this.broadcast({
-                  "step": this.currentStep,
-                  "operate": "start",
-                  "chatId": this.chatId,
-                  "offsetId": this.offsetId,
-                  "messageId": id,
-                  "status": "add",
-                  "time": time,
-                  "date": time,
-                });
-                if (messageArray[messageIndex].media.document) {
-                  const mimeType = messageArray[messageIndex].media.document.mimeType;
-                  if (mimeType.startsWith("video/")) {
-                    const status = await this.getMedia(messageArray[messageIndex]);
-                    // if (status === true) {
-                      fileId = messageArray[messageIndex].media.document.id;
-                    // }
-                  } else if (mimeType.startsWith("image/")) {
+            if (messageArray[messageIndex]) {
+              if (!messageArray[messageIndex].noforwards || messageArray[messageIndex].noforwards === false) {
+                let fileId = null;
+                const id = messageArray[messageIndex].id;
+                // if (this.tg[clientIndex].filterType === 2) {
+                //   if (messageArray[messageIndex].media) {
+                //     if (messageArray[messageIndex].media.document) {
+                //       const status = await this.getMedia(messageArray[messageIndex]);
+                //       if (status === true) {
+                //         fileId = messageArray[messageIndex].media.document.id;
+                //       }
+                //     }
+                //   }
+                // } else if (this.tg[clientIndex].filterType === 1) {
+                //   if (messageArray[messageIndex].media) {
+                //     if (messageArray[messageIndex].media.photo) {
+                //       const status = await this.getPhoto(messageArray[messageIndex]);
+                //       if (status === true) {
+                //         fileId = messageArray[messageIndex].media.photo.id;
+                //       }
+                //     }
+                //   }
+                // } else if (this.tg[clientIndex].filterType === 3) {
+                //   if (messageArray[messageIndex].media) {
+                //     if (messageArray[messageIndex].media.document) {
+                //       const mimeType = messageArray[messageIndex].media.document.mimeType;
+                //       if (mimeType.startsWith("video/")) {
+                //         const status = await this.getMedia(messageArray[messageIndex]);
+                //         if (status === true) {
+                //           fileId = messageArray[messageIndex].media.document.id;
+                //         }
+                //       } else if (mimeType.startsWith("image/")) {
+                //         const status = await this.getPhoto(messageArray[messageIndex]);
+                //         if (status === true) {
+                //           fileId = messageArray[messageIndex].media.document.id;
+                //         }
+                //       // } else if (mimeType.startsWith("application/")) {
+                //       // } else {
+                //       }
+                //     }
+                //   }
+                // } else if (this.tg[clientIndex].filterType === 4) {
+                //   if (messageArray[messageIndex].media) {
+                //     if (messageArray[messageIndex].media.document) {
+                //       const status = await this.getMedia(messageArray[messageIndex]);
+                //       if (status === true) {
+                //         fileId = messageArray[messageIndex].media.document.id;
+                //       }
+                //     }
+                //   }
+                // } else if (this.tg[clientIndex].filterType === 0) {
+                //   if (messageArray[messageIndex].media) {
+                //     if (messageArray[messageIndex].media.document) {
+                //       const id = messageArray[messageIndex].media.document.id;
+                //       const status = await this.getMedia(messageArray[messageIndex]);
+                //       if (status === true) {
+                //         fileId = messageArray[messageIndex].media.document.id;
+                //       }
+                //     } else if (messageArray[messageIndex].media.photo) {
+                //       const id = messageArray[messageIndex].media.photo.id;
+                //       const status = await this.getPhoto(messageArray[messageIndex]);
+                //       if (status === true) {
+                //         fileId = messageArray[messageIndex].media.photo.id;
+                //       }
+                //     }
+                //   }
+                // }
+                if (messageArray[messageIndex].media) {
+                  const time = new Date().getTime();
+                  this.broadcast({
+                    "step": this.currentStep,
+                    "operate": "start",
+                    "chatId": this.chatId,
+                    "offsetId": this.offsetId,
+                    "messageId": id,
+                    "status": "add",
+                    "time": time,
+                    "date": time,
+                  });
+                  if (messageArray[messageIndex].media.document) {
+                    const mimeType = messageArray[messageIndex].media.document.mimeType;
+                    if (mimeType.startsWith("video/")) {
+                      const status = await this.getMedia(messageArray[messageIndex]);
+                      // if (status === true) {
+                        fileId = messageArray[messageIndex].media.document.id;
+                      // }
+                    } else if (mimeType.startsWith("image/")) {
+                      const status = await this.getPhoto(messageArray[messageIndex]);
+                      // if (status === true) {
+                        fileId = messageArray[messageIndex].media.document.id;
+                      // }
+                    // } else if (mimeType.startsWith("application/")) {
+                    // } else {
+                    }
+                  } else if (messageArray[messageIndex].media.photo) {
+                    fileId = messageArray[messageIndex].media.photo.id;
                     const status = await this.getPhoto(messageArray[messageIndex]);
                     // if (status === true) {
-                      fileId = messageArray[messageIndex].media.document.id;
+                      fileId = messageArray[messageIndex].media.photo.id;
                     // }
-                  // } else if (mimeType.startsWith("application/")) {
-                  // } else {
                   }
-                } else if (messageArray[messageIndex].media.photo) {
-                  fileId = messageArray[messageIndex].media.photo.id;
-                  const status = await this.getPhoto(messageArray[messageIndex]);
-                  // if (status === true) {
-                    fileId = messageArray[messageIndex].media.photo.id;
-                  // }
                 }
-              }
-              if (id && fileId) {
-                idArray.push(id);
-                fileIdArray.push(fileId);
+                if (id && fileId) {
+                  idArray.push(id);
+                  fileIdArray.push(fileId);
+                }
               }
             }
           }

@@ -1,4 +1,4 @@
-[
+export const codeString = [
   "kodexfilebot_col:BUVwO25IrW2t4xzRiPXQa5WUk4mC2rIA",
   "kodexfilebot_col:I5yNqYuqKS1R00MCuRrxJHvYX5uGlS3E",
   "kodexfilebot_col:qKKNHpwayEQrUIuIXLmcOUrCiEVWIrYt",
@@ -57,4 +57,4 @@
   "kodexfilebot_v:x0fx1EXhFsvsgvMBruGDiMsTx7b382Mq",
   "kodexfilebot_v:s363S4hqe5mePzSK99i5ShyiieE9DCWc",
   "kodexfilebot_v:saPzHWM67Nf85BvWVsrlyuVjUy2wBG8v"
-]
+];

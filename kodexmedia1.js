@@ -362,8 +362,6 @@ export class WebSocketServer extends DurableObject {
     } catch (e) {
       this.messageArray = [];
       // this.count = 0;
-      //console.log("(" + this.currentStep + ")getMessage出错 : " + e);
-      this.sendLog("getMessage", "出错 : " + JSON.stringify(e), null, true);
       if (e.errorMessage === "FLOOD" || e.code === 420) {
         // this.waitTime += 120000;
         if (e.seconds && e.seconds > 0) {
@@ -372,7 +370,17 @@ export class WebSocketServer extends DurableObject {
         }
         //console.log("(" + this.currentStep + ") 触发了洪水警告，请求太频繁" + e);
         this.sendLog("getMessage", "触发了洪水警告，请求太频繁 : " + JSON.stringify(e), "flood", true);
+      } else if (e.errorMessage === "INPUT_USER_DEACTIVATED") {
+        //console.log("(" + this.currentStep + ") 用户已注销" + e);
+        this.sendLog("getMessage", "用户已注销 : " + JSON.stringify(e), "error", true);
+        this.stop = 2;
+        this.broadcast({
+          "result": "pause",
+        });
+        await this.close();
       } else {
+        //console.log("(" + this.currentStep + ")getMessage出错 : " + e);
+        this.sendLog("getMessage", "出错 : " + JSON.stringify(e), null, true);
         if (tryCount === 20) {
           this.stop = 2;
           //console.log("(" + this.currentStep + ")getMessage超出tryCount限制");
@@ -428,8 +436,6 @@ export class WebSocketServer extends DurableObject {
               })
             );
           } catch (e) {
-            //console.log("sendQuery出错 : " + e);
-            this.sendLog("sendQuery", "出错 : " + JSON.stringify(e), "error", true);
             if (e.errorMessage === "FLOOD" || e.code === 420) {
               this.codeIndex -= 1;
               await this.ctx.storage.put("codeIndex", this.codeIndex);
@@ -440,7 +446,17 @@ export class WebSocketServer extends DurableObject {
               }
               //console.log("(" + this.currentStep + ") 触发了洪水警告，请求太频繁" + e);
               this.sendLog("sendQuery", "触发了洪水警告，请求太频繁 : " + JSON.stringify(e), "flood", true);
+            } else if (e.errorMessage === "INPUT_USER_DEACTIVATED") {
+              //console.log("(" + this.currentStep + ") 用户已注销" + e);
+              this.sendLog("sendQuery", "用户已注销 : " + JSON.stringify(e), "error", true);
+              this.stop = 2;
+              this.broadcast({
+                "result": "pause",
+              });
+              await this.close();
             } else {
+              //console.log("sendQuery出错 : " + e);
+              this.sendLog("sendQuery", "出错 : " + JSON.stringify(e), "error", true);
               await this.sendQueryError(tryCount);
             }
             return;
@@ -550,6 +566,15 @@ export class WebSocketServer extends DurableObject {
         if (e.errorMessage === "RANDOM_ID_DUPLICATE" || e.code === 500) {
           //console.log("(" + this.currentStep + ") " + e);
           this.sendLog("forwardMessage", JSON.stringify(e), "error", true);
+        } else if (e.errorMessage === "INPUT_USER_DEACTIVATED") {
+          //console.log("(" + this.currentStep + ") 用户已注销" + e);
+          this.sendLog("forwardMessage", "用户已注销 : " + JSON.stringify(e), "error", true);
+          this.stop = 2;
+          this.broadcast({
+            "result": "pause",
+          });
+          await this.close();
+          return;
         } else if (e.errorMessage === "CHAT_FORWARDS_RESTRICTED" || e.code === 400) {
           // this.offsetId += this.count;
           // this.count = 0;
@@ -686,80 +711,82 @@ export class WebSocketServer extends DurableObject {
           let temp = null;
           let status = false;
           for (let messageIndex = 0; messageIndex < messageLength; messageIndex++) {
-            if (!messageArray[messageIndex].noforwards || messageArray[messageIndex].noforwards === false) {
-              const id = messageArray[messageIndex].id;
-              if (messageArray[messageIndex].replyMarkup) {
-                if (messageArray[messageIndex].replyMarkup.rows) {
-                  // console.log(message);  //测试
-                  // let text = "";
-                  for (const row of messageArray[messageIndex].replyMarkup.rows) {
-                    // console.log(row);  //测试
-                    for (const button of row.buttons) {
-                      // console.log(button);  //测试
-                      if (button.text === "▶️ 自动发送") {
-                        temp = {
-                          id: id,
-                          data: button.data,
-                        };
-                      // } else if (button.text === "⬇️ 全部发送") {
-                      // } else {
+            if (messageArray[messageIndex]) {
+              if (!messageArray[messageIndex].noforwards || messageArray[messageIndex].noforwards === false) {
+                const id = messageArray[messageIndex].id;
+                if (messageArray[messageIndex].replyMarkup) {
+                  if (messageArray[messageIndex].replyMarkup.rows) {
+                    // console.log(message);  //测试
+                    // let text = "";
+                    for (const row of messageArray[messageIndex].replyMarkup.rows) {
+                      // console.log(row);  //测试
+                      for (const button of row.buttons) {
+                        // console.log(button);  //测试
+                        if (button.text === "▶️ 自动发送") {
+                          temp = {
+                            id: id,
+                            data: button.data,
+                          };
+                        // } else if (button.text === "⬇️ 全部发送") {
+                        // } else {
+                        }
                       }
                     }
                   }
-                }
-              } else if (messageArray[messageIndex].media) {
-                let fileId = null;
-                if (messageArray[messageIndex].media.document) {
-                  // const mimeType = messageArray[messageIndex].media.document.mimeType;
-                  // if (mimeType.startsWith("video/")) {
-                  //   fileId = messageArray[messageIndex].media.document.id;
-                  // } else if (mimeType.startsWith("image/")) {
-                  //   fileId = messageArray[messageIndex].media.document.id;
-                  // // } else if (mimeType.startsWith("application/")) {
-                  // // } else {
-                  // }
-                  fileId = messageArray[messageIndex].media.document.id;
-                } else if (messageArray[messageIndex].media.photo) {
-                  fileId = messageArray[messageIndex].media.photo.id;
-                }
-                if (id && fileId) {
-                  if (this.idArray.includes(id) === false && this.fileIdArray.includes(fileId) === false) {
-                    status = true;
-                    this.idArray.push(id);
-                    this.fileIdArray.push(fileId);
-                  } else {
-                    //console.log("(" + this.currentStep + ") 该媒体已在数据库中");
-                    this.sendLog("nextStep", "该媒体已在数据库中", "error", true);
+                } else if (messageArray[messageIndex].media) {
+                  let fileId = null;
+                  if (messageArray[messageIndex].media.document) {
+                    // const mimeType = messageArray[messageIndex].media.document.mimeType;
+                    // if (mimeType.startsWith("video/")) {
+                    //   fileId = messageArray[messageIndex].media.document.id;
+                    // } else if (mimeType.startsWith("image/")) {
+                    //   fileId = messageArray[messageIndex].media.document.id;
+                    // // } else if (mimeType.startsWith("application/")) {
+                    // // } else {
+                    // }
+                    fileId = messageArray[messageIndex].media.document.id;
+                  } else if (messageArray[messageIndex].media.photo) {
+                    fileId = messageArray[messageIndex].media.photo.id;
                   }
-                }
-              } else {
-                const regexp = /✅ 自动发送完成！成功 \d+\/\d+/i;
-                const message = messageArray[messageIndex].message.trim();
-                const string = message.split(":");
-                if (string[0] === "PaijoKontolBurik_bot_v" || string[0] === "PaijoKontolBurik_bot_p" || string[0] === "PaijoKontolBurik_bot_d" || string[0] === "PaijoKontolBurik_bot_col") {
-                  await this.ctx.storage.put(message, 1);
-                  //console.log("(" + this.currentStep + ") 代码入库完毕");
-                  this.sendForward("nextStep", "代码入库完毕", "", "add", false);
-                } else if (regexp.test(message) === true) {
-                  temp = null;
-                  const text = message.replace("✅ 自动发送完成！成功 ", "");
-                  const regexp = /(\d+)/gi;
-                  const matches = message.match(regexp);
-                  // console.log(matches);  //测试
-                  if (matches) {
-                    if (matches.length === 2) {
-                      if (matches[0] === matches[1]) {
-                        temp = null;
-                        if (this.queue === true) {
-                          this.queue = false;
-                          await this.ctx.storage.put("queue", false);
-                          //console.log("(" + this.currentStep + ") 所有媒体已发送完毕");
-                          this.sendForward("start", "所有媒体已发送完毕", text, "update", false);
-                        }
-                      }
+                  if (id && fileId) {
+                    if (this.idArray.includes(id) === false && this.fileIdArray.includes(fileId) === false) {
+                      status = true;
+                      this.idArray.push(id);
+                      this.fileIdArray.push(fileId);
                     } else {
-                      //console.log("(" + this.currentStep + ") " + text);
-                      this.sendForward("start", "", text, "update", false);
+                      //console.log("(" + this.currentStep + ") 该媒体已在数据库中");
+                      this.sendLog("nextStep", "该媒体已在数据库中", "error", true);
+                    }
+                  }
+                } else {
+                  const regexp = /✅ 自动发送完成！成功 \d+\/\d+/i;
+                  const message = messageArray[messageIndex].message.trim();
+                  const string = message.split(":");
+                  if (string[0] === "PaijoKontolBurik_bot_v" || string[0] === "PaijoKontolBurik_bot_p" || string[0] === "PaijoKontolBurik_bot_d" || string[0] === "PaijoKontolBurik_bot_col") {
+                    await this.ctx.storage.put(message, 1);
+                    //console.log("(" + this.currentStep + ") 代码入库完毕");
+                    this.sendForward("nextStep", "代码入库完毕", "", "add", false);
+                  } else if (regexp.test(message) === true) {
+                    temp = null;
+                    const text = message.replace("✅ 自动发送完成！成功 ", "");
+                    const regexp = /(\d+)/gi;
+                    const matches = message.match(regexp);
+                    // console.log(matches);  //测试
+                    if (matches) {
+                      if (matches.length === 2) {
+                        if (matches[0] === matches[1]) {
+                          temp = null;
+                          if (this.queue === true) {
+                            this.queue = false;
+                            await this.ctx.storage.put("queue", false);
+                            //console.log("(" + this.currentStep + ") 所有媒体已发送完毕");
+                            this.sendForward("start", "所有媒体已发送完毕", text, "update", false);
+                          }
+                        }
+                      } else {
+                        //console.log("(" + this.currentStep + ") " + text);
+                        this.sendForward("start", "", text, "update", false);
+                      }
                     }
                   }
                 }
@@ -914,7 +941,6 @@ export class WebSocketServer extends DurableObject {
         new Api.users.GetUsers({
           id: [
             new Api.InputUser({
-              // userId: 2029656369,   //zjm2023
               userId: 7585811878,   //zjm4038
               accessHash: bigInt.zero,
             }),
@@ -984,80 +1010,82 @@ export class WebSocketServer extends DurableObject {
             let temp = null;
             let status = false;
             for (let messageIndex = 0; messageIndex < messageLength; messageIndex++) {
-              if (!messageArray[messageIndex].noforwards || messageArray[messageIndex].noforwards === false) {
-                const id = messageArray[messageIndex].id;
-                if (messageArray[messageIndex].replyMarkup) {
-                  if (messageArray[messageIndex].replyMarkup.rows) {
-                    // console.log(message);  //测试
-                    let text = "";
-                    for (const row of messageArray[messageIndex].replyMarkup.rows) {
-                      // console.log(row);  //测试
-                      for (const button of row.buttons) {
-                        // console.log(button);  //测试
-                        if (button.text === "▶️ 自动发送") {
-                          temp = {
-                            id: id,
-                            data: button.data,
-                          };
-                        // } else if (button.text === "⬇️ 全部发送") {
-                        // } else {
+              if (messageArray[messageIndex]) {
+                if (!messageArray[messageIndex].noforwards || messageArray[messageIndex].noforwards === false) {
+                  const id = messageArray[messageIndex].id;
+                  if (messageArray[messageIndex].replyMarkup) {
+                    if (messageArray[messageIndex].replyMarkup.rows) {
+                      // console.log(message);  //测试
+                      let text = "";
+                      for (const row of messageArray[messageIndex].replyMarkup.rows) {
+                        // console.log(row);  //测试
+                        for (const button of row.buttons) {
+                          // console.log(button);  //测试
+                          if (button.text === "▶️ 自动发送") {
+                            temp = {
+                              id: id,
+                              data: button.data,
+                            };
+                          // } else if (button.text === "⬇️ 全部发送") {
+                          // } else {
+                          }
                         }
                       }
                     }
-                  }
-                } else if (messageArray[messageIndex].media) {
-                  let fileId = null;
-                  if (messageArray[messageIndex].media.document) {
-                    // const mimeType = messageArray[messageIndex].media.document.mimeType;
-                    // if (mimeType.startsWith("video/")) {
-                    //   fileId = messageArray[messageIndex].media.document.id;
-                    // } else if (mimeType.startsWith("image/")) {
-                    //   fileId = messageArray[messageIndex].media.document.id;
-                    // // } else if (mimeType.startsWith("application/")) {
-                    // // } else {
-                    // }
-                    fileId = messageArray[messageIndex].media.document.id;
-                  } else if (messageArray[messageIndex].media.photo) {
-                    fileId = messageArray[messageIndex].media.photo.id;
-                  }
-                  if (id && fileId) {
-                    if (this.idArray.includes(id) === false && this.fileIdArray.includes(fileId) === false) {
-                      status = true;
-                      this.idArray.push(id);
-                      this.fileIdArray.push(fileId);
-                    } else {
-                      //console.log("(" + this.currentStep + ") 该媒体已在数据库中");
-                      this.sendLog("start", "该媒体已在数据库中", "error", true);
+                  } else if (messageArray[messageIndex].media) {
+                    let fileId = null;
+                    if (messageArray[messageIndex].media.document) {
+                      // const mimeType = messageArray[messageIndex].media.document.mimeType;
+                      // if (mimeType.startsWith("video/")) {
+                      //   fileId = messageArray[messageIndex].media.document.id;
+                      // } else if (mimeType.startsWith("image/")) {
+                      //   fileId = messageArray[messageIndex].media.document.id;
+                      // // } else if (mimeType.startsWith("application/")) {
+                      // // } else {
+                      // }
+                      fileId = messageArray[messageIndex].media.document.id;
+                    } else if (messageArray[messageIndex].media.photo) {
+                      fileId = messageArray[messageIndex].media.photo.id;
                     }
-                  }
-                } else {
-                  const regexp = /✅ 自动发送完成！成功 \d+\/\d+/i;
-                  const message = messageArray[messageIndex].message.trim();
-                  const string = message.split(":");
-                  if (string[0] === "PaijoKontolBurik_bot_v" || string[0] === "PaijoKontolBurik_bot_p" || string[0] === "PaijoKontolBurik_bot_d" || string[0] === "PaijoKontolBurik_bot_col") {
-                    await this.ctx.storage.put(message, 1);
-                    //console.log("(" + this.currentStep + ") 代码入库完毕");
-                    this.sendForward("start", "代码入库完毕", "", "add", false);
-                  } else if (regexp.test(message) === true) {
-                    temp = null;
-                    const text = message.replace("✅ 自动发送完成！成功 ", "");
-                    const regexp = /(\d+)/gi;
-                    const matches = message.match(regexp);
-                    // console.log(matches);  //测试
-                    if (matches) {
-                      if (matches.length === 2) {
-                        if (matches[0] === matches[1]) {
-                          temp = null;
-                          if (this.queue === true) {
-                            this.queue = false;
-                            await this.ctx.storage.put("queue", false);
-                            //console.log("(" + this.currentStep + ") 所有媒体已发送完毕");
-                            this.sendForward("start", "所有媒体已发送完毕", text, "update", false);
-                          }
-                        }
+                    if (id && fileId) {
+                      if (this.idArray.includes(id) === false && this.fileIdArray.includes(fileId) === false) {
+                        status = true;
+                        this.idArray.push(id);
+                        this.fileIdArray.push(fileId);
                       } else {
-                        //console.log("(" + this.currentStep + ") " + text);
-                        this.sendForward("start", "", text, "update", false);
+                        //console.log("(" + this.currentStep + ") 该媒体已在数据库中");
+                        this.sendLog("start", "该媒体已在数据库中", "error", true);
+                      }
+                    }
+                  } else {
+                    const regexp = /✅ 自动发送完成！成功 \d+\/\d+/i;
+                    const message = messageArray[messageIndex].message.trim();
+                    const string = message.split(":");
+                    if (string[0] === "PaijoKontolBurik_bot_v" || string[0] === "PaijoKontolBurik_bot_p" || string[0] === "PaijoKontolBurik_bot_d" || string[0] === "PaijoKontolBurik_bot_col") {
+                      await this.ctx.storage.put(message, 1);
+                      //console.log("(" + this.currentStep + ") 代码入库完毕");
+                      this.sendForward("start", "代码入库完毕", "", "add", false);
+                    } else if (regexp.test(message) === true) {
+                      temp = null;
+                      const text = message.replace("✅ 自动发送完成！成功 ", "");
+                      const regexp = /(\d+)/gi;
+                      const matches = message.match(regexp);
+                      // console.log(matches);  //测试
+                      if (matches) {
+                        if (matches.length === 2) {
+                          if (matches[0] === matches[1]) {
+                            temp = null;
+                            if (this.queue === true) {
+                              this.queue = false;
+                              await this.ctx.storage.put("queue", false);
+                              //console.log("(" + this.currentStep + ") 所有媒体已发送完毕");
+                              this.sendForward("start", "所有媒体已发送完毕", text, "update", false);
+                            }
+                          }
+                        } else {
+                          //console.log("(" + this.currentStep + ") " + text);
+                          this.sendForward("start", "", text, "update", false);
+                        }
                       }
                     }
                   }

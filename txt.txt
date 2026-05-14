@@ -44,14 +44,17 @@ npm run deploy-favorites
 npm run build-tgjmq
 npm run deploy-tgjmq
 
+npm run build-paniang
+npm run deploy-paniang
+
 npm run build-zyxfiles
 npm run deploy-zyxfiles
 
 npm run build-qqfilef
 npm run deploy-qqfilef
 
-npm run build-qqfilek
-npm run deploy-qqfilek
+npm run build-kodexfile
+npm run deploy-kodexfile
 
 npm run build-kodexfiles2
 npm run deploy-kodexfiles2

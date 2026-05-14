@@ -538,7 +538,7 @@ export class WebSocketServer extends DurableObject {
     this.apiCount += 1;
     let configResult = {};
     try {
-      configResult = await this.env.MAINDB.prepare("SELECT * FROM `CONFIG` WHERE `name` = 'collect' AND `tgId` = 0 LIMIT 1;").run();
+      configResult = await this.env.MAINDB.prepare("SELECT * FROM `CONFIG` WHERE `name` = 'hash' AND `tgId` = 0 LIMIT 1;").run();
     } catch (e) {
       //console.log("getConfig出错 : " + e);
       this.sendLog("getConfig", "出错 : " + e.message, null, true);
@@ -605,7 +605,7 @@ export class WebSocketServer extends DurableObject {
     this.apiCount += 1;
     let configResult = {};
     try {
-      configResult = await this.env.MAINDB.prepare("UPDATE `CONFIG` SET `chatId` = ? WHERE `name` = 'collect' AND `tgId` = 0;").bind(this.chatId).run();
+      configResult = await this.env.MAINDB.prepare("UPDATE `CONFIG` SET `chatId` = ? WHERE `name` = 'hash' AND `tgId` = 0;").bind(this.chatId).run();
     } catch (e) {
       //console.log("updateConfig出错 : " + e);
       this.sendLog("updateConfig", "出错 : " + e.message, null, true);
@@ -1034,11 +1034,13 @@ export class WebSocketServer extends DurableObject {
         })
       ) {
         count += 1;
-        if (message.media) {
-          if (message.media.document) {
-            this.messageArray.push(message);
-          } else if (message.media.photo) {
-            this.messageArray.push(message);
+        if (message) {
+          if (message.media) {
+            if (message.media.document) {
+              this.messageArray.push(message);
+            } else if (message.media.photo) {
+              this.messageArray.push(message);
+            }
           }
         }
       }

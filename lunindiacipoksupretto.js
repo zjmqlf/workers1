@@ -362,8 +362,6 @@ export class WebSocketServer extends DurableObject {
     } catch (e) {
       this.messageArray = [];
       // this.count = 0;
-      //console.log("(" + this.currentStep + ")getMessage出错 : " + e);
-      this.sendLog("getMessage", "出错 : " + JSON.stringify(e), null, true);
       if (e.errorMessage === "FLOOD" || e.code === 420) {
         // this.waitTime += 120000;
         if (e.seconds && e.seconds > 0) {
@@ -372,7 +370,17 @@ export class WebSocketServer extends DurableObject {
         }
         //console.log("(" + this.currentStep + ") 触发了洪水警告，请求太频繁" + e);
         this.sendLog("getMessage", "触发了洪水警告，请求太频繁 : " + JSON.stringify(e), "flood", true);
+      } else if (e.errorMessage === "INPUT_USER_DEACTIVATED") {
+        //console.log("(" + this.currentStep + ") 用户已注销" + e);
+        this.sendLog("getMessage", "用户已注销 : " + JSON.stringify(e), "error", true);
+        this.stop = 2;
+        this.broadcast({
+          "result": "pause",
+        });
+        await this.close();
       } else {
+        //console.log("(" + this.currentStep + ")getMessage出错 : " + e);
+        this.sendLog("getMessage", "出错 : " + JSON.stringify(e), null, true);
         if (tryCount === 20) {
           this.stop = 2;
           //console.log("(" + this.currentStep + ")getMessage超出tryCount限制");
@@ -428,8 +436,6 @@ export class WebSocketServer extends DurableObject {
               })
             );
           } catch (e) {
-            //console.log("sendQuery出错 : " + e);
-            this.sendLog("sendQuery", "出错 : " + JSON.stringify(e), "error", true);
             if (e.errorMessage === "FLOOD" || e.code === 420) {
               this.codeIndex -= 1;
               await this.ctx.storage.put("codeIndex", this.codeIndex);
@@ -440,7 +446,17 @@ export class WebSocketServer extends DurableObject {
               }
               //console.log("(" + this.currentStep + ") 触发了洪水警告，请求太频繁" + e);
               this.sendLog("sendQuery", "触发了洪水警告，请求太频繁 : " + JSON.stringify(e), "flood", true);
+            } else if (e.errorMessage === "INPUT_USER_DEACTIVATED") {
+              //console.log("(" + this.currentStep + ") 用户已注销" + e);
+              this.sendLog("sendQuery", "用户已注销 : " + JSON.stringify(e), "error", true);
+              this.stop = 2;
+              this.broadcast({
+                "result": "pause",
+              });
+              await this.close();
             } else {
+              //console.log("sendQuery出错 : " + e);
+              this.sendLog("sendQuery", "出错 : " + JSON.stringify(e), "error", true);
               await this.sendQueryError(tryCount);
             }
             return;
@@ -550,6 +566,15 @@ export class WebSocketServer extends DurableObject {
         if (e.errorMessage === "RANDOM_ID_DUPLICATE" || e.code === 500) {
           //console.log("(" + this.currentStep + ") " + e);
           this.sendLog("forwardMessage", JSON.stringify(e), "error", true);
+        } else if (e.errorMessage === "INPUT_USER_DEACTIVATED") {
+          //console.log("(" + this.currentStep + ") 用户已注销" + e);
+          this.sendLog("forwardMessage", "用户已注销 : " + JSON.stringify(e), "error", true);
+          this.stop = 2;
+          this.broadcast({
+            "result": "pause",
+          });
+          await this.close();
+          return;
         } else if (e.errorMessage === "CHAT_FORWARDS_RESTRICTED" || e.code === 400) {
           // this.offsetId += this.count;
           // this.count = 0;
@@ -914,7 +939,6 @@ export class WebSocketServer extends DurableObject {
         new Api.users.GetUsers({
           id: [
             new Api.InputUser({
-              // userId: 2029656369,   //zjm2023
               userId: 7585811878,   //zjm4038
               accessHash: bigInt.zero,
             }),

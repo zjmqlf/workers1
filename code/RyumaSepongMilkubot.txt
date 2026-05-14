@@ -90,5 +90,8 @@
   "RyumaSepongMilku_bot_p:W9sI4x5jvKEdiYQnqb8yotsEP7ck9OUU",
   "RyumaSepongMilku_bot_p:J5C7Luxou8aM171zHQ9CmmOFdTwJor6W",
   "RyumaSepongMilku_bot_p:10BCnGjNOZEgzKWq8bTQDfhg8fDESyVz",
-  "RyumaSepongMilku_bot_p:kJc79xUsBcENNVILhV3CcuraHrMLsqW6"
+  "RyumaSepongMilku_bot_p:kJc79xUsBcENNVILhV3CcuraHrMLsqW6",
+  "RyumaSepongMilku_bot_v:SJW9hLMPPunIqjy2rXLrJITEVCKiN1K9",
+  "RyumaSepongMilku_bot_p:c2crxHFuY2qta4voiiVGx89d5o68c08Q",
+  "RyumaSepongMilku_bot_v:4GFtpGRzqzxDtQdjyZO3lhec17cxZ2DX"
 ]

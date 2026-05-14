@@ -1,4 +1,4 @@
-[
+export const codeString = [
   "paniang_bot_col:lb9ba7tGvnzQIKM8u8M7XmFdxV037KBQ",
   "paniang_bot_col:kuMd7y8u0X9erWaqh8ZUDCDMSRo93xC4",
   "paniang_bot_col:l68fIPxDCbI0hYWaap35CTMhOLx68lJZ",
@@ -92,4 +92,4 @@
   "paniang_bot_col:MW25nxM7KT4N8y1MhfCeRXVbbek989Va",
   "paniang_bot_col:rFe4767GCARsRolkqQTKqmzBoEi9B5mj",
   "paniang_bot_col:gdU35rixwYtMuipKqUvTVt3Zf4TgHOBY"
-]
+];

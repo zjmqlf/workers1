@@ -1111,11 +1111,13 @@ export class WebSocketServer extends DurableObject {
       ) {
         // count += 1;
         this.tg[clientIndex].count += 1;
-        if (message.media) {
-          if (message.media.document) {
-            this.messageArray.push(message);
-          } else if (message.media.photo) {
-            this.messageArray.push(message);
+        if (message) {
+          if (message.media) {
+            if (message.media.document) {
+              this.messageArray.push(message);
+            } else if (message.media.photo) {
+              this.messageArray.push(message);
+            }
           }
         }
       }
@@ -1433,52 +1435,54 @@ export class WebSocketServer extends DurableObject {
                 const idArray = [];
                 const fileIdArray = [];
                 for (let messageIndex = 0; messageIndex < messageLength; messageIndex++) {
-                  if (!messageArray[messageIndex].noforwards || messageArray[messageIndex].noforwards === false) {
-                    let fileId = null;
-                    const id = messageArray[messageIndex].id;
-                    if (this.tg[clientIndex].filterType === 2) {
-                      if (messageArray[messageIndex].media) {
-                        if (messageArray[messageIndex].media.document) {
-                          fileId = messageArray[messageIndex].media.document.id;
-                        }
-                      }
-                    } else if (this.tg[clientIndex].filterType === 1) {
-                      if (messageArray[messageIndex].media) {
-                        if (messageArray[messageIndex].media.photo) {
-                          fileId = messageArray[messageIndex].media.photo.id;
-                        }
-                      }
-                    } else if (this.tg[clientIndex].filterType === 3) {
-                      if (messageArray[messageIndex].media) {
-                        if (messageArray[messageIndex].media.document) {
-                          const mimeType = messageArray[messageIndex].media.document.mimeType;
-                          if (mimeType.startsWith("video/")) {
+                  if (messageArray[messageIndex]) {
+                    if (!messageArray[messageIndex].noforwards || messageArray[messageIndex].noforwards === false) {
+                      let fileId = null;
+                      const id = messageArray[messageIndex].id;
+                      if (this.tg[clientIndex].filterType === 2) {
+                        if (messageArray[messageIndex].media) {
+                          if (messageArray[messageIndex].media.document) {
                             fileId = messageArray[messageIndex].media.document.id;
-                          } else if (mimeType.startsWith("image/")) {
+                          }
+                        }
+                      } else if (this.tg[clientIndex].filterType === 1) {
+                        if (messageArray[messageIndex].media) {
+                          if (messageArray[messageIndex].media.photo) {
+                            fileId = messageArray[messageIndex].media.photo.id;
+                          }
+                        }
+                      } else if (this.tg[clientIndex].filterType === 3) {
+                        if (messageArray[messageIndex].media) {
+                          if (messageArray[messageIndex].media.document) {
+                            const mimeType = messageArray[messageIndex].media.document.mimeType;
+                            if (mimeType.startsWith("video/")) {
+                              fileId = messageArray[messageIndex].media.document.id;
+                            } else if (mimeType.startsWith("image/")) {
+                              fileId = messageArray[messageIndex].media.document.id;
+                            // } else if (mimeType.startsWith("application/")) {
+                            // } else {
+                            }
+                          }
+                        }
+                      } else if (this.tg[clientIndex].filterType === 4) {
+                        if (messageArray[messageIndex].media) {
+                          if (messageArray[messageIndex].media.document) {
                             fileId = messageArray[messageIndex].media.document.id;
-                          // } else if (mimeType.startsWith("application/")) {
-                          // } else {
+                          }
+                        }
+                      } else if (this.tg[clientIndex].filterType === 0) {
+                        if (messageArray[messageIndex].media) {
+                          if (messageArray[messageIndex].media.document) {
+                            fileId = messageArray[messageIndex].media.document.id;
+                          } else if (messageArray[messageIndex].media.photo) {
+                            fileId = messageArray[messageIndex].media.photo.id;
                           }
                         }
                       }
-                    } else if (this.tg[clientIndex].filterType === 4) {
-                      if (messageArray[messageIndex].media) {
-                        if (messageArray[messageIndex].media.document) {
-                          fileId = messageArray[messageIndex].media.document.id;
-                        }
+                      if (id && fileId) {
+                        idArray.push(id);
+                        fileIdArray.push(fileId);
                       }
-                    } else if (this.tg[clientIndex].filterType === 0) {
-                      if (messageArray[messageIndex].media) {
-                        if (messageArray[messageIndex].media.document) {
-                          fileId = messageArray[messageIndex].media.document.id;
-                        } else if (messageArray[messageIndex].media.photo) {
-                          fileId = messageArray[messageIndex].media.photo.id;
-                        }
-                      }
-                    }
-                    if (id && fileId) {
-                      idArray.push(id);
-                      fileIdArray.push(fileId);
                     }
                   }
                 }
@@ -1732,52 +1736,54 @@ export class WebSocketServer extends DurableObject {
               const idArray = [];
               const fileIdArray = [];
               for (let messageIndex = 0; messageIndex < messageLength; messageIndex++) {
-                if (!messageArray[messageIndex].noforwards || messageArray[messageIndex].noforwards === false) {
-                  let fileId = null;
-                  const id = messageArray[messageIndex].id;
-                  if (this.tg[clientIndex].filterType === 2) {
-                    if (messageArray[messageIndex].media) {
-                      if (messageArray[messageIndex].media.document) {
-                        fileId = messageArray[messageIndex].media.document.id;
-                      }
-                    }
-                  } else if (this.tg[clientIndex].filterType === 1) {
-                    if (messageArray[messageIndex].media) {
-                      if (messageArray[messageIndex].media.photo) {
-                        fileId = messageArray[messageIndex].media.photo.id;
-                      }
-                    }
-                  } else if (this.tg[clientIndex].filterType === 3) {
-                    if (messageArray[messageIndex].media) {
-                      if (messageArray[messageIndex].media.document) {
-                        const mimeType = messageArray[messageIndex].media.document.mimeType;
-                        if (mimeType.startsWith("video/")) {
+                if (messageArray[messageIndex]) {
+                  if (!messageArray[messageIndex].noforwards || messageArray[messageIndex].noforwards === false) {
+                    let fileId = null;
+                    const id = messageArray[messageIndex].id;
+                    if (this.tg[clientIndex].filterType === 2) {
+                      if (messageArray[messageIndex].media) {
+                        if (messageArray[messageIndex].media.document) {
                           fileId = messageArray[messageIndex].media.document.id;
-                        } else if (mimeType.startsWith("image/")) {
+                        }
+                      }
+                    } else if (this.tg[clientIndex].filterType === 1) {
+                      if (messageArray[messageIndex].media) {
+                        if (messageArray[messageIndex].media.photo) {
+                          fileId = messageArray[messageIndex].media.photo.id;
+                        }
+                      }
+                    } else if (this.tg[clientIndex].filterType === 3) {
+                      if (messageArray[messageIndex].media) {
+                        if (messageArray[messageIndex].media.document) {
+                          const mimeType = messageArray[messageIndex].media.document.mimeType;
+                          if (mimeType.startsWith("video/")) {
+                            fileId = messageArray[messageIndex].media.document.id;
+                          } else if (mimeType.startsWith("image/")) {
+                            fileId = messageArray[messageIndex].media.document.id;
+                          // } else if (mimeType.startsWith("application/")) {
+                          // } else {
+                          }
+                        }
+                      }
+                    } else if (this.tg[clientIndex].filterType === 4) {
+                      if (messageArray[messageIndex].media) {
+                        if (messageArray[messageIndex].media.document) {
                           fileId = messageArray[messageIndex].media.document.id;
-                        // } else if (mimeType.startsWith("application/")) {
-                        // } else {
+                        }
+                      }
+                    } else if (this.tg[clientIndex].filterType === 0) {
+                      if (messageArray[messageIndex].media) {
+                        if (messageArray[messageIndex].media.document) {
+                          fileId = messageArray[messageIndex].media.document.id;
+                        } else if (messageArray[messageIndex].media.photo) {
+                          fileId = messageArray[messageIndex].media.photo.id;
                         }
                       }
                     }
-                  } else if (this.tg[clientIndex].filterType === 4) {
-                    if (messageArray[messageIndex].media) {
-                      if (messageArray[messageIndex].media.document) {
-                        fileId = messageArray[messageIndex].media.document.id;
-                      }
+                    if (id && fileId) {
+                      idArray.push(id);
+                      fileIdArray.push(fileId);
                     }
-                  } else if (this.tg[clientIndex].filterType === 0) {
-                    if (messageArray[messageIndex].media) {
-                      if (messageArray[messageIndex].media.document) {
-                        fileId = messageArray[messageIndex].media.document.id;
-                      } else if (messageArray[messageIndex].media.photo) {
-                        fileId = messageArray[messageIndex].media.photo.id;
-                      }
-                    }
-                  }
-                  if (id && fileId) {
-                    idArray.push(id);
-                    fileIdArray.push(fileId);
                   }
                 }
               }
