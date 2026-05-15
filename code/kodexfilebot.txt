@@ -56,5 +56,8 @@
   "kodexfilebot_v:IKMcgejEzdGoxhY7X1XauBgZSideB0t7",
   "kodexfilebot_v:x0fx1EXhFsvsgvMBruGDiMsTx7b382Mq",
   "kodexfilebot_v:s363S4hqe5mePzSK99i5ShyiieE9DCWc",
-  "kodexfilebot_v:saPzHWM67Nf85BvWVsrlyuVjUy2wBG8v"
+  "kodexfilebot_v:saPzHWM67Nf85BvWVsrlyuVjUy2wBG8v",
+  "kodexfilebot_col:bUOh6AU4AwjOXzArH24roS12Drtx40rv",
+  "kodexfilebot_col:2XCAWuJkF25DqR0GEplecBItpN9g86IO",
+  "kodexfilebot_col:KNB4ZLQOaB2ajZrR2vvolhSJoaZitUQs"
 ]

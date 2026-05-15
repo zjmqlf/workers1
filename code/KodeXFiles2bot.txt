@@ -409,5 +409,10 @@
   "KodeXFiles2bot_p:kQbQFH23h7UwNrosrYHkyU5zUOyyKeEw",
   "KodeXFiles2bot_p:1wi7FM8GzLEG2jQRJAb1GggPcpwgUZFk",
   "KodeXFiles2bot_v:oH1DC9Iaesx4MUiDJcvkKjJSUNDZobPF",
-  "KodeXFiles2bot_p:9mIQ0RujdPZLtO6afDcjm7gLo7FdWA7F"
+  "KodeXFiles2bot_p:9mIQ0RujdPZLtO6afDcjm7gLo7FdWA7F",
+  "KodeXFiles2bot_v:xsV5fss1y13IWRxToQOMvYgcZtflejzN",
+  "KodeXFiles2bot_v:i2vP1EsCRJ8bOZcnnPclWycF8zC1Oqns",
+  "KodeXFiles2bot_col:JgUY5nnsMc4Pq3zgsqvq7XRtY5Xv4bEt",
+  "KodeXFiles2bot_v:L6YtIilMEEekmgCkhm5OUYsc8W0o2sfK",
+  "KodeXFiles2bot_v:mpNFU92sztLPf5RI2Y2lkxw4hj91oLgX"
 ]

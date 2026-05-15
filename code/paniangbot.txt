@@ -91,5 +91,6 @@
   "paniang_bot_col:Co1OFkwkiinPTnUfdtAeyiXtnhxnPcpD",
   "paniang_bot_col:MW25nxM7KT4N8y1MhfCeRXVbbek989Va",
   "paniang_bot_col:rFe4767GCARsRolkqQTKqmzBoEi9B5mj",
-  "paniang_bot_col:gdU35rixwYtMuipKqUvTVt3Zf4TgHOBY"
+  "paniang_bot_col:gdU35rixwYtMuipKqUvTVt3Zf4TgHOBY",
+  "paniang_bot_col:qjCyNEXVSrFdDx3PQulUFAhMvUSgdHbu"
 ]

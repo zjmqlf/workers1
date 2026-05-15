@@ -860,8 +860,8 @@ export class WebSocketServer extends DurableObject {
         new Api.users.GetUsers({
           id: [
             new Api.InputUser({
-              userId: bigInt("8562335085"),
-              accessHash: bigInt("8528574297774480165"),
+              userId: bigInt("8777769625"),
+              accessHash: bigInt("4693345275968096937"),
             }),
           ],
         })
