@@ -785,7 +785,7 @@ export class WebSocketServer extends DurableObject {
                             );
                             //console.log("(" + this.currentStep + ") 继续推送");
                             this.sendLog("nextStep", "继续推送", null, false);
-                            await scheduler.wait(5000);
+                            await scheduler.wait(15000);
                             if (result && result.message) {
                               this.sendLog("nextStep", result.message , null, false);
                             }
@@ -839,7 +839,7 @@ export class WebSocketServer extends DurableObject {
                     // this.getCount(message, 1);
                     //console.log("(" + this.currentStep + ") 代码入库完毕");
                     this.sendForward("nextStep", "代码入库完毕", "", "add", false);
-                  } else if (string[0] === "QQfile2_bot" || string[0] === "QQfile3_bot") {
+                  } else if (string[0] === "QQfile2_bot" || string[0] === "QQfile3_bot" || string[0] === "QQfile4_bot") {
                     // await this.ctx.storage.put(message.split("_")[0], 1);
                     await this.ctx.storage.put(message, 1);
                     this.getCount(message, 2);
@@ -981,8 +981,8 @@ export class WebSocketServer extends DurableObject {
         new Api.users.GetUsers({
           id: [
             new Api.InputUser({
-              userId: bigInt("7780459749"),
-              accessHash: bigInt("5433540646236768010"),
+              userId: bigInt("8694790746"),
+              accessHash: bigInt("6547503540036712460"),
             }),
           ],
         })
@@ -1114,7 +1114,7 @@ export class WebSocketServer extends DurableObject {
                               );
                               //console.log("(" + this.currentStep + ") 继续推送");
                               this.sendLog("start", "继续推送", null, false);
-                              await scheduler.wait(5000);
+                              await scheduler.wait(15000);
                               if (result && result.message) {
                                 this.sendLog("start", result.message , null, false);
                               }
@@ -1168,7 +1168,7 @@ export class WebSocketServer extends DurableObject {
                       // this.getCount(message, 1);
                       //console.log("(" + this.currentStep + ") 代码入库完毕");
                       this.sendForward("start", "代码入库完毕", "", "add", false);
-                    } else if (string[0] === "QQfile2_bot" || string[0] === "QQfile3_bot") {
+                    } else if (string[0] === "QQfile2_bot" || string[0] === "QQfile3_bot" || string[0] === "QQfile4_bot") {
                       // await this.ctx.storage.put(message.split("_")[0], 1);
                       await this.ctx.storage.put(message, 1);
                       this.getCount(message, 2);

@@ -363,7 +363,7 @@ export class WebSocketServer extends DurableObject {
       if (e.errorMessage === "FLOOD" || e.code === 420) {
         // this.waitTime += 120000;
         if (e.seconds && e.seconds > 0) {
-          this.flood = new Date().getTime() + 30000 + e.seconds * 1000;
+          this.flood = new Date().getTime() + 60000 + e.seconds * 1000;
           await this.ctx.storage.put("client", this.flood);
         }
         //console.log("(" + this.currentStep + ") 触发了洪水警告，请求太频繁" + e);
@@ -581,7 +581,7 @@ export class WebSocketServer extends DurableObject {
           this.count = 0;
           // this.waitTime += 120000;
           if (e.seconds && e.seconds > 0) {
-            this.flood = new Date().getTime() + 30000 + e.seconds * 1000;
+            this.flood = new Date().getTime() + 60000 + e.seconds * 1000;
             await this.ctx.storage.put("client", this.flood);
           }
           //console.log("(" + this.currentStep + ") 触发了洪水警告，请求太频繁" + e);
@@ -649,24 +649,27 @@ export class WebSocketServer extends DurableObject {
       });
       await this.close()
     } else {
-      // await scheduler.wait(5000);
-      for (let i = 0; i < 4; i++) {
-        if (this.stop === 2) {
-          this.broadcast({
-            "result": "pause",
-          });
-          await this.close();
-          break;
-        } else {
-          await scheduler.wait(5000);
-          // this.ws.ping();
-          // this.ws.send({
-          //   "result": "ping",
-          // });
-          this.broadcast({
-            "result": "ping",
-          });
+      if (this.queue === true) {
+        for (let i = 0; i < 6; i++) {
+          if (this.stop === 2) {
+            this.broadcast({
+              "result": "pause",
+            });
+            await this.close();
+            break;
+          } else {
+            await scheduler.wait(5000);
+            // this.ws.ping();
+            // this.ws.send({
+            //   "result": "ping",
+            // });
+            this.broadcast({
+              "result": "ping",
+            });
+          }
         }
+      } else {
+        await scheduler.wait(5000);
       }
       await this.nextStep();
     }
@@ -891,8 +894,8 @@ export class WebSocketServer extends DurableObject {
         new Api.users.GetUsers({
           id: [
             new Api.InputUser({
-              userId: bigInt("7964900739"),
-              accessHash: bigInt("-5856254949516087696"),
+              userId: bigInt("8330517318"),
+              accessHash: bigInt("2009809368427676376"),
             }),
           ],
         })

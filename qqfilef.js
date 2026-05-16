@@ -785,7 +785,7 @@ export class WebSocketServer extends DurableObject {
                             );
                             //console.log("(" + this.currentStep + ") 继续推送");
                             this.sendLog("nextStep", "继续推送", null, false);
-                            await scheduler.wait(5000);
+                            await scheduler.wait(10000);
                             if (result && result.message) {
                               this.sendLog("nextStep", result.message , null, false);
                             }
@@ -1107,7 +1107,7 @@ export class WebSocketServer extends DurableObject {
                               );
                               //console.log("(" + this.currentStep + ") 继续推送");
                               this.sendLog("start", "继续推送", null, false);
-                              await scheduler.wait(5000);
+                              await scheduler.wait(10000);
                               if (result && result.message) {
                                 this.sendLog("start", result.message , null, false);
                               }
