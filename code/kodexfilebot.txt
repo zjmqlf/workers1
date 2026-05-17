@@ -59,5 +59,7 @@
   "kodexfilebot_v:saPzHWM67Nf85BvWVsrlyuVjUy2wBG8v",
   "kodexfilebot_col:bUOh6AU4AwjOXzArH24roS12Drtx40rv",
   "kodexfilebot_col:2XCAWuJkF25DqR0GEplecBItpN9g86IO",
-  "kodexfilebot_col:KNB4ZLQOaB2ajZrR2vvolhSJoaZitUQs"
+  "kodexfilebot_col:KNB4ZLQOaB2ajZrR2vvolhSJoaZitUQs",
+  "kodexfilebot_p:QBFm1bQE3xzysW7gdOFCq2UXeRWIjZDQ",
+  "kodexfilebot_p:gQUbglN7zcuoF7rToCcxNz2lwIzKOY8R"
 ]

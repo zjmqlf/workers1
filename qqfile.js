@@ -294,7 +294,7 @@ export class WebSocketServer extends DurableObject {
   async open(tryCount) {
     const apiId = 1334621;
     const apiHash = "2bc36173f487ece3052a00068be59e7b";
-    const sessionString = "1BQANOTEuMTA4LjU2LjE4MwG7hUAo/xMgTR0TimA+X9juyYY39T9irAHBeXrFa0dOPIoCLJvlxpii60bqJqX2zLsvuy+sT4uq6ARsp71yQMGWQz4WpeYlhmAOuimKhHJ5HOzSk/6T5B4Ejvz/Ky+j/s42Qi9JI6PigZor/XeiLuxN34UvY2qay+DjqoIUWps1nIcHs7FZoWIvgOePdImQjM1/Yjzkd8oryiEN531aURPXszj9lEFaW13idOahu+n2QIeV+A2BTcNmA00CowGf3P3/WrA8FDJGj2SUkGtWwcDd5BL9F2/pqDNtwLxN0kimZXdQ7kE5+Vjod2CDBsUCLUhSWoftvPvKHkMkti+1cztUEw==";
+    const sessionString = "1BQANOTEuMTA4LjU2LjE4MwG7fSQgdP0tvStjwu1TUuEVEl3sEmB2EO5PuecwwiMxt+0RvcN0jQv9SiIuqEP4aV5EAgIg7GB/Br8wdWckqoAeuC2nXsnqkJoBhfbUFtX8xbE3BKmnGLUScrs1ci4Hq47qvA2+5S/tFo8rt/dJCKm64s0X9IyZ1O5eIxDqkdiMy5YBQZYLTwWsi7OaO9TBS0AhIySD9OgkLB7EcaqyVbTxyt9HLGWsrQGanjn7YSE98ELDr284xdOIDDBMWYJR0Poe79Eu3twi4JihP56jZz85uvIdv2PMWp2AK79GUK4FC5gqiobuQGHIUsbxEVGEzOL9t1Ie9a2C6+bJmSGfevxFQw==";
     try {
       this.client = new TelegramClient(new sessions.StringSession(sessionString), apiId, apiHash, {
         timeout: 5,

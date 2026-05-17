@@ -13,7 +13,7 @@ export default {
     let id = "";
     let accessHash = "";
     let fileReference = "";
-    const clientIndex = 2;
+    const clientIndex = 0;
     const client = [null, null, null];
     const apiIdArray = [
       1334621,   //zjm1985
@@ -235,10 +235,8 @@ export default {
               // accessHash: bigInt("4676278659094415168"),
               // userId: bigInt("8644136882"),  //nnfilebot
               // accessHash: bigInt("-1388224743701786177"),
-              // userId: bigInt("8773044827"),  //QQfile2_bot
-              // accessHash: bigInt("-7140144570295495626"),
-              userId: bigInt("8562335085"),  //ZYXFilesBot
-              accessHash: bigInt("8528574297774480165"),
+              userId: bigInt("7951507140"),  //HiveSeekbot
+              accessHash: bigInt("5567208255070274409"),
             }),
           ],
         })
@@ -370,25 +368,25 @@ export default {
           if (message.replyMarkup) {
             if (message.replyMarkup.rows) {
               console.log(message);  //测试
-              for (const row of message.replyMarkup.rows) {
-                // console.log(row);  //测试
-                for (const button of row.buttons) {
-                  // console.log(button);  //测试
-                  // if (button.text === "加入队列全部推送") {
-                  // if (button.text === "下一页 ➡️") {
-                  if (button.text === "▶️ 自动发送") {
-                  // if (button.text.includes("➡️ 查看下一组 (") === true) {
-                    // console.log(button.text);  //测试
-                    const result = await client[clientIndex].invoke(new Api.messages.GetBotCallbackAnswer({
-                      peer: fromPeer,
-                      msgId: message.id,
-                      data: button.data,
-                    }));
-                    console.log(result);  //测试
-                  }
-                  // console.log(button.text + " : " + regexp.test(button.text));  //测试
-                }
-              }
+              // for (const row of message.replyMarkup.rows) {
+              //   // console.log(row);  //测试
+              //   for (const button of row.buttons) {
+              //     // console.log(button);  //测试
+              //     // if (button.text === "加入队列全部推送") {
+              //     // if (button.text === "下一页 ➡️") {
+              //     if (button.text === "▶️ 自动发送") {
+              //     // if (button.text.includes("➡️ 查看下一组 (") === true) {
+              //       // console.log(button.text);  //测试
+              //       const result = await client[clientIndex].invoke(new Api.messages.GetBotCallbackAnswer({
+              //         peer: fromPeer,
+              //         msgId: message.id,
+              //         data: button.data,
+              //       }));
+              //       console.log(result);  //测试
+              //     }
+              //     // console.log(button.text + " : " + regexp.test(button.text));  //测试
+              //   }
+              // }
             }
           }
           // if (message.media) {
